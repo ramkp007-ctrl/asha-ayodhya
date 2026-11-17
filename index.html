@@ -154,7 +154,6 @@
       font-weight: 600;
     }
 
-    /* Default PIN Warning Banner */
     .default-pin-alert {
       background: #fffbeb;
       border: 1px solid #f59e0b;
@@ -180,7 +179,6 @@
       white-space: nowrap;
     }
 
-    /* Change PIN Card */
     .change-pin-card {
       background: #f8fafc;
       border: 1.5px solid #cbd5e1;
@@ -513,13 +511,11 @@
 
     <div id="resultSection" style="display:none;">
 
-      <!-- Warning when using default 6-digit PIN 123456 -->
       <div id="defaultPinBanner" class="default-pin-alert" style="display:none;">
         <span>⚠️ आप अभी डिफ़ॉल्ट PIN (<strong>123456</strong>) का उपयोग कर रही हैं। सुरक्षा के लिए नया 6-अंकों का PIN बनाएं।</span>
         <button class="btn-warn" onclick="toggleChangePinBox(true)">PIN बदलें</button>
       </div>
 
-      <!-- Change 6-Digit PIN Box -->
       <div id="changePinSection" class="change-pin-card" style="display:none;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <strong style="font-size:13.5px; color:#0f766e;">🔑 नया 6-अंकों का लॉगिन PIN सेट करें</strong>
@@ -641,6 +637,16 @@
 
   function normalizeMonthKey(raw) {
     const str = String(raw || "").trim();
+    if (/^\d{5}(\.\d+)?$/.test(str)) {
+      const serial = Math.floor(Number(str));
+      if (serial > 30000 && serial < 70000) {
+        const utcDays = serial - 25569;
+        const date = new Date(utcDays * 86400 * 1000);
+        const mm = String(date.getUTCMonth() + 1).padStart(2, "0");
+        const yyyy = date.getUTCFullYear();
+        return `${mm}-${yyyy}`;
+      }
+    }
     const map = { jan:"01", feb:"02", mar:"03", apr:"04", may:"05", jun:"06", jul:"07", aug:"08", sep:"09", oct:"10", nov:"11", dec:"12" };
     const m1 = str.match(/^([A-Za-z]{3})[-/](\d{2,4})$/);
     if (m1 && map[m1[1].toLowerCase()]) {
@@ -698,28 +704,38 @@
     return allWorkersCache;
   }
 
+  // Exact single-pass month mapping (never double-counts normalized months)
   function buildProfileFromCompact(rawWorker, headsList, monthsList, fallbackDbKey = null, arrIdx = null) {
     const monthsObj = {};
-    const availableMonths = (monthsList && monthsList.length > 0) ? monthsList : [];
+    const uniqueCleanMonths = Array.from(new Set((monthsList || []).map(normalizeMonthKey).filter(Boolean)));
 
-    availableMonths.forEach(rawM => {
-      const cleanM = normalizeMonthKey(rawM);
-      if (!monthsObj[cleanM]) {
-        monthsObj[cleanM] = headsList.map(meta => ({
-          p: meta.p || "General",
-          h: meta.h || "",
-          a: 0
-        }));
-      }
-      headsList.forEach((meta, idx) => {
-        const paidAmt = (rawWorker.p && rawWorker.p[idx] && rawWorker.p[idx][rawM])
-          ? Number(rawWorker.p[idx][rawM])
-          : 0;
-        monthsObj[cleanM][idx].a += paidAmt;
-      });
+    uniqueCleanMonths.forEach(cleanM => {
+      monthsObj[cleanM] = headsList.map(meta => ({
+        p: meta.p || "General",
+        h: meta.h || "",
+        a: 0
+      }));
     });
 
-    // Enforce 6-digit PIN; if older 4-digit or empty exists, fallback to 6-digit default 123456
+    if (rawWorker.p) {
+      Object.entries(rawWorker.p).forEach(([idxStr, mMap]) => {
+        const idx = Number(idxStr);
+        if (!headsList[idx] || !mMap) return;
+        Object.entries(mMap).forEach(([rawM, val]) => {
+          const cleanM = normalizeMonthKey(rawM);
+          if (!monthsObj[cleanM]) {
+            monthsObj[cleanM] = headsList.map(meta => ({
+              p: meta.p || "General",
+              h: meta.h || "",
+              a: 0
+            }));
+          }
+          // Assign exact value for that month-head cell (no += doubling)
+          monthsObj[cleanM][idx].a = Number(val) || 0;
+        });
+      });
+    }
+
     const savedPin = rawWorker.pin ? String(rawWorker.pin).trim() : "";
     const validPin = /^\d{6}$/.test(savedPin) ? savedPin : DEFAULT_PIN;
 
