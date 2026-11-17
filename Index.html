@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>आशा प्रोत्साहन राशि विवरण</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; margin: 0; padding: 12px; color: #1e293b; }
+    .container { max-width: 540px; margin: auto; background: #fff; border-radius: 14px; padding: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+    .header { text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px; }
+    .header h2 { margin: 0; color: #0f766e; font-size: 20px; }
+    .header p { margin: 4px 0 0; font-size: 13px; color: #64748b; }
+    label { font-weight: 600; font-size: 13px; display: block; margin-bottom: 5px; color: #334155; }
+    input, select { width: 100%; padding: 11px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 15px; box-sizing: border-box; margin-bottom: 12px; background: #fff; }
+    input:focus, select:focus { border-color: #0f766e; outline: none; }
+    .btn-primary { width: 100%; padding: 12px; background: #0f766e; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    .btn-primary:hover { background: #115e59; }
+    
+    .dup-box { background: #fffbeb; border: 1px solid #fcd34d; padding: 12px; border-radius: 8px; margin-top: 15px; }
+    .dup-title { font-weight: bold; color: #b45309; font-size: 14px; margin-bottom: 10px; }
+    .asha-choice { display: block; width: 100%; text-align: left; background: #fff; border: 1.5px solid #0f766e; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
+    .asha-choice:hover { background: #f0fdfa; }
+    .asha-choice strong { color: #0f766e; font-size: 15px; display: block; }
+    .asha-choice span { font-size: 12px; color: #475569; }
+
+    .profile-card { background: #f8fafc; border-left: 4px solid #0f766e; padding: 12px; border-radius: 6px; margin-top: 16px; font-size: 13.5px; line-height: 1.6; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .total-box { background: #ecfdf5; border: 1px solid #6ee7b7; padding: 12px; border-radius: 10px; text-align: center; margin: 12px 0; }
+    .total-box .amt { font-size: 24px; font-weight: bold; color: #047857; display: block; margin-top: 2px; }
+    
+    .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+    .tab { flex: 1; padding: 8px 4px; border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; text-align: center; }
+    .tab.active { background: #0f766e; color: white; border-color: #0f766e; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { background: #f1f5f9; text-align: left; padding: 10px; border-bottom: 2px solid #cbd5e1; color: #334155; }
+    td { padding: 10px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+    .prog-tag { display: inline-block; font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 600; margin-bottom: 3px; }
+    .head-text { display: block; color: #1e293b; font-weight: 500; }
+    .paid { color: #047857; font-weight: bold; background: #ecfdf5; padding: 4px 8px; border-radius: 12px; white-space: nowrap; font-size: 13px; }
+    .unpaid { color: #dc2626; font-weight: bold; background: #fef2f2; padding: 4px 8px; border-radius: 12px; white-space: nowrap; font-size: 13px; }
+    .loader { display: none; text-align: center; margin: 15px 0; color: #0f766e; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h2>आशा मदवार भुगतान विवरण</h2>
+    <p>राष्ट्रीय स्वास्थ्य मिशन (NHM), अयोध्या</p>
+  </div>
+
+  <label for="ashaId">अपनी ASHA ID दर्ज करें:</label>
+  <input type="text" id="ashaId" placeholder="उदाहरण: 2404031">
+  <button class="btn-primary" onclick="searchAsha()">खोजें (Search)</button>
+
+  <div class="loader" id="loader">जानकारी खोजा जा रही है...</div>
+
+  <div id="duplicateSection" class="dup-box" style="display:none;">
+    <div class="dup-title">इस ID से एक से अधिक आशाएं दर्ज हैं। कृपया अपना नाम व क्षेत्र चुनें:</div>
+    <div id="duplicateList"></div>
+  </div>
+
+  <div id="resultSection" style="display:none;">
+    <div class="profile-card">
+      <div><strong>नाम:</strong> <span id="pName"></span> (ID: <span id="pId"></span>)</div>
+      <div><strong>ब्लॉक:</strong> <span id="pBlock"></span> | <strong>उपकेंद्र (SC):</strong> <span id="pSC"></span></div>
+      <div><strong>ग्राम (Village):</strong> <span id="pVillage"></span></div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <label for="monthSelect">माह (Month):</label>
+        <select id="monthSelect" onchange="onMonthChange()"></select>
+      </div>
+      <div>
+        <label for="programSelect">प्रोग्राम (Program):</label>
+        <select id="programSelect" onchange="renderMonthData()"></select>
+      </div>
+    </div>
+
+    <div class="total-box">
+      कुल भुगतान राशि
+      <span class="amt" id="totalAmt">₹0</span>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="setFilter('all', this)">सभी मद (<span id="cntAll">0</span>)</div>
+      <div class="tab" onclick="setFilter('paid', this)">भुगतान हुआ (<span id="cntPaid">0</span>)</div>
+      <div class="tab" onclick="setFilter('unpaid', this)">शून्य / ₹0 (<span id="cntUnpaid">0</span>)</div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>प्रोग्राम एवं मद (Program & Head)</th>
+          <th style="text-align:right;">राशि (₹)</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
+    authDomain: "asha-payment.firebaseapp.com",
+    projectId: "asha-payment",
+    storageBucket: "asha-payment.firebasestorage.app",
+    messagingSenderId: "117935142167",
+    appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
+    measurementId: "G-43YGRC5CKL"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  let matchedProfiles = [];
+  let activeProfile = null;
+  let currentFilter = 'all';
+
+  function sortMonthsDesc(monthsArr) {
+    return monthsArr.sort((a, b) => {
+      const [mA, yA] = a.split('-').map(Number);
+      const [mB, yB] = b.split('-').map(Number);
+      if (yA && yB && mA && mB) {
+        return (yB * 100 + mB) - (yA * 100 + mA);
+      }
+      return b.localeCompare(a);
+    });
+  }
+
+  window.searchAsha = async function() {
+    const idVal = document.getElementById('ashaId').value.trim().toUpperCase();
+    if (!idVal) { alert("कृपया अपनी ASHA ID दर्ज करें।"); return; }
+
+    document.getElementById('loader').style.display = 'block';
+    document.getElementById('duplicateSection').style.display = 'none';
+    document.getElementById('resultSection').style.display = 'none';
+
+    try {
+      const q = query(collection(db, "asha_payments"), where("asha_id", "==", idVal));
+      const snap = await getDocs(q);
+      document.getElementById('loader').style.display = 'none';
+
+      if (snap.empty) {
+        alert("इस ASHA ID का कोई रिकॉर्ड नहीं मिला। कृपया सही ID जांचें।");
+        return;
+      }
+
+      matchedProfiles = [];
+      snap.forEach(doc => matchedProfiles.push(doc.data()));
+
+      if (matchedProfiles.length === 1) {
+        selectProfile(0);
+      } else {
+        const listDiv = document.getElementById('duplicateList');
+        listDiv.innerHTML = "";
+        matchedProfiles.forEach((p, idx) => {
+          listDiv.innerHTML += `
+            <button class="asha-choice" onclick="selectProfile(${idx})">
+              <strong>${p.name}</strong>
+              <span>ब्लॉक: ${p.block || '-'} | SC: ${p.sc || '-'} | ग्राम: ${p.village || '-'}</span>
+            </button>`;
+        });
+        document.getElementById('duplicateSection').style.display = 'block';
+      }
+    } catch (err) {
+      document.getElementById('loader').style.display = 'none';
+      alert("डेटा लोड करने में समस्या आई: " + err.message);
+    }
+  };
+
+  window.selectProfile = function(index) {
+    activeProfile = matchedProfiles[index];
+    document.getElementById('duplicateSection').style.display = 'none';
+
+    document.getElementById('pName').innerText = activeProfile.name;
+    document.getElementById('pId').innerText = activeProfile.asha_id;
+    document.getElementById('pBlock').innerText = activeProfile.block || '-';
+    document.getElementById('pSC').innerText = activeProfile.sc || '-';
+    document.getElementById('pVillage').innerText = activeProfile.village || '-';
+
+    const monthSelect = document.getElementById('monthSelect');
+    monthSelect.innerHTML = "";
+    const months = sortMonthsDesc(Object.keys(activeProfile.months || {}));
+    months.forEach(m => {
+      let opt = document.createElement('option');
+      opt.value = m;
+      opt.text = m;
+      monthSelect.appendChild(opt);
+    });
+
+    document.getElementById('resultSection').style.display = 'block';
+    onMonthChange();
+  };
+
+  window.onMonthChange = function() {
+    if (!activeProfile) return;
+    const selectedMonth = document.getElementById('monthSelect').value;
+    const items = activeProfile.months[selectedMonth] || [];
+
+    const progSet = new Set(items.map(i => i.p || "General"));
+    const progSelect = document.getElementById('programSelect');
+    progSelect.innerHTML = `<option value="ALL">सभी प्रोग्राम (All)</option>`;
+    Array.from(progSet).sort().forEach(p => {
+      progSelect.innerHTML += `<option value="${p}">${p}</option>`;
+    });
+
+    renderMonthData();
+  };
+
+  window.setFilter = function(filterType, btn) {
+    currentFilter = filterType;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    renderMonthData();
+  };
+
+  window.renderMonthData = function() {
+    if (!activeProfile) return;
+    const selectedMonth = document.getElementById('monthSelect').value;
+    const selectedProg = document.getElementById('programSelect').value;
+    let items = activeProfile.months[selectedMonth] || [];
+
+    if (selectedProg !== "ALL") {
+      items = items.filter(i => (i.p || "General") === selectedProg);
+    }
+
+    let total = 0, paidCount = 0, unpaidCount = 0;
+    items.forEach(i => {
+      total += i.a;
+      if (i.a > 0) paidCount++; else unpaidCount++;
+    });
+
+    document.getElementById('totalAmt').innerText = "₹" + total.toLocaleString('en-IN');
+    document.getElementById('cntAll').innerText = items.length;
+    document.getElementById('cntPaid').innerText = paidCount;
+    document.getElementById('cntUnpaid').innerText = unpaidCount;
+
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = "";
+
+    const sortedItems = [...items].sort((x, y) => y.a - x.a);
+
+    sortedItems.forEach(item => {
+      if (currentFilter === 'paid' && item.a <= 0) return;
+      if (currentFilter === 'unpaid' && item.a > 0) return;
+
+      const badge = item.a > 0 
+        ? `<span class="paid">₹${item.a.toLocaleString('en-IN')}</span>` 
+        : `<span class="unpaid">₹0 (भुगतान नहीं)</span>`;
+
+      tbody.innerHTML += `
+        <tr>
+          <td>
+            <span class="prog-tag">${item.p || 'General'}</span>
+            <span class="head-text">${item.h}</span>
+          </td>
+          <td style="text-align:right;">${badge}</td>
+        </tr>`;
+    });
+  };
+</script>
+</body>
+</html>
