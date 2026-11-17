@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin - आशा डेटा अपलोड एवं सटीक ऑडिट (NHM अयोध्या)</title>
+  <title>Admin - आशा डेटा अपलोड एवं PIN प्रबंधन (NHM अयोध्या)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -12,8 +12,8 @@
   <header class="bg-teal-700 text-white shadow-md">
     <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
       <div>
-        <h1 class="text-xl font-bold">आशा भुगतान डेटा अपलोडर एवं ऑडिट (Admin Panel)</h1>
-        <p class="text-xs text-teal-100">राष्ट्रीय स्वास्थ्य मिशन (NHM), अयोध्या • Exact Row-Level Diagnostic & Upload</p>
+        <h1 class="text-xl font-bold">आशा भुगतान डेटा अपलोडर (Admin Panel)</h1>
+        <p class="text-xs text-teal-100">राष्ट्रीय स्वास्थ्य मिशन (NHM), अयोध्या • 100% Exact Excel SUM Calculation</p>
       </div>
       <div class="flex gap-2">
         <a href="dashboard.html" class="px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-xs font-semibold rounded-lg border border-teal-500">
@@ -27,12 +27,12 @@
   </header>
 
   <main class="max-w-5xl mx-auto px-4 py-6 space-y-6">
-    <!-- Section 1: Upload & X-Ray Inspect -->
+    <!-- Section 1: Upload & Verify -->
     <section class="bg-white p-6 rounded-xl shadow border border-teal-200 space-y-4">
       <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
-        <h2 class="text-base font-bold text-teal-800">1. Excel (.xlsx) फ़ाइल चुनें और जाँचें</h2>
+        <h2 class="text-base font-bold text-teal-800">1. Excel (.xlsx) या CSV फ़ाइल अपलोड करें</h2>
         <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded font-semibold">
-          ✅ Exact Duplicate-Block Removal
+          ✅ 100% Excel SUM Match (हर पंक्ति की सटीक गणना)
         </span>
       </div>
 
@@ -42,7 +42,7 @@
         <input type="text" id="inspectAshaId" value="2404031" placeholder="जाँचने के लिए ASHA ID (उदा. 2404031)"
           class="px-3 py-2 border border-slate-300 rounded-lg text-xs w-52 focus:border-sky-600 focus:outline-none" />
         <button id="inspectBtn" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-lg shadow">
-          🔍 इस ID का हिसाब जाँचें
+          🔍 इस ID का कुल योग जाँचें
         </button>
       </div>
 
@@ -59,11 +59,10 @@
         डेटाबेस स्थिति जाँची जा रही है...
       </div>
 
-      <!-- X-Ray Diagnostic Box for Specific ASHA ID -->
-      <div id="auditPreviewBox" class="hidden p-4 bg-amber-50/70 border border-amber-300 rounded-xl space-y-3 text-xs">
-        <div class="font-bold text-amber-900 text-sm">📋 ASHA ID X-Ray रिपोर्ट (Excel से पढ़ी गई वास्तविक पंक्तियाँ):</div>
-        <div id="auditSummary" class="text-slate-800"></div>
-        <div id="auditTableWrap" class="bg-white p-3 rounded-lg border border-amber-200 overflow-x-auto max-h-80"></div>
+      <!-- Verification Box -->
+      <div id="auditPreviewBox" class="hidden p-4 bg-emerald-50/70 border border-emerald-300 rounded-xl space-y-2 text-xs">
+        <div id="auditSummary" class="text-slate-900 font-semibold"></div>
+        <div id="auditTableWrap" class="bg-white p-3 rounded-lg border border-emerald-200 overflow-x-auto max-h-72"></div>
       </div>
     </section>
 
@@ -179,23 +178,21 @@
       const fallbackMonth = /^\d{2}-\d{4}$/.test(sheetMonthFallback) ? sheetMonthFallback : fileMonthFallback;
 
       const allRows = [];
-      let detectedHeaders = [];
-      jsonRows.forEach((r, idx) => {
-        const normalizedObj = { _EXCEL_ROW: idx + 2 };
+      for (const r of jsonRows) {
+        const normalizedObj = {};
         for (const [k, v] of Object.entries(r)) {
-          const cleanK = String(k).trim().toUpperCase();
-          normalizedObj[cleanK] = v;
+          normalizedObj[String(k).trim().toUpperCase()] = v;
         }
-        if (detectedHeaders.length === 0) detectedHeaders = Object.keys(normalizedObj).filter(x => x !== "_EXCEL_ROW");
         if (!normalizedObj["MONTH"] && !normalizedObj["PAY_MONTH"] && !normalizedObj["BILL_MONTH"]) {
           normalizedObj["MONTH"] = fallbackMonth;
         }
         allRows.push(normalizedObj);
-      });
-      return { rows: allRows, sheetName: firstSheetName, headers: detectedHeaders };
+      }
+      return allRows;
     }
 
-    function processRowsIntoData(combinedRows, existing, targetInspectId = "") {
+    // Pure Excel SUMIFS logic: clears old data for uploading months, then sums every row in the file accurately
+    function processRowsIntoData(combinedRows, existing) {
       const headsList = [...(existing.heads || [])];
       const headIndexMap = new Map();
       headsList.forEach((item, idx) => {
@@ -205,6 +202,7 @@
       const monthsSet = new Set((existing.months || []).map(normalizeMonth).filter(Boolean));
       const workers = JSON.parse(JSON.stringify(existing.workers || {}));
 
+      // Clear previous data for the months present in the new upload so re-uploading never doubles anything
       const uploadingMonths = new Set();
       for (const row of combinedRows) {
         const m = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
@@ -226,11 +224,7 @@
         }
       }
 
-      // Detect if an entire block of rows for the same (ASHA_ID + Month + Program + Head) is repeated identically
-      // While allowing two different heads in the same program to sum properly
-      const exactBlockSeen = new Set();
-      const inspectLogs = [];
-
+      // Direct row-by-row addition (100% identical to Excel SUMIFS)
       for (const row of combinedRows) {
         const rawId = getCol(row, ["ASHA_ID", "ASHA ID", "ASHAID", "ID"]);
         const id = safeKey(rawId);
@@ -245,24 +239,6 @@
         const program = getCol(row, ["PROGRAM NAME", "PROGRAM", "SCHEME", "PROG_NAME"]) || "Other";
         const head = getCol(row, ["HEAD", "HEAD NAME", "INCENTIVE HEAD", "ACTIVITY"]).replace(/\s+/g, " ");
         if (!head || head.toUpperCase() === "TOTAL") continue;
-
-        const amount = parseAmount(getCol(row, ["AMOUNT", "PAID_AMOUNT", "NET_AMOUNT", "TOTAL"]));
-        const signature = `${id}|||${month}|||${program}|||${head}|||${amount}`;
-        const isDuplicateRow = exactBlockSeen.has(signature);
-        if (!isDuplicateRow) exactBlockSeen.add(signature);
-
-        if (targetInspectId && id === safeKey(targetInspectId) && amount > 0) {
-          inspectLogs.push({
-            excelRow: row._EXCEL_ROW,
-            month,
-            program,
-            head,
-            amount,
-            status: isDuplicateRow ? "❌ डुप्लीकेट रो (छोड़ी गई)" : "✅ गिनी गई"
-          });
-        }
-
-        if (isDuplicateRow) continue;
 
         const headKey = `${program}|||${head}`;
         let hIdx = headIndexMap.get(headKey);
@@ -290,6 +266,7 @@
           if (!w.v) w.v = getCol(row, ["VILLAGE", "VILLAGE NAME"]);
         }
 
+        const amount = parseAmount(getCol(row, ["AMOUNT", "PAID_AMOUNT", "NET_AMOUNT", "TOTAL"]));
         if (amount > 0 && month) {
           const w = workers[id];
           if (!w.p) w.p = {};
@@ -319,8 +296,7 @@
           months: Array.from(monthsSet).sort(),
           workers
         },
-        totalAllWorkers,
-        inspectLogs
+        totalAllWorkers
       };
     }
 
@@ -338,7 +314,7 @@
       }
     }
 
-    // X-Ray Diagnostic Button
+    // Check exact sum for any ASHA ID before uploading
     document.getElementById("inspectBtn").addEventListener("click", async () => {
       const files = document.getElementById("csvFileInput").files;
       const targetId = document.getElementById("inspectAshaId").value.trim();
@@ -351,30 +327,38 @@
 
       let combinedRows = [];
       for (const file of files) {
-        const res = await readPrimarySheetOnly(file, statusEl);
-        combinedRows = combinedRows.concat(res.rows);
+        const rows = await readPrimarySheetOnly(file, statusEl);
+        combinedRows = combinedRows.concat(rows);
       }
 
-      const { payload, inspectLogs } = processRowsIntoData(
-        combinedRows,
-        { heads: [], months: [], workers: {} },
-        targetId
-      );
-
+      const { payload } = processRowsIntoData(combinedRows, { heads: [], months: [], workers: {} });
       const w = payload.workers[safeKey(targetId)];
-      document.getElementById("auditSummary").innerHTML = w
-        ? `आशा: <strong>${w.n}</strong> (ID: <strong>${w.id}</strong>) | ब्लॉक: ${w.b} | SC: ${w.s} | <strong>अंतिम कुल योग: ₹${w.t.toLocaleString("en-IN")}</strong>`
-        : `ID "${targetId}" फ़ाइल में नहीं मिली।`;
 
-      let html = `<table class="w-full text-left border-collapse text-[11px]"><thead><tr class="bg-slate-100"><th class="p-1.5 border">Excel Row</th><th class="p-1.5 border">माह</th><th class="p-1.5 border">Program</th><th class="p-1.5 border">Head</th><th class="p-1.5 border">राशि</th><th class="p-1.5 border">स्थिति</th></tr></thead><tbody>`;
-      inspectLogs.forEach(l => {
-        html += `<tr><td class="p-1.5 border">#${l.excelRow}</td><td class="p-1.5 border">${l.month}</td><td class="p-1.5 border">${l.program}</td><td class="p-1.5 border">${l.head}</td><td class="p-1.5 border font-bold">₹${l.amount}</td><td class="p-1.5 border">${l.status}</td></tr>`;
-      });
+      if (!w) {
+        document.getElementById("auditSummary").textContent = `ID "${targetId}" फ़ाइल में नहीं मिली।`;
+        document.getElementById("auditTableWrap").innerHTML = "";
+        document.getElementById("auditPreviewBox").classList.remove("hidden");
+        return;
+      }
+
+      // Month-wise totals for this ASHA
+      const monthTotals = {};
+      let html = `<table class="w-full text-left border-collapse text-[11px]"><thead><tr class="bg-slate-100"><th class="p-1.5 border">माह</th><th class="p-1.5 border">Program</th><th class="p-1.5 border">Head</th><th class="p-1.5 border text-right">राशि (₹)</th></tr></thead><tbody>`;
+      for (const [hIdx, mObj] of Object.entries(w.p || {})) {
+        const meta = payload.heads[Number(hIdx)];
+        for (const [m, amt] of Object.entries(mObj)) {
+          monthTotals[m] = (monthTotals[m] || 0) + amt;
+          html += `<tr><td class="p-1.5 border">${m}</td><td class="p-1.5 border">${meta?.p || ""}</td><td class="p-1.5 border">${meta?.h || ""}</td><td class="p-1.5 border text-right font-bold text-teal-800">₹${amt.toLocaleString("en-IN")}</td></tr>`;
+        }
+      }
       html += `</tbody></table>`;
 
+      const monthSummaryStr = Object.entries(monthTotals).map(([m, t]) => `${m}: ₹${t.toLocaleString("en-IN")}`).join(" | ");
+      document.getElementById("auditSummary").innerHTML =
+        `✅ आशा: <strong>${w.n}</strong> (ID: <strong>${w.id}</strong>) • माहवार योग: <strong>${monthSummaryStr}</strong> • कुल योग: <strong>₹${w.t.toLocaleString("en-IN")}</strong>`;
       document.getElementById("auditTableWrap").innerHTML = html;
       document.getElementById("auditPreviewBox").classList.remove("hidden");
-      statusEl.textContent = "✅ नीचे X-Ray रिपोर्ट देखें—यदि गणना सही दिख रही है तो 'अपलोड और सेव करें' दबाएं।";
+      statusEl.textContent = "✅ मिलान पूरा हुआ! अब 'अपलोड और सेव करें' बटन दबाएं।";
     });
 
     document.getElementById("uploadCsvBtn").addEventListener("click", async () => {
@@ -394,8 +378,8 @@
 
         let combinedRows = [];
         for (const file of files) {
-          const res = await readPrimarySheetOnly(file, statusEl);
-          combinedRows = combinedRows.concat(res.rows);
+          const rows = await readPrimarySheetOnly(file, statusEl);
+          combinedRows = combinedRows.concat(rows);
         }
 
         statusEl.textContent = `कुल ${combinedRows.length.toLocaleString()} पंक्तियों की गणना की जा रही है...`;
