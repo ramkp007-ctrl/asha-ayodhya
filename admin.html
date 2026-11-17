@@ -32,12 +32,12 @@
       <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
         <h2 class="text-base font-bold text-teal-800">1. Excel (.xlsx) या CSV फ़ाइल अपलोड करें</h2>
         <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded font-semibold">
-          ✅ Anti-Duplicate Month + Auto-Merge
+          ✅ Smart Sum (सभी मदों की सटीक गणना)
         </span>
       </div>
 
       <p class="text-xs text-slate-600 leading-relaxed">
-        सभी महीनों की <strong>.xlsx</strong> या <strong>.csv</strong> फ़ाइलें चुनें। एक ही महीने की पुरानी एंट्री अपने-आप रिप्लेस होकर साफ़ हो जाएगी, जिससे भुगतान कभी डबल नहीं होगा।
+        प्रत्येक माह की <strong>.xlsx</strong> या <strong>.csv</strong> फ़ाइल चुनें। प्रत्येक मद में आपकी Excel के अनुसार सटीक भुगतान राशि (जैसे ₹75, ₹100, ₹250, ₹600 आदि) सेव होगी।
       </p>
 
       <div class="flex flex-wrap items-center gap-3 pt-1">
@@ -51,7 +51,7 @@
         </button>
       </div>
 
-      <div id="uploadStatus" class="p-3 bg-slate-50 rounded-lg text-xs font-medium text-slate-700 border border-slate-200">
+      <div id="uploadStatus" class="p-3 bg-slate-50 rounded-lg text-xs font-medium text-slate-700 border border-slate-200 leading-relaxed">
         डेटाबेस स्थिति जाँची जा रही है...
       </div>
     </section>
@@ -110,7 +110,6 @@
       return Number.isFinite(num) ? num : 0;
     }
 
-    // Strict Month Normalization to MM-YYYY (prevents duplicate month entries)
     function normalizeMonth(raw) {
       const str = String(raw || "").trim();
       if (!str) return "";
@@ -154,35 +153,32 @@
       return String(str || "").replace(/[.#$\[\]\/]/g, "_").trim().toUpperCase();
     }
 
-    async function readAnySpreadsheetFile(file, statusEl) {
+    async function readPrimarySheetOnly(file, statusEl) {
       const buffer = await file.arrayBuffer();
       const workbook = XLSX.read(buffer, { type: "array", raw: true });
-      let allRows = [];
+      const firstSheetName = workbook.SheetNames[0];
 
-      // Fallback month from filename if sheet name is generic like "Sheet1"
+      statusEl.textContent = `फ़ाइल "${file.name}" की मुख्य शीट "${firstSheetName}" पढ़ी जा रही है...`;
+      await new Promise(r => setTimeout(r, 15));
+
+      const sheet = workbook.Sheets[firstSheetName];
+      const jsonRows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
       const fileMonthFallback = normalizeMonth(file.name.replace(/\.[^.]+$/, ""));
+      const sheetMonthFallback = normalizeMonth(firstSheetName);
+      const fallbackMonth = /^\d{2}-\d{4}$/.test(sheetMonthFallback) ? sheetMonthFallback : fileMonthFallback;
 
-      for (const sheetName of workbook.SheetNames) {
-        statusEl.textContent = `फ़ाइल "${file.name}" की शीट "${sheetName}" पढ़ी जा रही है...`;
-        await new Promise(r => setTimeout(r, 15));
-
-        const sheet = workbook.Sheets[sheetName];
-        const jsonRows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-        const sheetMonthFallback = normalizeMonth(sheetName);
-        const fallbackMonth = /^\d{2}-\d{4}$/.test(sheetMonthFallback) ? sheetMonthFallback : fileMonthFallback;
-
-        for (const r of jsonRows) {
-          const normalizedObj = {};
-          for (const [k, v] of Object.entries(r)) {
-            normalizedObj[String(k).trim().toUpperCase()] = v;
-          }
-          if (!normalizedObj["MONTH"] && !normalizedObj["PAY_MONTH"] && !normalizedObj["BILL_MONTH"]) {
-            normalizedObj["MONTH"] = fallbackMonth;
-          }
-          allRows.push(normalizedObj);
+      const allRows = [];
+      for (const r of jsonRows) {
+        const normalizedObj = {};
+        for (const [k, v] of Object.entries(r)) {
+          normalizedObj[String(k).trim().toUpperCase()] = v;
         }
+        if (!normalizedObj["MONTH"] && !normalizedObj["PAY_MONTH"] && !normalizedObj["BILL_MONTH"]) {
+          normalizedObj["MONTH"] = fallbackMonth;
+        }
+        allRows.push(normalizedObj);
       }
-      return allRows;
+      return { rows: allRows, sheetName: firstSheetName };
     }
 
     async function refreshStatus() {
@@ -225,21 +221,19 @@
 
         let combinedRows = [];
         for (const file of files) {
-          const rows = await readAnySpreadsheetFile(file, statusEl);
-          combinedRows = combinedRows.concat(rows);
+          const res = await readPrimarySheetOnly(file, statusEl);
+          combinedRows = combinedRows.concat(res.rows);
         }
 
         statusEl.textContent = `कुल ${combinedRows.length.toLocaleString()} पंक्तियों को प्रोसेस किया जा रहा है...`;
         await new Promise(r => setTimeout(r, 20));
 
-        // Identify all months present in the newly uploaded files
         const uploadingMonths = new Set();
         for (const row of combinedRows) {
           const m = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
           if (m) uploadingMonths.add(m);
         }
 
-        // Clean any old/unnormalized duplicates of those months before merging
         for (const wKey of Object.keys(workers)) {
           const w = workers[wKey];
           if (!w.p) continue;
@@ -248,27 +242,31 @@
             for (const [rawM, val] of Object.entries(w.p[hIdx])) {
               const normM = normalizeMonth(rawM);
               if (!uploadingMonths.has(normM)) {
-                cleanMonthMap[normM] = (cleanMonthMap[normM] || 0) + (Number(val) || 0);
+                cleanMonthMap[normM] = Number(val) || 0;
               }
             }
             w.p[hIdx] = cleanMonthMap;
           }
         }
 
-        // Deduplicate identical rows inside the same Excel upload (same ASHA + Month + Program + Head)
-        const seenRowKeys = new Set();
+        // Fixed-rate monthly heads where an ASHA gets paid only once per month (prevent double rows)
+        const SINGLE_MONTHLY_HEADS = ["AAA", "MEETING", "VHSND", "UHND"];
+        const seenSingleHead = new Set();
 
         for (const row of combinedRows) {
           const rawId = getCol(row, ["ASHA_ID", "ASHA ID", "ASHAID", "ID"]);
           const id = safeKey(rawId);
-          if (!id) continue;
+          if (!id || id.includes("TOTAL")) continue;
+
+          const rawName = getCol(row, ["ASHA_NAME", "ASHA NAME", "NAME"]);
+          if (rawName.toUpperCase().includes("TOTAL")) continue;
 
           const month = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
           if (month) monthsSet.add(month);
 
           const program = getCol(row, ["PROGRAM NAME", "PROGRAM", "SCHEME", "PROG_NAME"]) || "Other";
           const head = getCol(row, ["HEAD", "HEAD NAME", "INCENTIVE HEAD", "ACTIVITY"]).replace(/\s+/g, " ");
-          if (!head) continue;
+          if (!head || head.toUpperCase() === "TOTAL") continue;
 
           const headKey = `${program}|||${head}`;
           let hIdx = headIndexMap.get(headKey);
@@ -281,7 +279,7 @@
           if (!workers[id]) {
             workers[id] = {
               id: rawId,
-              n: getCol(row, ["ASHA_NAME", "ASHA NAME", "NAME"]),
+              n: rawName,
               b: getCol(row, ["BLOCK", "BLOCK NAME"]),
               s: getCol(row, ["SC", "SUB CENTER", "SUB_CENTER", "SUBCENTER"]),
               v: getCol(row, ["VILLAGE", "VILLAGE NAME"]),
@@ -290,7 +288,7 @@
             };
           } else {
             const w = workers[id];
-            if (!w.n) w.n = getCol(row, ["ASHA_NAME", "ASHA NAME", "NAME"]);
+            if (!w.n && rawName) w.n = rawName;
             if (!w.b) w.b = getCol(row, ["BLOCK", "BLOCK NAME"]);
             if (!w.s) w.s = getCol(row, ["SC", "SUB CENTER", "SUB_CENTER", "SUBCENTER"]);
             if (!w.v) w.v = getCol(row, ["VILLAGE", "VILLAGE NAME"]);
@@ -298,17 +296,27 @@
 
           const amount = parseAmount(getCol(row, ["AMOUNT", "PAID_AMOUNT", "NET_AMOUNT", "TOTAL"]));
           if (amount > 0 && month) {
-            const uniqueEntryKey = `${id}|||${month}|||${hIdx}|||${amount}`;
-            if (seenRowKeys.has(uniqueEntryKey)) continue; // Skip exact duplicate rows
-            seenRowKeys.add(uniqueEntryKey);
-
             const w = workers[id];
             if (!w.p) w.p = {};
             if (!w.p[hIdx]) w.p[hIdx] = {};
-            w.p[hIdx][month] = (Number(w.p[hIdx][month]) || 0) + amount;
+
+            const headUpper = head.toUpperCase();
+            const isFixedMonthly = SINGLE_MONTHLY_HEADS.some(k => headUpper === k || headUpper.includes(k));
+            const singleKey = `${id}|||${month}|||${hIdx}`;
+
+            if (isFixedMonthly) {
+              if (!seenSingleHead.has(singleKey)) {
+                w.p[hIdx][month] = amount;
+                seenSingleHead.add(singleKey);
+              }
+            } else {
+              // Sum multiple beneficiaries/cases in variable heads (JSY, HBNC, Immunization, etc.)
+              w.p[hIdx][month] = (Number(w.p[hIdx][month]) || 0) + amount;
+            }
           }
         }
 
+        let totalAllWorkers = 0;
         for (const wKey of Object.keys(workers)) {
           const w = workers[wKey];
           let grandTotal = 0;
@@ -320,6 +328,7 @@
             }
           }
           w.t = grandTotal;
+          totalAllWorkers += grandTotal;
         }
 
         const payload = {
@@ -332,14 +341,15 @@
         await set(rootRef, payload);
 
         const sec = ((performance.now() - t0) / 1000).toFixed(1);
-        statusEl.innerHTML = `✅ <strong>सफलतापूर्वक अपलोड हो गया (${sec} सेकंड में)!</strong> कुल प्रोग्राम/मद: <strong>${headsList.length}</strong> • कुल माह: <strong>${payload.months.join(", ")}</strong>`;
+        statusEl.innerHTML =
+          `✅ <strong>अपलोड सफल (${sec} सेकंड)!</strong><br>` +
+          `कुल प्रोग्राम/मद: <strong>${headsList.length}</strong> • कुल डेटाबेस योग: <strong>₹${Math.round(totalAllWorkers).toLocaleString("en-IN")}</strong> • माह: <strong>${payload.months.join(", ")}</strong>`;
       } catch (err) {
         console.error(err);
         statusEl.textContent = `❌ त्रुटि: ${err.message}`;
       }
     });
 
-    // Reset Forgotten 6-Digit ASHA PIN to default (123456)
     document.getElementById("resetPinBtn").addEventListener("click", async () => {
       const rawId = document.getElementById("resetPinAshaId").value.trim();
       const statusBox = document.getElementById("pinResetStatus");
