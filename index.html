@@ -26,7 +26,7 @@
     }
 
     .container {
-      max-width: 580px;
+      max-width: 600px;
       margin: auto;
       background: var(--card);
       border-radius: 16px;
@@ -52,7 +52,7 @@
     .header h2 { margin: 0; font-size: 20px; font-weight: 700; }
     .header p { margin: 4px 0 0; font-size: 12.5px; color: #ccfbf1; }
 
-    .content { padding: 18px; }
+    .content { padding: 16px; }
 
     .mode-tabs {
       display: grid;
@@ -98,7 +98,7 @@
       padding: 10px 12px;
       border: 1.5px solid var(--border);
       border-radius: 9px;
-      font-size: 14.5px;
+      font-size: 14px;
       background: #fff;
       color: var(--text);
     }
@@ -134,25 +134,10 @@
       padding: 16px;
       margin-top: 14px;
     }
-    .pin-box h3 {
-      margin: 0 0 4px;
-      font-size: 15.5px;
-      color: #0369a1;
-    }
-    .pin-hint {
-      font-size: 12px;
-      color: #475569;
-      margin-bottom: 12px;
-      line-height: 1.4;
-    }
-    .pin-input {
-      letter-spacing: 6px;
-      font-size: 18px;
-      font-weight: 800;
-      text-align: center;
-    }
+    .pin-box h3 { margin: 0 0 4px; font-size: 15.5px; color: #0369a1; }
+    .pin-hint { font-size: 12px; color: #475569; margin-bottom: 12px; line-height: 1.4; }
+    .pin-input { letter-spacing: 6px; font-size: 18px; font-weight: 800; text-align: center; }
 
-    /* Default PIN Warning Banner */
     .default-pin-alert {
       background: #fffbeb;
       border: 1px solid #f59e0b;
@@ -178,7 +163,6 @@
       white-space: nowrap;
     }
 
-    /* Change PIN Modal/Card */
     .change-pin-card {
       background: #f8fafc;
       border: 1.5px solid #cbd5e1;
@@ -187,7 +171,6 @@
       margin-top: 12px;
     }
 
-    /* Matching List Box */
     .dup-box {
       background: #fffbeb;
       border: 1px solid #fcd34d;
@@ -197,12 +180,7 @@
       max-height: 320px;
       overflow-y: auto;
     }
-    .dup-title {
-      font-weight: 700;
-      color: #b45309;
-      font-size: 13px;
-      margin-bottom: 10px;
-    }
+    .dup-title { font-weight: 700; color: #b45309; font-size: 13px; margin-bottom: 10px; }
     .asha-choice {
       display: block;
       width: 100%;
@@ -293,7 +271,7 @@
     .head-search-wrap { margin-bottom: 12px; }
     .head-search-wrap input { font-size: 13.5px; padding: 9px 12px; background: #f8fafc; }
 
-    .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+    .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
     .tab {
       flex: 1;
       padding: 8px 4px;
@@ -308,32 +286,64 @@
     }
     .tab.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-    table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-    th {
+    /* Program-wise Grouped Cards */
+    .prog-group {
+      border: 1.5px solid #cbd5e1;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 14px;
+      background: #ffffff;
+    }
+    .prog-header {
       background: #f1f5f9;
-      text-align: left;
-      padding: 10px;
-      border-bottom: 2px solid var(--border);
-      color: #334155;
-      font-size: 12.5px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1.5px solid #cbd5e1;
     }
-    td { padding: 10px 8px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
-    .prog-tag {
-      display: inline-block;
-      font-size: 10.5px;
-      background: #e0f2fe;
-      color: #0369a1;
-      padding: 2px 7px;
-      border-radius: 5px;
-      font-weight: 700;
-      margin-bottom: 4px;
+    .prog-header-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #0f766e;
+      line-height: 1.3;
     }
-    .head-text { display: block; color: #1e293b; font-weight: 500; line-height: 1.4; }
+    .prog-header-sub {
+      font-size: 11px;
+      color: #475569;
+      display: block;
+      font-weight: 600;
+    }
+    .prog-total-badge {
+      background: #0f766e;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+    .prog-total-badge.zero-prog {
+      background: #64748b;
+    }
+
+    .act-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .act-row:last-child { border-bottom: none; }
+    .act-info { flex: 1; }
+    .head-text { display: block; color: #1e293b; font-size: 13.5px; font-weight: 500; line-height: 1.4; }
     .month-breakup {
       display: block;
       font-size: 11px;
       color: #475569;
-      margin-top: 5px;
+      margin-top: 4px;
       background: #f8fafc;
       padding: 4px 7px;
       border-radius: 5px;
@@ -348,7 +358,6 @@
       border-radius: 12px;
       white-space: nowrap;
       font-size: 13px;
-      display: inline-block;
     }
     .unpaid {
       color: #dc2626;
@@ -359,7 +368,6 @@
       border-radius: 12px;
       white-space: nowrap;
       font-size: 12px;
-      display: inline-block;
     }
 
     .loader {
@@ -385,6 +393,7 @@
       .container { box-shadow: none; max-width: 100%; border: 1px solid #cbd5e1; }
       .search-box, .pin-box, .default-pin-alert, .change-pin-card, .btn-pin-link, .action-bar, .head-search-wrap, .tabs, .footer-note { display: none !important; }
       .header { background: #0f766e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .prog-group { break-inside: avoid; }
     }
   </style>
 </head>
@@ -404,7 +413,6 @@
         <button class="mode-btn" id="tabByArea" onclick="switchSearchMode('area')">📍 ब्लॉक / SC से चुनें</button>
       </div>
 
-      <!-- Mode 1: Search by ID or Name -->
       <div id="textSearchPanel">
         <label for="ashaQuery">अपनी ASHA ID या नाम दर्ज करें:</label>
         <div class="search-row">
@@ -413,7 +421,6 @@
         </div>
       </div>
 
-      <!-- Mode 2: Browse by Block -> Sub Center -> Name -->
       <div id="areaSearchPanel" style="display:none;">
         <div class="grid-2" style="margin-bottom:10px;">
           <div>
@@ -440,13 +447,11 @@
 
     <div class="loader" id="loader">जानकारी खोजी जा रही है...</div>
 
-    <!-- Matching Profiles Selection -->
     <div id="duplicateSection" class="dup-box" style="display:none;">
       <div class="dup-title" id="dupTitle">कृपया सूची में से अपना नाम व क्षेत्र चुनें:</div>
       <div id="duplicateList"></div>
     </div>
 
-    <!-- Step 2: PIN Verification Gate -->
     <div id="pinGateSection" class="pin-box" style="display:none;">
       <h3>🔐 लॉगिन PIN दर्ज करें</h3>
       <div class="pin-hint" id="pinCandidateInfo"></div>
@@ -457,16 +462,13 @@
       </div>
     </div>
 
-    <!-- Step 3: Authenticated Dashboard -->
     <div id="resultSection" style="display:none;">
 
-      <!-- Warning when using default PIN 1234 -->
       <div id="defaultPinBanner" class="default-pin-alert" style="display:none;">
         <span>⚠️ आप अभी डिफ़ॉल्ट PIN (<strong>1234</strong>) का उपयोग कर रही हैं। गोपनीयता के लिए नया PIN बनाएं।</span>
         <button class="btn-warn" onclick="toggleChangePinBox(true)">PIN बदलें</button>
       </div>
 
-      <!-- Change PIN Box -->
       <div id="changePinSection" class="change-pin-card" style="display:none;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <strong style="font-size:13.5px; color:#0f766e;">🔑 नया लॉगिन PIN सेट करें</strong>
@@ -520,7 +522,7 @@
       </div>
 
       <div class="head-search-wrap">
-        <input type="text" id="headFilterInput" placeholder="🔍 मद या प्रोग्राम का नाम खोजें (जैसे: JSSK, टीकाकरण, HBNC)..." oninput="renderMonthData()">
+        <input type="text" id="headFilterInput" placeholder="🔍 प्रोग्राम या एक्टिविटी का नाम खोजें (जैसे: मातृ, टीकाकरण, JSSK, HBNC)..." oninput="renderMonthData()">
       </div>
 
       <div class="tabs">
@@ -529,15 +531,8 @@
         <div class="tab" onclick="setFilter('unpaid', this)">शून्य / ₹0 (<span id="cntUnpaid">0</span>)</div>
       </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>प्रोग्राम एवं मद (Program & Head)</th>
-            <th style="text-align:right;">राशि (₹)</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
+      <!-- Program-wise Activity Containers -->
+      <div id="programGroupsContainer"></div>
     </div>
 
     <div class="footer-note">
@@ -571,9 +566,40 @@
   let cachedMonths = null;
   let allWorkersCache = null;
   let matchedProfiles = [];
-  let pendingProfile = null; // Selected profile waiting for PIN verification
+  let pendingProfile = null;
   let activeProfile = null;
   let currentFilter = 'all';
+
+  // Automatic English-to-Hindi Program Name Dictionary (NHM / e-Kavach / PFMS)
+  const PROGRAM_HINDI_RULES = [
+    { keys: ["maternal", "mh", "jsy", "jssk", "pmsma", "anc"], hindi: "मातृ स्वास्थ्य कार्यक्रम" },
+    { keys: ["child", "ch", "hbnc", "hbyc", "sncu", "nrc", "sbs", "saans"], hindi: "शिशु एवं बाल स्वास्थ्य" },
+    { keys: ["immunization", "ri", "routine imm", "vaccine", "mr ", "je ", "covid"], hindi: "नियमित टीकाकरण कार्यक्रम" },
+    { keys: ["family planning", "fp", "sterilization", "antara", "chhaya", "ppiucd", "iucd"], hindi: "परिवार नियोजन कार्यक्रम" },
+    { keys: ["rks", "vhnd", "vhsnd", "uhnd", "community", "mas", "jas"], hindi: "सामुदायिक स्वास्थ्य एवं VHSND" },
+    { keys: ["ntep", "rntcp", "tb", "tuberculosis"], hindi: "राष्ट्रीय क्षय रोग उन्मूलन (NTEP)" },
+    { keys: ["ncd", "npcdcs", "cbac", "diabetes", "hypertension", "cancer"], hindi: "असंचारी रोग नियंत्रण (NCD)" },
+    { keys: ["nvbdcp", "malaria", "dengue", "filaria", "kala-azar", "aes", "je"], hindi: "वेक्टर जनित रोग नियंत्रण (मलेरिया/डेंगू/फाइलेरिया)" },
+    { keys: ["nlep", "leprosy", "kushth"], hindi: "राष्ट्रीय कुष्ठ रोग उन्मूलन (NLEP)" },
+    { keys: ["rbsk", "rashtriya bal"], hindi: "राष्ट्रीय बाल स्वास्थ्य कार्यक्रम (RBSK)" },
+    { keys: ["rksk", "adolescent", "wifs", "menstrual"], hindi: "राष्ट्रीय किशोर स्वास्थ्य कार्यक्रम (RKSK)" },
+    { keys: ["npcb", "blindness", "cataract", "eye"], hindi: "राष्ट्रीय अंधता निवारण कार्यक्रम" },
+    { keys: ["nphce", "elderly", "geriatric"], hindi: "वृद्धजन स्वास्थ्य देखभाल (NPHCE)" },
+    { keys: ["nmhp", "mental"], hindi: "राष्ट्रीय मानसिक स्वास्थ्य कार्यक्रम" },
+    { keys: ["idsp", "surveillance", "abdm", "abha", "e-kavach", "ekavach"], hindi: "डिजिटल स्वास्थ्य / ई-कवच एवं सर्वेक्षण" },
+    { keys: ["routine", "recurring", "asha", "incentive", "other", "general"], hindi: "नियमित आशा प्रोत्साहन एवं अन्य कार्य" }
+  ];
+
+  function translateProgramHindi(rawProg) {
+    const clean = String(rawProg || "Other").trim();
+    const lower = clean.toLowerCase();
+    for (const rule of PROGRAM_HINDI_RULES) {
+      if (rule.keys.some(k => lower.includes(k))) {
+        return `${rule.hindi} (${clean})`;
+      }
+    }
+    return clean;
+  }
 
   const HINDI_MONTHS = {
     "01": "जनवरी", "02": "फ़रवरी", "03": "मार्च", "04": "अप्रैल",
@@ -661,6 +687,7 @@
       if (!monthsObj[cleanM]) {
         monthsObj[cleanM] = headsList.map(meta => ({
           p: meta.p || "General",
+          pHindi: translateProgramHindi(meta.p || "General"),
           h: meta.h || "",
           a: 0
         }));
@@ -699,7 +726,14 @@
         const amt = Number(item.a) || 0;
 
         if (!map.has(key)) {
-          map.set(key, { p: prog, h: head, a: 0, paidMonths: [], zeroCount: 0 });
+          map.set(key, {
+            p: prog,
+            pHindi: item.pHindi || translateProgramHindi(prog),
+            h: head,
+            a: 0,
+            paidMonths: [],
+            zeroCount: 0
+          });
         }
         const entry = map.get(key);
         entry.a += amt;
@@ -846,7 +880,6 @@
     document.getElementById('duplicateSection').style.display = 'block';
   }
 
-  // Step 2: Ask PIN before revealing profile
   window.promptPinForProfile = function(index) {
     pendingProfile = matchedProfiles[index];
     document.getElementById('duplicateSection').style.display = 'none';
@@ -862,10 +895,7 @@
   window.verifyPinAndOpen = function() {
     if (!pendingProfile) return;
     const enteredPin = document.getElementById('loginPinInput').value.trim();
-    if (!enteredPin) {
-      alert("कृपया अपना PIN दर्ज करें।");
-      return;
-    }
+    if (!enteredPin) { alert("कृपया अपना PIN दर्ज करें।"); return; }
 
     if (enteredPin !== pendingProfile.pin) {
       alert("❌ गलत PIN! कृपया सही PIN दर्ज करें (यदि आपने PIN नहीं बदला है तो 1234 डालें)।");
@@ -882,8 +912,6 @@
     activeProfile = profile;
     document.getElementById('headFilterInput').value = "";
     document.getElementById('changePinSection').style.display = 'none';
-
-    // Show alert banner if still using default PIN 1234
     document.getElementById('defaultPinBanner').style.display =
       (activeProfile.pin === DEFAULT_PIN) ? 'flex' : 'none';
 
@@ -960,7 +988,7 @@
 
       document.getElementById('changePinSection').style.display = 'none';
       document.getElementById('defaultPinBanner').style.display = 'none';
-      alert("✅ आपका नया PIN सफलतापूर्वक सेव हो गया है! अगली बार इसी नए PIN से लॉगिन करें।");
+      alert("✅ आपका नया PIN सफलतापूर्वक सेव हो गया है!");
     } catch (err) {
       alert("PIN सेव करने में त्रुटि हुई: " + err.message);
     }
@@ -973,12 +1001,19 @@
       ? getAggregatedItems(activeProfile.months)
       : (activeProfile.months[selectedMonth] || []);
 
-    const progSet = new Set(items.map(i => i.p || "General"));
+    const progMap = new Map();
+    items.forEach(i => {
+      const rawP = i.p || "General";
+      if (!progMap.has(rawP)) progMap.set(rawP, i.pHindi || translateProgramHindi(rawP));
+    });
+
     const progSelect = document.getElementById('programSelect');
     progSelect.innerHTML = `<option value="ALL">सभी प्रोग्राम (All)</option>`;
-    Array.from(progSet).sort().forEach(p => {
-      progSelect.innerHTML += `<option value="${p}">${p}</option>`;
-    });
+    Array.from(progMap.entries())
+      .sort((a, b) => a[1].localeCompare(b[1], 'hi'))
+      .forEach(([rawP, hindiP]) => {
+        progSelect.innerHTML += `<option value="${rawP}">${hindiP}</option>`;
+      });
 
     renderMonthData();
   };
@@ -990,6 +1025,7 @@
     renderMonthData();
   };
 
+  // Render Program-wise Grouped Activity Cards
   window.renderMonthData = function() {
     if (!activeProfile) return;
     const selectedMonth = document.getElementById('monthSelect').value;
@@ -1005,7 +1041,8 @@
     if (keyword) {
       items = items.filter(i =>
         (i.h || "").toLowerCase().includes(keyword) ||
-        (i.p || "").toLowerCase().includes(keyword)
+        (i.p || "").toLowerCase().includes(keyword) ||
+        (i.pHindi || "").toLowerCase().includes(keyword)
       );
     }
 
@@ -1021,48 +1058,88 @@
       : `माह ${formatMonthHindi(selectedMonth)} का कुल भुगतान`;
     document.getElementById('totalAmt').innerText = "₹" + total.toLocaleString('en-IN');
     document.getElementById('totalSub').innerText = isAllMonths
-      ? "प्रत्येक मद के नीचे माह-वार विवरण दिया गया है"
-      : `${paidCount} मदों में भुगतान हुआ • ${unpaidCount} मद शून्य`;
+      ? "प्रोग्राम-वार एवं एक्टिविटी-वार विवरण नीचे दिया गया है"
+      : `${paidCount} एक्टिविटी में भुगतान हुआ • ${unpaidCount} शून्य`;
 
     document.getElementById('cntAll').innerText = items.length;
     document.getElementById('cntPaid').innerText = paidCount;
     document.getElementById('cntUnpaid').innerText = unpaidCount;
 
-    const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = "";
+    // Filter by tab (All / Paid / Unpaid)
+    const tabFiltered = items.filter(item => {
+      if (currentFilter === 'paid') return item.a > 0;
+      if (currentFilter === 'unpaid') return item.a <= 0;
+      return true;
+    });
 
-    const sortedItems = [...items].sort((x, y) => y.a - x.a);
-    if (sortedItems.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:#64748b; padding:18px;">कोई मद नहीं मिला।</td></tr>`;
+    const container = document.getElementById('programGroupsContainer');
+    container.innerHTML = "";
+
+    if (tabFiltered.length === 0) {
+      container.innerHTML = `<div style="text-align:center; color:#64748b; padding:20px; border:1px dashed #cbd5e1; border-radius:10px;">इस फ़िल्टर में कोई एक्टिविटी नहीं मिली।</div>`;
       return;
     }
 
-    sortedItems.forEach(item => {
-      if (currentFilter === 'paid' && item.a <= 0) return;
-      if (currentFilter === 'unpaid' && item.a > 0) return;
-
-      const badge = item.a > 0 
-        ? `<span class="paid">₹${item.a.toLocaleString('en-IN')}</span>` 
-        : `<span class="unpaid">₹0 (शून्य)</span>`;
-
-      let breakupHtml = "";
-      if (isAllMonths) {
-        if (item.paidMonths.length > 0) {
-          breakupHtml = `<span class="month-breakup"><strong>भुगतान माह (${item.paidMonths.length}):</strong> ${item.paidMonths.join(' | ')}</span>`;
-        } else {
-          breakupHtml = `<span class="month-breakup">सभी ${item.zeroCount} माह में भुगतान शून्य (₹0)</span>`;
-        }
+    // Group activities under each Program
+    const grouped = new Map();
+    tabFiltered.forEach(item => {
+      const pKey = item.p || "General";
+      if (!grouped.has(pKey)) {
+        grouped.set(pKey, {
+          pHindi: item.pHindi || translateProgramHindi(pKey),
+          progTotal: 0,
+          activities: []
+        });
       }
+      const grp = grouped.get(pKey);
+      grp.progTotal += item.a;
+      grp.activities.push(item);
+    });
 
-      tbody.innerHTML += `
-        <tr>
-          <td>
-            <span class="prog-tag">${item.p || 'General'}</span>
-            <span class="head-text">${item.h}</span>
-            ${breakupHtml}
-          </td>
-          <td style="text-align:right;">${badge}</td>
-        </tr>`;
+    // Sort programs: highest paid amount first
+    const sortedGroups = Array.from(grouped.values()).sort((a, b) => b.progTotal - a.progTotal);
+
+    sortedGroups.forEach(grp => {
+      // Sort activities inside program by amount descending
+      grp.activities.sort((x, y) => y.a - x.a);
+
+      let rowsHtml = "";
+      grp.activities.forEach(act => {
+        const badge = act.a > 0
+          ? `<span class="paid">₹${act.a.toLocaleString('en-IN')}</span>`
+          : `<span class="unpaid">₹0</span>`;
+
+        let breakupHtml = "";
+        if (isAllMonths) {
+          if (act.paidMonths.length > 0) {
+            breakupHtml = `<span class="month-breakup"><strong>भुगतान माह (${act.paidMonths.length}):</strong> ${act.paidMonths.join(' | ')}</span>`;
+          } else {
+            breakupHtml = `<span class="month-breakup">सभी ${act.zeroCount} माह में भुगतान शून्य (₹0)</span>`;
+          }
+        }
+
+        rowsHtml += `
+          <div class="act-row">
+            <div class="act-info">
+              <span class="head-text">${act.h}</span>
+              ${breakupHtml}
+            </div>
+            <div>${badge}</div>
+          </div>`;
+      });
+
+      const totalBadgeClass = grp.progTotal > 0 ? "prog-total-badge" : "prog-total-badge zero-prog";
+      container.innerHTML += `
+        <div class="prog-group">
+          <div class="prog-header">
+            <div>
+              <span class="prog-header-title">${grp.pHindi}</span>
+              <span class="prog-header-sub">${grp.activities.length} एक्टिविटी / मद</span>
+            </div>
+            <span class="${totalBadgeClass}">कुल: ₹${grp.progTotal.toLocaleString('en-IN')}</span>
+          </div>
+          <div>${rowsHtml}</div>
+        </div>`;
     });
   };
 
@@ -1074,7 +1151,7 @@
       ? getAggregatedItems(activeProfile.months)
       : (activeProfile.months[selectedMonth] || []);
 
-    const paidItems = items.filter(i => i.a > 0).sort((a, b) => b.a - a.a);
+    const paidItems = items.filter(i => i.a > 0);
     const total = paidItems.reduce((sum, i) => sum + i.a, 0);
 
     let msg = `*आशा प्रोत्साहन भुगतान विवरण (NHM अयोध्या)*\n`;
@@ -1084,9 +1161,19 @@
     msg += `कुल भुगतान: *₹${total.toLocaleString('en-IN')}*\n\n`;
 
     if (paidItems.length > 0) {
-      msg += `*मदवार भुगतान:*\n`;
-      paidItems.forEach((it, idx) => {
-        msg += `${idx + 1}. [${it.p}] ${it.h}: *₹${it.a.toLocaleString('en-IN')}*\n`;
+      const byProg = new Map();
+      paidItems.forEach(it => {
+        const pLabel = it.pHindi || translateProgramHindi(it.p);
+        if (!byProg.has(pLabel)) byProg.set(pLabel, []);
+        byProg.get(pLabel).push(it);
+      });
+
+      byProg.forEach((acts, pLabel) => {
+        const pSum = acts.reduce((s, a) => s + a.a, 0);
+        msg += `📌 *${pLabel} (₹${pSum.toLocaleString('en-IN')})*\n`;
+        acts.forEach(a => {
+          msg += `  • ${a.h}: ₹${a.a.toLocaleString('en-IN')}\n`;
+        });
       });
     } else {
       msg += `इस अवधि में कोई भुगतान दर्ज नहीं है।`;
