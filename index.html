@@ -1,468 +1,409 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>आशा प्रोत्साहन भुगतान पोर्टल - अयोध्या (NHM)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>आशा प्रोत्साहन राशि विवरण</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; margin: 0; padding: 12px; color: #1e293b; }
+    .container { max-width: 540px; margin: auto; background: #fff; border-radius: 14px; padding: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+    .header { text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px; }
+    .header h2 { margin: 0; color: #0f766e; font-size: 20px; }
+    .header p { margin: 4px 0 0; font-size: 13px; color: #64748b; }
+    label { font-weight: 600; font-size: 13px; display: block; margin-bottom: 5px; color: #334155; }
+    input, select { width: 100%; padding: 11px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 15px; box-sizing: border-box; margin-bottom: 12px; background: #fff; }
+    input:focus, select:focus { border-color: #0f766e; outline: none; }
+    .btn-primary { width: 100%; padding: 12px; background: #0f766e; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    .btn-primary:hover { background: #115e59; }
+    
+    .dup-box { background: #fffbeb; border: 1px solid #fcd34d; padding: 12px; border-radius: 8px; margin-top: 15px; }
+    .dup-title { font-weight: bold; color: #b45309; font-size: 14px; margin-bottom: 10px; }
+    .asha-choice { display: block; width: 100%; text-align: left; background: #fff; border: 1.5px solid #0f766e; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
+    .asha-choice:hover { background: #f0fdfa; }
+    .asha-choice strong { color: #0f766e; font-size: 15px; display: block; }
+    .asha-choice span { font-size: 12px; color: #475569; }
+
+    .profile-card { background: #f8fafc; border-left: 4px solid #0f766e; padding: 12px; border-radius: 6px; margin-top: 16px; font-size: 13.5px; line-height: 1.6; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .total-box { background: #ecfdf5; border: 1px solid #6ee7b7; padding: 12px; border-radius: 10px; text-align: center; margin: 12px 0; }
+    .total-box .amt { font-size: 24px; font-weight: bold; color: #047857; display: block; margin-top: 2px; }
+    .total-sub { font-size: 12px; color: #065f46; margin-top: 3px; display: block; }
+    
+    .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+    .tab { flex: 1; padding: 8px 4px; border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; text-align: center; }
+    .tab.active { background: #0f766e; color: white; border-color: #0f766e; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { background: #f1f5f9; text-align: left; padding: 10px; border-bottom: 2px solid #cbd5e1; color: #334155; }
+    td { padding: 10px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+    .prog-tag { display: inline-block; font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 600; margin-bottom: 3px; }
+    .head-text { display: block; color: #1e293b; font-weight: 500; }
+    .month-breakup { display: block; font-size: 11.5px; color: #475569; margin-top: 4px; background: #f8fafc; padding: 4px 6px; border-radius: 4px; border-left: 2px solid #94a3b8; }
+    .paid { color: #047857; font-weight: bold; background: #ecfdf5; padding: 4px 8px; border-radius: 12px; white-space: nowrap; font-size: 13px; }
+    .unpaid { color: #dc2626; font-weight: bold; background: #fef2f2; padding: 4px 8px; border-radius: 12px; white-space: nowrap; font-size: 13px; }
+    .loader { display: none; text-align: center; margin: 15px 0; color: #0f766e; font-weight: bold; }
+  </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen">
+<body>
 
-  <!-- Header -->
-  <header class="bg-teal-700 text-white shadow-md">
-    <div class="max-w-5xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
-      <div>
-        <h1 class="text-xl font-bold">आशा प्रोत्साहन भुगतान ट्रैकर (अयोध्या)</h1>
-        <p class="text-xs text-teal-100">राष्ट्रीय स्वास्थ्य मिशन (NHM) • मद-वार एवं माह-वार भुगतान विवरण</p>
-      </div>
-      <button id="toggleAdminBtn" class="px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-xs font-semibold rounded-lg border border-teal-500">
-        CSV अपलोड (Admin)
-      </button>
+<div class="container">
+  <div class="header">
+    <h2>आशा मदवार भुगतान विवरण</h2>
+    <p>राष्ट्रीय स्वास्थ्य मिशन (NHM), अयोध्या</p>
+  </div>
+
+  <label for="ashaId">अपनी ASHA ID दर्ज करें:</label>
+  <input type="text" id="ashaId" placeholder="उदाहरण: 2404031" onkeydown="if(event.key==='Enter') searchAsha()">
+  <button class="btn-primary" onclick="searchAsha()">खोजें (Search)</button>
+
+  <div class="loader" id="loader">जानकारी खोजा जा रही है...</div>
+
+  <div id="duplicateSection" class="dup-box" style="display:none;">
+    <div class="dup-title">इस ID से एक से अधिक आशाएं दर्ज हैं। कृपया अपना नाम व क्षेत्र चुनें:</div>
+    <div id="duplicateList"></div>
+  </div>
+
+  <div id="resultSection" style="display:none;">
+    <div class="profile-card">
+      <div><strong>नाम:</strong> <span id="pName"></span> (ID: <span id="pId"></span>)</div>
+      <div><strong>ब्लॉक:</strong> <span id="pBlock"></span> | <strong>उपकेंद्र (SC):</strong> <span id="pSC"></span></div>
+      <div><strong>ग्राम (Village):</strong> <span id="pVillage"></span></div>
     </div>
-  </header>
 
-  <main class="max-w-5xl mx-auto px-4 py-6 space-y-6">
-
-    <!-- Admin CSV Upload Panel -->
-    <section id="adminPanel" class="hidden bg-white p-5 rounded-xl shadow border border-teal-200">
-      <div class="flex justify-between items-center mb-3">
-        <h2 class="text-base font-bold text-teal-800">फ़ास्ट डेटा अपलोड (CSV से Firebase)</h2>
-        <span class="text-xs text-emerald-700 font-semibold">⚡ Compressed Mode (2–3 sec upload)</span>
+    <div class="grid-2">
+      <div>
+        <label for="monthSelect">माह (Month):</label>
+        <select id="monthSelect" onchange="onMonthChange()"></select>
       </div>
-
-      <div class="flex flex-wrap items-center gap-3">
-        <input type="file" id="csvFileInput" accept=".csv" multiple
-          class="block text-sm text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100" />
-        <button id="uploadCsvBtn" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-lg shadow">
-          CSV प्रोसेस और अपलोड करें
-        </button>
-        <button id="clearDbBtn" class="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200">
-          पुराना डेटा साफ़ करें
-        </button>
+      <div>
+        <label for="programSelect">प्रोग्राम (Program):</label>
+        <select id="programSelect" onchange="renderMonthData()"></select>
       </div>
+    </div>
 
-      <div id="uploadStatus" class="mt-3 text-xs font-medium text-slate-700"></div>
-    </section>
+    <div class="total-box">
+      <span id="totalTitle">कुल भुगतान राशि</span>
+      <span class="amt" id="totalAmt">₹0</span>
+      <span class="total-sub" id="totalSub"></span>
+    </div>
 
-    <!-- Search & Hierarchy Filters -->
-    <section class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">ब्लॉक (Block)</label>
-          <select id="blockFilter" class="w-full p-2 border border-slate-300 rounded-lg text-sm bg-white">
-            <option value="">सभी ब्लॉक चुनें</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">उपकेन्द्र (Sub-Center)</label>
-          <select id="scFilter" class="w-full p-2 border border-slate-300 rounded-lg text-sm bg-white">
-            <option value="">सभी उपकेन्द्र</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">आशा चुनें (ASHA Worker)</label>
-          <select id="ashaSelect" class="w-full p-2 border border-slate-300 rounded-lg text-sm bg-white">
-            <option value="">-- आशा का नाम चुनें --</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">या ASHA ID / नाम खोजें</label>
-          <input type="text" id="searchInput" placeholder="उदा. 2404031 या JAYASHRI"
-            class="w-full p-2 border border-slate-300 rounded-lg text-sm" />
-        </div>
-      </div>
-      <div id="dbLoadInfo" class="text-xs text-slate-500">डेटा लोड हो रहा है...</div>
-    </section>
+    <div class="tabs">
+      <div class="tab active" onclick="setFilter('all', this)">सभी मद (<span id="cntAll">0</span>)</div>
+      <div class="tab" onclick="setFilter('paid', this)">भुगतान हुआ (<span id="cntPaid">0</span>)</div>
+      <div class="tab" onclick="setFilter('unpaid', this)">शून्य / ₹0 (<span id="cntUnpaid">0</span>)</div>
+    </div>
 
-    <!-- ASHA Worker Summary Card -->
-    <section id="workerSummarySection" class="hidden bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-      <div class="flex flex-wrap justify-between items-center gap-4 border-b border-slate-100 pb-4">
-        <div>
-          <span id="wIdBadge" class="px-2.5 py-0.5 text-xs font-bold bg-teal-100 text-teal-800 rounded"></span>
-          <h2 id="wName" class="text-xl font-bold text-slate-900 mt-1"></h2>
-          <p id="wLocation" class="text-xs text-slate-500 mt-0.5"></p>
-        </div>
-        <div class="flex gap-3 text-right">
-          <div class="bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-lg">
-            <div class="text-xs text-emerald-700 font-medium">कुल भुगतान</div>
-            <div id="wTotalPaid" class="text-xl font-extrabold text-emerald-700">₹0</div>
-          </div>
-          <div class="bg-red-50 border border-red-200 px-4 py-2 rounded-lg">
-            <div class="text-xs text-red-700 font-medium">शून्य भुगतान मद</div>
-            <div id="wZeroCount" class="text-xl font-extrabold text-red-600">0</div>
-          </div>
-        </div>
-      </div>
+    <table>
+      <thead>
+        <tr>
+          <th>प्रोग्राम एवं मद (Program & Head)</th>
+          <th style="text-align:right;">राशि (₹)</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
 
-      <!-- Filter Tabs -->
-      <div class="flex gap-2 mt-4">
-        <button data-tab="all" class="tab-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-teal-600 text-white">
-          सभी मद (All Heads)
-        </button>
-        <button data-tab="paid" class="tab-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700">
-          भुगतान प्राप्त (Paid)
-        </button>
-        <button data-tab="zero" class="tab-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700">
-          शून्य भुगतान (₹0)
-        </button>
-      </div>
-    </section>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
-    <!-- Head-wise Payment Cards -->
-    <section id="cardsContainer" class="bg-white rounded-xl shadow-sm border border-slate-200 divide-y divide-slate-200 overflow-hidden">
-      <div class="p-8 text-center text-sm text-slate-500">
-        ऊपर दिए गए विकल्पों से ब्लॉक/उपकेन्द्र चुनें या ASHA ID लिखकर भुगतान विवरण देखें।
-      </div>
-    </section>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
+    authDomain: "asha-payment.firebaseapp.com",
+    databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "asha-payment",
+    storageBucket: "asha-payment.firebasestorage.app",
+    messagingSenderId: "117935142167",
+    appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
+    measurementId: "G-43YGRC5CKL"
+  };
 
-  </main>
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const rootRef = ref(db, "asha_portal_v2");
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+  let cachedHeads = null;
+  let cachedMonths = null;
+  let matchedProfiles = [];
+  let activeProfile = null;
+  let currentFilter = 'all';
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
-      authDomain: "asha-payment.firebaseapp.com",
-      databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "asha-payment",
-      storageBucket: "asha-payment.firebasestorage.app",
-      messagingSenderId: "117935142167",
-      appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
-      measurementId: "G-43YGRC5CKL"
-    };
+  // "26-Jul" या "Jul-26" को "07-2026" में बदलने वाला फ़ंक्शन
+  function normalizeMonthKey(raw) {
+    const str = String(raw || "").trim();
+    const map = { jan:"01", feb:"02", mar:"03", apr:"04", may:"05", jun:"06", jul:"07", aug:"08", sep:"09", oct:"10", nov:"11", dec:"12" };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const rootRef = ref(db, "asha_portal_v2");
+    const m1 = str.match(/^([A-Za-z]{3})[-/](\d{2,4})$/);
+    if (m1 && map[m1[1].toLowerCase()]) {
+      const yy = m1[2].length === 2 ? `20${m1[2]}` : m1[2];
+      return `${map[m1[1].toLowerCase()]}-${yy}`;
+    }
 
-    let masterHeads = [];   // [{ p: "NLEP", h: "LCDC" }, ...]
-    let allMonths = [];     // ["04-2026", "07-2026", ...]
-    let allWorkers = {};    // { id: { n, b, s, v, t, p: { headIdx: { month: amt } } } }
-    let currentWorkerId = null;
-    let currentTab = "all";
+    const m2 = str.match(/^(\d{2,4})[-/]([A-Za-z]{3})$/);
+    if (m2 && map[m2[2].toLowerCase()]) {
+      const yy = m2[1].length === 2 ? `20${m2[1]}` : m2[1];
+      return `${map[m2[2].toLowerCase()]}-${yy}`;
+    }
 
-    // --- 1. Stateful CSV Parser ---
-    function parseFullCSV(csvText) {
-      const rows = [];
-      let currentRow = [];
-      let currentVal = "";
-      let inQuotes = false;
+    const m3 = str.match(/^(\d{1,2})[-/](\d{4})$/);
+    if (m3) return `${m3[1].padStart(2, "0")}-${m3[2]}`;
 
-      if (csvText.charCodeAt(0) === 0xFEFF) csvText = csvText.slice(1);
+    return str;
+  }
 
-      for (let i = 0; i < csvText.length; i++) {
-        const char = csvText[i];
-        const nextChar = csvText[i + 1];
-
-        if (char === '"') {
-          if (inQuotes && nextChar === '"') {
-            currentVal += '"';
-            i++;
-          } else {
-            inQuotes = !inQuotes;
-          }
-        } else if (char === "," && !inQuotes) {
-          currentRow.push(currentVal.trim());
-          currentVal = "";
-        } else if ((char === "\n" || (char === "\r" && nextChar === "\n")) && !inQuotes) {
-          if (char === "\r") i++;
-          currentRow.push(currentVal.trim());
-          if (currentRow.some(c => c !== "")) rows.push(currentRow);
-          currentRow = [];
-          currentVal = "";
-        } else {
-          currentVal += char;
-        }
+  function sortMonthsDesc(monthsArr) {
+    return monthsArr.sort((a, b) => {
+      const [mA, yA] = a.split('-').map(Number);
+      const [mB, yB] = b.split('-').map(Number);
+      if (yA && yB && mA && mB) {
+        return (yB * 100 + mB) - (yA * 100 + mA);
       }
-      if (currentVal !== "" || currentRow.length > 0) {
-        currentRow.push(currentVal.trim());
-        rows.push(currentRow);
-      }
-      if (rows.length < 2) return [];
+      return b.localeCompare(a);
+    });
+  }
 
-      const headers = rows[0].map(h => h.trim());
-      return rows.slice(1).filter(c => c.length >= headers.length).map(c => {
-        const obj = {};
-        headers.forEach((h, idx) => { obj[h] = c[idx] ?? ""; });
-        return obj;
+  function buildProfileFromCompact(rawWorker, headsList, monthsList) {
+    const monthsObj = {};
+    const availableMonths = (monthsList && monthsList.length > 0) ? monthsList : [];
+
+    availableMonths.forEach(rawM => {
+      const cleanM = normalizeMonthKey(rawM);
+      if (!monthsObj[cleanM]) {
+        monthsObj[cleanM] = headsList.map(meta => ({
+          p: meta.p || "General",
+          h: meta.h || "",
+          a: 0
+        }));
+      }
+
+      headsList.forEach((meta, idx) => {
+        const paidAmt = (rawWorker.p && rawWorker.p[idx] && rawWorker.p[idx][rawM])
+          ? Number(rawWorker.p[idx][rawM])
+          : 0;
+        monthsObj[cleanM][idx].a += paidAmt;
       });
-    }
+    });
 
-    function parseAmount(raw) {
-      const num = parseFloat(String(raw || "0").replace(/,/g, "").replace(/[^\d.-]/g, "").trim());
-      return Number.isFinite(num) ? num : 0;
-    }
+    return {
+      asha_id: String(rawWorker.id || ""),
+      name: rawWorker.n || "",
+      block: rawWorker.b || "-",
+      sc: rawWorker.s || "-",
+      village: rawWorker.v || "-",
+      months: monthsObj
+    };
+  }
 
-    function normalizeMonth(rawMonth) {
-      const str = String(rawMonth || "").trim();
-      const map = { jan:"01", feb:"02", mar:"03", apr:"04", may:"05", jun:"06", jul:"07", aug:"08", sep:"09", oct:"10", nov:"11", dec:"12" };
-      const m1 = str.match(/^([A-Za-z]{3})[-/](\d{2,4})$/);
-      if (m1 && map[m1[1].toLowerCase()]) {
-        const yy = m1[2].length === 2 ? `20${m1[2]}` : m1[2];
-        return `${map[m1[1].toLowerCase()]}-${yy}`;
-      }
-      const m2 = str.match(/^(\d{1,2})[-/](\d{4})$/);
-      if (m2) return `${m2[1].padStart(2, "0")}-${m2[2]}`;
-      return str;
-    }
+  function getAggregatedItems(monthsObj) {
+    const map = new Map();
+    const sortedMonths = sortMonthsDesc(Object.keys(monthsObj || {}));
 
-    function safeKey(str) {
-      return String(str || "").replace(/[.#$\[\]\/]/g, "_").trim();
-    }
+    sortedMonths.forEach(m => {
+      const list = monthsObj[m] || [];
+      list.forEach(item => {
+        const prog = item.p || "General";
+        const head = item.h || "";
+        const key = `${prog}|||${head}`;
+        const amt = Number(item.a) || 0;
 
-    // --- 2. Compact Aggregation (90% smaller payload -> instant upload) ---
-    function buildCompactPayload(records) {
-      const headIndexMap = new Map();
-      const headsList = [];
-      const monthsSet = new Set();
-      const workers = {};
-
-      for (const row of records) {
-        const rawId = String(row["ASHA_ID"] || "").trim();
-        const id = safeKey(rawId);
-        if (!id) continue;
-
-        const month = normalizeMonth(row["MONTH"]);
-        if (month) monthsSet.add(month);
-
-        const program = String(row["Program Name"] || "Other").trim();
-        const head = String(row["HEAD"] || "").replace(/\s+/g, " ").trim();
-        const headKey = `${program}|||${head}`;
-
-        let hIdx = headIndexMap.get(headKey);
-        if (hIdx === undefined) {
-          hIdx = headsList.length;
-          headIndexMap.set(headKey, hIdx);
-          headsList.push({ p: program, h: head });
+        if (!map.has(key)) {
+          map.set(key, {
+            p: prog,
+            h: head,
+            a: 0,
+            paidMonths: [],
+            zeroCount: 0
+          });
         }
-
-        if (!workers[id]) {
-          workers[id] = {
-            id: rawId,
-            n: String(row["ASHA_NAME"] || "").trim(),
-            b: String(row["BLOCK"] || "").trim(),
-            s: String(row["SC"] || "").trim(),
-            v: String(row["VILLAGE"] || "").trim(),
-            t: 0,
-            p: {} // Stores ONLY paid heads & months
-          };
+        const entry = map.get(key);
+        entry.a += amt;
+        if (amt > 0) {
+          entry.paidMonths.push(`${m}: ₹${amt.toLocaleString('en-IN')}`);
+        } else {
+          entry.zeroCount++;
         }
+      });
+    });
 
-        const amount = parseAmount(row["AMOUNT"]);
-        if (amount > 0) {
-          const w = workers[id];
-          if (!w.p[hIdx]) w.p[hIdx] = {};
-          w.p[hIdx][month] = (w.p[hIdx][month] || 0) + amount;
-          w.t += amount;
-        }
+    return Array.from(map.values());
+  }
+
+  window.searchAsha = async function() {
+    const idVal = document.getElementById('ashaId').value.trim().toUpperCase();
+    if (!idVal) { alert("कृपया अपनी ASHA ID दर्ज करें।"); return; }
+
+    document.getElementById('loader').style.display = 'block';
+    document.getElementById('duplicateSection').style.display = 'none';
+    document.getElementById('resultSection').style.display = 'none';
+
+    try {
+      if (!cachedHeads || !cachedMonths) {
+        const [headsSnap, monthsSnap] = await Promise.all([
+          get(child(rootRef, "heads")),
+          get(child(rootRef, "months"))
+        ]);
+        cachedHeads = headsSnap.exists() ? headsSnap.val() : [];
+        cachedMonths = monthsSnap.exists() ? monthsSnap.val() : [];
       }
 
-      return {
-        heads: headsList,
-        months: Array.from(monthsSet).sort(),
-        workers
-      };
-    }
+      const workerSnap = await get(child(rootRef, `workers/${idVal}`));
+      document.getElementById('loader').style.display = 'none';
 
-    // --- 3. Single-Shot Fast Upload ---
-    document.getElementById("uploadCsvBtn").addEventListener("click", async () => {
-      const files = document.getElementById("csvFileInput").files;
-      const statusEl = document.getElementById("uploadStatus");
-
-      if (!files.length) {
-        statusEl.textContent = "कृपया पहले कम से कम एक CSV फ़ाइल चुनें।";
+      if (!workerSnap.exists()) {
+        alert("इस ASHA ID का कोई रिकॉर्ड नहीं मिला। कृपया सही ID जांचें।");
         return;
       }
 
-      const t0 = performance.now();
-      try {
-        statusEl.textContent = "CSV फ़ाइलें पढ़ी जा रही हैं...";
-        await new Promise(r => setTimeout(r, 30)); // Allow UI text to paint
+      const rawData = workerSnap.val();
+      const rawList = Array.isArray(rawData) ? rawData : [rawData];
+      matchedProfiles = rawList.map(w => buildProfileFromCompact(w, cachedHeads, cachedMonths));
 
-        let combinedRows = [];
-        for (const file of files) {
-          const text = await file.text();
-          combinedRows = combinedRows.concat(parseFullCSV(text));
-        }
-
-        statusEl.textContent = `${combinedRows.length.toLocaleString()} पंक्तियों को कंप्रेस किया जा रहा है...`;
-        await new Promise(r => setTimeout(r, 30));
-
-        const payload = buildCompactPayload(combinedRows);
-        const sizeKB = Math.round(JSON.stringify(payload).length / 1024);
-
-        statusEl.textContent = `Firebase पर अपलोड हो रहा है (${sizeKB.toLocaleString()} KB डेटा, ${Object.keys(payload.workers).length} आशा)...`;
-
-        // Single atomic write (completes in ~2-3 seconds)
-        await set(rootRef, payload);
-
-        const sec = ((performance.now() - t0) / 1000).toFixed(1);
-        statusEl.textContent = `✅ सफलतापूर्वक अपलोड हो गया (${sec} सेकंड में)! कुल ${Object.keys(payload.workers).length} आशा कार्यकर्ता सेव किए गए।`;
-
-        masterHeads = payload.heads;
-        allMonths = payload.months;
-        allWorkers = payload.workers;
-        document.getElementById("dbLoadInfo").textContent = `डेटाबेस में ${Object.keys(allWorkers).length.toLocaleString()} आशा कार्यकर्ताओं का रिकॉर्ड उपलब्ध है।`;
-        populateFilters();
-      } catch (err) {
-        console.error(err);
-        statusEl.textContent = `❌ त्रुटि: ${err.message}`;
-      }
-    });
-
-    document.getElementById("clearDbBtn").addEventListener("click", async () => {
-      if (!confirm("क्या आप वाकई Firebase से पुराना डेटा हटाना चाहते हैं?")) return;
-      await remove(rootRef);
-      await remove(ref(db, "asha_workers")); // Also removes previous v1 node if present
-      allWorkers = {};
-      masterHeads = [];
-      allMonths = [];
-      document.getElementById("uploadStatus").textContent = "पुराना डेटा साफ़ कर दिया गया है।";
-      populateFilters();
-    });
-
-    // --- 4. Load & Filter Data ---
-    async function loadFromFirebase() {
-      const infoEl = document.getElementById("dbLoadInfo");
-      try {
-        const snap = await get(rootRef);
-        if (snap.exists()) {
-          const data = snap.val();
-          masterHeads = data.heads || [];
-          allMonths = data.months || [];
-          allWorkers = data.workers || {};
-          infoEl.textContent = `डेटाबेस में ${Object.keys(allWorkers).length.toLocaleString()} आशा कार्यकर्ताओं का रिकॉर्ड उपलब्ध है।`;
-        } else {
-          infoEl.textContent = `अभी कोई डेटा उपलब्ध नहीं है। ऊपर 'CSV अपलोड (Admin)' पर क्लिक करके CSV अपलोड करें।`;
-        }
-        populateFilters();
-      } catch (err) {
-        infoEl.textContent = `Firebase कनेक्शन त्रुटि: ${err.message}`;
-      }
-    }
-
-    function populateFilters() {
-      const blockSel = document.getElementById("blockFilter");
-      const blocks = [...new Set(Object.values(allWorkers).map(w => w.b).filter(Boolean))].sort();
-      blockSel.innerHTML = `<option value="">सभी ब्लॉक (${blocks.length})</option>` +
-        blocks.map(b => `<option value="${b}">${b}</option>`).join("");
-      updateSubCenterFilter();
-    }
-
-    function updateSubCenterFilter() {
-      const block = document.getElementById("blockFilter").value;
-      const scSel = document.getElementById("scFilter");
-      const filtered = Object.values(allWorkers).filter(w => !block || w.b === block);
-      const scs = [...new Set(filtered.map(w => w.s).filter(Boolean))].sort();
-      scSel.innerHTML = `<option value="">सभी उपकेन्द्र (${scs.length})</option>` +
-        scs.map(s => `<option value="${s}">${s}</option>`).join("");
-      updateAshaDropdown();
-    }
-
-    function updateAshaDropdown() {
-      const block = document.getElementById("blockFilter").value;
-      const sc = document.getElementById("scFilter").value;
-      const q = document.getElementById("searchInput").value.trim().toLowerCase();
-      const ashaSel = document.getElementById("ashaSelect");
-
-      const list = Object.entries(allWorkers).filter(([, w]) => {
-        if (block && w.b !== block) return false;
-        if (sc && w.s !== sc) return false;
-        if (q && !String(w.id).toLowerCase().includes(q) && !String(w.n).toLowerCase().includes(q)) return false;
-        return true;
-      }).sort((a, b) => String(a[1].n).localeCompare(String(b[1].n)));
-
-      ashaSel.innerHTML = `<option value="">-- आशा चुनें (${list.length}) --</option>` +
-        list.slice(0, 500).map(([key, w]) => `<option value="${key}">${w.n} (${w.id}) - ${w.v}</option>`).join("");
-
-      if (list.length === 1) {
-        ashaSel.value = list[0][0];
-        renderWorker(list[0][0]);
-      }
-    }
-
-    // --- 5. Render Worker Cards ---
-    function renderWorker(workerKey) {
-      currentWorkerId = workerKey;
-      const w = allWorkers[workerKey];
-      if (!w) return;
-
-      document.getElementById("workerSummarySection").classList.remove("hidden");
-      document.getElementById("wIdBadge").textContent = `ASHA ID: ${w.id}`;
-      document.getElementById("wName").textContent = w.n;
-      document.getElementById("wLocation").textContent = `ब्लॉक: ${w.b} • उपकेन्द्र: ${w.s} • ग्राम: ${w.v}`;
-      document.getElementById("wTotalPaid").textContent = `₹${(w.t || 0).toLocaleString("en-IN")}`;
-
-      const paidMap = w.p || {};
-      const expandedHeads = masterHeads.map((meta, idx) => {
-        const monthly = paidMap[idx] || {};
-        const total = Object.values(monthly).reduce((sum, val) => sum + (Number(val) || 0), 0);
-        return { program: meta.p, head: meta.h, total, monthly };
-      });
-
-      const zeroHeads = expandedHeads.filter(h => h.total === 0);
-      document.getElementById("wZeroCount").textContent = zeroHeads.length;
-
-      let displayHeads = expandedHeads;
-      if (currentTab === "paid") displayHeads = expandedHeads.filter(h => h.total > 0);
-      if (currentTab === "zero") displayHeads = zeroHeads;
-
-      displayHeads.sort((a, b) => b.total - a.total);
-      const monthsCount = allMonths.length || 6;
-
-      document.getElementById("cardsContainer").innerHTML = displayHeads.map(item => {
-        const isPaid = item.total > 0;
-        const paidEntries = Object.entries(item.monthly).filter(([, amt]) => amt > 0).sort();
-
-        const badge = isPaid
-          ? `<span class="px-3 py-1 rounded-full text-sm font-bold bg-emerald-50 text-emerald-700 shrink-0">₹${item.total.toLocaleString("en-IN")}</span>`
-          : `<span class="px-3 py-1 rounded-full text-sm font-semibold bg-red-50 text-red-600 shrink-0">₹0 (भुगतान नहीं)</span>`;
-
-        const detail = isPaid
-          ? `भुगतान माह (${paidEntries.length}): ${paidEntries.map(([m, amt]) => `${m}: ₹${amt.toLocaleString("en-IN")}`).join(", ")}`
-          : `सभी ${monthsCount} माह में भुगतान शून्य (₹0)`;
-
-        return `
-          <div class="p-4 hover:bg-slate-50 transition">
-            <div class="flex justify-between items-start gap-3">
-              <div>
-                <span class="inline-block px-2 py-0.5 text-xs font-medium bg-sky-100 text-sky-800 rounded mb-1">${item.program}</span>
-                <h3 class="text-base font-semibold text-slate-900">${item.head}</h3>
-              </div>
-              ${badge}
-            </div>
-            <div class="mt-2 px-3 py-1.5 bg-slate-50 border-l-2 border-slate-300 rounded-r text-xs text-slate-600">
-              ${detail}
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    document.getElementById("toggleAdminBtn").addEventListener("click", () => {
-      document.getElementById("adminPanel").classList.toggle("hidden");
-    });
-    document.getElementById("blockFilter").addEventListener("change", updateSubCenterFilter);
-    document.getElementById("scFilter").addEventListener("change", updateAshaDropdown);
-    document.getElementById("searchInput").addEventListener("input", updateAshaDropdown);
-    document.getElementById("ashaSelect").addEventListener("change", (e) => {
-      if (e.target.value) renderWorker(e.target.value);
-    });
-    document.querySelectorAll(".tab-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach(b => {
-          b.classList.remove("bg-teal-600", "text-white");
-          b.classList.add("bg-slate-100", "text-slate-700");
+      if (matchedProfiles.length === 1) {
+        selectProfile(0);
+      } else {
+        const listDiv = document.getElementById('duplicateList');
+        listDiv.innerHTML = "";
+        matchedProfiles.forEach((p, idx) => {
+          listDiv.innerHTML += `
+            <button class="asha-choice" onclick="selectProfile(${idx})">
+              <strong>${p.name}</strong>
+              <span>ब्लॉक: ${p.block || '-'} | SC: ${p.sc || '-'} | ग्राम: ${p.village || '-'}</span>
+            </button>`;
         });
-        btn.classList.remove("bg-slate-100", "text-slate-700");
-        btn.classList.add("bg-teal-600", "text-white");
-        currentTab = btn.dataset.tab;
-        if (currentWorkerId) renderWorker(currentWorkerId);
-      });
+        document.getElementById('duplicateSection').style.display = 'block';
+      }
+    } catch (err) {
+      document.getElementById('loader').style.display = 'none';
+      alert("डेटा लोड करने में समस्या आई: " + err.message);
+    }
+  };
+
+  window.selectProfile = function(index) {
+    activeProfile = matchedProfiles[index];
+    document.getElementById('duplicateSection').style.display = 'none';
+
+    document.getElementById('pName').innerText = activeProfile.name;
+    document.getElementById('pId').innerText = activeProfile.asha_id;
+    document.getElementById('pBlock').innerText = activeProfile.block || '-';
+    document.getElementById('pSC').innerText = activeProfile.sc || '-';
+    document.getElementById('pVillage').innerText = activeProfile.village || '-';
+
+    const monthSelect = document.getElementById('monthSelect');
+    monthSelect.innerHTML = "";
+
+    let allOpt = document.createElement('option');
+    allOpt.value = "ALL_MONTHS";
+    allOpt.text = "📊 सभी माह (मदवार कुल योग)";
+    monthSelect.appendChild(allOpt);
+
+    const months = sortMonthsDesc(Object.keys(activeProfile.months || {}));
+    months.forEach(m => {
+      let opt = document.createElement('option');
+      opt.value = m;
+      opt.text = m;
+      monthSelect.appendChild(opt);
     });
 
-    loadFromFirebase();
-  </script>
+    if (months.length > 0) {
+      monthSelect.value = months[0];
+    }
+
+    document.getElementById('resultSection').style.display = 'block';
+    onMonthChange();
+  };
+
+  window.onMonthChange = function() {
+    if (!activeProfile) return;
+    const selectedMonth = document.getElementById('monthSelect').value;
+    const items = selectedMonth === "ALL_MONTHS"
+      ? getAggregatedItems(activeProfile.months)
+      : (activeProfile.months[selectedMonth] || []);
+
+    const progSet = new Set(items.map(i => i.p || "General"));
+    const progSelect = document.getElementById('programSelect');
+    progSelect.innerHTML = `<option value="ALL">सभी प्रोग्राम (All)</option>`;
+    Array.from(progSet).sort().forEach(p => {
+      progSelect.innerHTML += `<option value="${p}">${p}</option>`;
+    });
+
+    renderMonthData();
+  };
+
+  window.setFilter = function(filterType, btn) {
+    currentFilter = filterType;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    renderMonthData();
+  };
+
+  window.renderMonthData = function() {
+    if (!activeProfile) return;
+    const selectedMonth = document.getElementById('monthSelect').value;
+    const selectedProg = document.getElementById('programSelect').value;
+    const isAllMonths = (selectedMonth === "ALL_MONTHS");
+
+    let items = isAllMonths
+      ? getAggregatedItems(activeProfile.months)
+      : (activeProfile.months[selectedMonth] || []);
+
+    if (selectedProg !== "ALL") {
+      items = items.filter(i => (i.p || "General") === selectedProg);
+    }
+
+    let total = 0, paidCount = 0, unpaidCount = 0;
+    items.forEach(i => {
+      total += i.a;
+      if (i.a > 0) paidCount++; else unpaidCount++;
+    });
+
+    const totalMonthsCount = Object.keys(activeProfile.months || {}).length;
+    document.getElementById('totalTitle').innerText = isAllMonths
+      ? `कुल संचयी भुगतान (${totalMonthsCount} माह का योग)`
+      : `माह ${selectedMonth} की कुल भुगतान राशि`;
+    document.getElementById('totalAmt').innerText = "₹" + total.toLocaleString('en-IN');
+    document.getElementById('totalSub').innerText = isAllMonths
+      ? "प्रत्येक मद के नीचे माह-वार विवरण दिया गया है"
+      : "";
+
+    document.getElementById('cntAll').innerText = items.length;
+    document.getElementById('cntPaid').innerText = paidCount;
+    document.getElementById('cntUnpaid').innerText = unpaidCount;
+
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = "";
+
+    const sortedItems = [...items].sort((x, y) => y.a - x.a);
+
+    sortedItems.forEach(item => {
+      if (currentFilter === 'paid' && item.a <= 0) return;
+      if (currentFilter === 'unpaid' && item.a > 0) return;
+
+      const badge = item.a > 0 
+        ? `<span class="paid">₹${item.a.toLocaleString('en-IN')}</span>` 
+        : `<span class="unpaid">₹0 (भुगतान नहीं)</span>`;
+
+      let breakupHtml = "";
+      if (isAllMonths) {
+        if (item.paidMonths.length > 0) {
+          breakupHtml = `<span class="month-breakup"><strong>भुगतान माह (${item.paidMonths.length}):</strong> ${item.paidMonths.join(' | ')}</span>`;
+        } else {
+          breakupHtml = `<span class="month-breakup">सभी ${item.zeroCount} माह में भुगतान शून्य (₹0)</span>`;
+        }
+      }
+
+      tbody.innerHTML += `
+        <tr>
+          <td>
+            <span class="prog-tag">${item.p || 'General'}</span>
+            <span class="head-text">${item.h}</span>
+            ${breakupHtml}
+          </td>
+          <td style="text-align:right;">${badge}</td>
+        </tr>`;
+    });
+  };
+</script>
 </body>
 </html>
