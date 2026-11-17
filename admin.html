@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin - आशा डेटा अपलोड (NHM अयोध्या)</title>
+  <title>Admin - आशा डेटा अपलोड एवं PIN प्रबंधन (NHM अयोध्या)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -13,25 +13,31 @@
     <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
       <div>
         <h1 class="text-xl font-bold">आशा भुगतान डेटा अपलोडर (Admin Panel)</h1>
-        <p class="text-xs text-teal-100">राष्ट्रीय स्वास्थ्य मिशन (NHM), अयोध्या • Excel (.xlsx) एवं CSV डायरेक्ट अपलोड</p>
+        <p class="text-xs text-teal-100">राष्ट्रीय स्वास्थ्य मिशन (NHM), अयोध्या • Excel (.xlsx) अपलोड एवं PIN प्रबंधन</p>
       </div>
-      <a href="index.html" class="px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-xs font-semibold rounded-lg border border-teal-500">
-        ASHA पोर्टल देखें →
-      </a>
+      <div class="flex gap-2">
+        <a href="dashboard.html" class="px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-xs font-semibold rounded-lg border border-teal-500">
+          समीक्षा डैशबोर्ड
+        </a>
+        <a href="index.html" class="px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-xs font-semibold rounded-lg border border-teal-500">
+          ASHA पोर्टल →
+        </a>
+      </div>
     </div>
   </header>
 
   <main class="max-w-4xl mx-auto px-4 py-6 space-y-6">
+    <!-- Section 1: Upload Excel / CSV -->
     <section class="bg-white p-6 rounded-xl shadow border border-teal-200 space-y-4">
       <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
-        <h2 class="text-base font-bold text-teal-800">Excel (.xlsx) या CSV फ़ाइल अपलोड करें</h2>
+        <h2 class="text-base font-bold text-teal-800">1. Excel (.xlsx) या CSV फ़ाइल अपलोड करें</h2>
         <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded font-semibold">
-          ✅ Excel Serial Date (46296) + मल्टी-शीट ऑटो-सपोर्ट
+          ✅ Anti-Duplicate Month + Auto-Merge
         </span>
       </div>
 
       <p class="text-xs text-slate-600 leading-relaxed">
-        Excel में <strong>46296</strong> जैसे नंबर दिखने से परेशान न हों—यह फ़ाइल अपने-आप उन्हें सही महीने (जैसे <strong>10-2026</strong>) में बदल देगी। सीधे अपनी <strong>.xlsx</strong> या <strong>.csv</strong> फ़ाइल चुनकर अपलोड करें।
+        सभी महीनों की <strong>.xlsx</strong> या <strong>.csv</strong> फ़ाइलें चुनें। एक ही महीने की पुरानी एंट्री अपने-आप रिप्लेस होकर साफ़ हो जाएगी, जिससे भुगतान कभी डबल नहीं होगा।
       </p>
 
       <div class="flex flex-wrap items-center gap-3 pt-1">
@@ -49,11 +55,31 @@
         डेटाबेस स्थिति जाँची जा रही है...
       </div>
     </section>
+
+    <!-- Section 2: Reset Forgotten 6-Digit ASHA PIN -->
+    <section class="bg-white p-6 rounded-xl shadow border border-amber-200 space-y-4">
+      <div class="flex flex-wrap justify-between items-center gap-2 border-b border-amber-100 pb-3">
+        <h2 class="text-base font-bold text-amber-800">2. भूला हुआ 6-अंकों का ASHA PIN रीसेट करें (डिफ़ॉल्ट 123456 पर)</h2>
+        <span class="text-xs bg-amber-50 text-amber-700 px-2.5 py-1 rounded font-semibold">
+          🔑 BCPM / Admin सहायता
+        </span>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <input type="text" id="resetPinAshaId" placeholder="ASHA ID दर्ज करें (उदा. 2404031)"
+          class="px-3.5 py-2 border border-slate-300 rounded-lg text-sm w-64 focus:border-amber-600 focus:outline-none" />
+        <button id="resetPinBtn" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold rounded-lg shadow-sm">
+          PIN रीसेट करें (123456)
+        </button>
+      </div>
+
+      <div id="pinResetStatus" class="hidden p-3 rounded-lg text-xs font-semibold"></div>
+    </section>
   </main>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+    import { getDatabase, ref, set, get, remove, child } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
@@ -84,12 +110,11 @@
       return Number.isFinite(num) ? num : 0;
     }
 
-    // Excel Serial Date (जैसे 46296) और टेक्स्ट डेट (Jul-26, 26-Jul, 01/10/2026) दोनों को MM-YYYY में बदलने वाला फ़ंक्शन
+    // Strict Month Normalization to MM-YYYY (prevents duplicate month entries)
     function normalizeMonth(raw) {
       const str = String(raw || "").trim();
       if (!str) return "";
 
-      // 1. Excel Serial Number (e.g., 46296 -> 10-2026)
       if (/^\d{5}(\.\d+)?$/.test(str)) {
         const serial = Math.floor(Number(str));
         if (serial > 30000 && serial < 70000) {
@@ -102,15 +127,11 @@
       }
 
       const map = { jan:"01", feb:"02", mar:"03", apr:"04", may:"05", jun:"06", jul:"07", aug:"08", sep:"09", oct:"10", nov:"11", dec:"12" };
-
-      // 2. "Jul-26" या "Jul-2026"
       const m1 = str.match(/^([A-Za-z]{3})[-/\s](\d{2,4})$/);
       if (m1 && map[m1[1].toLowerCase()]) {
         const yy = m1[2].length === 2 ? `20${m1[2]}` : m1[2];
         return `${map[m1[1].toLowerCase()]}-${yy}`;
       }
-
-      // 3. "26-Jul" या "01-Jul-2026"
       const m2 = str.match(/^(?:\d{1,2}[-/\s])?(\d{2,4})[-/\s]([A-Za-z]{3})$/) || str.match(/^\d{1,2}[-/\s]([A-Za-z]{3})[-/\s](\d{2,4})$/);
       if (m2) {
         if (map[m2[2]?.toLowerCase()]) {
@@ -122,15 +143,10 @@
           return `${map[m2[1].toLowerCase()]}-${yy}`;
         }
       }
-
-      // 4. "01/10/2026" या "01-10-2026" (DD-MM-YYYY)
       const mDate = str.match(/^\d{1,2}[-/](\d{1,2})[-/](\d{4})$/);
       if (mDate) return `${mDate[1].padStart(2, "0")}-${mDate[2]}`;
-
-      // 5. "7-2026" या "07-2026"
       const m3 = str.match(/^(\d{1,2})[-/](\d{4})$/);
       if (m3) return `${m3[1].padStart(2, "0")}-${m3[2]}`;
-
       return str;
     }
 
@@ -143,13 +159,17 @@
       const workbook = XLSX.read(buffer, { type: "array", raw: true });
       let allRows = [];
 
+      // Fallback month from filename if sheet name is generic like "Sheet1"
+      const fileMonthFallback = normalizeMonth(file.name.replace(/\.[^.]+$/, ""));
+
       for (const sheetName of workbook.SheetNames) {
         statusEl.textContent = `फ़ाइल "${file.name}" की शीट "${sheetName}" पढ़ी जा रही है...`;
         await new Promise(r => setTimeout(r, 15));
 
         const sheet = workbook.Sheets[sheetName];
         const jsonRows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-        const fallbackMonth = normalizeMonth(sheetName);
+        const sheetMonthFallback = normalizeMonth(sheetName);
+        const fallbackMonth = /^\d{2}-\d{4}$/.test(sheetMonthFallback) ? sheetMonthFallback : fileMonthFallback;
 
         for (const r of jsonRows) {
           const normalizedObj = {};
@@ -172,7 +192,7 @@
         const d = snap.val();
         const wCount = Object.keys(d.workers || {}).length;
         const hCount = (d.heads || []).length;
-        const mList = (d.months || []).join(", ");
+        const mList = Array.from(new Set((d.months || []).map(normalizeMonth))).sort().join(", ");
         statusEl.innerHTML = `📊 <strong>वर्तमान डेटाबेस:</strong> ${wCount.toLocaleString()} आशा कार्यकर्ता • ${hCount} प्रोग्राम/मद • उपलब्ध माह: <strong>${mList || "कोई नहीं"}</strong>`;
       } else {
         statusEl.textContent = "अभी डेटाबेस खाली है। नीचे से अपनी Excel (.xlsx) या CSV फ़ाइल चुनकर अपलोड करें।";
@@ -200,7 +220,7 @@
           headIndexMap.set(`${item.p}|||${item.h}`, idx);
         });
 
-        const monthsSet = new Set((existing.months || []).map(normalizeMonth));
+        const monthsSet = new Set((existing.months || []).map(normalizeMonth).filter(Boolean));
         const workers = existing.workers || {};
 
         let combinedRows = [];
@@ -212,21 +232,31 @@
         statusEl.textContent = `कुल ${combinedRows.length.toLocaleString()} पंक्तियों को प्रोसेस किया जा रहा है...`;
         await new Promise(r => setTimeout(r, 20));
 
+        // Identify all months present in the newly uploaded files
         const uploadingMonths = new Set();
         for (const row of combinedRows) {
           const m = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
           if (m) uploadingMonths.add(m);
         }
 
+        // Clean any old/unnormalized duplicates of those months before merging
         for (const wKey of Object.keys(workers)) {
           const w = workers[wKey];
           if (!w.p) continue;
           for (const hIdx of Object.keys(w.p)) {
-            for (const m of uploadingMonths) {
-              delete w.p[hIdx][m];
+            const cleanMonthMap = {};
+            for (const [rawM, val] of Object.entries(w.p[hIdx])) {
+              const normM = normalizeMonth(rawM);
+              if (!uploadingMonths.has(normM)) {
+                cleanMonthMap[normM] = (cleanMonthMap[normM] || 0) + (Number(val) || 0);
+              }
             }
+            w.p[hIdx] = cleanMonthMap;
           }
         }
+
+        // Deduplicate identical rows inside the same Excel upload (same ASHA + Month + Program + Head)
+        const seenRowKeys = new Set();
 
         for (const row of combinedRows) {
           const rawId = getCol(row, ["ASHA_ID", "ASHA ID", "ASHAID", "ID"]);
@@ -262,12 +292,16 @@
             const w = workers[id];
             if (!w.n) w.n = getCol(row, ["ASHA_NAME", "ASHA NAME", "NAME"]);
             if (!w.b) w.b = getCol(row, ["BLOCK", "BLOCK NAME"]);
-            if (!w.s) w.s = getCol(row, ["SC", "SUB CENTER", "SUB_CENTER"]);
+            if (!w.s) w.s = getCol(row, ["SC", "SUB CENTER", "SUB_CENTER", "SUBCENTER"]);
             if (!w.v) w.v = getCol(row, ["VILLAGE", "VILLAGE NAME"]);
           }
 
           const amount = parseAmount(getCol(row, ["AMOUNT", "PAID_AMOUNT", "NET_AMOUNT", "TOTAL"]));
           if (amount > 0 && month) {
+            const uniqueEntryKey = `${id}|||${month}|||${hIdx}|||${amount}`;
+            if (seenRowKeys.has(uniqueEntryKey)) continue; // Skip exact duplicate rows
+            seenRowKeys.add(uniqueEntryKey);
+
             const w = workers[id];
             if (!w.p) w.p = {};
             if (!w.p[hIdx]) w.p[hIdx] = {};
@@ -303,6 +337,43 @@
         console.error(err);
         statusEl.textContent = `❌ त्रुटि: ${err.message}`;
       }
+    });
+
+    // Reset Forgotten 6-Digit ASHA PIN to default (123456)
+    document.getElementById("resetPinBtn").addEventListener("click", async () => {
+      const rawId = document.getElementById("resetPinAshaId").value.trim();
+      const statusBox = document.getElementById("pinResetStatus");
+      statusBox.classList.remove("hidden");
+
+      if (!rawId) {
+        statusBox.className = "p-3 rounded-lg text-xs font-semibold bg-red-50 text-red-700 border border-red-200";
+        statusBox.textContent = "⚠️ कृपया पहले ASHA ID दर्ज करें।";
+        return;
+      }
+
+      const idKey = safeKey(rawId);
+      const workerRef = child(rootRef, `workers/${idKey}`);
+      const snap = await get(workerRef);
+
+      if (!snap.exists()) {
+        statusBox.className = "p-3 rounded-lg text-xs font-semibold bg-red-50 text-red-700 border border-red-200";
+        statusBox.textContent = `❌ ASHA ID "${rawId}" डेटाबेस में नहीं मिली।`;
+        return;
+      }
+
+      const val = snap.val();
+      if (Array.isArray(val)) {
+        for (let i = 0; i < val.length; i++) {
+          await remove(child(workerRef, `${i}/pin`));
+        }
+      } else {
+        await remove(child(workerRef, "pin"));
+      }
+
+      const workerName = Array.isArray(val) ? val.map(x => x.n).join(", ") : (val.n || rawId);
+      statusBox.className = "p-3 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200";
+      statusBox.innerHTML = `✅ <strong>${workerName}</strong> (ID: ${rawId}) का PIN रीसेट हो गया है। अब वे डिफ़ॉल्ट PIN <strong>123456</strong> से लॉगिन कर सकती हैं।`;
+      document.getElementById("resetPinAshaId").value = "";
     });
 
     document.getElementById("clearDbBtn").addEventListener("click", async () => {
