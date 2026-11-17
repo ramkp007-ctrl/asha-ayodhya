@@ -3,105 +3,455 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>आशा प्रोत्साहन राशि विवरण</title>
+  <title>आशा प्रोत्साहन राशि विवरण - NHM अयोध्या</title>
   <style>
-    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; margin: 0; padding: 12px; color: #1e293b; }
-    .container { max-width: 540px; margin: auto; background: #fff; border-radius: 14px; padding: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-    .header { text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px; }
-    .header h2 { margin: 0; color: #0f766e; font-size: 20px; }
-    .header p { margin: 4px 0 0; font-size: 13px; color: #64748b; }
-    label { font-weight: 600; font-size: 13px; display: block; margin-bottom: 5px; color: #334155; }
-    input, select { width: 100%; padding: 11px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 15px; box-sizing: border-box; margin-bottom: 12px; background: #fff; }
-    input:focus, select:focus { border-color: #0f766e; outline: none; }
-    .btn-primary { width: 100%; padding: 12px; background: #0f766e; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
-    .btn-primary:hover { background: #115e59; }
-    
-    .dup-box { background: #fffbeb; border: 1px solid #fcd34d; padding: 12px; border-radius: 8px; margin-top: 15px; }
-    .dup-title { font-weight: bold; color: #b45309; font-size: 14px; margin-bottom: 10px; }
-    .asha-choice { display: block; width: 100%; text-align: left; background: #fff; border: 1.5px solid #0f766e; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
-    .asha-choice:hover { background: #f0fdfa; }
-    .asha-choice strong { color: #0f766e; font-size: 15px; display: block; }
+    :root {
+      --primary: #0f766e;
+      --primary-dark: #115e59;
+      --primary-light: #f0fdfa;
+      --accent: #0284c7;
+      --bg: #eef2f6;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #cbd5e1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 12px;
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 580px;
+      margin: auto;
+      background: var(--card);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(15, 23, 42, 0.08);
+    }
+
+    /* NHM Header Banner */
+    .header {
+      background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+      color: #ffffff;
+      text-align: center;
+      padding: 18px 16px;
+    }
+    .header .badge-top {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.18);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+    .header h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .header p {
+      margin: 4px 0 0;
+      font-size: 12.5px;
+      color: #ccfbf1;
+    }
+
+    .content { padding: 18px; }
+
+    /* Search Box Area */
+    .search-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px;
+    }
+    label {
+      font-weight: 600;
+      font-size: 13px;
+      display: block;
+      margin-bottom: 6px;
+      color: #334155;
+    }
+    .search-row {
+      display: flex;
+      gap: 8px;
+    }
+    input, select {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-size: 15px;
+      background: #fff;
+      color: var(--text);
+    }
+    input:focus, select:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+    }
+    .btn-primary {
+      padding: 11px 18px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 9px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    /* Duplicate Profile Selection */
+    .dup-box {
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      padding: 14px;
+      border-radius: 10px;
+      margin-top: 14px;
+    }
+    .dup-title {
+      font-weight: 700;
+      color: #b45309;
+      font-size: 13.5px;
+      margin-bottom: 10px;
+    }
+    .asha-choice {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: #fff;
+      border: 1.5px solid var(--primary);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    .asha-choice:hover { background: var(--primary-light); }
+    .asha-choice strong { color: var(--primary); font-size: 15px; display: block; }
     .asha-choice span { font-size: 12px; color: #475569; }
 
-    .profile-card { background: #f8fafc; border-left: 4px solid #0f766e; padding: 12px; border-radius: 6px; margin-top: 16px; font-size: 13.5px; line-height: 1.6; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
-    .total-box { background: #ecfdf5; border: 1px solid #6ee7b7; padding: 12px; border-radius: 10px; text-align: center; margin: 12px 0; }
-    .total-box .amt { font-size: 24px; font-weight: bold; color: #047857; display: block; margin-top: 2px; }
-    .total-sub { font-size: 12px; color: #065f46; margin-top: 3px; display: block; }
-    
-    .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
-    .tab { flex: 1; padding: 8px 4px; border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; text-align: center; }
-    .tab.active { background: #0f766e; color: white; border-color: #0f766e; }
+    /* Profile Card */
+    .profile-card {
+      background: var(--primary-light);
+      border: 1px solid #99f6e4;
+      border-left: 5px solid var(--primary);
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin-top: 16px;
+      font-size: 13.5px;
+      line-height: 1.65;
+      position: relative;
+    }
+    .profile-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .profile-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .id-badge {
+      background: #0f766e;
+      color: #fff;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
 
-    table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    th { background: #f1f5f9; text-align: left; padding: 10px; border-bottom: 2px solid #cbd5e1; color: #334155; }
-    td { padding: 10px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
-    .prog-tag { display: inline-block; font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 600; margin-bottom: 3px; }
-    .head-text { display: block; color: #1e293b; font-weight: 500; }
-    .month-breakup { display: block; font-size: 11.5px; color: #475569; margin-top: 4px; background: #f8fafc; padding: 4px 6px; border-radius: 4px; border-left: 2px solid #94a3b8; }
-    .paid { color: #047857; font-weight: bold; background: #ecfdf5; padding: 4px 8px; border-radius: 12px; white-space: nowrap; font-size: 13px; }
-    .unpaid { color: #dc2626; font-weight: bold; background: #fef2f2; padding: 4px 8px; border-radius: 12px; white-space: nowrap; font-size: 13px; }
-    .loader { display: none; text-align: center; margin: 15px 0; color: #0f766e; font-weight: bold; }
+    /* Filters */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .grid-2 select { margin-bottom: 0; font-size: 14px; padding: 9px 10px; }
+
+    /* Summary Card */
+    .total-box {
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+      border: 1px solid #6ee7b7;
+      padding: 14px;
+      border-radius: 12px;
+      text-align: center;
+      margin: 14px 0;
+    }
+    .total-box .title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #065f46;
+    }
+    .total-box .amt {
+      font-size: 28px;
+      font-weight: 800;
+      color: #047857;
+      display: block;
+      margin: 3px 0;
+    }
+    .total-sub {
+      font-size: 11.5px;
+      color: #047857;
+      display: block;
+    }
+
+    /* Action Buttons (Print & WhatsApp) */
+    .action-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .btn-action {
+      padding: 9px 10px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .btn-print {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+    }
+    .btn-print:hover { background: #dbeafe; }
+    .btn-wa {
+      background: #f0fdf4;
+      color: #15803d;
+      border-color: #bbf7d0;
+    }
+    .btn-wa:hover { background: #dcfce7; }
+
+    /* Head Search Input */
+    .head-search-wrap {
+      margin-bottom: 12px;
+    }
+    .head-search-wrap input {
+      margin-bottom: 0;
+      font-size: 13.5px;
+      padding: 9px 12px;
+      background: #f8fafc;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .tab {
+      flex: 1;
+      padding: 8px 4px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      color: #475569;
+    }
+    .tab.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    th {
+      background: #f1f5f9;
+      text-align: left;
+      padding: 10px;
+      border-bottom: 2px solid var(--border);
+      color: #334155;
+      font-size: 12.5px;
+    }
+    td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: middle;
+    }
+    tr:hover td { background: #f8fafc; }
+    .prog-tag {
+      display: inline-block;
+      font-size: 10.5px;
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .head-text {
+      display: block;
+      color: #1e293b;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+    .month-breakup {
+      display: block;
+      font-size: 11px;
+      color: #475569;
+      margin-top: 5px;
+      background: #f8fafc;
+      padding: 4px 7px;
+      border-radius: 5px;
+      border-left: 2.5px solid #0d9488;
+    }
+    .paid {
+      color: #047857;
+      font-weight: 700;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      padding: 4px 9px;
+      border-radius: 12px;
+      white-space: nowrap;
+      font-size: 13px;
+      display: inline-block;
+    }
+    .unpaid {
+      color: #dc2626;
+      font-weight: 700;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      padding: 4px 8px;
+      border-radius: 12px;
+      white-space: nowrap;
+      font-size: 12px;
+      display: inline-block;
+    }
+
+    .loader {
+      display: none;
+      text-align: center;
+      margin: 16px 0;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .footer-note {
+      text-align: center;
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 18px;
+      padding-top: 10px;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    /* Clean Print / PDF Slip Styles */
+    @media print {
+      body { background: #fff; padding: 0; }
+      .container { box-shadow: none; max-width: 100%; border: 1px solid #cbd5e1; }
+      .search-box, .action-bar, .head-search-wrap, .tabs, .footer-note { display: none !important; }
+      .header { background: #0f766e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
   </style>
 </head>
 <body>
 
 <div class="container">
   <div class="header">
-    <h2>आशा मदवार भुगतान विवरण</h2>
-    <p>राष्ट्रीय स्वास्थ्य मिशन (NHM), अयोध्या</p>
+    <span class="badge-top">राष्ट्रीय स्वास्थ्य मिशन (NHM), उत्तर प्रदेश</span>
+    <h2>आशा प्रोत्साहन भुगतान विवरण</h2>
+    <p>जिला स्वास्थ्य समिति, अयोध्या</p>
   </div>
 
-  <label for="ashaId">अपनी ASHA ID दर्ज करें:</label>
-  <input type="text" id="ashaId" placeholder="उदाहरण: 2404031" onkeydown="if(event.key==='Enter') searchAsha()">
-  <button class="btn-primary" onclick="searchAsha()">खोजें (Search)</button>
-
-  <div class="loader" id="loader">जानकारी खोजा जा रही है...</div>
-
-  <div id="duplicateSection" class="dup-box" style="display:none;">
-    <div class="dup-title">इस ID से एक से अधिक आशाएं दर्ज हैं। कृपया अपना नाम व क्षेत्र चुनें:</div>
-    <div id="duplicateList"></div>
-  </div>
-
-  <div id="resultSection" style="display:none;">
-    <div class="profile-card">
-      <div><strong>नाम:</strong> <span id="pName"></span> (ID: <span id="pId"></span>)</div>
-      <div><strong>ब्लॉक:</strong> <span id="pBlock"></span> | <strong>उपकेंद्र (SC):</strong> <span id="pSC"></span></div>
-      <div><strong>ग्राम (Village):</strong> <span id="pVillage"></span></div>
-    </div>
-
-    <div class="grid-2">
-      <div>
-        <label for="monthSelect">माह (Month):</label>
-        <select id="monthSelect" onchange="onMonthChange()"></select>
-      </div>
-      <div>
-        <label for="programSelect">प्रोग्राम (Program):</label>
-        <select id="programSelect" onchange="renderMonthData()"></select>
+  <div class="content">
+    <div class="search-box">
+      <label for="ashaId">अपनी ASHA ID दर्ज करें:</label>
+      <div class="search-row">
+        <input type="text" id="ashaId" placeholder="उदाहरण: 2404031" onkeydown="if(event.key==='Enter') searchAsha()">
+        <button class="btn-primary" onclick="searchAsha()">खोजें</button>
       </div>
     </div>
 
-    <div class="total-box">
-      <span id="totalTitle">कुल भुगतान राशि</span>
-      <span class="amt" id="totalAmt">₹0</span>
-      <span class="total-sub" id="totalSub"></span>
+    <div class="loader" id="loader">जानकारी खोजी जा रही है...</div>
+
+    <div id="duplicateSection" class="dup-box" style="display:none;">
+      <div class="dup-title">इस ID से एक से अधिक आशाएं दर्ज हैं। कृपया अपना नाम व क्षेत्र चुनें:</div>
+      <div id="duplicateList"></div>
     </div>
 
-    <div class="tabs">
-      <div class="tab active" onclick="setFilter('all', this)">सभी मद (<span id="cntAll">0</span>)</div>
-      <div class="tab" onclick="setFilter('paid', this)">भुगतान हुआ (<span id="cntPaid">0</span>)</div>
-      <div class="tab" onclick="setFilter('unpaid', this)">शून्य / ₹0 (<span id="cntUnpaid">0</span>)</div>
+    <div id="resultSection" style="display:none;">
+      <div class="profile-card">
+        <div class="profile-top">
+          <span class="profile-name" id="pName"></span>
+          <span class="id-badge">ID: <span id="pId"></span></span>
+        </div>
+        <div><strong>ब्लॉक:</strong> <span id="pBlock"></span> | <strong>उपकेंद्र (SC):</strong> <span id="pSC"></span></div>
+        <div><strong>ग्राम (Village):</strong> <span id="pVillage"></span></div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label for="monthSelect">माह (Month):</label>
+          <select id="monthSelect" onchange="onMonthChange()"></select>
+        </div>
+        <div>
+          <label for="programSelect">प्रोग्राम (Program):</label>
+          <select id="programSelect" onchange="renderMonthData()"></select>
+        </div>
+      </div>
+
+      <div class="total-box">
+        <span class="title" id="totalTitle">कुल भुगतान राशि</span>
+        <span class="amt" id="totalAmt">₹0</span>
+        <span class="total-sub" id="totalSub"></span>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn-action btn-print" onclick="window.print()">🖨️ स्लिप प्रिंट / PDF</button>
+        <button class="btn-action btn-wa" onclick="shareWhatsApp()">📲 WhatsApp पर भेजें</button>
+      </div>
+
+      <div class="head-search-wrap">
+        <input type="text" id="headFilterInput" placeholder="🔍 मद या प्रोग्राम का नाम खोजें (जैसे: JSSK, टीकाकरण, HBNC)..." oninput="renderMonthData()">
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="setFilter('all', this)">सभी (<span id="cntAll">0</span>)</div>
+        <div class="tab" onclick="setFilter('paid', this)">भुगतान (<span id="cntPaid">0</span>)</div>
+        <div class="tab" onclick="setFilter('unpaid', this)">शून्य / ₹0 (<span id="cntUnpaid">0</span>)</div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>प्रोग्राम एवं मद (Program & Head)</th>
+            <th style="text-align:right;">राशि (₹)</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>प्रोग्राम एवं मद (Program & Head)</th>
-          <th style="text-align:right;">राशि (₹)</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
+    <div class="footer-note">
+      डिजिटल आशा भुगतान ट्रैकर • NHM अयोध्या
+    </div>
   </div>
 </div>
 
@@ -130,7 +480,20 @@
   let activeProfile = null;
   let currentFilter = 'all';
 
-  // "26-Jul" या "Jul-26" को "07-2026" में बदलने वाला फ़ंक्शन
+  const HINDI_MONTHS = {
+    "01": "जनवरी", "02": "फ़रवरी", "03": "मार्च", "04": "अप्रैल",
+    "05": "मई", "06": "जून", "07": "जुलाई", "08": "अगस्त",
+    "09": "सितंबर", "10": "अक्टूबर", "11": "नवंबर", "12": "दिसंबर"
+  };
+
+  function formatMonthHindi(mmYyyy) {
+    const parts = String(mmYyyy || "").split("-");
+    if (parts.length === 2 && HINDI_MONTHS[parts[0]]) {
+      return `${HINDI_MONTHS[parts[0]]} ${parts[1]} (${mmYyyy})`;
+    }
+    return mmYyyy;
+  }
+
   function normalizeMonthKey(raw) {
     const str = String(raw || "").trim();
     const map = { jan:"01", feb:"02", mar:"03", apr:"04", may:"05", jun:"06", jul:"07", aug:"08", sep:"09", oct:"10", nov:"11", dec:"12" };
@@ -140,16 +503,13 @@
       const yy = m1[2].length === 2 ? `20${m1[2]}` : m1[2];
       return `${map[m1[1].toLowerCase()]}-${yy}`;
     }
-
     const m2 = str.match(/^(\d{2,4})[-/]([A-Za-z]{3})$/);
     if (m2 && map[m2[2].toLowerCase()]) {
       const yy = m2[1].length === 2 ? `20${m2[1]}` : m2[1];
       return `${map[m2[2].toLowerCase()]}-${yy}`;
     }
-
     const m3 = str.match(/^(\d{1,2})[-/](\d{4})$/);
     if (m3) return `${m3[1].padStart(2, "0")}-${m3[2]}`;
-
     return str;
   }
 
@@ -283,6 +643,7 @@
   window.selectProfile = function(index) {
     activeProfile = matchedProfiles[index];
     document.getElementById('duplicateSection').style.display = 'none';
+    document.getElementById('headFilterInput').value = "";
 
     document.getElementById('pName').innerText = activeProfile.name;
     document.getElementById('pId').innerText = activeProfile.asha_id;
@@ -295,14 +656,14 @@
 
     let allOpt = document.createElement('option');
     allOpt.value = "ALL_MONTHS";
-    allOpt.text = "📊 सभी माह (मदवार कुल योग)";
+    allOpt.text = "📊 सभी माह (कुल योग)";
     monthSelect.appendChild(allOpt);
 
     const months = sortMonthsDesc(Object.keys(activeProfile.months || {}));
     months.forEach(m => {
       let opt = document.createElement('option');
       opt.value = m;
-      opt.text = m;
+      opt.text = formatMonthHindi(m);
       monthSelect.appendChild(opt);
     });
 
@@ -342,6 +703,7 @@
     if (!activeProfile) return;
     const selectedMonth = document.getElementById('monthSelect').value;
     const selectedProg = document.getElementById('programSelect').value;
+    const keyword = document.getElementById('headFilterInput').value.trim().toLowerCase();
     const isAllMonths = (selectedMonth === "ALL_MONTHS");
 
     let items = isAllMonths
@@ -350,6 +712,13 @@
 
     if (selectedProg !== "ALL") {
       items = items.filter(i => (i.p || "General") === selectedProg);
+    }
+
+    if (keyword) {
+      items = items.filter(i =>
+        (i.h || "").toLowerCase().includes(keyword) ||
+        (i.p || "").toLowerCase().includes(keyword)
+      );
     }
 
     let total = 0, paidCount = 0, unpaidCount = 0;
@@ -361,11 +730,11 @@
     const totalMonthsCount = Object.keys(activeProfile.months || {}).length;
     document.getElementById('totalTitle').innerText = isAllMonths
       ? `कुल संचयी भुगतान (${totalMonthsCount} माह का योग)`
-      : `माह ${selectedMonth} की कुल भुगतान राशि`;
+      : `माह ${formatMonthHindi(selectedMonth)} का कुल भुगतान`;
     document.getElementById('totalAmt').innerText = "₹" + total.toLocaleString('en-IN');
     document.getElementById('totalSub').innerText = isAllMonths
       ? "प्रत्येक मद के नीचे माह-वार विवरण दिया गया है"
-      : "";
+      : `${paidCount} मदों में भुगतान हुआ • ${unpaidCount} मद शून्य`;
 
     document.getElementById('cntAll').innerText = items.length;
     document.getElementById('cntPaid').innerText = paidCount;
@@ -376,13 +745,18 @@
 
     const sortedItems = [...items].sort((x, y) => y.a - x.a);
 
+    if (sortedItems.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:#64748b; padding:18px;">कोई मद नहीं मिला।</td></tr>`;
+      return;
+    }
+
     sortedItems.forEach(item => {
       if (currentFilter === 'paid' && item.a <= 0) return;
       if (currentFilter === 'unpaid' && item.a > 0) return;
 
       const badge = item.a > 0 
         ? `<span class="paid">₹${item.a.toLocaleString('en-IN')}</span>` 
-        : `<span class="unpaid">₹0 (भुगतान नहीं)</span>`;
+        : `<span class="unpaid">₹0 (शून्य)</span>`;
 
       let breakupHtml = "";
       if (isAllMonths) {
@@ -403,6 +777,36 @@
           <td style="text-align:right;">${badge}</td>
         </tr>`;
     });
+  };
+
+  window.shareWhatsApp = function() {
+    if (!activeProfile) return;
+    const selectedMonth = document.getElementById('monthSelect').value;
+    const isAllMonths = (selectedMonth === "ALL_MONTHS");
+    const items = isAllMonths
+      ? getAggregatedItems(activeProfile.months)
+      : (activeProfile.months[selectedMonth] || []);
+
+    const paidItems = items.filter(i => i.a > 0).sort((a, b) => b.a - a.a);
+    const total = paidItems.reduce((sum, i) => sum + i.a, 0);
+
+    let msg = `*आशा प्रोत्साहन भुगतान विवरण (NHM अयोध्या)*\n`;
+    msg += `नाम: *${activeProfile.name}* (ID: ${activeProfile.asha_id})\n`;
+    msg += `ब्लॉक: ${activeProfile.block} | SC: ${activeProfile.sc}\n`;
+    msg += `अवधि: *${isAllMonths ? 'सभी माह (कुल योग)' : formatMonthHindi(selectedMonth)}*\n`;
+    msg += `कुल भुगतान: *₹${total.toLocaleString('en-IN')}*\n\n`;
+
+    if (paidItems.length > 0) {
+      msg += `*मदवार भुगतान:*\n`;
+      paidItems.forEach((it, idx) => {
+        msg += `${idx + 1}. [${it.p}] ${it.h}: *₹${it.a.toLocaleString('en-IN')}*\n`;
+      });
+    } else {
+      msg += `इस अवधि में कोई भुगतान दर्ज नहीं है।`;
+    }
+
+    const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
   };
 </script>
 </body>
