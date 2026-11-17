@@ -1,813 +1,317 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>आशा प्रोत्साहन राशि विवरण - NHM अयोध्या</title>
-  <style>
-    :root {
-      --primary: #0f766e;
-      --primary-dark: #115e59;
-      --primary-light: #f0fdfa;
-      --accent: #0284c7;
-      --bg: #eef2f6;
-      --card: #ffffff;
-      --text: #1e293b;
-      --muted: #64748b;
-      --border: #cbd5e1;
-    }
-
-    * { box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: var(--bg);
-      margin: 0;
-      padding: 12px;
-      color: var(--text);
-    }
-
-    .container {
-      max-width: 580px;
-      margin: auto;
-      background: var(--card);
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 8px 25px rgba(15, 23, 42, 0.08);
-    }
-
-    /* NHM Header Banner */
-    .header {
-      background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
-      color: #ffffff;
-      text-align: center;
-      padding: 18px 16px;
-    }
-    .header .badge-top {
-      display: inline-block;
-      background: rgba(255, 255, 255, 0.18);
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 20px;
-      margin-bottom: 6px;
-      letter-spacing: 0.3px;
-    }
-    .header h2 {
-      margin: 0;
-      font-size: 20px;
-      font-weight: 700;
-    }
-    .header p {
-      margin: 4px 0 0;
-      font-size: 12.5px;
-      color: #ccfbf1;
-    }
-
-    .content { padding: 18px; }
-
-    /* Search Box Area */
-    .search-box {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 14px;
-    }
-    label {
-      font-weight: 600;
-      font-size: 13px;
-      display: block;
-      margin-bottom: 6px;
-      color: #334155;
-    }
-    .search-row {
-      display: flex;
-      gap: 8px;
-    }
-    input, select {
-      width: 100%;
-      padding: 11px 12px;
-      border: 1.5px solid var(--border);
-      border-radius: 9px;
-      font-size: 15px;
-      background: #fff;
-      color: var(--text);
-    }
-    input:focus, select:focus {
-      border-color: var(--primary);
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
-    }
-    .btn-primary {
-      padding: 11px 18px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 9px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 0.15s;
-    }
-    .btn-primary:hover { background: var(--primary-dark); }
-
-    /* Duplicate Profile Selection */
-    .dup-box {
-      background: #fffbeb;
-      border: 1px solid #fcd34d;
-      padding: 14px;
-      border-radius: 10px;
-      margin-top: 14px;
-    }
-    .dup-title {
-      font-weight: 700;
-      color: #b45309;
-      font-size: 13.5px;
-      margin-bottom: 10px;
-    }
-    .asha-choice {
-      display: block;
-      width: 100%;
-      text-align: left;
-      background: #fff;
-      border: 1.5px solid var(--primary);
-      padding: 10px 12px;
-      border-radius: 8px;
-      margin-bottom: 8px;
-      cursor: pointer;
-    }
-    .asha-choice:hover { background: var(--primary-light); }
-    .asha-choice strong { color: var(--primary); font-size: 15px; display: block; }
-    .asha-choice span { font-size: 12px; color: #475569; }
-
-    /* Profile Card */
-    .profile-card {
-      background: var(--primary-light);
-      border: 1px solid #99f6e4;
-      border-left: 5px solid var(--primary);
-      padding: 12px 14px;
-      border-radius: 10px;
-      margin-top: 16px;
-      font-size: 13.5px;
-      line-height: 1.65;
-      position: relative;
-    }
-    .profile-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 4px;
-    }
-    .profile-name {
-      font-size: 16px;
-      font-weight: 700;
-      color: #0f172a;
-    }
-    .id-badge {
-      background: #0f766e;
-      color: #fff;
-      font-size: 11.5px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 6px;
-    }
-
-    /* Filters */
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 14px;
-    }
-    .grid-2 select { margin-bottom: 0; font-size: 14px; padding: 9px 10px; }
-
-    /* Summary Card */
-    .total-box {
-      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-      border: 1px solid #6ee7b7;
-      padding: 14px;
-      border-radius: 12px;
-      text-align: center;
-      margin: 14px 0;
-    }
-    .total-box .title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #065f46;
-    }
-    .total-box .amt {
-      font-size: 28px;
-      font-weight: 800;
-      color: #047857;
-      display: block;
-      margin: 3px 0;
-    }
-    .total-sub {
-      font-size: 11.5px;
-      color: #047857;
-      display: block;
-    }
-
-    /* Action Buttons (Print & WhatsApp) */
-    .action-bar {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    .btn-action {
-      padding: 9px 10px;
-      border-radius: 8px;
-      font-size: 12.5px;
-      font-weight: 700;
-      cursor: pointer;
-      border: 1px solid transparent;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-    }
-    .btn-print {
-      background: #eff6ff;
-      color: #1d4ed8;
-      border-color: #bfdbfe;
-    }
-    .btn-print:hover { background: #dbeafe; }
-    .btn-wa {
-      background: #f0fdf4;
-      color: #15803d;
-      border-color: #bbf7d0;
-    }
-    .btn-wa:hover { background: #dcfce7; }
-
-    /* Head Search Input */
-    .head-search-wrap {
-      margin-bottom: 12px;
-    }
-    .head-search-wrap input {
-      margin-bottom: 0;
-      font-size: 13.5px;
-      padding: 9px 12px;
-      background: #f8fafc;
-    }
-
-    /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 12px;
-    }
-    .tab {
-      flex: 1;
-      padding: 8px 4px;
-      border: 1px solid var(--border);
-      background: #f8fafc;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      text-align: center;
-      color: #475569;
-    }
-    .tab.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
-
-    /* Table */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13.5px;
-    }
-    th {
-      background: #f1f5f9;
-      text-align: left;
-      padding: 10px;
-      border-bottom: 2px solid var(--border);
-      color: #334155;
-      font-size: 12.5px;
-    }
-    td {
-      padding: 10px 8px;
-      border-bottom: 1px solid #e2e8f0;
-      vertical-align: middle;
-    }
-    tr:hover td { background: #f8fafc; }
-    .prog-tag {
-      display: inline-block;
-      font-size: 10.5px;
-      background: #e0f2fe;
-      color: #0369a1;
-      padding: 2px 7px;
-      border-radius: 5px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-    .head-text {
-      display: block;
-      color: #1e293b;
-      font-weight: 500;
-      line-height: 1.4;
-    }
-    .month-breakup {
-      display: block;
-      font-size: 11px;
-      color: #475569;
-      margin-top: 5px;
-      background: #f8fafc;
-      padding: 4px 7px;
-      border-radius: 5px;
-      border-left: 2.5px solid #0d9488;
-    }
-    .paid {
-      color: #047857;
-      font-weight: 700;
-      background: #ecfdf5;
-      border: 1px solid #a7f3d0;
-      padding: 4px 9px;
-      border-radius: 12px;
-      white-space: nowrap;
-      font-size: 13px;
-      display: inline-block;
-    }
-    .unpaid {
-      color: #dc2626;
-      font-weight: 700;
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      padding: 4px 8px;
-      border-radius: 12px;
-      white-space: nowrap;
-      font-size: 12px;
-      display: inline-block;
-    }
-
-    .loader {
-      display: none;
-      text-align: center;
-      margin: 16px 0;
-      color: var(--primary);
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .footer-note {
-      text-align: center;
-      font-size: 11px;
-      color: #94a3b8;
-      margin-top: 18px;
-      padding-top: 10px;
-      border-top: 1px solid #f1f5f9;
-    }
-
-    /* Clean Print / PDF Slip Styles */
-    @media print {
-      body { background: #fff; padding: 0; }
-      .container { box-shadow: none; max-width: 100%; border: 1px solid #cbd5e1; }
-      .search-box, .action-bar, .head-search-wrap, .tabs, .footer-note { display: none !important; }
-      .header { background: #0f766e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - आशा डेटा अपलोड (NHM अयोध्या)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
-<body>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
 
-<div class="container">
-  <div class="header">
-    <span class="badge-top">राष्ट्रीय स्वास्थ्य मिशन (NHM), उत्तर प्रदेश</span>
-    <h2>आशा प्रोत्साहन भुगतान विवरण</h2>
-    <p>जिला स्वास्थ्य समिति, अयोध्या</p>
-  </div>
-
-  <div class="content">
-    <div class="search-box">
-      <label for="ashaId">अपनी ASHA ID दर्ज करें:</label>
-      <div class="search-row">
-        <input type="text" id="ashaId" placeholder="उदाहरण: 2404031" onkeydown="if(event.key==='Enter') searchAsha()">
-        <button class="btn-primary" onclick="searchAsha()">खोजें</button>
+  <header class="bg-teal-700 text-white shadow-md">
+    <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div>
+        <h1 class="text-xl font-bold">आशा भुगतान डेटा अपलोडर (Admin Panel)</h1>
+        <p class="text-xs text-teal-100">राष्ट्रीय स्वास्थ्य मिशन (NHM), अयोध्या • Excel (.xlsx) एवं CSV डायरेक्ट अपलोड</p>
       </div>
+      <a href="index.html" class="px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-xs font-semibold rounded-lg border border-teal-500">
+        ASHA पोर्टल देखें →
+      </a>
     </div>
+  </header>
 
-    <div class="loader" id="loader">जानकारी खोजी जा रही है...</div>
-
-    <div id="duplicateSection" class="dup-box" style="display:none;">
-      <div class="dup-title">इस ID से एक से अधिक आशाएं दर्ज हैं। कृपया अपना नाम व क्षेत्र चुनें:</div>
-      <div id="duplicateList"></div>
-    </div>
-
-    <div id="resultSection" style="display:none;">
-      <div class="profile-card">
-        <div class="profile-top">
-          <span class="profile-name" id="pName"></span>
-          <span class="id-badge">ID: <span id="pId"></span></span>
-        </div>
-        <div><strong>ब्लॉक:</strong> <span id="pBlock"></span> | <strong>उपकेंद्र (SC):</strong> <span id="pSC"></span></div>
-        <div><strong>ग्राम (Village):</strong> <span id="pVillage"></span></div>
+  <main class="max-w-4xl mx-auto px-4 py-6 space-y-6">
+    <section class="bg-white p-6 rounded-xl shadow border border-teal-200 space-y-4">
+      <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
+        <h2 class="text-base font-bold text-teal-800">Excel (.xlsx) या CSV फ़ाइल अपलोड करें</h2>
+        <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded font-semibold">
+          ✅ Excel Serial Date (46296) + मल्टी-शीट ऑटो-सपोर्ट
+        </span>
       </div>
 
-      <div class="grid-2">
-        <div>
-          <label for="monthSelect">माह (Month):</label>
-          <select id="monthSelect" onchange="onMonthChange()"></select>
-        </div>
-        <div>
-          <label for="programSelect">प्रोग्राम (Program):</label>
-          <select id="programSelect" onchange="renderMonthData()"></select>
-        </div>
+      <p class="text-xs text-slate-600 leading-relaxed">
+        Excel में <strong>46296</strong> जैसे नंबर दिखने से परेशान न हों—यह फ़ाइल अपने-आप उन्हें सही महीने (जैसे <strong>10-2026</strong>) में बदल देगी। सीधे अपनी <strong>.xlsx</strong> या <strong>.csv</strong> फ़ाइल चुनकर अपलोड करें।
+      </p>
+
+      <div class="flex flex-wrap items-center gap-3 pt-1">
+        <input type="file" id="csvFileInput" accept=".xlsx,.xls,.csv" multiple
+          class="block text-sm text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100" />
+        <button id="uploadCsvBtn" class="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold rounded-lg shadow">
+          अपलोड और मर्ज करें
+        </button>
+        <button id="clearDbBtn" class="px-3 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 ml-auto">
+          पूरा डेटा रीसेट करें
+        </button>
       </div>
 
-      <div class="total-box">
-        <span class="title" id="totalTitle">कुल भुगतान राशि</span>
-        <span class="amt" id="totalAmt">₹0</span>
-        <span class="total-sub" id="totalSub"></span>
+      <div id="uploadStatus" class="p-3 bg-slate-50 rounded-lg text-xs font-medium text-slate-700 border border-slate-200">
+        डेटाबेस स्थिति जाँची जा रही है...
       </div>
+    </section>
+  </main>
 
-      <div class="action-bar">
-        <button class="btn-action btn-print" onclick="window.print()">🖨️ स्लिप प्रिंट / PDF</button>
-        <button class="btn-action btn-wa" onclick="shareWhatsApp()">📲 WhatsApp पर भेजें</button>
-      </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
-      <div class="head-search-wrap">
-        <input type="text" id="headFilterInput" placeholder="🔍 मद या प्रोग्राम का नाम खोजें (जैसे: JSSK, टीकाकरण, HBNC)..." oninput="renderMonthData()">
-      </div>
-
-      <div class="tabs">
-        <div class="tab active" onclick="setFilter('all', this)">सभी (<span id="cntAll">0</span>)</div>
-        <div class="tab" onclick="setFilter('paid', this)">भुगतान (<span id="cntPaid">0</span>)</div>
-        <div class="tab" onclick="setFilter('unpaid', this)">शून्य / ₹0 (<span id="cntUnpaid">0</span>)</div>
-      </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>प्रोग्राम एवं मद (Program & Head)</th>
-            <th style="text-align:right;">राशि (₹)</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
-
-    <div class="footer-note">
-      डिजिटल आशा भुगतान ट्रैकर • NHM अयोध्या
-    </div>
-  </div>
-</div>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-  import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
-    authDomain: "asha-payment.firebaseapp.com",
-    databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "asha-payment",
-    storageBucket: "asha-payment.firebasestorage.app",
-    messagingSenderId: "117935142167",
-    appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
-    measurementId: "G-43YGRC5CKL"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  const rootRef = ref(db, "asha_portal_v2");
-
-  let cachedHeads = null;
-  let cachedMonths = null;
-  let matchedProfiles = [];
-  let activeProfile = null;
-  let currentFilter = 'all';
-
-  const HINDI_MONTHS = {
-    "01": "जनवरी", "02": "फ़रवरी", "03": "मार्च", "04": "अप्रैल",
-    "05": "मई", "06": "जून", "07": "जुलाई", "08": "अगस्त",
-    "09": "सितंबर", "10": "अक्टूबर", "11": "नवंबर", "12": "दिसंबर"
-  };
-
-  function formatMonthHindi(mmYyyy) {
-    const parts = String(mmYyyy || "").split("-");
-    if (parts.length === 2 && HINDI_MONTHS[parts[0]]) {
-      return `${HINDI_MONTHS[parts[0]]} ${parts[1]} (${mmYyyy})`;
-    }
-    return mmYyyy;
-  }
-
-  function normalizeMonthKey(raw) {
-    const str = String(raw || "").trim();
-    const map = { jan:"01", feb:"02", mar:"03", apr:"04", may:"05", jun:"06", jul:"07", aug:"08", sep:"09", oct:"10", nov:"11", dec:"12" };
-
-    const m1 = str.match(/^([A-Za-z]{3})[-/](\d{2,4})$/);
-    if (m1 && map[m1[1].toLowerCase()]) {
-      const yy = m1[2].length === 2 ? `20${m1[2]}` : m1[2];
-      return `${map[m1[1].toLowerCase()]}-${yy}`;
-    }
-    const m2 = str.match(/^(\d{2,4})[-/]([A-Za-z]{3})$/);
-    if (m2 && map[m2[2].toLowerCase()]) {
-      const yy = m2[1].length === 2 ? `20${m2[1]}` : m2[1];
-      return `${map[m2[2].toLowerCase()]}-${yy}`;
-    }
-    const m3 = str.match(/^(\d{1,2})[-/](\d{4})$/);
-    if (m3) return `${m3[1].padStart(2, "0")}-${m3[2]}`;
-    return str;
-  }
-
-  function sortMonthsDesc(monthsArr) {
-    return monthsArr.sort((a, b) => {
-      const [mA, yA] = a.split('-').map(Number);
-      const [mB, yB] = b.split('-').map(Number);
-      if (yA && yB && mA && mB) {
-        return (yB * 100 + mB) - (yA * 100 + mA);
-      }
-      return b.localeCompare(a);
-    });
-  }
-
-  function buildProfileFromCompact(rawWorker, headsList, monthsList) {
-    const monthsObj = {};
-    const availableMonths = (monthsList && monthsList.length > 0) ? monthsList : [];
-
-    availableMonths.forEach(rawM => {
-      const cleanM = normalizeMonthKey(rawM);
-      if (!monthsObj[cleanM]) {
-        monthsObj[cleanM] = headsList.map(meta => ({
-          p: meta.p || "General",
-          h: meta.h || "",
-          a: 0
-        }));
-      }
-
-      headsList.forEach((meta, idx) => {
-        const paidAmt = (rawWorker.p && rawWorker.p[idx] && rawWorker.p[idx][rawM])
-          ? Number(rawWorker.p[idx][rawM])
-          : 0;
-        monthsObj[cleanM][idx].a += paidAmt;
-      });
-    });
-
-    return {
-      asha_id: String(rawWorker.id || ""),
-      name: rawWorker.n || "",
-      block: rawWorker.b || "-",
-      sc: rawWorker.s || "-",
-      village: rawWorker.v || "-",
-      months: monthsObj
+    const firebaseConfig = {
+      apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
+      authDomain: "asha-payment.firebaseapp.com",
+      databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "asha-payment",
+      storageBucket: "asha-payment.firebasestorage.app",
+      messagingSenderId: "117935142167",
+      appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
+      measurementId: "G-43YGRC5CKL"
     };
-  }
 
-  function getAggregatedItems(monthsObj) {
-    const map = new Map();
-    const sortedMonths = sortMonthsDesc(Object.keys(monthsObj || {}));
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const rootRef = ref(db, "asha_portal_v2");
 
-    sortedMonths.forEach(m => {
-      const list = monthsObj[m] || [];
-      list.forEach(item => {
-        const prog = item.p || "General";
-        const head = item.h || "";
-        const key = `${prog}|||${head}`;
-        const amt = Number(item.a) || 0;
-
-        if (!map.has(key)) {
-          map.set(key, {
-            p: prog,
-            h: head,
-            a: 0,
-            paidMonths: [],
-            zeroCount: 0
-          });
+    function getCol(row, candidates) {
+      for (const key of candidates) {
+        if (row[key] !== undefined && String(row[key]).trim() !== "") {
+          return String(row[key]).trim();
         }
-        const entry = map.get(key);
-        entry.a += amt;
-        if (amt > 0) {
-          entry.paidMonths.push(`${m}: ₹${amt.toLocaleString('en-IN')}`);
-        } else {
-          entry.zeroCount++;
+      }
+      return "";
+    }
+
+    function parseAmount(raw) {
+      const num = parseFloat(String(raw || "0").replace(/,/g, "").replace(/[^\d.-]/g, "").trim());
+      return Number.isFinite(num) ? num : 0;
+    }
+
+    // Excel Serial Date (जैसे 46296) और टेक्स्ट डेट (Jul-26, 26-Jul, 01/10/2026) दोनों को MM-YYYY में बदलने वाला फ़ंक्शन
+    function normalizeMonth(raw) {
+      const str = String(raw || "").trim();
+      if (!str) return "";
+
+      // 1. Excel Serial Number (e.g., 46296 -> 10-2026)
+      if (/^\d{5}(\.\d+)?$/.test(str)) {
+        const serial = Math.floor(Number(str));
+        if (serial > 30000 && serial < 70000) {
+          const utcDays = serial - 25569;
+          const date = new Date(utcDays * 86400 * 1000);
+          const mm = String(date.getUTCMonth() + 1).padStart(2, "0");
+          const yyyy = date.getUTCFullYear();
+          return `${mm}-${yyyy}`;
         }
-      });
-    });
-
-    return Array.from(map.values());
-  }
-
-  window.searchAsha = async function() {
-    const idVal = document.getElementById('ashaId').value.trim().toUpperCase();
-    if (!idVal) { alert("कृपया अपनी ASHA ID दर्ज करें।"); return; }
-
-    document.getElementById('loader').style.display = 'block';
-    document.getElementById('duplicateSection').style.display = 'none';
-    document.getElementById('resultSection').style.display = 'none';
-
-    try {
-      if (!cachedHeads || !cachedMonths) {
-        const [headsSnap, monthsSnap] = await Promise.all([
-          get(child(rootRef, "heads")),
-          get(child(rootRef, "months"))
-        ]);
-        cachedHeads = headsSnap.exists() ? headsSnap.val() : [];
-        cachedMonths = monthsSnap.exists() ? monthsSnap.val() : [];
       }
 
-      const workerSnap = await get(child(rootRef, `workers/${idVal}`));
-      document.getElementById('loader').style.display = 'none';
+      const map = { jan:"01", feb:"02", mar:"03", apr:"04", may:"05", jun:"06", jul:"07", aug:"08", sep:"09", oct:"10", nov:"11", dec:"12" };
 
-      if (!workerSnap.exists()) {
-        alert("इस ASHA ID का कोई रिकॉर्ड नहीं मिला। कृपया सही ID जांचें।");
+      // 2. "Jul-26" या "Jul-2026"
+      const m1 = str.match(/^([A-Za-z]{3})[-/\s](\d{2,4})$/);
+      if (m1 && map[m1[1].toLowerCase()]) {
+        const yy = m1[2].length === 2 ? `20${m1[2]}` : m1[2];
+        return `${map[m1[1].toLowerCase()]}-${yy}`;
+      }
+
+      // 3. "26-Jul" या "01-Jul-2026"
+      const m2 = str.match(/^(?:\d{1,2}[-/\s])?(\d{2,4})[-/\s]([A-Za-z]{3})$/) || str.match(/^\d{1,2}[-/\s]([A-Za-z]{3})[-/\s](\d{2,4})$/);
+      if (m2) {
+        if (map[m2[2]?.toLowerCase()]) {
+          const yy = m2[1].length === 2 ? `20${m2[1]}` : m2[1];
+          return `${map[m2[2].toLowerCase()]}-${yy}`;
+        }
+        if (map[m2[1]?.toLowerCase()]) {
+          const yy = m2[2].length === 2 ? `20${m2[2]}` : m2[2];
+          return `${map[m2[1].toLowerCase()]}-${yy}`;
+        }
+      }
+
+      // 4. "01/10/2026" या "01-10-2026" (DD-MM-YYYY)
+      const mDate = str.match(/^\d{1,2}[-/](\d{1,2})[-/](\d{4})$/);
+      if (mDate) return `${mDate[1].padStart(2, "0")}-${mDate[2]}`;
+
+      // 5. "7-2026" या "07-2026"
+      const m3 = str.match(/^(\d{1,2})[-/](\d{4})$/);
+      if (m3) return `${m3[1].padStart(2, "0")}-${m3[2]}`;
+
+      return str;
+    }
+
+    function safeKey(str) {
+      return String(str || "").replace(/[.#$\[\]\/]/g, "_").trim().toUpperCase();
+    }
+
+    async function readAnySpreadsheetFile(file, statusEl) {
+      const buffer = await file.arrayBuffer();
+      const workbook = XLSX.read(buffer, { type: "array", raw: true });
+      let allRows = [];
+
+      for (const sheetName of workbook.SheetNames) {
+        statusEl.textContent = `फ़ाइल "${file.name}" की शीट "${sheetName}" पढ़ी जा रही है...`;
+        await new Promise(r => setTimeout(r, 15));
+
+        const sheet = workbook.Sheets[sheetName];
+        const jsonRows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+        const fallbackMonth = normalizeMonth(sheetName);
+
+        for (const r of jsonRows) {
+          const normalizedObj = {};
+          for (const [k, v] of Object.entries(r)) {
+            normalizedObj[String(k).trim().toUpperCase()] = v;
+          }
+          if (!normalizedObj["MONTH"] && !normalizedObj["PAY_MONTH"] && !normalizedObj["BILL_MONTH"]) {
+            normalizedObj["MONTH"] = fallbackMonth;
+          }
+          allRows.push(normalizedObj);
+        }
+      }
+      return allRows;
+    }
+
+    async function refreshStatus() {
+      const statusEl = document.getElementById("uploadStatus");
+      const snap = await get(rootRef);
+      if (snap.exists()) {
+        const d = snap.val();
+        const wCount = Object.keys(d.workers || {}).length;
+        const hCount = (d.heads || []).length;
+        const mList = (d.months || []).join(", ");
+        statusEl.innerHTML = `📊 <strong>वर्तमान डेटाबेस:</strong> ${wCount.toLocaleString()} आशा कार्यकर्ता • ${hCount} प्रोग्राम/मद • उपलब्ध माह: <strong>${mList || "कोई नहीं"}</strong>`;
+      } else {
+        statusEl.textContent = "अभी डेटाबेस खाली है। नीचे से अपनी Excel (.xlsx) या CSV फ़ाइल चुनकर अपलोड करें।";
+      }
+    }
+
+    document.getElementById("uploadCsvBtn").addEventListener("click", async () => {
+      const files = document.getElementById("csvFileInput").files;
+      const statusEl = document.getElementById("uploadStatus");
+
+      if (!files.length) {
+        statusEl.textContent = "⚠️ कृपया पहले अपनी Excel (.xlsx) या CSV फ़ाइल चुनें।";
         return;
       }
 
-      const rawData = workerSnap.val();
-      const rawList = Array.isArray(rawData) ? rawData : [rawData];
-      matchedProfiles = rawList.map(w => buildProfileFromCompact(w, cachedHeads, cachedMonths));
+      const t0 = performance.now();
+      try {
+        statusEl.textContent = "मौजूदा डेटाबेस लोड किया जा रहा है...";
+        const existingSnap = await get(rootRef);
+        const existing = existingSnap.exists() ? existingSnap.val() : { heads: [], months: [], workers: {} };
 
-      if (matchedProfiles.length === 1) {
-        selectProfile(0);
-      } else {
-        const listDiv = document.getElementById('duplicateList');
-        listDiv.innerHTML = "";
-        matchedProfiles.forEach((p, idx) => {
-          listDiv.innerHTML += `
-            <button class="asha-choice" onclick="selectProfile(${idx})">
-              <strong>${p.name}</strong>
-              <span>ब्लॉक: ${p.block || '-'} | SC: ${p.sc || '-'} | ग्राम: ${p.village || '-'}</span>
-            </button>`;
+        const headsList = [...(existing.heads || [])];
+        const headIndexMap = new Map();
+        headsList.forEach((item, idx) => {
+          headIndexMap.set(`${item.p}|||${item.h}`, idx);
         });
-        document.getElementById('duplicateSection').style.display = 'block';
-      }
-    } catch (err) {
-      document.getElementById('loader').style.display = 'none';
-      alert("डेटा लोड करने में समस्या आई: " + err.message);
-    }
-  };
 
-  window.selectProfile = function(index) {
-    activeProfile = matchedProfiles[index];
-    document.getElementById('duplicateSection').style.display = 'none';
-    document.getElementById('headFilterInput').value = "";
+        const monthsSet = new Set((existing.months || []).map(normalizeMonth));
+        const workers = existing.workers || {};
 
-    document.getElementById('pName').innerText = activeProfile.name;
-    document.getElementById('pId').innerText = activeProfile.asha_id;
-    document.getElementById('pBlock').innerText = activeProfile.block || '-';
-    document.getElementById('pSC').innerText = activeProfile.sc || '-';
-    document.getElementById('pVillage').innerText = activeProfile.village || '-';
-
-    const monthSelect = document.getElementById('monthSelect');
-    monthSelect.innerHTML = "";
-
-    let allOpt = document.createElement('option');
-    allOpt.value = "ALL_MONTHS";
-    allOpt.text = "📊 सभी माह (कुल योग)";
-    monthSelect.appendChild(allOpt);
-
-    const months = sortMonthsDesc(Object.keys(activeProfile.months || {}));
-    months.forEach(m => {
-      let opt = document.createElement('option');
-      opt.value = m;
-      opt.text = formatMonthHindi(m);
-      monthSelect.appendChild(opt);
-    });
-
-    if (months.length > 0) {
-      monthSelect.value = months[0];
-    }
-
-    document.getElementById('resultSection').style.display = 'block';
-    onMonthChange();
-  };
-
-  window.onMonthChange = function() {
-    if (!activeProfile) return;
-    const selectedMonth = document.getElementById('monthSelect').value;
-    const items = selectedMonth === "ALL_MONTHS"
-      ? getAggregatedItems(activeProfile.months)
-      : (activeProfile.months[selectedMonth] || []);
-
-    const progSet = new Set(items.map(i => i.p || "General"));
-    const progSelect = document.getElementById('programSelect');
-    progSelect.innerHTML = `<option value="ALL">सभी प्रोग्राम (All)</option>`;
-    Array.from(progSet).sort().forEach(p => {
-      progSelect.innerHTML += `<option value="${p}">${p}</option>`;
-    });
-
-    renderMonthData();
-  };
-
-  window.setFilter = function(filterType, btn) {
-    currentFilter = filterType;
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    renderMonthData();
-  };
-
-  window.renderMonthData = function() {
-    if (!activeProfile) return;
-    const selectedMonth = document.getElementById('monthSelect').value;
-    const selectedProg = document.getElementById('programSelect').value;
-    const keyword = document.getElementById('headFilterInput').value.trim().toLowerCase();
-    const isAllMonths = (selectedMonth === "ALL_MONTHS");
-
-    let items = isAllMonths
-      ? getAggregatedItems(activeProfile.months)
-      : (activeProfile.months[selectedMonth] || []);
-
-    if (selectedProg !== "ALL") {
-      items = items.filter(i => (i.p || "General") === selectedProg);
-    }
-
-    if (keyword) {
-      items = items.filter(i =>
-        (i.h || "").toLowerCase().includes(keyword) ||
-        (i.p || "").toLowerCase().includes(keyword)
-      );
-    }
-
-    let total = 0, paidCount = 0, unpaidCount = 0;
-    items.forEach(i => {
-      total += i.a;
-      if (i.a > 0) paidCount++; else unpaidCount++;
-    });
-
-    const totalMonthsCount = Object.keys(activeProfile.months || {}).length;
-    document.getElementById('totalTitle').innerText = isAllMonths
-      ? `कुल संचयी भुगतान (${totalMonthsCount} माह का योग)`
-      : `माह ${formatMonthHindi(selectedMonth)} का कुल भुगतान`;
-    document.getElementById('totalAmt').innerText = "₹" + total.toLocaleString('en-IN');
-    document.getElementById('totalSub').innerText = isAllMonths
-      ? "प्रत्येक मद के नीचे माह-वार विवरण दिया गया है"
-      : `${paidCount} मदों में भुगतान हुआ • ${unpaidCount} मद शून्य`;
-
-    document.getElementById('cntAll').innerText = items.length;
-    document.getElementById('cntPaid').innerText = paidCount;
-    document.getElementById('cntUnpaid').innerText = unpaidCount;
-
-    const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = "";
-
-    const sortedItems = [...items].sort((x, y) => y.a - x.a);
-
-    if (sortedItems.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:#64748b; padding:18px;">कोई मद नहीं मिला।</td></tr>`;
-      return;
-    }
-
-    sortedItems.forEach(item => {
-      if (currentFilter === 'paid' && item.a <= 0) return;
-      if (currentFilter === 'unpaid' && item.a > 0) return;
-
-      const badge = item.a > 0 
-        ? `<span class="paid">₹${item.a.toLocaleString('en-IN')}</span>` 
-        : `<span class="unpaid">₹0 (शून्य)</span>`;
-
-      let breakupHtml = "";
-      if (isAllMonths) {
-        if (item.paidMonths.length > 0) {
-          breakupHtml = `<span class="month-breakup"><strong>भुगतान माह (${item.paidMonths.length}):</strong> ${item.paidMonths.join(' | ')}</span>`;
-        } else {
-          breakupHtml = `<span class="month-breakup">सभी ${item.zeroCount} माह में भुगतान शून्य (₹0)</span>`;
+        let combinedRows = [];
+        for (const file of files) {
+          const rows = await readAnySpreadsheetFile(file, statusEl);
+          combinedRows = combinedRows.concat(rows);
         }
+
+        statusEl.textContent = `कुल ${combinedRows.length.toLocaleString()} पंक्तियों को प्रोसेस किया जा रहा है...`;
+        await new Promise(r => setTimeout(r, 20));
+
+        const uploadingMonths = new Set();
+        for (const row of combinedRows) {
+          const m = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
+          if (m) uploadingMonths.add(m);
+        }
+
+        for (const wKey of Object.keys(workers)) {
+          const w = workers[wKey];
+          if (!w.p) continue;
+          for (const hIdx of Object.keys(w.p)) {
+            for (const m of uploadingMonths) {
+              delete w.p[hIdx][m];
+            }
+          }
+        }
+
+        for (const row of combinedRows) {
+          const rawId = getCol(row, ["ASHA_ID", "ASHA ID", "ASHAID", "ID"]);
+          const id = safeKey(rawId);
+          if (!id) continue;
+
+          const month = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
+          if (month) monthsSet.add(month);
+
+          const program = getCol(row, ["PROGRAM NAME", "PROGRAM", "SCHEME", "PROG_NAME"]) || "Other";
+          const head = getCol(row, ["HEAD", "HEAD NAME", "INCENTIVE HEAD", "ACTIVITY"]).replace(/\s+/g, " ");
+          if (!head) continue;
+
+          const headKey = `${program}|||${head}`;
+          let hIdx = headIndexMap.get(headKey);
+          if (hIdx === undefined) {
+            hIdx = headsList.length;
+            headIndexMap.set(headKey, hIdx);
+            headsList.push({ p: program, h: head });
+          }
+
+          if (!workers[id]) {
+            workers[id] = {
+              id: rawId,
+              n: getCol(row, ["ASHA_NAME", "ASHA NAME", "NAME"]),
+              b: getCol(row, ["BLOCK", "BLOCK NAME"]),
+              s: getCol(row, ["SC", "SUB CENTER", "SUB_CENTER", "SUBCENTER"]),
+              v: getCol(row, ["VILLAGE", "VILLAGE NAME"]),
+              t: 0,
+              p: {}
+            };
+          } else {
+            const w = workers[id];
+            if (!w.n) w.n = getCol(row, ["ASHA_NAME", "ASHA NAME", "NAME"]);
+            if (!w.b) w.b = getCol(row, ["BLOCK", "BLOCK NAME"]);
+            if (!w.s) w.s = getCol(row, ["SC", "SUB CENTER", "SUB_CENTER"]);
+            if (!w.v) w.v = getCol(row, ["VILLAGE", "VILLAGE NAME"]);
+          }
+
+          const amount = parseAmount(getCol(row, ["AMOUNT", "PAID_AMOUNT", "NET_AMOUNT", "TOTAL"]));
+          if (amount > 0 && month) {
+            const w = workers[id];
+            if (!w.p) w.p = {};
+            if (!w.p[hIdx]) w.p[hIdx] = {};
+            w.p[hIdx][month] = (Number(w.p[hIdx][month]) || 0) + amount;
+          }
+        }
+
+        for (const wKey of Object.keys(workers)) {
+          const w = workers[wKey];
+          let grandTotal = 0;
+          if (w.p) {
+            for (const hIdx of Object.keys(w.p)) {
+              for (const m of Object.keys(w.p[hIdx])) {
+                grandTotal += Number(w.p[hIdx][m]) || 0;
+              }
+            }
+          }
+          w.t = grandTotal;
+        }
+
+        const payload = {
+          heads: headsList,
+          months: Array.from(monthsSet).sort(),
+          workers
+        };
+
+        statusEl.textContent = `Firebase पर सेव हो रहा है (${headsList.length} मद, ${Object.keys(workers).length} आशा)...`;
+        await set(rootRef, payload);
+
+        const sec = ((performance.now() - t0) / 1000).toFixed(1);
+        statusEl.innerHTML = `✅ <strong>सफलतापूर्वक अपलोड हो गया (${sec} सेकंड में)!</strong> कुल प्रोग्राम/मद: <strong>${headsList.length}</strong> • कुल माह: <strong>${payload.months.join(", ")}</strong>`;
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = `❌ त्रुटि: ${err.message}`;
       }
-
-      tbody.innerHTML += `
-        <tr>
-          <td>
-            <span class="prog-tag">${item.p || 'General'}</span>
-            <span class="head-text">${item.h}</span>
-            ${breakupHtml}
-          </td>
-          <td style="text-align:right;">${badge}</td>
-        </tr>`;
     });
-  };
 
-  window.shareWhatsApp = function() {
-    if (!activeProfile) return;
-    const selectedMonth = document.getElementById('monthSelect').value;
-    const isAllMonths = (selectedMonth === "ALL_MONTHS");
-    const items = isAllMonths
-      ? getAggregatedItems(activeProfile.months)
-      : (activeProfile.months[selectedMonth] || []);
+    document.getElementById("clearDbBtn").addEventListener("click", async () => {
+      if (!confirm("क्या आप वाकई पूरा डेटाबेस खाली करके नए सिरे से अपलोड करना चाहते हैं?")) return;
+      await remove(rootRef);
+      await refreshStatus();
+    });
 
-    const paidItems = items.filter(i => i.a > 0).sort((a, b) => b.a - a.a);
-    const total = paidItems.reduce((sum, i) => sum + i.a, 0);
-
-    let msg = `*आशा प्रोत्साहन भुगतान विवरण (NHM अयोध्या)*\n`;
-    msg += `नाम: *${activeProfile.name}* (ID: ${activeProfile.asha_id})\n`;
-    msg += `ब्लॉक: ${activeProfile.block} | SC: ${activeProfile.sc}\n`;
-    msg += `अवधि: *${isAllMonths ? 'सभी माह (कुल योग)' : formatMonthHindi(selectedMonth)}*\n`;
-    msg += `कुल भुगतान: *₹${total.toLocaleString('en-IN')}*\n\n`;
-
-    if (paidItems.length > 0) {
-      msg += `*मदवार भुगतान:*\n`;
-      paidItems.forEach((it, idx) => {
-        msg += `${idx + 1}. [${it.p}] ${it.h}: *₹${it.a.toLocaleString('en-IN')}*\n`;
-      });
-    } else {
-      msg += `इस अवधि में कोई भुगतान दर्ज नहीं है।`;
-    }
-
-    const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-    window.open(url, '_blank');
-  };
-</script>
+    refreshStatus();
+  </script>
 </body>
 </html>
