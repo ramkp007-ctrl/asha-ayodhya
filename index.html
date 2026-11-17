@@ -126,17 +126,22 @@
       gap: 10px;
     }
 
-    /* Mobile Number Verification Gate */
-    .verify-box {
+    /* 6-Digit PIN Verification Gate */
+    .pin-box {
       background: #f0f9ff;
       border: 1.5px solid #38bdf8;
       border-radius: 12px;
       padding: 16px;
       margin-top: 14px;
     }
-    .verify-box h3 { margin: 0 0 4px; font-size: 15.5px; color: #0369a1; }
-    .verify-hint { font-size: 12.5px; color: #334155; margin-bottom: 10px; line-height: 1.5; }
-    .mob-input { letter-spacing: 2px; font-size: 17px; font-weight: 800; }
+    .pin-box h3 { margin: 0 0 4px; font-size: 15.5px; color: #0369a1; }
+    .pin-hint { font-size: 12.5px; color: #334155; margin-bottom: 10px; line-height: 1.5; }
+    .pin-input {
+      letter-spacing: 6px;
+      font-size: 18px;
+      font-weight: 800;
+      text-align: center;
+    }
     .error-msg {
       display: none;
       margin-top: 8px;
@@ -147,6 +152,41 @@
       border-radius: 8px;
       font-size: 12.5px;
       font-weight: 600;
+    }
+
+    /* Default PIN Warning Banner */
+    .default-pin-alert {
+      background: #fffbeb;
+      border: 1px solid #f59e0b;
+      color: #92400e;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      margin-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-warn {
+      background: #d97706;
+      color: #fff;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* Change PIN Card */
+    .change-pin-card {
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 12px;
     }
 
     .dup-box {
@@ -201,6 +241,16 @@
       font-weight: 700;
       padding: 2px 8px;
       border-radius: 6px;
+    }
+    .btn-pin-link {
+      background: #ffffff;
+      color: #0f766e;
+      border: 1px solid #5eead4;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 6px;
+      cursor: pointer;
     }
 
     .total-box {
@@ -295,9 +345,7 @@
       margin-top: 2px;
       transition: transform 0.2s ease;
     }
-    .prog-group.open .chevron {
-      transform: rotate(90deg);
-    }
+    .prog-group.open .chevron { transform: rotate(90deg); }
     .prog-header-title {
       font-size: 14px;
       font-weight: 800;
@@ -323,13 +371,8 @@
     }
     .prog-total-badge.zero-prog { background: #64748b; }
 
-    .prog-body {
-      display: none;
-      background: #ffffff;
-    }
-    .prog-group.open .prog-body {
-      display: block;
-    }
+    .prog-body { display: none; background: #ffffff; }
+    .prog-group.open .prog-body { display: block; }
 
     .act-row {
       display: flex;
@@ -394,7 +437,7 @@
     @media print {
       body { background: #fff; padding: 0; }
       .container { box-shadow: none; max-width: 100%; border: 1px solid #cbd5e1; }
-      .search-box, .verify-box, .action-bar, .head-search-wrap, .tabs, .footer-note { display: none !important; }
+      .search-box, .pin-box, .default-pin-alert, .change-pin-card, .btn-pin-link, .action-bar, .head-search-wrap, .tabs, .footer-note { display: none !important; }
       .header { background: #0f766e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .prog-group { break-inside: avoid; }
       .prog-body { display: block !important; }
@@ -456,26 +499,55 @@
       <div id="duplicateList"></div>
     </div>
 
-    <!-- Registered Mobile Number Verification Gate -->
-    <div id="verifyGateSection" class="verify-box" style="display:none;">
-      <h3>📱 रजिस्टर्ड मोबाइल नंबर सत्यापन</h3>
-      <div class="verify-hint" id="verifyCandidateInfo"></div>
-      <label for="verifyMobileInput">अपना 10-अंकों का रजिस्टर्ड मोबाइल नंबर दर्ज करें:</label>
+    <!-- 6-Digit PIN Verification Gate -->
+    <div id="pinGateSection" class="pin-box" style="display:none;">
+      <h3>🔐 6-अंकों का लॉगिन PIN दर्ज करें</h3>
+      <div class="pin-hint" id="pinCandidateInfo"></div>
+      <label for="loginPinInput">अपना 6-अंकों का PIN डालें (पहली बार के लिए डिफ़ॉल्ट PIN: <strong>123456</strong>):</label>
       <div class="search-row">
-        <input type="tel" id="verifyMobileInput" class="mob-input" maxlength="10" inputmode="numeric" placeholder="10 अंकों का मोबाइल नंबर" onkeydown="if(event.key==='Enter') verifyMobileAndOpen()">
-        <button class="btn-primary" onclick="verifyMobileAndOpen()">सत्यापित करें</button>
+        <input type="password" id="loginPinInput" class="pin-input" maxlength="6" inputmode="numeric" placeholder="••••••" onkeydown="if(event.key==='Enter') verifyPinAndOpen()">
+        <button class="btn-primary" onclick="verifyPinAndOpen()">लॉगिन करें</button>
       </div>
-      <div id="verifyErrorMsg" class="error-msg"></div>
+      <div id="pinErrorMsg" class="error-msg"></div>
     </div>
 
     <div id="resultSection" style="display:none;">
+
+      <!-- Warning when using default 6-digit PIN 123456 -->
+      <div id="defaultPinBanner" class="default-pin-alert" style="display:none;">
+        <span>⚠️ आप अभी डिफ़ॉल्ट PIN (<strong>123456</strong>) का उपयोग कर रही हैं। सुरक्षा के लिए नया 6-अंकों का PIN बनाएं।</span>
+        <button class="btn-warn" onclick="toggleChangePinBox(true)">PIN बदलें</button>
+      </div>
+
+      <!-- Change 6-Digit PIN Box -->
+      <div id="changePinSection" class="change-pin-card" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <strong style="font-size:13.5px; color:#0f766e;">🔑 नया 6-अंकों का लॉगिन PIN सेट करें</strong>
+          <button onclick="toggleChangePinBox(false)" style="background:none; border:none; color:#64748b; font-weight:700; cursor:pointer;">✕ बंद करें</button>
+        </div>
+        <div class="grid-2" style="margin-bottom:8px;">
+          <div>
+            <label for="newPin1">नया PIN (6 अंक):</label>
+            <input type="password" id="newPin1" maxlength="6" inputmode="numeric" placeholder="उदा. 482915">
+          </div>
+          <div>
+            <label for="newPin2">नया PIN दोबारा डालें:</label>
+            <input type="password" id="newPin2" maxlength="6" inputmode="numeric" placeholder="उदा. 482915">
+          </div>
+        </div>
+        <button class="btn-primary" style="width:100%;" onclick="saveNewPin()">नया 6-अंकों का PIN सुरक्षित करें</button>
+      </div>
+
       <div class="profile-card">
         <div class="profile-top">
           <span class="profile-name" id="pName"></span>
-          <span class="id-badge">ID: <span id="pId"></span></span>
+          <div style="display:flex; gap:6px; align-items:center;">
+            <span class="id-badge">ID: <span id="pId"></span></span>
+            <button class="btn-pin-link" onclick="toggleChangePinBox(true)">🔑 PIN बदलें</button>
+          </div>
         </div>
         <div><strong>ब्लॉक:</strong> <span id="pBlock"></span> | <strong>उपकेंद्र (SC):</strong> <span id="pSC"></span></div>
-        <div><strong>ग्राम (Village):</strong> <span id="pVillage"></span> | <strong>मोबाइल:</strong> <span id="pMobile"></span></div>
+        <div><strong>ग्राम (Village):</strong> <span id="pVillage"></span></div>
       </div>
 
       <div class="grid-2" style="margin-top:14px;">
@@ -522,7 +594,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-  import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+  import { getDatabase, ref, get, child, update } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
@@ -538,6 +610,8 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   const rootRef = ref(db, "asha_portal_v2");
+
+  const DEFAULT_PIN = "123456";
 
   let cachedHeads = null;
   let cachedMonths = null;
@@ -555,16 +629,6 @@
 
   function safeKey(str) {
     return String(str || "").replace(/[.#$\[\]\/]/g, "_").trim().toUpperCase();
-  }
-
-  function cleanMobile(raw) {
-    const digits = String(raw || "").replace(/\.0$/, "").replace(/\D/g, "");
-    return digits.length >= 10 ? digits.slice(-10) : "";
-  }
-
-  function maskMobile(mob) {
-    if (!mob || mob.length !== 10) return "दर्ज नहीं";
-    return `******${mob.slice(-4)}`;
   }
 
   function formatMonthHindi(mmYyyy) {
@@ -621,9 +685,12 @@
       document.getElementById('loader').style.display = 'none';
       const list = [];
       if (snap.exists()) {
-        Object.values(snap.val()).forEach(entry => {
-          if (Array.isArray(entry)) entry.forEach(w => list.push(w));
-          else if (entry && typeof entry === "object") list.push(entry);
+        Object.entries(snap.val()).forEach(([dbKey, entry]) => {
+          if (Array.isArray(entry)) {
+            entry.forEach((w, arrIdx) => list.push({ ...w, _dbKey: dbKey, _arrIdx: arrIdx }));
+          } else if (entry && typeof entry === "object") {
+            list.push({ ...entry, _dbKey: dbKey, _arrIdx: null });
+          }
         });
       }
       allWorkersCache = list;
@@ -631,7 +698,7 @@
     return allWorkersCache;
   }
 
-  function buildProfileFromCompact(rawWorker, headsList, monthsList) {
+  function buildProfileFromCompact(rawWorker, headsList, monthsList, fallbackDbKey = null, arrIdx = null) {
     const monthsObj = {};
     const availableMonths = (monthsList && monthsList.length > 0) ? monthsList : [];
 
@@ -652,9 +719,15 @@
       });
     });
 
+    // Enforce 6-digit PIN; if older 4-digit or empty exists, fallback to 6-digit default 123456
+    const savedPin = rawWorker.pin ? String(rawWorker.pin).trim() : "";
+    const validPin = /^\d{6}$/.test(savedPin) ? savedPin : DEFAULT_PIN;
+
     return {
       asha_id: String(rawWorker.id || ""),
-      mobile: cleanMobile(rawWorker.m),
+      dbKey: rawWorker._dbKey || fallbackDbKey || safeKey(rawWorker.id),
+      arrIdx: rawWorker._arrIdx !== undefined ? rawWorker._arrIdx : arrIdx,
+      pin: validPin,
       name: rawWorker.n || "",
       block: rawWorker.b || "-",
       sc: rawWorker.s || "-",
@@ -676,13 +749,7 @@
         const amt = Number(item.a) || 0;
 
         if (!map.has(key)) {
-          map.set(key, {
-            p: prog,
-            h: head,
-            a: 0,
-            paidMonths: [],
-            zeroCount: 0
-          });
+          map.set(key, { p: prog, h: head, a: 0, paidMonths: [], zeroCount: 0 });
         }
         const entry = map.get(key);
         entry.a += amt;
@@ -700,7 +767,7 @@
     document.getElementById('textSearchPanel').style.display = mode === 'text' ? 'block' : 'none';
     document.getElementById('areaSearchPanel').style.display = mode === 'area' ? 'block' : 'none';
     document.getElementById('duplicateSection').style.display = 'none';
-    document.getElementById('verifyGateSection').style.display = 'none';
+    document.getElementById('pinGateSection').style.display = 'none';
 
     if (mode === 'area') {
       const workers = await ensureAllWorkersLoaded();
@@ -753,7 +820,7 @@
   window.onBrowseAshaSelect = function() {
     const idx = document.getElementById('browseAsha').value;
     if (idx === "") return;
-    promptMobileVerification(Number(idx));
+    promptPinForProfile(Number(idx));
   };
 
   window.searchAsha = async function() {
@@ -762,7 +829,7 @@
 
     document.getElementById('loader').style.display = 'block';
     document.getElementById('duplicateSection').style.display = 'none';
-    document.getElementById('verifyGateSection').style.display = 'none';
+    document.getElementById('pinGateSection').style.display = 'none';
     document.getElementById('resultSection').style.display = 'none';
 
     try {
@@ -773,11 +840,14 @@
       if (exactSnap.exists()) {
         document.getElementById('loader').style.display = 'none';
         const rawData = exactSnap.val();
-        const rawList = Array.isArray(rawData) ? rawData : [rawData];
-        matchedProfiles = rawList.map(w => buildProfileFromCompact(w, cachedHeads, cachedMonths));
+        if (Array.isArray(rawData)) {
+          matchedProfiles = rawData.map((w, idx) => buildProfileFromCompact(w, cachedHeads, cachedMonths, safeIdKey, idx));
+        } else {
+          matchedProfiles = [buildProfileFromCompact(rawData, cachedHeads, cachedMonths, safeIdKey, null)];
+        }
 
         if (matchedProfiles.length === 1) {
-          promptMobileVerification(0);
+          promptPinForProfile(0);
         } else {
           showSelectionList(matchedProfiles, "इस ID से एक से अधिक आशाएं दर्ज हैं। कृपया अपना नाम चुनें:");
         }
@@ -802,7 +872,7 @@
         .map(w => buildProfileFromCompact(w, cachedHeads, cachedMonths));
 
       if (matchedProfiles.length === 1) {
-        promptMobileVerification(0);
+        promptPinForProfile(0);
       } else {
         showSelectionList(matchedProfiles, `"${rawQuery}" से मिलती-जुलती ${matchedProfiles.length} आशाएं मिलीं — अपना नाम चुनें:`);
       }
@@ -818,7 +888,7 @@
     listDiv.innerHTML = "";
     profiles.forEach((p, idx) => {
       listDiv.innerHTML += `
-        <button class="asha-choice" onclick="promptMobileVerification(${idx})">
+        <button class="asha-choice" onclick="promptPinForProfile(${idx})">
           <strong>${p.name} <small style="font-weight:600; color:#475569;">(ID: ${p.asha_id})</small></strong>
           <span>ब्लॉक: ${p.block || '-'} | SC: ${p.sc || '-'} | ग्राम: ${p.village || '-'}</span>
         </button>`;
@@ -826,62 +896,56 @@
     document.getElementById('duplicateSection').style.display = 'block';
   }
 
-  window.promptMobileVerification = function(index) {
+  window.promptPinForProfile = function(index) {
     pendingProfile = matchedProfiles[index];
     document.getElementById('duplicateSection').style.display = 'none';
     document.getElementById('resultSection').style.display = 'none';
-    document.getElementById('verifyMobileInput').value = "";
-    const errBox = document.getElementById('verifyErrorMsg');
+    document.getElementById('loginPinInput').value = "";
+    const errBox = document.getElementById('pinErrorMsg');
     errBox.style.display = 'none';
 
-    const masked = maskMobile(pendingProfile.mobile);
-    document.getElementById('verifyCandidateInfo').innerHTML =
-      `आशा: <strong>${pendingProfile.name}</strong> (ID: <strong>${pendingProfile.asha_id}</strong>) • ब्लॉक: ${pendingProfile.block}<br>` +
-      `रजिस्टर्ड नंबर संकेत: <strong>${masked}</strong>`;
-
-    document.getElementById('verifyGateSection').style.display = 'block';
-    document.getElementById('verifyMobileInput').focus();
+    document.getElementById('pinCandidateInfo').innerHTML =
+      `आशा: <strong>${pendingProfile.name}</strong> (ID: <strong>${pendingProfile.asha_id}</strong>) • ब्लॉक: ${pendingProfile.block}`;
+    document.getElementById('pinGateSection').style.display = 'block';
+    document.getElementById('loginPinInput').focus();
   };
 
-  window.verifyMobileAndOpen = function() {
+  window.verifyPinAndOpen = function() {
     if (!pendingProfile) return;
-    const errBox = document.getElementById('verifyErrorMsg');
-    const enteredMob = cleanMobile(document.getElementById('verifyMobileInput').value);
+    const errBox = document.getElementById('pinErrorMsg');
+    const enteredPin = document.getElementById('loginPinInput').value.trim();
 
-    if (!pendingProfile.mobile || pendingProfile.mobile.length !== 10) {
+    if (!/^\d{6}$/.test(enteredPin)) {
       errBox.style.display = 'block';
-      errBox.textContent = "⚠️ इस ASHA ID के साथ अभी कोई मोबाइल नंबर दर्ज नहीं है। कृपया अपने BCPM / ब्लॉक कार्यालय से मोबाइल नंबर अपडेट करवाएं।";
+      errBox.textContent = "⚠️ कृपया पूरा 6-अंकों का नंबर वाला PIN दर्ज करें (पहली बार के लिए: 123456)।";
       return;
     }
 
-    if (enteredMob.length !== 10) {
+    if (enteredPin !== pendingProfile.pin) {
       errBox.style.display = 'block';
-      errBox.textContent = "⚠️ कृपया पूरा 10 अंकों का मोबाइल नंबर दर्ज करें।";
-      return;
-    }
-
-    if (enteredMob !== pendingProfile.mobile) {
-      errBox.style.display = 'block';
-      errBox.textContent = "❌ यह मोबाइल नंबर इस ASHA ID से मेल नहीं खाता! केवल विभाग में दर्ज नंबर डालने पर ही विवरण खुलेगा।";
-      document.getElementById('verifyMobileInput').focus();
+      errBox.textContent = "❌ गलत PIN! कृपया अपना सही 6-अंकों का PIN डालें (यदि PIN नहीं बदला है तो 123456 डालें)।";
+      document.getElementById('loginPinInput').value = "";
+      document.getElementById('loginPinInput').focus();
       return;
     }
 
     errBox.style.display = 'none';
-    document.getElementById('verifyGateSection').style.display = 'none';
+    document.getElementById('pinGateSection').style.display = 'none';
     openVerifiedProfile(pendingProfile);
   };
 
   function openVerifiedProfile(profile) {
     activeProfile = profile;
     document.getElementById('headFilterInput').value = "";
+    document.getElementById('changePinSection').style.display = 'none';
+    document.getElementById('defaultPinBanner').style.display =
+      (activeProfile.pin === DEFAULT_PIN) ? 'flex' : 'none';
 
     document.getElementById('pName').innerText = activeProfile.name;
     document.getElementById('pId').innerText = activeProfile.asha_id;
     document.getElementById('pBlock').innerText = activeProfile.block || '-';
     document.getElementById('pSC').innerText = activeProfile.sc || '-';
     document.getElementById('pVillage').innerText = activeProfile.village || '-';
-    document.getElementById('pMobile').innerText = maskMobile(activeProfile.mobile);
 
     const monthSelect = document.getElementById('monthSelect');
     monthSelect.innerHTML = "";
@@ -904,6 +968,57 @@
     document.getElementById('resultSection').style.display = 'block';
     onMonthChange();
   }
+
+  window.toggleChangePinBox = function(show) {
+    const box = document.getElementById('changePinSection');
+    box.style.display = show ? 'block' : 'none';
+    if (show) {
+      document.getElementById('newPin1').value = "";
+      document.getElementById('newPin2').value = "";
+      document.getElementById('newPin1').focus();
+    }
+  };
+
+  window.saveNewPin = async function() {
+    if (!activeProfile) return;
+    const p1 = document.getElementById('newPin1').value.trim();
+    const p2 = document.getElementById('newPin2').value.trim();
+
+    if (!/^\d{6}$/.test(p1)) {
+      alert("कृपया ठीक 6 अंकों का केवल नंबर वाला PIN चुनें (जैसे: 482915)।");
+      return;
+    }
+    if (p1 !== p2) {
+      alert("दोनों बॉक्स में डाला गया PIN एक जैसा नहीं है। कृपया दोबारा जांचें।");
+      return;
+    }
+    if (p1 === DEFAULT_PIN) {
+      alert("123456 डिफ़ॉल्ट PIN है। कृपया कोई नया 6-अंकों का व्यक्तिगत PIN चुनें।");
+      return;
+    }
+
+    try {
+      const targetPath = (activeProfile.arrIdx !== null && activeProfile.arrIdx !== undefined)
+        ? `workers/${activeProfile.dbKey}/${activeProfile.arrIdx}`
+        : `workers/${activeProfile.dbKey}`;
+
+      await update(child(rootRef, targetPath), { pin: p1 });
+
+      activeProfile.pin = p1;
+      if (allWorkersCache) {
+        const cachedItem = allWorkersCache.find(w =>
+          w._dbKey === activeProfile.dbKey && w._arrIdx === activeProfile.arrIdx
+        );
+        if (cachedItem) cachedItem.pin = p1;
+      }
+
+      document.getElementById('changePinSection').style.display = 'none';
+      document.getElementById('defaultPinBanner').style.display = 'none';
+      alert("✅ आपका नया 6-अंकों का PIN सफलतापूर्वक सेव हो गया है!");
+    } catch (err) {
+      alert("PIN सेव करने में त्रुटि हुई: " + err.message);
+    }
+  };
 
   window.onMonthChange = function() {
     if (!activeProfile) return;
@@ -929,7 +1044,6 @@
     renderMonthData();
   };
 
-  // Toggle open/close when clicking on Program Header
   window.toggleProgramCard = function(headerEl) {
     const card = headerEl.closest('.prog-group');
     if (card) card.classList.toggle('open');
