@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ब्लॉक समीक्षा डैशबोर्ड - आशा भुगतान (NHM अयोध्या)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+  <!-- Top Header -->
+  <header class="bg-gradient-to-r from-teal-800 to-teal-700 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
+      <div>
+        <span class="inline-block bg-teal-900/60 text-teal-100 text-[11px] font-semibold px-2.5 py-0.5 rounded-full mb-1">
+          राष्ट्रीय स्वास्थ्य मिशन (NHM), अयोध्या • DPM समीक्षा डैशबोर्ड
+        </span>
+        <h1 class="text-xl font-bold tracking-tight">ब्लॉक एवं प्रोग्राम-वार आशा भुगतान समीक्षा</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="index.html" class="px-3 py-1.5 bg-teal-900/70 hover:bg-teal-900 text-xs font-semibold rounded-lg border border-teal-500/50">
+          ASHA पोर्टल
+        </a>
+        <a href="admin.html" class="px-3 py-1.5 bg-teal-900/70 hover:bg-teal-900 text-xs font-semibold rounded-lg border border-teal-500/50">
+          Admin अपलोड
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
+    <!-- Loading Banner -->
+    <div id="loadingBanner" class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 text-center text-teal-700 font-bold">
+      Firebase से सभी ब्लॉकों और आशा कार्यकर्ताओं का डेटा लोड किया जा रहा है...
+    </div>
+
+    <div id="dashboardContent" class="hidden space-y-6">
+
+      <!-- Filter Bar -->
+      <section class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1">माह चुनें (Month)</label>
+          <select id="monthFilter" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm font-medium bg-slate-50 focus:border-teal-600 focus:outline-none"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1">ब्लॉक चुनें (Block)</label>
+          <select id="blockFilter" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm font-medium bg-slate-50 focus:border-teal-600 focus:outline-none">
+            <option value="ALL">सभी ब्लॉक (जिला अयोध्या)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1">प्रोग्राम चुनें (Program)</label>
+          <select id="programFilter" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm font-medium bg-slate-50 focus:border-teal-600 focus:outline-none">
+            <option value="ALL">सभी प्रोग्राम (All Programs)</option>
+          </select>
+        </div>
+        <div class="flex gap-2">
+          <button id="exportZeroBtn" class="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-sm flex items-center justify-center gap-1.5">
+            📥 शून्य भुगतान सूची (Excel)
+          </button>
+        </div>
+      </section>
+
+      <!-- KPI Summary Cards -->
+      <section class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+          <p class="text-xs font-semibold text-slate-500">कुल आशा कार्यकर्ता</p>
+          <p id="kpiTotalAsha" class="text-2xl font-extrabold text-slate-800 mt-1">0</p>
+          <p id="kpiScopeLabel" class="text-[11px] text-slate-400 mt-1">जिला कुल</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-200 bg-emerald-50/30">
+          <p class="text-xs font-semibold text-emerald-700">भुगतान प्राप्त आशा</p>
+          <p id="kpiPaidAsha" class="text-2xl font-extrabold text-emerald-700 mt-1">0</p>
+          <p id="kpiPaidPct" class="text-xs font-bold text-emerald-600 mt-1">0% कवरेज</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-rose-200 bg-rose-50/30">
+          <p class="text-xs font-semibold text-rose-700">शून्य भुगतान (₹0) आशा</p>
+          <p id="kpiZeroAsha" class="text-2xl font-extrabold text-rose-600 mt-1">0</p>
+          <p id="kpiZeroPct" class="text-xs font-bold text-rose-500 mt-1">0% लंबित</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-teal-200 bg-teal-50/30">
+          <p class="text-xs font-semibold text-teal-800">कुल वितरित राशि</p>
+          <p id="kpiTotalAmount" class="text-2xl font-extrabold text-teal-700 mt-1">₹0</p>
+          <p class="text-[11px] text-teal-600 mt-1">चयनित अवधि/प्रोग्राम</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-sky-200 bg-sky-50/30 col-span-2 lg:col-span-1">
+          <p class="text-xs font-semibold text-sky-800">औसत प्रति भुगतान आशा</p>
+          <p id="kpiAvgAmount" class="text-2xl font-extrabold text-sky-700 mt-1">₹0</p>
+          <p class="text-[11px] text-sky-600 mt-1">प्रति लाभार्थी औसत</p>
+        </div>
+      </section>
+
+      <!-- Visual Charts -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+          <div class="flex justify-between items-center mb-3">
+            <h2 id="barChartTitle" class="text-sm font-bold text-slate-800">ब्लॉक-वार भुगतान कवरेज (%) एवं लंबित संख्या</h2>
+            <span class="text-[11px] text-slate-400">कम से अधिक / रैंकिंग</span>
+          </div>
+          <div class="h-72">
+            <canvas id="blockChart"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+          <div class="flex justify-between items-center mb-3">
+            <h2 class="text-sm font-bold text-slate-800">प्रोग्राम-वार कुल भुगतान राशि (₹)</h2>
+            <span class="text-[11px] text-slate-400">शीर्ष योजनाएं</span>
+          </div>
+          <div class="h-72">
+            <canvas id="programChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Block / Sub-Center Review Table -->
+      <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 border-b border-slate-200 flex flex-wrap justify-between items-center gap-2 bg-slate-50">
+          <div>
+            <h2 id="tableHeading" class="text-base font-bold text-slate-800">ब्लॉक-वार समीक्षा तालिका (रैंकिंग के अनुसार)</h2>
+            <p class="text-xs text-slate-500">किसी ब्लॉक पर क्लिक करके उसके उपकेंद्रों (SC) की समीक्षा देखें</p>
+          </div>
+          <button id="exportSummaryBtn" class="px-3 py-1.5 bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold rounded-lg">
+            📊 समीक्षा तालिका डाउनलोड (Excel)
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 text-xs uppercase border-b border-slate-200">
+                <th class="py-3 px-4">रैंक</th>
+                <th id="entityColHeader" class="py-3 px-4">ब्लॉक का नाम</th>
+                <th class="py-3 px-4 text-right">कुल आशा</th>
+                <th class="py-3 px-4 text-right text-emerald-700">भुगतान प्राप्त</th>
+                <th class="py-3 px-4 text-right text-rose-600">शून्य (₹0)</th>
+                <th class="py-3 px-4 text-right">कवरेज %</th>
+                <th class="py-3 px-4 text-right">कुल राशि (₹)</th>
+                <th class="py-3 px-4 text-right">औसत (₹)</th>
+              </tr>
+            </thead>
+            <tbody id="reviewTableBody" class="divide-y divide-slate-200"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Zero-Incentive / Low Performing ASHA Drilldown List -->
+      <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 border-b border-slate-200 flex flex-wrap justify-between items-center gap-3 bg-rose-50/40">
+          <div>
+            <h2 class="text-base font-bold text-rose-800">शून्य भुगतान (₹0) वाली आशा कार्यकर्ताओं की सूची</h2>
+            <p class="text-xs text-slate-600">चयनित माह व प्रोग्राम में जिन आशाओं को कोई प्रोत्साहन राशि नहीं मिली है</p>
+          </div>
+          <input type="text" id="workerSearchInput" placeholder="🔍 नाम, ID या उपकेंद्र खोजें..."
+            class="px-3 py-1.5 border border-slate-300 rounded-lg text-xs w-64 bg-white focus:border-teal-600 focus:outline-none" />
+        </div>
+        <div class="overflow-x-auto max-h-96">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="sticky top-0 bg-slate-100 text-slate-700 border-b border-slate-200">
+              <tr>
+                <th class="py-2.5 px-4">ASHA ID</th>
+                <th class="py-2.5 px-4">आशा का नाम</th>
+                <th class="py-2.5 px-4">ब्लॉक</th>
+                <th class="py-2.5 px-4">उपकेंद्र (SC)</th>
+                <th class="py-2.5 px-4">ग्राम</th>
+                <th class="py-2.5 px-4 text-right">स्थिति</th>
+              </tr>
+            </thead>
+            <tbody id="zeroWorkersBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
+      authDomain: "asha-payment.firebaseapp.com",
+      databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "asha-payment",
+      storageBucket: "asha-payment.firebasestorage.app",
+      messagingSenderId: "117935142167",
+      appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
+      measurementId: "G-43YGRC5CKL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const rootRef = ref(db, "asha_portal_v2");
+
+    let allHeads = [];
+    let allMonths = [];
+    let workersList = [];
+    let blockChartInstance = null;
+    let programChartInstance = null;
+    let currentSummaryRows = [];
+    let currentZeroWorkers = [];
+
+    const HINDI_MONTHS = {
+      "01": "जनवरी", "02": "फ़रवरी", "03": "मार्च", "04": "अप्रैल",
+      "05": "मई", "06": "जून", "07": "जुलाई", "08": "अगस्त",
+      "09": "सितंबर", "10": "अक्टूबर", "11": "नवंबर", "12": "दिसंबर"
+    };
+
+    function formatMonthHindi(mmYyyy) {
+      const parts = String(mmYyyy || "").split("-");
+      if (parts.length === 2 && HINDI_MONTHS[parts[0]]) {
+        return `${HINDI_MONTHS[parts[0]]} ${parts[1]} (${mmYyyy})`;
+      }
+      return mmYyyy;
+    }
+
+    function sortMonthsDesc(arr) {
+      return [...arr].sort((a, b) => {
+        const [mA, yA] = a.split("-").map(Number);
+        const [mB, yB] = b.split("-").map(Number);
+        if (yA && yB && mA && mB) return (yB * 100 + mB) - (yA * 100 + mA);
+        return b.localeCompare(a);
+      });
+    }
+
+    async function initDashboard() {
+      try {
+        const snap = await get(rootRef);
+        if (!snap.exists()) {
+          document.getElementById("loadingBanner").textContent = "डेटाबेस में अभी कोई डेटा उपलब्ध नहीं है।";
+          return;
+        }
+
+        const data = snap.val();
+        allHeads = data.heads || [];
+        allMonths = sortMonthsDesc(data.months || []);
+        const rawWorkers = data.workers || {};
+
+        workersList = [];
+        Object.values(rawWorkers).forEach(entry => {
+          if (Array.isArray(entry)) {
+            entry.forEach(w => workersList.push(w));
+          } else if (entry && typeof entry === "object") {
+            workersList.push(entry);
+          }
+        });
+
+        // Populate Month Filter
+        const monthSel = document.getElementById("monthFilter");
+        monthSel.innerHTML = `<option value="ALL_MONTHS">सभी माह (संचयी योग)</option>`;
+        allMonths.forEach(m => {
+          monthSel.innerHTML += `<option value="${m}">${formatMonthHindi(m)}</option>`;
+        });
+        if (allMonths.length > 0) monthSel.value = allMonths[0];
+
+        // Populate Block Filter
+        const blocks = new Set(workersList.map(w => (w.b || "अज्ञात").trim()).filter(Boolean));
+        const blockSel = document.getElementById("blockFilter");
+        Array.from(blocks).sort().forEach(b => {
+          blockSel.innerHTML += `<option value="${b}">${b}</option>`;
+        });
+
+        // Populate Program Filter
+        const progs = new Set(allHeads.map(h => (h.p || "Other").trim()).filter(Boolean));
+        const progSel = document.getElementById("programFilter");
+        Array.from(progs).sort().forEach(p => {
+          progSel.innerHTML += `<option value="${p}">${p}</option>`;
+        });
+
+        document.getElementById("loadingBanner").classList.add("hidden");
+        document.getElementById("dashboardContent").classList.remove("hidden");
+
+        monthSel.addEventListener("change", updateDashboard);
+        blockSel.addEventListener("change", updateDashboard);
+        progSel.addEventListener("change", updateDashboard);
+        document.getElementById("workerSearchInput").addEventListener("input", renderZeroTable);
+
+        updateDashboard();
+      } catch (err) {
+        document.getElementById("loadingBanner").textContent = "त्रुटि: " + err.message;
+      }
+    }
+
+    function getWorkerAmountForSelection(worker, selMonth, selProg) {
+      let sum = 0;
+      if (!worker.p) return 0;
+
+      for (const [hIdxStr, monthObj] of Object.entries(worker.p)) {
+        const hIdx = Number(hIdxStr);
+        const headMeta = allHeads[hIdx];
+        if (!headMeta) continue;
+        if (selProg !== "ALL" && (headMeta.p || "Other") !== selProg) continue;
+
+        if (selMonth === "ALL_MONTHS") {
+          for (const val of Object.values(monthObj || {})) {
+            sum += Number(val) || 0;
+          }
+        } else {
+          sum += Number(monthObj?.[selMonth]) || 0;
+        }
+      }
+      return sum;
+    }
+
+    function updateDashboard() {
+      const selMonth = document.getElementById("monthFilter").value;
+      const selBlock = document.getElementById("blockFilter").value;
+      const selProg = document.getElementById("programFilter").value;
+
+      const filteredWorkers = selBlock === "ALL"
+        ? workersList
+        : workersList.filter(w => (w.b || "अज्ञात").trim() === selBlock);
+
+      let totalAsha = filteredWorkers.length;
+      let paidAsha = 0;
+      let zeroAsha = 0;
+      let totalAmount = 0;
+
+      const groupMap = new Map();
+      const progAmountMap = new Map();
+      currentZeroWorkers = [];
+
+      filteredWorkers.forEach(w => {
+        const amt = getWorkerAmountForSelection(w, selMonth, selProg);
+        totalAmount += amt;
+        if (amt > 0) {
+          paidAsha++;
+        } else {
+          zeroAsha++;
+          currentZeroWorkers.push(w);
+        }
+
+        // Grouping key: Block if ALL selected, else Sub Center (SC)
+        const groupName = selBlock === "ALL"
+          ? ((w.b || "अज्ञात").trim())
+          : ((w.s || "अज्ञात SC").trim());
+
+        if (!groupMap.has(groupName)) {
+          groupMap.set(groupName, { name: groupName, total: 0, paid: 0, zero: 0, amount: 0 });
+        }
+        const g = groupMap.get(groupName);
+        g.total++;
+        if (amt > 0) g.paid++; else g.zero++;
+        g.amount += amt;
+
+        // Program-wise aggregation
+        if (w.p) {
+          for (const [hIdxStr, monthObj] of Object.entries(w.p)) {
+            const meta = allHeads[Number(hIdxStr)];
+            if (!meta) continue;
+            const pName = meta.p || "Other";
+            let pAmt = 0;
+            if (selMonth === "ALL_MONTHS") {
+              for (const v of Object.values(monthObj || {})) pAmt += Number(v) || 0;
+            } else {
+              pAmt = Number(monthObj?.[selMonth]) || 0;
+            }
+            if (pAmt > 0) {
+              progAmountMap.set(pName, (progAmountMap.get(pName) || 0) + pAmt);
+            }
+          }
+        }
+      });
+
+      // Update KPIs
+      const paidPct = totalAsha ? ((paidAsha / totalAsha) * 100).toFixed(1) : "0.0";
+      const zeroPct = totalAsha ? ((zeroAsha / totalAsha) * 100).toFixed(1) : "0.0";
+      const avgAmt = paidAsha ? Math.round(totalAmount / paidAsha) : 0;
+
+      document.getElementById("kpiTotalAsha").textContent = totalAsha.toLocaleString("en-IN");
+      document.getElementById("kpiScopeLabel").textContent = selBlock === "ALL" ? "सभी 11 ब्लॉक" : `ब्लॉक: ${selBlock}`;
+      document.getElementById("kpiPaidAsha").textContent = paidAsha.toLocaleString("en-IN");
+      document.getElementById("kpiPaidPct").textContent = `${paidPct}% कवरेज`;
+      document.getElementById("kpiZeroAsha").textContent = zeroAsha.toLocaleString("en-IN");
+      document.getElementById("kpiZeroPct").textContent = `${zeroPct}% लंबित`;
+      document.getElementById("kpiTotalAmount").textContent = "₹" + Math.round(totalAmount).toLocaleString("en-IN");
+      document.getElementById("kpiAvgAmount").textContent = "₹" + avgAmt.toLocaleString("en-IN");
+
+      // Sort summary rows by Coverage % descending
+      currentSummaryRows = Array.from(groupMap.values()).map(r => ({
+        ...r,
+        pct: r.total ? Number(((r.paid / r.total) * 100).toFixed(1)) : 0,
+        avg: r.paid ? Math.round(r.amount / r.paid) : 0
+      })).sort((a, b) => b.pct - a.pct || b.amount - a.amount);
+
+      renderReviewTable(selBlock);
+      renderCharts(currentSummaryRows, progAmountMap, selBlock);
+      renderZeroTable();
+    }
+
+    function renderReviewTable(selBlock) {
+      document.getElementById("tableHeading").textContent = selBlock === "ALL"
+        ? "ब्लॉक-वार समीक्षा तालिका (कवरेज रैंकिंग के अनुसार)"
+        : `ब्लॉक ${selBlock} — उपकेंद्र (SC) वार समीक्षा तालिका`;
+      document.getElementById("entityColHeader").textContent = selBlock === "ALL" ? "ब्लॉक का नाम" : "उपकेंद्र (SC) का नाम";
+
+      const tbody = document.getElementById("reviewTableBody");
+      tbody.innerHTML = "";
+
+      currentSummaryRows.forEach((row, idx) => {
+        const badgeColor = row.pct >= 80
+          ? "bg-emerald-100 text-emerald-800"
+          : row.pct >= 50
+            ? "bg-amber-100 text-amber-800"
+            : "bg-rose-100 text-rose-800";
+
+        const clickableClass = selBlock === "ALL" ? "cursor-pointer hover:bg-teal-50/60" : "hover:bg-slate-50";
+
+        tbody.innerHTML += `
+          <tr class="${clickableClass}" data-entity="${row.name}">
+            <td class="py-3 px-4 font-bold text-slate-500">#${idx + 1}</td>
+            <td class="py-3 px-4 font-bold text-teal-800">${row.name}</td>
+            <td class="py-3 px-4 text-right font-semibold">${row.total.toLocaleString("en-IN")}</td>
+            <td class="py-3 px-4 text-right font-bold text-emerald-700">${row.paid.toLocaleString("en-IN")}</td>
+            <td class="py-3 px-4 text-right font-bold text-rose-600">${row.zero.toLocaleString("en-IN")}</td>
+            <td class="py-3 px-4 text-right">
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${badgeColor}">${row.pct}%</span>
+            </td>
+            <td class="py-3 px-4 text-right font-bold text-slate-800">₹${Math.round(row.amount).toLocaleString("en-IN")}</td>
+            <td class="py-3 px-4 text-right text-slate-600">₹${row.avg.toLocaleString("en-IN")}</td>
+          </tr>`;
+      });
+
+      if (selBlock === "ALL") {
+        tbody.querySelectorAll("tr[data-entity]").forEach(tr => {
+          tr.addEventListener("click", () => {
+            document.getElementById("blockFilter").value = tr.dataset.entity;
+            updateDashboard();
+          });
+        });
+      }
+    }
+
+    function renderCharts(summaryRows, progAmountMap, selBlock) {
+      document.getElementById("barChartTitle").textContent = selBlock === "ALL"
+        ? "ब्लॉक-वार भुगतान कवरेज (%)"
+        : `${selBlock} के उपकेंद्रों का भुगतान कवरेज (%)`;
+
+      const topEntities = summaryRows.slice(0, 15);
+      const labels = topEntities.map(r => r.name);
+      const pctData = topEntities.map(r => r.pct);
+      const colors = pctData.map(p => p >= 80 ? "#059669" : p >= 50 ? "#d97706" : "#e11d48");
+
+      if (blockChartInstance) blockChartInstance.destroy();
+      blockChartInstance = new Chart(document.getElementById("blockChart"), {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "भुगतान कवरेज (%)",
+            data: pctData,
+            backgroundColor: colors,
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, max: 100, ticks: { callback: v => v + "%" } },
+            x: { ticks: { font: { size: 11 } } }
+          }
+        }
+      });
+
+      const sortedProgs = Array.from(progAmountMap.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
+
+      if (programChartInstance) programChartInstance.destroy();
+      programChartInstance = new Chart(document.getElementById("programChart"), {
+        type: "bar",
+        data: {
+          labels: sortedProgs.map(p => p[0]),
+          datasets: [{
+            label: "वितरित राशि (₹)",
+            data: sortedProgs.map(p => Math.round(p[1])),
+            backgroundColor: "#0d9488",
+            borderRadius: 6
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { callback: v => "₹" + (v / 1000).toFixed(0) + "k" } },
+            y: { ticks: { font: { size: 11 } } }
+          }
+        }
+      });
+    }
+
+    function renderZeroTable() {
+      const q = document.getElementById("workerSearchInput").value.trim().toLowerCase();
+      const filtered = q
+        ? currentZeroWorkers.filter(w =>
+            String(w.id || "").toLowerCase().includes(q) ||
+            String(w.n || "").toLowerCase().includes(q) ||
+            String(w.s || "").toLowerCase().includes(q) ||
+            String(w.v || "").toLowerCase().includes(q)
+          )
+        : currentZeroWorkers;
+
+      const tbody = document.getElementById("zeroWorkersBody");
+      tbody.innerHTML = "";
+
+      const slice = filtered.slice(0, 200);
+      if (slice.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-500">कोई लंबित आशा नहीं मिली।</td></tr>`;
+        return;
+      }
+
+      slice.forEach(w => {
+        tbody.innerHTML += `
+          <tr class="hover:bg-rose-50/40">
+            <td class="py-2 px-4 font-mono font-bold text-slate-700">${w.id || "-"}</td>
+            <td class="py-2 px-4 font-semibold text-slate-900">${w.n || "-"}</td>
+            <td class="py-2 px-4 text-slate-600">${w.b || "-"}</td>
+            <td class="py-2 px-4 text-slate-600">${w.s || "-"}</td>
+            <td class="py-2 px-4 text-slate-600">${w.v || "-"}</td>
+            <td class="py-2 px-4 text-right">
+              <span class="px-2 py-0.5 bg-rose-100 text-rose-700 rounded-full font-bold">₹0 (लंबित)</span>
+            </td>
+          </tr>`;
+      });
+    }
+
+    // Export Zero-Payment ASHA List to Excel
+    document.getElementById("exportZeroBtn").addEventListener("click", () => {
+      const selMonth = document.getElementById("monthFilter").value;
+      const selBlock = document.getElementById("blockFilter").value;
+      const selProg = document.getElementById("programFilter").value;
+
+      const rows = currentZeroWorkers.map((w, i) => ({
+        "क्र.सं.": i + 1,
+        "ASHA_ID": w.id || "",
+        "आशा का नाम": w.n || "",
+        "ब्लॉक": w.b || "",
+        "उपकेंद्र (SC)": w.s || "",
+        "ग्राम": w.v || "",
+        "माह": selMonth,
+        "प्रोग्राम": selProg,
+        "भुगतान स्थिति": "शून्य (₹0)"
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Zero_Payment_ASHA");
+      XLSX.writeFile(wb, `Zero_Incentive_ASHA_${selBlock}_${selMonth}.xlsx`);
+    });
+
+    // Export Block/SC Summary Table to Excel
+    document.getElementById("exportSummaryBtn").addEventListener("click", () => {
+      const selMonth = document.getElementById("monthFilter").value;
+      const selBlock = document.getElementById("blockFilter").value;
+
+      const rows = currentSummaryRows.map((r, i) => ({
+        "रैंक": i + 1,
+        "इकाई (ब्लॉक/SC)": r.name,
+        "कुल आशा": r.total,
+        "भुगतान प्राप्त आशा": r.paid,
+        "शून्य भुगतान आशा": r.zero,
+        "कवरेज (%)": r.pct,
+        "कुल वितरित राशि (₹)": Math.round(r.amount),
+        "औसत प्रति लाभार्थी (₹)": r.avg
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Review_Summary");
+      XLSX.writeFile(wb, `Block_Review_${selBlock}_${selMonth}.xlsx`);
+    });
+
+    initDashboard();
+  </script>
+</body>
+</html>
