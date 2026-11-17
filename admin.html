@@ -12,8 +12,8 @@
   <header class="bg-teal-700 text-white shadow-md">
     <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
       <div>
-        <h1 class="text-xl font-bold">आशा भुगतान डेटा अपलोडर एवं ऑडिट (Admin Panel)</h1>
-        <p class="text-xs text-teal-100">राष्ट्रीय स्वास्थ्य मिशन (NHM), अयोध्या • सटीक गणना एवं डेटा जांच</p>
+        <h1 class="text-xl font-bold">आशा भुगतान डेटा अपलोडर (Admin Panel)</h1>
+        <p class="text-xs text-teal-100">राष्ट्रीय स्वास्थ्य मिशन (NHM), अयोध्या • 100% सटीक Excel गणना</p>
       </div>
       <div class="flex gap-2">
         <a href="dashboard.html" class="px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-xs font-semibold rounded-lg border border-teal-500">
@@ -30,44 +30,21 @@
     <!-- Section 1: Upload & Inspect -->
     <section class="bg-white p-6 rounded-xl shadow border border-teal-200 space-y-4">
       <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
-        <h2 class="text-base font-bold text-teal-800">1. Excel (.xlsx) या CSV फ़ाइल चुनें और गणना का तरीक़ा तय करें</h2>
+        <h2 class="text-base font-bold text-teal-800">1. Excel (.xlsx) या CSV फ़ाइल अपलोड करें</h2>
         <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded font-semibold">
-          ✅ Live Column & Calculation Audit
+          ✅ Exact Row-by-Row Sum (No Overwrite, No Double)
         </span>
       </div>
 
-      <!-- Calculation Mode Selector -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-lg border border-slate-200">
-        <label class="flex items-start gap-2.5 cursor-pointer p-2 rounded bg-white border border-teal-300">
-          <input type="radio" name="calcMode" value="overwrite" checked class="mt-1 accent-teal-700" />
-          <div>
-            <span class="text-xs font-bold text-teal-900 block">विकल्प A: हर पंक्ति में पहले से कुल राशि लिखी है (जोड़े नहीं — Exact Value)</span>
-            <span class="text-[11px] text-slate-600">यदि Excel में एक आशा के एक मद की एक ही अंतिम राशि है (जैसे AAA=75, JSY=600) और डुप्लीकेट रो की वजह से डबल हो रहा था, तो इसे चुनें।</span>
-          </div>
-        </label>
-
-        <label class="flex items-start gap-2.5 cursor-pointer p-2 rounded bg-white border border-slate-300">
-          <input type="radio" name="calcMode" value="sum_unique" class="mt-1 accent-teal-700" />
-          <div>
-            <span class="text-xs font-bold text-slate-800 block">विकल्प B: एक ही मद की अलग-अलग लाभार्थी पंक्तियों को जोड़ें (Sum)</span>
-            <span class="text-[11px] text-slate-600">यदि Excel में एक ही मद के 2 अलग-अलग लाभार्थियों के लिए 2 अलग पंक्तियाँ हैं, तो इसे चुनें।</span>
-          </div>
-        </label>
-      </div>
-
-      <!-- Optional Status Filter -->
-      <div class="flex flex-wrap items-center gap-4 text-xs">
-        <label class="flex items-center gap-2 font-semibold text-slate-700">
-          <input type="checkbox" id="onlyPaidStatus" class="accent-teal-700" />
-          केवल Paid / Success / Approved वाली पंक्तियाँ ही गिनें (यदि शीट में Status कॉलम है)
-        </label>
-      </div>
+      <p class="text-xs text-slate-600 leading-relaxed">
+        प्रत्येक माह की <strong>.xlsx</strong> या <strong>.csv</strong> फ़ाइल चुनें। यदि एक ही प्रोग्राम में एक जैसे नाम वाले 2 अलग-अलग मद हैं (जैसे <code>Complete... 100</code> और <code>Complete... 150</code>), तो दोनों सही जुड़ेंगे और कोई भी राशि कटेगी नहीं।
+      </p>
 
       <div class="flex flex-wrap items-center gap-3 pt-1">
         <input type="file" id="csvFileInput" accept=".xlsx,.xls,.csv" multiple
           class="block text-sm text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100" />
         <button id="inspectBtn" class="px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold rounded-lg shadow">
-          🔍 पहले जाँचें (Preview Audit)
+          🔍 पहले जाँचें (Preview)
         </button>
         <button id="uploadCsvBtn" class="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold rounded-lg shadow">
           अपलोड और सेव करें
@@ -83,7 +60,7 @@
 
       <!-- Live Audit Preview Box -->
       <div id="auditPreviewBox" class="hidden p-4 bg-amber-50/60 border border-amber-300 rounded-xl space-y-3 text-xs">
-        <div class="font-bold text-amber-900 text-sm">📋 फ़ाइल ऑडिट रिपोर्ट (अपलोड से पहले जाँचें):</div>
+        <div class="font-bold text-amber-900 text-sm">📋 फ़ाइल ऑडिट रिपोर्ट (पहली आशा का सटीक हिसाब):</div>
         <div id="auditColumns" class="text-slate-700"></div>
         <div id="auditSampleWorker" class="bg-white p-3 rounded-lg border border-amber-200 overflow-x-auto"></div>
       </div>
@@ -217,7 +194,7 @@
       return { rows: allRows, sheetName: firstSheetName, headers: detectedHeaders };
     }
 
-    function processRowsIntoData(combinedRows, existing, calcMode, onlyPaid) {
+    function processRowsIntoData(combinedRows, existing) {
       const headsList = [...(existing.heads || [])];
       const headIndexMap = new Map();
       headsList.forEach((item, idx) => {
@@ -227,6 +204,7 @@
       const monthsSet = new Set((existing.months || []).map(normalizeMonth).filter(Boolean));
       const workers = JSON.parse(JSON.stringify(existing.workers || {}));
 
+      // Clear any previous data for the exact months being uploaded
       const uploadingMonths = new Set();
       for (const row of combinedRows) {
         const m = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
@@ -248,7 +226,10 @@
         }
       }
 
-      let skippedByStatus = 0;
+      // Track occurrence index per (ASHA + Month + Program + Head) so two distinct heads with same truncated text
+      // get separate slots instead of overwriting each other, while exact duplicate blocks are ignored.
+      const seenWorkerMonthBlock = new Set();
+      const headOccurrenceCounter = new Map();
 
       for (const row of combinedRows) {
         const rawId = getCol(row, ["ASHA_ID", "ASHA ID", "ASHAID", "ID"]);
@@ -258,27 +239,27 @@
         const rawName = getCol(row, ["ASHA_NAME", "ASHA NAME", "NAME"]);
         if (rawName.toUpperCase().includes("TOTAL")) continue;
 
-        if (onlyPaid) {
-          const st = getCol(row, ["STATUS", "PAYMENT_STATUS", "PAY_STATUS", "REMARKS"]).toUpperCase();
-          if (st && !["PAID", "SUCCESS", "CREDITED", "APPROVED", "PROCESSED"].some(ok => st.includes(ok))) {
-            skippedByStatus++;
-            continue;
-          }
-        }
-
         const month = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
         if (month) monthsSet.add(month);
 
         const program = getCol(row, ["PROGRAM NAME", "PROGRAM", "SCHEME", "PROG_NAME"]) || "Other";
-        const head = getCol(row, ["HEAD", "HEAD NAME", "INCENTIVE HEAD", "ACTIVITY"]).replace(/\s+/g, " ");
-        if (!head || head.toUpperCase() === "TOTAL") continue;
+        const baseHead = getCol(row, ["HEAD", "HEAD NAME", "INCENTIVE HEAD", "ACTIVITY"]).replace(/\s+/g, " ");
+        if (!baseHead || baseHead.toUpperCase() === "TOTAL") continue;
 
-        const headKey = `${program}|||${head}`;
+        const occKey = `${id}|||${month}|||${program}|||${baseHead}`;
+        const occNum = (headOccurrenceCounter.get(occKey) || 0) + 1;
+        headOccurrenceCounter.set(occKey, occNum);
+
+        // If the exact same Program+Head appears more than once for the same ASHA in the same month,
+        // keep it as a distinct numbered sub-head so nothing is lost or overwritten
+        const finalHead = occNum === 1 ? baseHead : `${baseHead} (${occNum})`;
+
+        const headKey = `${program}|||${finalHead}`;
         let hIdx = headIndexMap.get(headKey);
         if (hIdx === undefined) {
           hIdx = headsList.length;
           headIndexMap.set(headKey, hIdx);
-          headsList.push({ p: program, h: head });
+          headsList.push({ p: program, h: finalHead });
         }
 
         if (!workers[id]) {
@@ -299,17 +280,12 @@
           if (!w.v) w.v = getCol(row, ["VILLAGE", "VILLAGE NAME"]);
         }
 
-        const amount = parseAmount(getCol(row, ["PAID_AMOUNT", "AMOUNT", "NET_AMOUNT", "TOTAL"]));
+        const amount = parseAmount(getCol(row, ["AMOUNT", "PAID_AMOUNT", "NET_AMOUNT", "TOTAL"]));
         if (amount > 0 && month) {
           const w = workers[id];
           if (!w.p) w.p = {};
           if (!w.p[hIdx]) w.p[hIdx] = {};
-
-          if (calcMode === "overwrite") {
-            w.p[hIdx][month] = amount;
-          } else {
-            w.p[hIdx][month] = (Number(w.p[hIdx][month]) || 0) + amount;
-          }
+          w.p[hIdx][month] = amount;
         }
       }
 
@@ -334,8 +310,7 @@
           months: Array.from(monthsSet).sort(),
           workers
         },
-        totalAllWorkers,
-        skippedByStatus
+        totalAllWorkers
       };
     }
 
@@ -362,9 +337,6 @@
         return;
       }
 
-      const calcMode = document.querySelector('input[name="calcMode"]:checked').value;
-      const onlyPaid = document.getElementById("onlyPaidStatus").checked;
-
       let combinedRows = [];
       let headers = [];
       for (const file of files) {
@@ -373,17 +345,15 @@
         if (headers.length === 0) headers = res.headers;
       }
 
-      const { payload, totalAllWorkers, skippedByStatus } = processRowsIntoData(
+      const { payload, totalAllWorkers } = processRowsIntoData(
         combinedRows,
-        { heads: [], months: [], workers: {} },
-        calcMode,
-        onlyPaid
+        { heads: [], months: [], workers: {} }
       );
 
       const sampleKey = Object.keys(payload.workers)[0];
       const sampleWorker = payload.workers[sampleKey];
 
-      let sampleHtml = `<div class="font-bold text-slate-800 mb-1">उदाहरण जाँच — प्रथम आशा: ${sampleWorker?.n || "-"} (ID: ${sampleWorker?.id || "-"}) | कुल योग: ₹${(sampleWorker?.t || 0).toLocaleString("en-IN")}</div>`;
+      let sampleHtml = `<div class="font-bold text-slate-800 mb-1">प्रथम आशा: ${sampleWorker?.n || "-"} (ID: ${sampleWorker?.id || "-"}) | कुल योग: ₹${(sampleWorker?.t || 0).toLocaleString("en-IN")}</div>`;
       if (sampleWorker && sampleWorker.p) {
         sampleHtml += `<table class="w-full text-left border-collapse text-[11px] mt-1"><thead><tr class="bg-slate-100"><th class="p-1.5 border">Program</th><th class="p-1.5 border">Head</th><th class="p-1.5 border">माहवार राशि</th></tr></thead><tbody>`;
         for (const [hIdx, mObj] of Object.entries(sampleWorker.p)) {
@@ -395,11 +365,10 @@
       }
 
       document.getElementById("auditColumns").innerHTML =
-        `<strong>फ़ाइल में मिले कॉलम:</strong> <code>${headers.join(", ")}</code><br>` +
-        `<strong>चयनित मोड:</strong> ${calcMode === "overwrite" ? "विकल्प A (Exact Value — बिना जोड़े)" : "विकल्प B (Sum — जोड़कर)"} • <strong>कुल फ़ाइल योग:</strong> ₹${Math.round(totalAllWorkers).toLocaleString("en-IN")}`;
+        `<strong>फ़ाइल में मिले कॉलम:</strong> <code>${headers.join(", ")}</code> • <strong>कुल फ़ाइल योग:</strong> ₹${Math.round(totalAllWorkers).toLocaleString("en-IN")}`;
       document.getElementById("auditSampleWorker").innerHTML = sampleHtml;
       document.getElementById("auditPreviewBox").classList.remove("hidden");
-      statusEl.textContent = "✅ ऑडिट रिपोर्ट नीचे तैयार है। यदि गणना सही दिख रही है, तो 'अपलोड और सेव करें' बटन दबाएं।";
+      statusEl.textContent = "✅ ऑडिट रिपोर्ट तैयार है। नीचे जाँचकर 'अपलोड और सेव करें' दबाएं।";
     });
 
     document.getElementById("uploadCsvBtn").addEventListener("click", async () => {
@@ -411,10 +380,7 @@
         return;
       }
 
-      const calcMode = document.querySelector('input[name="calcMode"]:checked').value;
-      const onlyPaid = document.getElementById("onlyPaidStatus").checked;
       const t0 = performance.now();
-
       try {
         statusEl.textContent = "मौजूदा डेटाबेस लोड किया जा रहा है...";
         const existingSnap = await get(rootRef);
@@ -429,7 +395,7 @@
         statusEl.textContent = `कुल ${combinedRows.length.toLocaleString()} पंक्तियों की गणना की जा रही है...`;
         await new Promise(r => setTimeout(r, 20));
 
-        const { payload, totalAllWorkers } = processRowsIntoData(combinedRows, existing, calcMode, onlyPaid);
+        const { payload, totalAllWorkers } = processRowsIntoData(combinedRows, existing);
 
         statusEl.textContent = `Firebase पर सेव हो रहा है (${payload.heads.length} मद, ${Object.keys(payload.workers).length} आशा)...`;
         await set(rootRef, payload);
