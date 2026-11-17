@@ -27,6 +27,7 @@
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
     .total-box { background: #ecfdf5; border: 1px solid #6ee7b7; padding: 12px; border-radius: 10px; text-align: center; margin: 12px 0; }
     .total-box .amt { font-size: 24px; font-weight: bold; color: #047857; display: block; margin-top: 2px; }
+    .total-sub { font-size: 12px; color: #065f46; margin-top: 3px; display: block; }
     
     .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
     .tab { flex: 1; padding: 8px 4px; border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; text-align: center; }
@@ -37,6 +38,7 @@
     td { padding: 10px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
     .prog-tag { display: inline-block; font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 600; margin-bottom: 3px; }
     .head-text { display: block; color: #1e293b; font-weight: 500; }
+    .month-breakup { display: block; font-size: 11.5px; color: #475569; margin-top: 4px; background: #f8fafc; padding: 4px 6px; border-radius: 4px; border-left: 2px solid #94a3b8; }
     .paid { color: #047857; font-weight: bold; background: #ecfdf5; padding: 4px 8px; border-radius: 12px; white-space: nowrap; font-size: 13px; }
     .unpaid { color: #dc2626; font-weight: bold; background: #fef2f2; padding: 4px 8px; border-radius: 12px; white-space: nowrap; font-size: 13px; }
     .loader { display: none; text-align: center; margin: 15px 0; color: #0f766e; font-weight: bold; }
@@ -80,8 +82,9 @@
     </div>
 
     <div class="total-box">
-      कुल भुगतान राशि
+      <span id="totalTitle">कुल भुगतान राशि</span>
       <span class="amt" id="totalAmt">₹0</span>
+      <span class="total-sub" id="totalSub"></span>
     </div>
 
     <div class="tabs">
@@ -132,6 +135,41 @@
       }
       return b.localeCompare(a);
     });
+  }
+
+  // सभी महीनों के डेटा को प्रत्येक Program + Head के अनुसार जोड़ने वाला फ़ंक्शन
+  function getAggregatedItems(monthsObj) {
+    const map = new Map();
+    const sortedMonths = sortMonthsDesc(Object.keys(monthsObj || {}));
+
+    sortedMonths.forEach(m => {
+      const list = monthsObj[m] || [];
+      list.forEach(item => {
+        const prog = item.p || "General";
+        const head = item.h || "";
+        const key = `${prog}|||${head}`;
+        const amt = Number(item.a) || 0;
+
+        if (!map.has(key)) {
+          map.set(key, {
+            p: prog,
+            h: head,
+            a: 0,
+            paidMonths: [],
+            zeroCount: 0
+          });
+        }
+        const entry = map.get(key);
+        entry.a += amt;
+        if (amt > 0) {
+          entry.paidMonths.push(`${m}: ₹${amt.toLocaleString('en-IN')}`);
+        } else {
+          entry.zeroCount++;
+        }
+      });
+    });
+
+    return Array.from(map.values());
   }
 
   window.searchAsha = async function() {
@@ -187,6 +225,13 @@
 
     const monthSelect = document.getElementById('monthSelect');
     monthSelect.innerHTML = "";
+
+    // नया विकल्प: सभी माह का मदवार कुल योग
+    let allOpt = document.createElement('option');
+    allOpt.value = "ALL_MONTHS";
+    allOpt.text = "📊 सभी माह (मदवार कुल योग)";
+    monthSelect.appendChild(allOpt);
+
     const months = sortMonthsDesc(Object.keys(activeProfile.months || {}));
     months.forEach(m => {
       let opt = document.createElement('option');
@@ -195,6 +240,11 @@
       monthSelect.appendChild(opt);
     });
 
+    // डिफ़ॉल्ट रूप से सबसे नया महीना चुना रहेगा (यदि उपलब्ध हो), और आशा ड्रॉपडाउन से "सभी माह" चुन सकती है
+    if (months.length > 0) {
+      monthSelect.value = months[0];
+    }
+
     document.getElementById('resultSection').style.display = 'block';
     onMonthChange();
   };
@@ -202,7 +252,9 @@
   window.onMonthChange = function() {
     if (!activeProfile) return;
     const selectedMonth = document.getElementById('monthSelect').value;
-    const items = activeProfile.months[selectedMonth] || [];
+    const items = selectedMonth === "ALL_MONTHS"
+      ? getAggregatedItems(activeProfile.months)
+      : (activeProfile.months[selectedMonth] || []);
 
     const progSet = new Set(items.map(i => i.p || "General"));
     const progSelect = document.getElementById('programSelect');
@@ -225,7 +277,11 @@
     if (!activeProfile) return;
     const selectedMonth = document.getElementById('monthSelect').value;
     const selectedProg = document.getElementById('programSelect').value;
-    let items = activeProfile.months[selectedMonth] || [];
+    const isAllMonths = (selectedMonth === "ALL_MONTHS");
+
+    let items = isAllMonths
+      ? getAggregatedItems(activeProfile.months)
+      : (activeProfile.months[selectedMonth] || []);
 
     if (selectedProg !== "ALL") {
       items = items.filter(i => (i.p || "General") === selectedProg);
@@ -237,7 +293,15 @@
       if (i.a > 0) paidCount++; else unpaidCount++;
     });
 
+    const totalMonthsCount = Object.keys(activeProfile.months || {}).length;
+    document.getElementById('totalTitle').innerText = isAllMonths
+      ? `कुल संचयी भुगतान (${totalMonthsCount} माह का योग)`
+      : `माह ${selectedMonth} की कुल भुगतान राशि`;
     document.getElementById('totalAmt').innerText = "₹" + total.toLocaleString('en-IN');
+    document.getElementById('totalSub').innerText = isAllMonths
+      ? "प्रत्येक मद के नीचे माह-वार विवरण दिया गया है"
+      : "";
+
     document.getElementById('cntAll').innerText = items.length;
     document.getElementById('cntPaid').innerText = paidCount;
     document.getElementById('cntUnpaid').innerText = unpaidCount;
@@ -255,11 +319,21 @@
         ? `<span class="paid">₹${item.a.toLocaleString('en-IN')}</span>` 
         : `<span class="unpaid">₹0 (भुगतान नहीं)</span>`;
 
+      let breakupHtml = "";
+      if (isAllMonths) {
+        if (item.paidMonths.length > 0) {
+          breakupHtml = `<span class="month-breakup"><strong>भुगतान माह (${item.paidMonths.length}):</strong> ${item.paidMonths.join(' | ')}</span>`;
+        } else {
+          breakupHtml = `<span class="month-breakup">सभी ${item.zeroCount} माह में भुगतान शून्य (₹0)</span>`;
+        }
+      }
+
       tbody.innerHTML += `
         <tr>
           <td>
             <span class="prog-tag">${item.p || 'General'}</span>
             <span class="head-text">${item.h}</span>
+            ${breakupHtml}
           </td>
           <td style="text-align:right;">${badge}</td>
         </tr>`;
