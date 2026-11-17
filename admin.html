@@ -3,118 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>आशा प्रोत्साहन भुगतान पोर्टल - अयोध्या (NHM)</title>
+  <title>Admin - आशा डेटा अपलोड (NHM अयोध्या)</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen">
 
-  <!-- Header -->
   <header class="bg-teal-700 text-white shadow-md">
-    <div class="max-w-5xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
+    <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
       <div>
-        <h1 class="text-xl font-bold">आशा प्रोत्साहन भुगतान ट्रैकर (अयोध्या)</h1>
-        <p class="text-xs text-teal-100">राष्ट्रीय स्वास्थ्य मिशन (NHM) • मद-वार एवं माह-वार भुगतान विवरण</p>
+        <h1 class="text-xl font-bold">आशा भुगतान डेटा अपलोडर (Admin Panel)</h1>
+        <p class="text-xs text-teal-100">राष्ट्रीय स्वास्थ्य मिशन (NHM), अयोध्या • Excel (.xlsx) एवं CSV डायरेक्ट अपलोड</p>
       </div>
-      <button id="toggleAdminBtn" class="px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-xs font-semibold rounded-lg border border-teal-500">
-        CSV अपलोड (Admin)
-      </button>
+      <a href="index.html" class="px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-xs font-semibold rounded-lg border border-teal-500">
+        ASHA पोर्टल देखें →
+      </a>
     </div>
   </header>
 
-  <main class="max-w-5xl mx-auto px-4 py-6 space-y-6">
-
-    <!-- Admin CSV Upload Panel -->
-    <section id="adminPanel" class="hidden bg-white p-5 rounded-xl shadow border border-teal-200">
-      <div class="flex justify-between items-center mb-3">
-        <h2 class="text-base font-bold text-teal-800">फ़ास्ट डेटा अपलोड (CSV से Firebase)</h2>
-        <span class="text-xs text-emerald-700 font-semibold">⚡ Compressed Mode (2–3 sec upload)</span>
+  <main class="max-w-4xl mx-auto px-4 py-6 space-y-6">
+    <section class="bg-white p-6 rounded-xl shadow border border-teal-200 space-y-4">
+      <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
+        <h2 class="text-base font-bold text-teal-800">Excel (.xlsx) या CSV फ़ाइल अपलोड करें</h2>
+        <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded font-semibold">
+          ✅ Excel Serial Date (46296) + मल्टी-शीट ऑटो-सपोर्ट
+        </span>
       </div>
 
-      <div class="flex flex-wrap items-center gap-3">
-        <input type="file" id="csvFileInput" accept=".csv" multiple
+      <p class="text-xs text-slate-600 leading-relaxed">
+        Excel में <strong>46296</strong> जैसे नंबर दिखने से परेशान न हों—यह फ़ाइल अपने-आप उन्हें सही महीने (जैसे <strong>10-2026</strong>) में बदल देगी। सीधे अपनी <strong>.xlsx</strong> या <strong>.csv</strong> फ़ाइल चुनकर अपलोड करें।
+      </p>
+
+      <div class="flex flex-wrap items-center gap-3 pt-1">
+        <input type="file" id="csvFileInput" accept=".xlsx,.xls,.csv" multiple
           class="block text-sm text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100" />
-        <button id="uploadCsvBtn" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-lg shadow">
-          CSV प्रोसेस और अपलोड करें
+        <button id="uploadCsvBtn" class="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold rounded-lg shadow">
+          अपलोड और मर्ज करें
         </button>
-        <button id="clearDbBtn" class="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200">
-          पुराना डेटा साफ़ करें
+        <button id="clearDbBtn" class="px-3 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 ml-auto">
+          पूरा डेटा रीसेट करें
         </button>
       </div>
 
-      <div id="uploadStatus" class="mt-3 text-xs font-medium text-slate-700"></div>
-    </section>
-
-    <!-- Search & Hierarchy Filters -->
-    <section class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">ब्लॉक (Block)</label>
-          <select id="blockFilter" class="w-full p-2 border border-slate-300 rounded-lg text-sm bg-white">
-            <option value="">सभी ब्लॉक चुनें</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">उपकेन्द्र (Sub-Center)</label>
-          <select id="scFilter" class="w-full p-2 border border-slate-300 rounded-lg text-sm bg-white">
-            <option value="">सभी उपकेन्द्र</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">आशा चुनें (ASHA Worker)</label>
-          <select id="ashaSelect" class="w-full p-2 border border-slate-300 rounded-lg text-sm bg-white">
-            <option value="">-- आशा का नाम चुनें --</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">या ASHA ID / नाम खोजें</label>
-          <input type="text" id="searchInput" placeholder="उदा. 2404031 या JAYASHRI"
-            class="w-full p-2 border border-slate-300 rounded-lg text-sm" />
-        </div>
-      </div>
-      <div id="dbLoadInfo" class="text-xs text-slate-500">डेटा लोड हो रहा है...</div>
-    </section>
-
-    <!-- ASHA Worker Summary Card -->
-    <section id="workerSummarySection" class="hidden bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-      <div class="flex flex-wrap justify-between items-center gap-4 border-b border-slate-100 pb-4">
-        <div>
-          <span id="wIdBadge" class="px-2.5 py-0.5 text-xs font-bold bg-teal-100 text-teal-800 rounded"></span>
-          <h2 id="wName" class="text-xl font-bold text-slate-900 mt-1"></h2>
-          <p id="wLocation" class="text-xs text-slate-500 mt-0.5"></p>
-        </div>
-        <div class="flex gap-3 text-right">
-          <div class="bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-lg">
-            <div class="text-xs text-emerald-700 font-medium">कुल भुगतान</div>
-            <div id="wTotalPaid" class="text-xl font-extrabold text-emerald-700">₹0</div>
-          </div>
-          <div class="bg-red-50 border border-red-200 px-4 py-2 rounded-lg">
-            <div class="text-xs text-red-700 font-medium">शून्य भुगतान मद</div>
-            <div id="wZeroCount" class="text-xl font-extrabold text-red-600">0</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Filter Tabs -->
-      <div class="flex gap-2 mt-4">
-        <button data-tab="all" class="tab-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-teal-600 text-white">
-          सभी मद (All Heads)
-        </button>
-        <button data-tab="paid" class="tab-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700">
-          भुगतान प्राप्त (Paid)
-        </button>
-        <button data-tab="zero" class="tab-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700">
-          शून्य भुगतान (₹0)
-        </button>
+      <div id="uploadStatus" class="p-3 bg-slate-50 rounded-lg text-xs font-medium text-slate-700 border border-slate-200">
+        डेटाबेस स्थिति जाँची जा रही है...
       </div>
     </section>
-
-    <!-- Head-wise Payment Cards -->
-    <section id="cardsContainer" class="bg-white rounded-xl shadow-sm border border-slate-200 divide-y divide-slate-200 overflow-hidden">
-      <div class="p-8 text-center text-sm text-slate-500">
-        ऊपर दिए गए विकल्पों से ब्लॉक/उपकेन्द्र चुनें या ASHA ID लिखकर भुगतान विवरण देखें।
-      </div>
-    </section>
-
   </main>
 
   <script type="module">
@@ -136,57 +70,13 @@
     const db = getDatabase(app);
     const rootRef = ref(db, "asha_portal_v2");
 
-    let masterHeads = [];   // [{ p: "NLEP", h: "LCDC" }, ...]
-    let allMonths = [];     // ["04-2026", "07-2026", ...]
-    let allWorkers = {};    // { id: { n, b, s, v, t, p: { headIdx: { month: amt } } } }
-    let currentWorkerId = null;
-    let currentTab = "all";
-
-    // --- 1. Stateful CSV Parser ---
-    function parseFullCSV(csvText) {
-      const rows = [];
-      let currentRow = [];
-      let currentVal = "";
-      let inQuotes = false;
-
-      if (csvText.charCodeAt(0) === 0xFEFF) csvText = csvText.slice(1);
-
-      for (let i = 0; i < csvText.length; i++) {
-        const char = csvText[i];
-        const nextChar = csvText[i + 1];
-
-        if (char === '"') {
-          if (inQuotes && nextChar === '"') {
-            currentVal += '"';
-            i++;
-          } else {
-            inQuotes = !inQuotes;
-          }
-        } else if (char === "," && !inQuotes) {
-          currentRow.push(currentVal.trim());
-          currentVal = "";
-        } else if ((char === "\n" || (char === "\r" && nextChar === "\n")) && !inQuotes) {
-          if (char === "\r") i++;
-          currentRow.push(currentVal.trim());
-          if (currentRow.some(c => c !== "")) rows.push(currentRow);
-          currentRow = [];
-          currentVal = "";
-        } else {
-          currentVal += char;
+    function getCol(row, candidates) {
+      for (const key of candidates) {
+        if (row[key] !== undefined && String(row[key]).trim() !== "") {
+          return String(row[key]).trim();
         }
       }
-      if (currentVal !== "" || currentRow.length > 0) {
-        currentRow.push(currentVal.trim());
-        rows.push(currentRow);
-      }
-      if (rows.length < 2) return [];
-
-      const headers = rows[0].map(h => h.trim());
-      return rows.slice(1).filter(c => c.length >= headers.length).map(c => {
-        const obj = {};
-        headers.forEach((h, idx) => { obj[h] = c[idx] ?? ""; });
-        return obj;
-      });
+      return "";
     }
 
     function parseAmount(raw) {
@@ -194,117 +84,221 @@
       return Number.isFinite(num) ? num : 0;
     }
 
-    function normalizeMonth(rawMonth) {
-      const str = String(rawMonth || "").trim();
+    // Excel Serial Date (जैसे 46296) और टेक्स्ट डेट (Jul-26, 26-Jul, 01/10/2026) दोनों को MM-YYYY में बदलने वाला फ़ंक्शन
+    function normalizeMonth(raw) {
+      const str = String(raw || "").trim();
+      if (!str) return "";
+
+      // 1. Excel Serial Number (e.g., 46296 -> 10-2026)
+      if (/^\d{5}(\.\d+)?$/.test(str)) {
+        const serial = Math.floor(Number(str));
+        if (serial > 30000 && serial < 70000) {
+          const utcDays = serial - 25569;
+          const date = new Date(utcDays * 86400 * 1000);
+          const mm = String(date.getUTCMonth() + 1).padStart(2, "0");
+          const yyyy = date.getUTCFullYear();
+          return `${mm}-${yyyy}`;
+        }
+      }
+
       const map = { jan:"01", feb:"02", mar:"03", apr:"04", may:"05", jun:"06", jul:"07", aug:"08", sep:"09", oct:"10", nov:"11", dec:"12" };
-      const m1 = str.match(/^([A-Za-z]{3})[-/](\d{2,4})$/);
+
+      // 2. "Jul-26" या "Jul-2026"
+      const m1 = str.match(/^([A-Za-z]{3})[-/\s](\d{2,4})$/);
       if (m1 && map[m1[1].toLowerCase()]) {
         const yy = m1[2].length === 2 ? `20${m1[2]}` : m1[2];
         return `${map[m1[1].toLowerCase()]}-${yy}`;
       }
-      const m2 = str.match(/^(\d{1,2})[-/](\d{4})$/);
-      if (m2) return `${m2[1].padStart(2, "0")}-${m2[2]}`;
+
+      // 3. "26-Jul" या "01-Jul-2026"
+      const m2 = str.match(/^(?:\d{1,2}[-/\s])?(\d{2,4})[-/\s]([A-Za-z]{3})$/) || str.match(/^\d{1,2}[-/\s]([A-Za-z]{3})[-/\s](\d{2,4})$/);
+      if (m2) {
+        if (map[m2[2]?.toLowerCase()]) {
+          const yy = m2[1].length === 2 ? `20${m2[1]}` : m2[1];
+          return `${map[m2[2].toLowerCase()]}-${yy}`;
+        }
+        if (map[m2[1]?.toLowerCase()]) {
+          const yy = m2[2].length === 2 ? `20${m2[2]}` : m2[2];
+          return `${map[m2[1].toLowerCase()]}-${yy}`;
+        }
+      }
+
+      // 4. "01/10/2026" या "01-10-2026" (DD-MM-YYYY)
+      const mDate = str.match(/^\d{1,2}[-/](\d{1,2})[-/](\d{4})$/);
+      if (mDate) return `${mDate[1].padStart(2, "0")}-${mDate[2]}`;
+
+      // 5. "7-2026" या "07-2026"
+      const m3 = str.match(/^(\d{1,2})[-/](\d{4})$/);
+      if (m3) return `${m3[1].padStart(2, "0")}-${m3[2]}`;
+
       return str;
     }
 
     function safeKey(str) {
-      return String(str || "").replace(/[.#$\[\]\/]/g, "_").trim();
+      return String(str || "").replace(/[.#$\[\]\/]/g, "_").trim().toUpperCase();
     }
 
-    // --- 2. Compact Aggregation (90% smaller payload -> instant upload) ---
-    function buildCompactPayload(records) {
-      const headIndexMap = new Map();
-      const headsList = [];
-      const monthsSet = new Set();
-      const workers = {};
+    async function readAnySpreadsheetFile(file, statusEl) {
+      const buffer = await file.arrayBuffer();
+      const workbook = XLSX.read(buffer, { type: "array", raw: true });
+      let allRows = [];
 
-      for (const row of records) {
-        const rawId = String(row["ASHA_ID"] || "").trim();
-        const id = safeKey(rawId);
-        if (!id) continue;
+      for (const sheetName of workbook.SheetNames) {
+        statusEl.textContent = `फ़ाइल "${file.name}" की शीट "${sheetName}" पढ़ी जा रही है...`;
+        await new Promise(r => setTimeout(r, 15));
 
-        const month = normalizeMonth(row["MONTH"]);
-        if (month) monthsSet.add(month);
+        const sheet = workbook.Sheets[sheetName];
+        const jsonRows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+        const fallbackMonth = normalizeMonth(sheetName);
 
-        const program = String(row["Program Name"] || "Other").trim();
-        const head = String(row["HEAD"] || "").replace(/\s+/g, " ").trim();
-        const headKey = `${program}|||${head}`;
-
-        let hIdx = headIndexMap.get(headKey);
-        if (hIdx === undefined) {
-          hIdx = headsList.length;
-          headIndexMap.set(headKey, hIdx);
-          headsList.push({ p: program, h: head });
-        }
-
-        if (!workers[id]) {
-          workers[id] = {
-            id: rawId,
-            n: String(row["ASHA_NAME"] || "").trim(),
-            b: String(row["BLOCK"] || "").trim(),
-            s: String(row["SC"] || "").trim(),
-            v: String(row["VILLAGE"] || "").trim(),
-            t: 0,
-            p: {} // Stores ONLY paid heads & months
-          };
-        }
-
-        const amount = parseAmount(row["AMOUNT"]);
-        if (amount > 0) {
-          const w = workers[id];
-          if (!w.p[hIdx]) w.p[hIdx] = {};
-          w.p[hIdx][month] = (w.p[hIdx][month] || 0) + amount;
-          w.t += amount;
+        for (const r of jsonRows) {
+          const normalizedObj = {};
+          for (const [k, v] of Object.entries(r)) {
+            normalizedObj[String(k).trim().toUpperCase()] = v;
+          }
+          if (!normalizedObj["MONTH"] && !normalizedObj["PAY_MONTH"] && !normalizedObj["BILL_MONTH"]) {
+            normalizedObj["MONTH"] = fallbackMonth;
+          }
+          allRows.push(normalizedObj);
         }
       }
-
-      return {
-        heads: headsList,
-        months: Array.from(monthsSet).sort(),
-        workers
-      };
+      return allRows;
     }
 
-    // --- 3. Single-Shot Fast Upload ---
+    async function refreshStatus() {
+      const statusEl = document.getElementById("uploadStatus");
+      const snap = await get(rootRef);
+      if (snap.exists()) {
+        const d = snap.val();
+        const wCount = Object.keys(d.workers || {}).length;
+        const hCount = (d.heads || []).length;
+        const mList = (d.months || []).join(", ");
+        statusEl.innerHTML = `📊 <strong>वर्तमान डेटाबेस:</strong> ${wCount.toLocaleString()} आशा कार्यकर्ता • ${hCount} प्रोग्राम/मद • उपलब्ध माह: <strong>${mList || "कोई नहीं"}</strong>`;
+      } else {
+        statusEl.textContent = "अभी डेटाबेस खाली है। नीचे से अपनी Excel (.xlsx) या CSV फ़ाइल चुनकर अपलोड करें।";
+      }
+    }
+
     document.getElementById("uploadCsvBtn").addEventListener("click", async () => {
       const files = document.getElementById("csvFileInput").files;
       const statusEl = document.getElementById("uploadStatus");
 
       if (!files.length) {
-        statusEl.textContent = "कृपया पहले कम से कम एक CSV फ़ाइल चुनें।";
+        statusEl.textContent = "⚠️ कृपया पहले अपनी Excel (.xlsx) या CSV फ़ाइल चुनें।";
         return;
       }
 
       const t0 = performance.now();
       try {
-        statusEl.textContent = "CSV फ़ाइलें पढ़ी जा रही हैं...";
-        await new Promise(r => setTimeout(r, 30)); // Allow UI text to paint
+        statusEl.textContent = "मौजूदा डेटाबेस लोड किया जा रहा है...";
+        const existingSnap = await get(rootRef);
+        const existing = existingSnap.exists() ? existingSnap.val() : { heads: [], months: [], workers: {} };
+
+        const headsList = [...(existing.heads || [])];
+        const headIndexMap = new Map();
+        headsList.forEach((item, idx) => {
+          headIndexMap.set(`${item.p}|||${item.h}`, idx);
+        });
+
+        const monthsSet = new Set((existing.months || []).map(normalizeMonth));
+        const workers = existing.workers || {};
 
         let combinedRows = [];
         for (const file of files) {
-          const text = await file.text();
-          combinedRows = combinedRows.concat(parseFullCSV(text));
+          const rows = await readAnySpreadsheetFile(file, statusEl);
+          combinedRows = combinedRows.concat(rows);
         }
 
-        statusEl.textContent = `${combinedRows.length.toLocaleString()} पंक्तियों को कंप्रेस किया जा रहा है...`;
-        await new Promise(r => setTimeout(r, 30));
+        statusEl.textContent = `कुल ${combinedRows.length.toLocaleString()} पंक्तियों को प्रोसेस किया जा रहा है...`;
+        await new Promise(r => setTimeout(r, 20));
 
-        const payload = buildCompactPayload(combinedRows);
-        const sizeKB = Math.round(JSON.stringify(payload).length / 1024);
+        const uploadingMonths = new Set();
+        for (const row of combinedRows) {
+          const m = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
+          if (m) uploadingMonths.add(m);
+        }
 
-        statusEl.textContent = `Firebase पर अपलोड हो रहा है (${sizeKB.toLocaleString()} KB डेटा, ${Object.keys(payload.workers).length} आशा)...`;
+        for (const wKey of Object.keys(workers)) {
+          const w = workers[wKey];
+          if (!w.p) continue;
+          for (const hIdx of Object.keys(w.p)) {
+            for (const m of uploadingMonths) {
+              delete w.p[hIdx][m];
+            }
+          }
+        }
 
-        // Single atomic write (completes in ~2-3 seconds)
+        for (const row of combinedRows) {
+          const rawId = getCol(row, ["ASHA_ID", "ASHA ID", "ASHAID", "ID"]);
+          const id = safeKey(rawId);
+          if (!id) continue;
+
+          const month = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
+          if (month) monthsSet.add(month);
+
+          const program = getCol(row, ["PROGRAM NAME", "PROGRAM", "SCHEME", "PROG_NAME"]) || "Other";
+          const head = getCol(row, ["HEAD", "HEAD NAME", "INCENTIVE HEAD", "ACTIVITY"]).replace(/\s+/g, " ");
+          if (!head) continue;
+
+          const headKey = `${program}|||${head}`;
+          let hIdx = headIndexMap.get(headKey);
+          if (hIdx === undefined) {
+            hIdx = headsList.length;
+            headIndexMap.set(headKey, hIdx);
+            headsList.push({ p: program, h: head });
+          }
+
+          if (!workers[id]) {
+            workers[id] = {
+              id: rawId,
+              n: getCol(row, ["ASHA_NAME", "ASHA NAME", "NAME"]),
+              b: getCol(row, ["BLOCK", "BLOCK NAME"]),
+              s: getCol(row, ["SC", "SUB CENTER", "SUB_CENTER", "SUBCENTER"]),
+              v: getCol(row, ["VILLAGE", "VILLAGE NAME"]),
+              t: 0,
+              p: {}
+            };
+          } else {
+            const w = workers[id];
+            if (!w.n) w.n = getCol(row, ["ASHA_NAME", "ASHA NAME", "NAME"]);
+            if (!w.b) w.b = getCol(row, ["BLOCK", "BLOCK NAME"]);
+            if (!w.s) w.s = getCol(row, ["SC", "SUB CENTER", "SUB_CENTER"]);
+            if (!w.v) w.v = getCol(row, ["VILLAGE", "VILLAGE NAME"]);
+          }
+
+          const amount = parseAmount(getCol(row, ["AMOUNT", "PAID_AMOUNT", "NET_AMOUNT", "TOTAL"]));
+          if (amount > 0 && month) {
+            const w = workers[id];
+            if (!w.p) w.p = {};
+            if (!w.p[hIdx]) w.p[hIdx] = {};
+            w.p[hIdx][month] = (Number(w.p[hIdx][month]) || 0) + amount;
+          }
+        }
+
+        for (const wKey of Object.keys(workers)) {
+          const w = workers[wKey];
+          let grandTotal = 0;
+          if (w.p) {
+            for (const hIdx of Object.keys(w.p)) {
+              for (const m of Object.keys(w.p[hIdx])) {
+                grandTotal += Number(w.p[hIdx][m]) || 0;
+              }
+            }
+          }
+          w.t = grandTotal;
+        }
+
+        const payload = {
+          heads: headsList,
+          months: Array.from(monthsSet).sort(),
+          workers
+        };
+
+        statusEl.textContent = `Firebase पर सेव हो रहा है (${headsList.length} मद, ${Object.keys(workers).length} आशा)...`;
         await set(rootRef, payload);
 
         const sec = ((performance.now() - t0) / 1000).toFixed(1);
-        statusEl.textContent = `✅ सफलतापूर्वक अपलोड हो गया (${sec} सेकंड में)! कुल ${Object.keys(payload.workers).length} आशा कार्यकर्ता सेव किए गए।`;
-
-        masterHeads = payload.heads;
-        allMonths = payload.months;
-        allWorkers = payload.workers;
-        document.getElementById("dbLoadInfo").textContent = `डेटाबेस में ${Object.keys(allWorkers).length.toLocaleString()} आशा कार्यकर्ताओं का रिकॉर्ड उपलब्ध है।`;
-        populateFilters();
+        statusEl.innerHTML = `✅ <strong>सफलतापूर्वक अपलोड हो गया (${sec} सेकंड में)!</strong> कुल प्रोग्राम/मद: <strong>${headsList.length}</strong> • कुल माह: <strong>${payload.months.join(", ")}</strong>`;
       } catch (err) {
         console.error(err);
         statusEl.textContent = `❌ त्रुटि: ${err.message}`;
@@ -312,157 +306,12 @@
     });
 
     document.getElementById("clearDbBtn").addEventListener("click", async () => {
-      if (!confirm("क्या आप वाकई Firebase से पुराना डेटा हटाना चाहते हैं?")) return;
+      if (!confirm("क्या आप वाकई पूरा डेटाबेस खाली करके नए सिरे से अपलोड करना चाहते हैं?")) return;
       await remove(rootRef);
-      await remove(ref(db, "asha_workers")); // Also removes previous v1 node if present
-      allWorkers = {};
-      masterHeads = [];
-      allMonths = [];
-      document.getElementById("uploadStatus").textContent = "पुराना डेटा साफ़ कर दिया गया है।";
-      populateFilters();
+      await refreshStatus();
     });
 
-    // --- 4. Load & Filter Data ---
-    async function loadFromFirebase() {
-      const infoEl = document.getElementById("dbLoadInfo");
-      try {
-        const snap = await get(rootRef);
-        if (snap.exists()) {
-          const data = snap.val();
-          masterHeads = data.heads || [];
-          allMonths = data.months || [];
-          allWorkers = data.workers || {};
-          infoEl.textContent = `डेटाबेस में ${Object.keys(allWorkers).length.toLocaleString()} आशा कार्यकर्ताओं का रिकॉर्ड उपलब्ध है।`;
-        } else {
-          infoEl.textContent = `अभी कोई डेटा उपलब्ध नहीं है। ऊपर 'CSV अपलोड (Admin)' पर क्लिक करके CSV अपलोड करें।`;
-        }
-        populateFilters();
-      } catch (err) {
-        infoEl.textContent = `Firebase कनेक्शन त्रुटि: ${err.message}`;
-      }
-    }
-
-    function populateFilters() {
-      const blockSel = document.getElementById("blockFilter");
-      const blocks = [...new Set(Object.values(allWorkers).map(w => w.b).filter(Boolean))].sort();
-      blockSel.innerHTML = `<option value="">सभी ब्लॉक (${blocks.length})</option>` +
-        blocks.map(b => `<option value="${b}">${b}</option>`).join("");
-      updateSubCenterFilter();
-    }
-
-    function updateSubCenterFilter() {
-      const block = document.getElementById("blockFilter").value;
-      const scSel = document.getElementById("scFilter");
-      const filtered = Object.values(allWorkers).filter(w => !block || w.b === block);
-      const scs = [...new Set(filtered.map(w => w.s).filter(Boolean))].sort();
-      scSel.innerHTML = `<option value="">सभी उपकेन्द्र (${scs.length})</option>` +
-        scs.map(s => `<option value="${s}">${s}</option>`).join("");
-      updateAshaDropdown();
-    }
-
-    function updateAshaDropdown() {
-      const block = document.getElementById("blockFilter").value;
-      const sc = document.getElementById("scFilter").value;
-      const q = document.getElementById("searchInput").value.trim().toLowerCase();
-      const ashaSel = document.getElementById("ashaSelect");
-
-      const list = Object.entries(allWorkers).filter(([, w]) => {
-        if (block && w.b !== block) return false;
-        if (sc && w.s !== sc) return false;
-        if (q && !String(w.id).toLowerCase().includes(q) && !String(w.n).toLowerCase().includes(q)) return false;
-        return true;
-      }).sort((a, b) => String(a[1].n).localeCompare(String(b[1].n)));
-
-      ashaSel.innerHTML = `<option value="">-- आशा चुनें (${list.length}) --</option>` +
-        list.slice(0, 500).map(([key, w]) => `<option value="${key}">${w.n} (${w.id}) - ${w.v}</option>`).join("");
-
-      if (list.length === 1) {
-        ashaSel.value = list[0][0];
-        renderWorker(list[0][0]);
-      }
-    }
-
-    // --- 5. Render Worker Cards ---
-    function renderWorker(workerKey) {
-      currentWorkerId = workerKey;
-      const w = allWorkers[workerKey];
-      if (!w) return;
-
-      document.getElementById("workerSummarySection").classList.remove("hidden");
-      document.getElementById("wIdBadge").textContent = `ASHA ID: ${w.id}`;
-      document.getElementById("wName").textContent = w.n;
-      document.getElementById("wLocation").textContent = `ब्लॉक: ${w.b} • उपकेन्द्र: ${w.s} • ग्राम: ${w.v}`;
-      document.getElementById("wTotalPaid").textContent = `₹${(w.t || 0).toLocaleString("en-IN")}`;
-
-      const paidMap = w.p || {};
-      const expandedHeads = masterHeads.map((meta, idx) => {
-        const monthly = paidMap[idx] || {};
-        const total = Object.values(monthly).reduce((sum, val) => sum + (Number(val) || 0), 0);
-        return { program: meta.p, head: meta.h, total, monthly };
-      });
-
-      const zeroHeads = expandedHeads.filter(h => h.total === 0);
-      document.getElementById("wZeroCount").textContent = zeroHeads.length;
-
-      let displayHeads = expandedHeads;
-      if (currentTab === "paid") displayHeads = expandedHeads.filter(h => h.total > 0);
-      if (currentTab === "zero") displayHeads = zeroHeads;
-
-      displayHeads.sort((a, b) => b.total - a.total);
-      const monthsCount = allMonths.length || 6;
-
-      document.getElementById("cardsContainer").innerHTML = displayHeads.map(item => {
-        const isPaid = item.total > 0;
-        const paidEntries = Object.entries(item.monthly).filter(([, amt]) => amt > 0).sort();
-
-        const badge = isPaid
-          ? `<span class="px-3 py-1 rounded-full text-sm font-bold bg-emerald-50 text-emerald-700 shrink-0">₹${item.total.toLocaleString("en-IN")}</span>`
-          : `<span class="px-3 py-1 rounded-full text-sm font-semibold bg-red-50 text-red-600 shrink-0">₹0 (भुगतान नहीं)</span>`;
-
-        const detail = isPaid
-          ? `भुगतान माह (${paidEntries.length}): ${paidEntries.map(([m, amt]) => `${m}: ₹${amt.toLocaleString("en-IN")}`).join(", ")}`
-          : `सभी ${monthsCount} माह में भुगतान शून्य (₹0)`;
-
-        return `
-          <div class="p-4 hover:bg-slate-50 transition">
-            <div class="flex justify-between items-start gap-3">
-              <div>
-                <span class="inline-block px-2 py-0.5 text-xs font-medium bg-sky-100 text-sky-800 rounded mb-1">${item.program}</span>
-                <h3 class="text-base font-semibold text-slate-900">${item.head}</h3>
-              </div>
-              ${badge}
-            </div>
-            <div class="mt-2 px-3 py-1.5 bg-slate-50 border-l-2 border-slate-300 rounded-r text-xs text-slate-600">
-              ${detail}
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    document.getElementById("toggleAdminBtn").addEventListener("click", () => {
-      document.getElementById("adminPanel").classList.toggle("hidden");
-    });
-    document.getElementById("blockFilter").addEventListener("change", updateSubCenterFilter);
-    document.getElementById("scFilter").addEventListener("change", updateAshaDropdown);
-    document.getElementById("searchInput").addEventListener("input", updateAshaDropdown);
-    document.getElementById("ashaSelect").addEventListener("change", (e) => {
-      if (e.target.value) renderWorker(e.target.value);
-    });
-    document.querySelectorAll(".tab-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach(b => {
-          b.classList.remove("bg-teal-600", "text-white");
-          b.classList.add("bg-slate-100", "text-slate-700");
-        });
-        btn.classList.remove("bg-slate-100", "text-slate-700");
-        btn.classList.add("bg-teal-600", "text-white");
-        currentTab = btn.dataset.tab;
-        if (currentWorkerId) renderWorker(currentWorkerId);
-      });
-    });
-
-    loadFromFirebase();
+    refreshStatus();
   </script>
 </body>
 </html>
