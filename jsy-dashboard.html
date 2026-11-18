@@ -6,122 +6,149 @@
   <title>JSY भुगतान एवं सत्यापन डैशबोर्ड — NHM अयोध्या</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen font-sans antialiased">
+<body class="bg-slate-100 text-slate-800 min-h-screen font-sans antialiased pb-10">
 
-  <!-- Top Header -->
-  <header class="bg-slate-900 text-white sticky top-0 z-30 border-b border-slate-800">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
-      <div class="flex items-center gap-3">
-        <a href="portal.html" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold border border-slate-700">← Command Hub</a>
+  <!-- Sticky Mobile-Friendly Header -->
+  <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 py-3 flex flex-wrap justify-between items-center gap-2">
+      <div class="flex items-center gap-2.5">
+        <a href="portal.html" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-bold border border-slate-700">
+          ← पोर्टल
+        </a>
         <div>
-          <h1 class="text-base font-bold">NHM अयोध्या — JSY भुगतान एवं सत्यापन पाइपलाइन</h1>
-          <p id="officerMeta" class="text-[11px] text-slate-400">लोड हो रहा है...</p>
+          <h1 class="text-sm sm:text-base font-bold leading-tight">JSY भुगतान एवं सत्यापन डैशबोर्ड</h1>
+          <p id="officerMeta" class="text-[11px] text-slate-300">लोड हो रहा है...</p>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        <button id="exportJsyBtn" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg">Excel रिपोर्ट</button>
-        <button id="logoutBtn" class="px-3 py-1.5 bg-slate-800 hover:bg-red-800 text-xs rounded-lg border border-slate-700">लॉगआउट</button>
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <button id="waShareBtn" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg shadow-sm">
+          📲 WhatsApp
+        </button>
+        <button id="exportJsyBtn" class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg shadow-sm">
+          📥 Excel
+        </button>
+        <button id="logoutBtn" class="px-2.5 py-1.5 bg-slate-800 hover:bg-red-800 text-xs font-semibold rounded-lg border border-slate-700">
+          लॉगआउट
+        </button>
       </div>
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto px-4 py-5 space-y-5">
+  <main class="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-5">
 
-    <!-- District Admin Excel Uploader (Visible only to DISTRICT role) -->
-    <section id="adminUploadBox" class="hidden bg-white p-4 rounded-xl border border-indigo-200 shadow-sm flex flex-wrap justify-between items-center gap-3">
+    <!-- Filter Bar -->
+    <section class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-3">
       <div>
-        <h2 class="text-xs font-bold text-indigo-950 uppercase">JSY डेटा अपडेट करें (Excel / CSV)</h2>
-        <p class="text-[11px] text-slate-500">कॉलम: Date, Block, facility_name_id, total_deliveries, pin_verified, jsy_verified, beneficiaries_registered, moic_approvals, proposals_initiated, payments_made</p>
-      </div>
-      <div class="flex flex-wrap items-center gap-2">
-        <input type="file" id="jsyFileInput" accept=".xlsx,.xls,.csv" class="text-xs text-slate-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-800 file:font-semibold" />
-        <button id="uploadJsyBtn" class="px-4 py-2 bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold rounded-lg shadow">अपलोड एवं सेव करें</button>
-      </div>
-    </section>
-
-    <!-- Filters -->
-    <section class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-3">
-      <div>
-        <label class="block text-[11px] font-semibold text-slate-500 mb-1">दिनांक / अवधि (Date)</label>
-        <select id="dateFilter" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold bg-white"></select>
+        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">दिनांक / रिपोर्ट अवधि</label>
+        <select id="dateFilter" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-bold bg-white focus:border-indigo-600 focus:outline-none"></select>
       </div>
       <div>
-        <label class="block text-[11px] font-semibold text-slate-500 mb-1">ब्लॉक / संस्थान (Block / Hospital)</label>
-        <select id="blockFilter" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold bg-white">
+        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">विकास खंड / जिला चिकित्सालय</label>
+        <select id="blockFilter" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-bold bg-white focus:border-indigo-600 focus:outline-none">
           <option value="ALL">सभी ब्लॉक एवं जिला चिकित्सालय</option>
         </select>
       </div>
       <div>
-        <label class="block text-[11px] font-semibold text-slate-500 mb-1">गैप फ़िल्टर (Bottleneck Stage)</label>
-        <select id="bottleneckFilter" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold bg-white">
+        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">लंबित चरण (Bottleneck Filter)</label>
+        <select id="bottleneckFilter" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-bold bg-white focus:border-indigo-600 focus:outline-none">
           <option value="ALL">सभी स्वास्थ्य केंद्र (All Facilities)</option>
-          <option value="JSY_PENDING">JSY Verification लंबित (PIN Verified > JSY Verified)</option>
-          <option value="REG_PENDING">Beneficiary Registration लंबित (JSY Verified > Registered)</option>
-          <option value="MOIC_PENDING">MOIC Approval लंबित (Registered > MOIC Approved)</option>
-          <option value="PAY_PENDING">Payment लंबित (MOIC Approved > Paid)</option>
+          <option value="JSY_PENDING">1. JSY Verification लंबित</option>
+          <option value="REG_PENDING">2. Beneficiary Registration लंबित</option>
+          <option value="MOIC_PENDING">3. MOIC Approval लंबित</option>
+          <option value="PAY_PENDING">4. Proposal / Payment लंबित</option>
         </select>
       </div>
     </section>
 
-    <!-- 7-Stage Pipeline Funnel KPIs -->
-    <section class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
-      <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-        <p class="text-[10px] font-bold text-slate-500">1. कुल प्रसव</p>
-        <p id="kDel" class="text-xl font-extrabold text-slate-900 mt-1">0</p>
+    <!-- Visual Step-by-Step Pipeline KPI Cards -->
+    <section class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 sm:gap-3">
+      <div class="bg-white p-3.5 rounded-2xl border-l-4 border-slate-800 shadow-sm">
+        <span class="text-[10px] font-bold text-slate-500 uppercase block">1. कुल प्रसव</span>
+        <span id="kDel" class="text-2xl font-extrabold text-slate-900 mt-1 block">0</span>
+        <span class="text-[11px] font-semibold text-slate-500">100% बेसलाइन</span>
       </div>
-      <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-        <p class="text-[10px] font-bold text-sky-700">2. PIN Verified</p>
-        <p id="kPin" class="text-xl font-extrabold text-sky-800 mt-1">0</p>
-        <p id="pPin" class="text-[10px] text-slate-500">0%</p>
+      <div class="bg-white p-3.5 rounded-2xl border-l-4 border-sky-600 shadow-sm">
+        <span class="text-[10px] font-bold text-sky-700 uppercase block">2. PIN Verified</span>
+        <span id="kPin" class="text-2xl font-extrabold text-sky-900 mt-1 block">0</span>
+        <span id="pPin" class="text-[11px] font-bold text-sky-700">0%</span>
       </div>
-      <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-        <p class="text-[10px] font-bold text-teal-700">3. JSY Verified</p>
-        <p id="kJsy" class="text-xl font-extrabold text-teal-800 mt-1">0</p>
-        <p id="pJsy" class="text-[10px] text-slate-500">0%</p>
+      <div class="bg-white p-3.5 rounded-2xl border-l-4 border-teal-600 shadow-sm">
+        <span class="text-[10px] font-bold text-teal-700 uppercase block">3. JSY Verified</span>
+        <span id="kJsy" class="text-2xl font-extrabold text-teal-900 mt-1 block">0</span>
+        <span id="pJsy" class="text-[11px] font-bold text-teal-700">0%</span>
       </div>
-      <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-        <p class="text-[10px] font-bold text-indigo-700">4. Registered</p>
-        <p id="kReg" class="text-xl font-extrabold text-indigo-800 mt-1">0</p>
-        <p id="pReg" class="text-[10px] text-slate-500">0%</p>
+      <div class="bg-white p-3.5 rounded-2xl border-l-4 border-indigo-600 shadow-sm">
+        <span class="text-[10px] font-bold text-indigo-700 uppercase block">4. Registered</span>
+        <span id="kReg" class="text-2xl font-extrabold text-indigo-900 mt-1 block">0</span>
+        <span id="pReg" class="text-[11px] font-bold text-indigo-700">0%</span>
       </div>
-      <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-        <p class="text-[10px] font-bold text-purple-700">5. MOIC Approval</p>
-        <p id="kMoic" class="text-xl font-extrabold text-purple-800 mt-1">0</p>
-        <p id="pMoic" class="text-[10px] text-slate-500">0%</p>
+      <div class="bg-white p-3.5 rounded-2xl border-l-4 border-purple-600 shadow-sm">
+        <span class="text-[10px] font-bold text-purple-700 uppercase block">5. MOIC Approval</span>
+        <span id="kMoic" class="text-2xl font-extrabold text-purple-900 mt-1 block">0</span>
+        <span id="pMoic" class="text-[11px] font-bold text-purple-700">0%</span>
       </div>
-      <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-        <p class="text-[10px] font-bold text-amber-700">6. Proposal Initiated</p>
-        <p id="kProp" class="text-xl font-extrabold text-amber-800 mt-1">0</p>
-        <p id="pProp" class="text-[10px] text-slate-500">0%</p>
+      <div class="bg-white p-3.5 rounded-2xl border-l-4 border-amber-500 shadow-sm">
+        <span class="text-[10px] font-bold text-amber-700 uppercase block">6. Proposal Sent</span>
+        <span id="kProp" class="text-2xl font-extrabold text-amber-900 mt-1 block">0</span>
+        <span id="pProp" class="text-[11px] font-bold text-amber-700">0%</span>
       </div>
-      <div class="bg-white p-3 rounded-xl border-2 border-emerald-500 shadow-sm">
-        <p class="text-[10px] font-bold text-emerald-800">7. Payments Made</p>
-        <p id="kPay" class="text-xl font-extrabold text-emerald-700 mt-1">0</p>
-        <p id="pPay" class="text-[10px] font-bold text-emerald-700">0% भुगतान</p>
+      <div class="col-span-2 sm:col-span-1 bg-emerald-50 p-3.5 rounded-2xl border-2 border-emerald-600 shadow-sm">
+        <span class="text-[10px] font-extrabold text-emerald-900 uppercase block">7. Payments Made</span>
+        <span id="kPay" class="text-2xl font-extrabold text-emerald-800 mt-1 block">0</span>
+        <span id="pPay" class="text-[11px] font-extrabold text-emerald-700">0% भुगतान पूर्ण</span>
       </div>
     </section>
 
-    <!-- Funnel Chart & Block Summary -->
-    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-      <div class="lg:col-span-5 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-        <h3 class="text-xs font-bold text-slate-700 mb-3">JSY भुगतान पाइपलाइन ड्रॉप-ऑफ (Funnel)</h3>
-        <div class="h-64"><canvas id="funnelChart"></canvas></div>
+    <!-- High-Visibility Charts with Direct Data Labels -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <!-- Chart 1: 7-Stage Funnel -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex justify-between items-center mb-3">
+          <div>
+            <h2 class="text-sm font-bold text-slate-900">1. JSY भुगतान पाइपलाइन (Stage-Wise संख्या व %)</h2>
+            <p class="text-[11px] text-slate-500">किस चरण पर सबसे ज़्यादा लाभार्थी रुके हैं</p>
+          </div>
+        </div>
+        <div class="h-72 sm:h-80">
+          <canvas id="funnelChart"></canvas>
+        </div>
       </div>
 
-      <div class="lg:col-span-7 bg-white p-4 rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
-        <h3 class="text-xs font-bold text-slate-700 mb-3">ब्लॉक / संस्थानवार पेंडेंसी सारांश</h3>
+      <!-- Chart 2: Block / Facility Comparison -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex justify-between items-center mb-3">
+          <div>
+            <h2 id="compChartTitle" class="text-sm font-bold text-slate-900">2. शीर्ष संस्थान/ब्लॉक: कुल प्रसव बनाम भुगतान</h2>
+            <p class="text-[11px] text-slate-500">नीला = कुल प्रसव | हरा = भुगतान पूर्ण</p>
+          </div>
+        </div>
+        <div class="h-72 sm:h-80">
+          <canvas id="blockCompChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Block / Hospital Summary Cards & Table -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-4 border-b border-slate-200 flex flex-wrap justify-between items-center gap-2 bg-slate-50">
+        <h3 class="text-xs sm:text-sm font-bold text-slate-900">ब्लॉक / जिला चिकित्सालयवार सारांश</h3>
+        <span class="text-[11px] font-semibold text-slate-500">कुल लंबित = प्रसव - भुगतान</span>
+      </div>
+      <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse text-xs">
           <thead>
-            <tr class="bg-slate-100 text-slate-600 border-b">
-              <th class="p-2">ब्लॉक / संस्थान</th>
-              <th class="p-2 text-right">प्रसव</th>
-              <th class="p-2 text-right">JSY Ver.</th>
-              <th class="p-2 text-right">Reg.</th>
-              <th class="p-2 text-right">MOIC App.</th>
-              <th class="p-2 text-right text-emerald-700">Paid</th>
-              <th class="p-2 text-right text-rose-700">कुल लंबित</th>
+            <tr class="bg-slate-100 text-slate-700 border-b">
+              <th class="py-2.5 px-3">ब्लॉक / संस्थान</th>
+              <th class="py-2.5 px-3 text-right">प्रसव</th>
+              <th class="py-2.5 px-3 text-right">JSY Ver.</th>
+              <th class="py-2.5 px-3 text-right">Reg.</th>
+              <th class="py-2.5 px-3 text-right">MOIC App.</th>
+              <th class="py-2.5 px-3 text-right text-emerald-700">Paid</th>
+              <th class="py-2.5 px-3 text-right text-rose-700">लंबित</th>
+              <th class="py-2.5 px-3 text-right">भुगतान %</th>
             </tr>
           </thead>
           <tbody id="blockSummaryBody" class="divide-y divide-slate-100"></tbody>
@@ -129,37 +156,67 @@
       </div>
     </section>
 
-    <!-- Facility-Wise Action Table -->
-    <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-      <div class="p-4 border-b flex justify-between items-center">
-        <h3 class="text-xs font-bold text-slate-800 uppercase">स्वास्थ्य केंद्रवार (CHC / PHC / SC) पेंडेंसी एवं बोतलनेक पहचान</h3>
-        <input type="text" id="facSearch" placeholder="स्वास्थ्य केंद्र खोजें..." class="border border-slate-300 rounded-lg px-3 py-1.5 text-xs w-56" />
+    <!-- Facility-Wise Breakdown (Mobile Cards + Desktop Table) -->
+    <section class="space-y-3">
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap justify-between items-center gap-3">
+        <div>
+          <h3 class="text-sm font-bold text-slate-900">स्वास्थ्य केंद्रवार (CHC / PHC / SC) पेंडेंसी विवरण</h3>
+          <p class="text-[11px] text-slate-500">प्रत्येक केंद्र का मुख्य अवरोध (Bottleneck) लाल/नीले बैज में</p>
+        </div>
+        <input type="text" id="facSearch" placeholder="CHC, PHC, SC या ब्लॉक खोजें..."
+          class="w-full sm:w-64 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-medium focus:border-indigo-600 focus:outline-none" />
       </div>
-      <div class="overflow-x-auto max-h-[500px]">
-        <table class="w-full text-left border-collapse text-xs">
-          <thead class="sticky top-0 bg-slate-100 text-slate-600 border-b">
-            <tr>
-              <th class="p-2.5">ब्लॉक</th>
-              <th class="p-2.5">स्वास्थ्य केंद्र (Facility)</th>
-              <th class="p-2.5 text-right">Deliveries</th>
-              <th class="p-2.5 text-right">PIN Ver.</th>
-              <th class="p-2.5 text-right">JSY Ver.</th>
-              <th class="p-2.5 text-right">Reg.</th>
-              <th class="p-2.5 text-right">MOIC App.</th>
-              <th class="p-2.5 text-right">Proposal</th>
-              <th class="p-2.5 text-right text-emerald-700">Paid</th>
-              <th class="p-2.5">मुख्य अवरोध (Bottleneck)</th>
-            </tr>
-          </thead>
-          <tbody id="facilityBody" class="divide-y divide-slate-100"></tbody>
-        </table>
+
+      <!-- Mobile Card View (Visible on small screens) -->
+      <div id="mobileFacilityCards" class="grid grid-cols-1 gap-3 md:hidden"></div>
+
+      <!-- Desktop Table View (Visible on medium+ screens) -->
+      <div class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto max-h-[540px]">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="sticky top-0 bg-slate-100 text-slate-700 border-b z-10">
+              <tr>
+                <th class="py-3 px-3">ब्लॉक</th>
+                <th class="py-3 px-3">स्वास्थ्य केंद्र (Facility)</th>
+                <th class="py-3 px-3 text-right">Deliveries</th>
+                <th class="py-3 px-3 text-right">PIN Ver.</th>
+                <th class="py-3 px-3 text-right">JSY Ver.</th>
+                <th class="py-3 px-3 text-right">Reg.</th>
+                <th class="py-3 px-3 text-right">MOIC App.</th>
+                <th class="py-3 px-3 text-right">Proposal</th>
+                <th class="py-3 px-3 text-right text-emerald-700">Paid</th>
+                <th class="py-3 px-3">मुख्य अवरोध (Bottleneck)</th>
+              </tr>
+            </thead>
+            <tbody id="desktopFacilityBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
       </div>
     </section>
+
   </main>
+
+  <!-- WhatsApp Share Modal -->
+  <div id="waModal" class="hidden fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-4">
+    <div class="bg-white max-w-md w-full rounded-2xl shadow-2xl p-5 space-y-3">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="text-sm font-bold text-slate-900">WhatsApp JSY समीक्षा संदेश</h3>
+        <button onclick="document.getElementById('waModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 font-bold text-lg">✕</button>
+      </div>
+      <textarea id="waTextBox" rows="11" class="w-full border border-slate-300 rounded-xl p-3 text-xs bg-slate-50 leading-relaxed"></textarea>
+      <div class="flex justify-end gap-2">
+        <button id="copyWaBtn" class="px-3.5 py-2 bg-slate-800 text-white text-xs font-bold rounded-lg">📋 कॉपी करें</button>
+        <a id="openWaLink" href="#" target="_blank" class="px-3.5 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg">WhatsApp भेजें →</a>
+      </div>
+    </div>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+    // Register ChartDataLabels Plugin Globally
+    Chart.register(ChartDataLabels);
 
     const firebaseConfig = {
       apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
@@ -176,16 +233,12 @@
     const db = getDatabase(app);
     const jsyRef = ref(db, "asha_portal_v2/jsy_portal");
 
-    // Check SSO Session from portal.html
     const saved = sessionStorage.getItem("nhm_ayodhya_officer");
-    if (!saved) {
-      window.location.href = "portal.html";
-    }
+    if (!saved) window.location.href = "portal.html";
     const officer = JSON.parse(saved);
     const isDistrict = officer.role === "DISTRICT";
 
-    document.getElementById("officerMeta").textContent = `${officer.name} (${officer.designation}) • ${isDistrict ? "District Access" : "Block: " + officer.block}`;
-    if (isDistrict) document.getElementById("adminUploadBox").classList.remove("hidden");
+    document.getElementById("officerMeta").textContent = `${officer.name} (${officer.designation}) • ${isDistrict ? "District Access" : officer.block}`;
 
     document.getElementById("logoutBtn").addEventListener("click", () => {
       sessionStorage.removeItem("nhm_ayodhya_officer");
@@ -194,52 +247,22 @@
 
     let allRows = [];
     let filteredExport = [];
-    let chartInst = null;
-
-    function formatExcelDate(val) {
-      if (typeof val === "number" && val > 30000) {
-        const d = new Date((val - 25569) * 86400 * 1000);
-        return `${String(d.getUTCDate()).padStart(2, "0")}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCFullYear()).slice(-2)}`;
-      }
-      return String(val || "").trim();
-    }
-
-    // Upload Handler (District Admin)
-    document.getElementById("uploadJsyBtn").addEventListener("click", async () => {
-      const file = document.getElementById("jsyFileInput").files[0];
-      if (!file) return alert("पहले JSY Excel/CSV फ़ाइल चुनें।");
-
-      const buf = await file.arrayBuffer();
-      const wb = XLSX.read(buf, { type: "array" });
-      const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: 0 });
-
-      const parsed = raw.map(r => ({
-        date: formatExcelDate(r.Date || r.DATE),
-        block: String(r.Block || r.BLOCK || "").trim(),
-        facility: String(r.facility_name_id || r.FACILITY_NAME_ID || r.Facility || "").trim(),
-        del: Number(r.total_deliveries || 0),
-        pin: Number(r.pin_verified || 0),
-        jsy: Number(r.jsy_verified || 0),
-        reg: Number(r.beneficiaries_registered || 0),
-        moic: Number(r.moic_approvals || 0),
-        prop: Number(r.proposals_initiated || 0),
-        pay: Number(r.payments_made || 0)
-      })).filter(x => x.block && x.facility);
-
-      await set(jsyRef, { updatedAt: new Date().toLocaleDateString("hi-IN"), records: parsed });
-      alert(`${parsed.length} स्वास्थ्य केंद्रों का JSY डेटा सफलतापूर्वक सेव हो गया!`);
-      loadJsyData();
-    });
+    let funnelChartInst = null;
+    let blockChartInst = null;
+    let currentWaSummary = "";
 
     async function loadJsyData() {
       const snap = await get(jsyRef);
-      if (!snap.exists()) return;
+      if (!snap.exists()) {
+        alert("अभी JSY डेटा अपलोड नहीं किया गया है। कृपया पहले admin.html से JSY Excel अपलोड करें।");
+        return;
+      }
       const data = snap.val();
       allRows = (data.records || []).filter(r => isDistrict || r.block.toLowerCase() === String(officer.block).trim().toLowerCase());
 
       const dates = Array.from(new Set(allRows.map(r => r.date))).sort().reverse();
       const dSel = document.getElementById("dateFilter");
-      dSel.innerHTML = dates.map(d => `<option value="${d}">${d}</option>`).join("");
+      dSel.innerHTML = dates.map(d => `<option value="${d}">दिनांक: ${d}</option>`).join("");
 
       const bSel = document.getElementById("blockFilter");
       if (!isDistrict) {
@@ -259,12 +282,12 @@
     }
 
     function detectBottleneck(r) {
-      if (r.del === 0) return { code: "NONE", label: "कोई प्रसव नहीं", cls: "text-slate-400" };
+      if (r.del === 0) return { code: "NONE", label: "कोई प्रसव नहीं", cls: "bg-slate-100 text-slate-500" };
       if (r.pin > r.jsy) return { code: "JSY_PENDING", label: `JSY Verify लंबित (${r.pin - r.jsy})`, cls: "bg-teal-100 text-teal-900 font-bold" };
       if (r.jsy > r.reg) return { code: "REG_PENDING", label: `Registration लंबित (${r.jsy - r.reg})`, cls: "bg-indigo-100 text-indigo-900 font-bold" };
       if (r.reg > r.moic) return { code: "MOIC_PENDING", label: `MOIC Approval लंबित (${r.reg - r.moic})`, cls: "bg-purple-100 text-purple-900 font-bold" };
-      if (r.moic > r.pay) return { code: "PAY_PENDING", label: `भुगतान/Proposal लंबित (${r.moic - r.pay})`, cls: "bg-rose-100 text-rose-900 font-bold" };
-      return { code: "DONE", label: "100% पूर्ण", cls: "bg-emerald-100 text-emerald-800 font-semibold" };
+      if (r.moic > r.pay) return { code: "PAY_PENDING", label: `Payment लंबित (${r.moic - r.pay})`, cls: "bg-rose-100 text-rose-900 font-bold" };
+      return { code: "DONE", label: "100% भुगतान पूर्ण", cls: "bg-emerald-100 text-emerald-900 font-bold" };
     }
 
     function renderDashboard() {
@@ -286,64 +309,186 @@
       });
 
       const pct = (n) => tDel ? `${((n / tDel) * 100).toFixed(1)}%` : "0%";
-      document.getElementById("kDel").textContent = tDel;
-      document.getElementById("kPin").textContent = tPin; document.getElementById("pPin").textContent = pct(tPin);
-      document.getElementById("kJsy").textContent = tJsy; document.getElementById("pJsy").textContent = pct(tJsy);
-      document.getElementById("kReg").textContent = tReg; document.getElementById("pReg").textContent = pct(tReg);
-      document.getElementById("kMoic").textContent = tMoic; document.getElementById("pMoic").textContent = pct(tMoic);
-      document.getElementById("kProp").textContent = tProp; document.getElementById("pProp").textContent = pct(tProp);
-      document.getElementById("kPay").textContent = tPay; document.getElementById("pPay").textContent = `${pct(tPay)} भुगतान`;
+      document.getElementById("kDel").textContent = tDel.toLocaleString("en-IN");
+      document.getElementById("kPin").textContent = tPin.toLocaleString("en-IN"); document.getElementById("pPin").textContent = pct(tPin);
+      document.getElementById("kJsy").textContent = tJsy.toLocaleString("en-IN"); document.getElementById("pJsy").textContent = pct(tJsy);
+      document.getElementById("kReg").textContent = tReg.toLocaleString("en-IN"); document.getElementById("pReg").textContent = pct(tReg);
+      document.getElementById("kMoic").textContent = tMoic.toLocaleString("en-IN"); document.getElementById("pMoic").textContent = pct(tMoic);
+      document.getElementById("kProp").textContent = tProp.toLocaleString("en-IN"); document.getElementById("pProp").textContent = pct(tProp);
+      document.getElementById("kPay").textContent = tPay.toLocaleString("en-IN"); document.getElementById("pPay").textContent = `${pct(tPay)} भुगतान`;
 
-      // Funnel Chart
-      if (chartInst) chartInst.destroy();
-      chartInst = new Chart(document.getElementById("funnelChart"), {
+      // 1. High-Visibility Funnel Chart with Direct Data Labels
+      const stageVals = [tDel, tPin, tJsy, tReg, tMoic, tProp, tPay];
+      const maxVal = Math.max(...stageVals, 10);
+      if (funnelChartInst) funnelChartInst.destroy();
+      funnelChartInst = new Chart(document.getElementById("funnelChart"), {
         type: "bar",
         data: {
-          labels: ["Deliveries", "PIN Ver.", "JSY Ver.", "Registered", "MOIC App.", "Proposal", "Paid"],
+          labels: ["1. Deliveries", "2. PIN Ver.", "3. JSY Ver.", "4. Registered", "5. MOIC App.", "6. Proposal", "7. Paid"],
           datasets: [{
-            data: [tDel, tPin, tJsy, tReg, tMoic, tProp, tPay],
-            backgroundColor: ["#334155", "#0284c7", "#0d9488", "#4f46e5", "#7e22ce", "#d97706", "#059669"],
-            borderRadius: 5
+            data: stageVals,
+            backgroundColor: ["#1e293b", "#0284c7", "#0d9488", "#4f46e5", "#7e22ce", "#d97706", "#059669"],
+            borderRadius: 6,
+            barPercentage: 0.65
           }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 26 } },
+          scales: {
+            y: { beginAtZero: true, suggestedMax: maxVal * 1.18, grid: { color: "#f1f5f9" } },
+            x: { grid: { display: false }, ticks: { font: { size: 10, weight: "bold" } } }
+          },
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              anchor: "end",
+              align: "top",
+              offset: 2,
+              color: "#0f172a",
+              font: { weight: "bold", size: 10 },
+              formatter: (val) => {
+                const p = tDel ? Math.round((val / tDel) * 100) : 0;
+                return `${val}\n(${p}%)`;
+              }
+            }
+          }
+        }
+      });
+
+      // 2. Top Blocks / Facilities Comparison Chart with Direct Data Labels
+      const compSource = selBlock === "ALL"
+        ? Array.from(blockMap.values()).filter(b => b.del > 0).sort((a, b) => b.del - a.del).slice(0, 7)
+        : scoped.filter(f => f.del > 0).sort((a, b) => b.del - a.del).slice(0, 7).map(f => ({ block: f.facility, del: f.del, pay: f.pay }));
+
+      document.getElementById("compChartTitle").textContent = selBlock === "ALL"
+        ? "2. प्रमुख संस्थान/ब्लॉक: कुल प्रसव बनाम भुगतान"
+        : `2. ${selBlock}: प्रमुख स्वास्थ्य केंद्र (प्रसव बनाम भुगतान)`;
+
+      const maxComp = Math.max(...compSource.map(x => x.del), 10);
+      if (blockChartInst) blockChartInst.destroy();
+      blockChartInst = new Chart(document.getElementById("blockCompChart"), {
+        type: "bar",
+        data: {
+          labels: compSource.map(x => x.block.length > 16 ? x.block.slice(0, 15) + "…" : x.block),
+          datasets: [
+            { label: "कुल प्रसव", data: compSource.map(x => x.del), backgroundColor: "#3b82f6", borderRadius: 4 },
+            { label: "भुगतान पूर्ण", data: compSource.map(x => x.pay), backgroundColor: "#10b981", borderRadius: 4 }
+          ]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { right: 34 } },
+          scales: {
+            x: { beginAtZero: true, suggestedMax: maxComp * 1.2, grid: { color: "#f1f5f9" } },
+            y: { grid: { display: false }, ticks: { font: { size: 10, weight: "bold" } } }
+          },
+          plugins: {
+            legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11, weight: "bold" } } },
+            datalabels: {
+              anchor: "end",
+              align: "right",
+              offset: 4,
+              color: "#1e293b",
+              font: { weight: "bold", size: 10 },
+              formatter: (val) => val
+            }
+          }
+        }
       });
 
       // Block Summary Table
-      document.getElementById("blockSummaryBody").innerHTML = Array.from(blockMap.values()).map(b => `
-        <tr class="hover:bg-slate-50">
-          <td class="p-2 font-bold text-slate-900">${b.block}</td>
-          <td class="p-2 text-right">${b.del}</td>
-          <td class="p-2 text-right">${b.jsy}</td>
-          <td class="p-2 text-right">${b.reg}</td>
-          <td class="p-2 text-right">${b.moic}</td>
-          <td class="p-2 text-right font-bold text-emerald-700">${b.pay}</td>
-          <td class="p-2 text-right font-bold text-rose-700">${Math.max(0, b.del - b.pay)}</td>
-        </tr>`).join("");
+      const sortedBlocks = Array.from(blockMap.values()).sort((a, b) => b.del - a.del);
+      document.getElementById("blockSummaryBody").innerHTML = sortedBlocks.map(b => {
+        const pend = Math.max(0, b.del - b.pay);
+        const payPct = b.del ? ((b.pay / b.del) * 100).toFixed(0) : 0;
+        return `
+          <tr class="hover:bg-slate-50">
+            <td class="py-2.5 px-3 font-bold text-slate-900">${b.block}</td>
+            <td class="py-2.5 px-3 text-right font-semibold">${b.del}</td>
+            <td class="py-2.5 px-3 text-right">${b.jsy}</td>
+            <td class="py-2.5 px-3 text-right">${b.reg}</td>
+            <td class="py-2.5 px-3 text-right">${b.moic}</td>
+            <td class="py-2.5 px-3 text-right font-bold text-emerald-700">${b.pay}</td>
+            <td class="py-2.5 px-3 text-right font-bold text-rose-700">${pend}</td>
+            <td class="py-2.5 px-3 text-right font-extrabold">${payPct}%</td>
+          </tr>`;
+      }).join("");
 
-      // Facility Table
+      // Facility Breakdown (Both Mobile Cards & Desktop Table)
       const facRows = scoped.map(r => ({ ...r, bn: detectBottleneck(r) })).filter(r => {
         if (selBn !== "ALL" && r.bn.code !== selBn) return false;
         if (q && !(r.facility.toLowerCase().includes(q) || r.block.toLowerCase().includes(q))) return false;
         return true;
-      });
+      }).sort((a, b) => b.del - a.del);
 
       filteredExport = facRows.map(({ bn, ...rest }) => ({ ...rest, Bottleneck: bn.label }));
 
-      document.getElementById("facilityBody").innerHTML = facRows.map(r => `
+      // Render Mobile Cards
+      document.getElementById("mobileFacilityCards").innerHTML = facRows.length ? facRows.map(r => `
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+          <div class="flex justify-between items-start gap-2">
+            <div>
+              <span class="text-[10px] font-bold uppercase text-slate-400">${r.block}</span>
+              <h4 class="text-sm font-bold text-slate-900">${r.facility}</h4>
+            </div>
+            <span class="px-2.5 py-1 rounded-lg text-[10px] ${r.bn.cls}">${r.bn.label}</span>
+          </div>
+          <div class="grid grid-cols-4 gap-1.5 bg-slate-50 p-2.5 rounded-xl text-center border border-slate-100">
+            <div><span class="text-[10px] text-slate-500 block">प्रसव</span><strong class="text-xs text-slate-900">${r.del}</strong></div>
+            <div><span class="text-[10px] text-teal-700 block">JSY Ver.</span><strong class="text-xs text-teal-900">${r.jsy}</strong></div>
+            <div><span class="text-[10px] text-purple-700 block">MOIC App.</span><strong class="text-xs text-purple-900">${r.moic}</strong></div>
+            <div><span class="text-[10px] text-emerald-700 block">Paid</span><strong class="text-xs text-emerald-800">${r.pay}</strong></div>
+          </div>
+        </div>
+      `).join("") : `<div class="bg-white p-6 rounded-2xl text-center text-xs text-slate-400">कोई स्वास्थ्य केंद्र नहीं मिला।</div>`;
+
+      // Render Desktop Table
+      document.getElementById("desktopFacilityBody").innerHTML = facRows.map(r => `
         <tr class="hover:bg-slate-50">
-          <td class="p-2.5 font-semibold">${r.block}</td>
-          <td class="p-2.5 font-bold text-slate-900">${r.facility}</td>
-          <td class="p-2.5 text-right">${r.del}</td>
-          <td class="p-2.5 text-right">${r.pin}</td>
-          <td class="p-2.5 text-right">${r.jsy}</td>
-          <td class="p-2.5 text-right">${r.reg}</td>
-          <td class="p-2.5 text-right">${r.moic}</td>
-          <td class="p-2.5 text-right">${r.prop}</td>
-          <td class="p-2.5 text-right font-bold text-emerald-700">${r.pay}</td>
-          <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[11px] ${r.bn.cls}">${r.bn.label}</span></td>
+          <td class="py-2.5 px-3 font-semibold text-slate-700">${r.block}</td>
+          <td class="py-2.5 px-3 font-bold text-slate-900">${r.facility}</td>
+          <td class="py-2.5 px-3 text-right font-semibold">${r.del}</td>
+          <td class="py-2.5 px-3 text-right">${r.pin}</td>
+          <td class="py-2.5 px-3 text-right">${r.jsy}</td>
+          <td class="py-2.5 px-3 text-right">${r.reg}</td>
+          <td class="py-2.5 px-3 text-right">${r.moic}</td>
+          <td class="py-2.5 px-3 text-right">${r.prop}</td>
+          <td class="py-2.5 px-3 text-right font-bold text-emerald-700">${r.pay}</td>
+          <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[11px] ${r.bn.cls}">${r.bn.label}</span></td>
         </tr>`).join("");
+
+      // Prepare WhatsApp Brief
+      const scopeTitle = selBlock === "ALL" ? "जनपद अयोध्या (समस्त संस्थान)" : `ब्लॉक ${selBlock}`;
+      currentWaSummary =
+`*NHM अयोध्या — JSY भुगतान समीक्षा*
+📍 *क्षेत्र:* ${scopeTitle} | 📅 *दिनांक:* ${selDate}
+
+📊 *पाइपलाइन प्रगति:*
+• कुल प्रसव (Deliveries): *${tDel}*
+• JSY Verified: *${tJsy}* (${pct(tJsy)})
+• Registered: *${tReg}* (${pct(tReg)})
+• MOIC Approved: *${tMoic}* (${pct(tMoic)})
+• भुगतान पूर्ण (Paid): *${tPay}* (${pct(tPay)})
+
+⚠️ *कुल लंबित भुगतान:* *${Math.max(0, tDel - tPay)}*
+
+🔗 *पोर्टल:* https://ramkp007-ctrl.github.io/asha-ayodhya/portal.html`;
     }
+
+    document.getElementById("waShareBtn").addEventListener("click", () => {
+      document.getElementById("waTextBox").value = currentWaSummary;
+      document.getElementById("openWaLink").href = `https://wa.me/?text=${encodeURIComponent(currentWaSummary)}`;
+      document.getElementById("waModal").classList.remove("hidden");
+    });
+
+    document.getElementById("copyWaBtn").addEventListener("click", () => {
+      navigator.clipboard.writeText(document.getElementById("waTextBox").value);
+      alert("संदेश कॉपी हो गया!");
+    });
 
     document.getElementById("exportJsyBtn").addEventListener("click", () => {
       const wb = XLSX.utils.book_new();
