@@ -402,7 +402,7 @@
       alert(`फ़ाइल "${file.name}" (दिनांक: ${fileDateLabel}) के ${newRecords.length} केंद्रों का डेटा सेव हो गया!`);
     });
 
-    // 3. ABHA Upload (Supports "Population" & "ABHA Created" exact headers)
+    // 3. ABHA Upload (Clean & Exact Mapping)
     document.getElementById("uploadAbhaBtn").addEventListener("click", async () => {
       const file = document.getElementById("abhaFileInput").files[0];
       if (!file) return alert("पहले ABHA Excel/CSV फ़ाइल चुनें।");
@@ -414,6 +414,7 @@
       const wb = XLSX.read(buf, { type: "array" });
       const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "" });
 
+      let sumPop = 0, sumCreated = 0;
       const newRecords = raw.map(r => {
         const norm = {};
         for (const [k, v] of Object.entries(r)) {
@@ -421,6 +422,8 @@
         }
         const pop = Number(String(norm["POPULATION"] || norm["TARGET"] || 0).replace(/,/g, "")) || 0;
         const created = Number(String(norm["ABHA CREATED"] || norm["ABHA_CREATED"] || norm["CREATED"] || 0).replace(/,/g, "")) || 0;
+        sumPop += pop;
+        sumCreated += created;
 
         return {
           date: fileDateLabel,
@@ -437,7 +440,9 @@
       }).filter(x => x.block && (x.ashaName || x.sc));
 
       const snap = await get(abhaRef);
-      const oldRecords = snap.exists() ? (snap.val().records || []).filter(r => r.date !== fileDateLabel) : [];
+      const oldRecords = snap.exists()
+        ? (snap.val().records || []).filter(r => r.date !== fileDateLabel && !String(r.date).startsWith("ABHA ID_"))
+        : [];
       const mergedRecords = [...oldRecords, ...newRecords];
 
       await set(abhaRef, {
@@ -446,7 +451,7 @@
         records: mergedRecords
       });
       refreshStatus();
-      alert(`फ़ाइल "${file.name}" (दिनांक: ${fileDateLabel}) के ${newRecords.length} आशा क्षेत्रों का ABHA डेटा सेव हो गया!`);
+      alert(`✅ अपलोड सफल!\nदिनांक: ${fileDateLabel}\nकुल क्षेत्र: ${newRecords.length}\nकुल जनसंख्या: ${sumPop.toLocaleString("en-IN")}\nनिर्मित ABHA: ${sumCreated.toLocaleString("en-IN")}`);
     });
 
     // Reset ASHA PIN
