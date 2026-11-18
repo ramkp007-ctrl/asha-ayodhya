@@ -189,21 +189,21 @@
 
     .dup-box {
       background: #fffbeb;
-      border: 1px solid #fcd34d;
+      border: 1.5px solid #f59e0b;
       padding: 14px;
       border-radius: 10px;
       margin-top: 14px;
       max-height: 320px;
       overflow-y: auto;
     }
-    .dup-title { font-weight: 700; color: #b45309; font-size: 13px; margin-bottom: 10px; }
+    .dup-title { font-weight: 700; color: #b45309; font-size: 13.5px; margin-bottom: 10px; line-height: 1.4; }
     .asha-choice {
       display: block;
       width: 100%;
       text-align: left;
       background: #fff;
       border: 1.5px solid var(--primary);
-      padding: 9px 12px;
+      padding: 10px 12px;
       border-radius: 8px;
       margin-bottom: 8px;
       cursor: pointer;
@@ -627,6 +627,24 @@
     return String(str || "").replace(/[.#$\[\]\/]/g, "_").trim().toUpperCase();
   }
 
+  // Extract single or multiple worker records whether stored as Array or Object map
+  function extractWorkerRecords(entry, dbKey) {
+    if (!entry || typeof entry !== "object") return [];
+    if (Array.isArray(entry)) {
+      return entry
+        .map((w, idx) => (w && typeof w === "object" ? { ...w, _dbKey: dbKey, _arrIdx: String(idx) } : null))
+        .filter(Boolean);
+    }
+    // Single worker record (has name 'n' or payment map 'p')
+    if ("n" in entry || "p" in entry || "id" in entry) {
+      return [{ ...entry, _dbKey: dbKey, _arrIdx: null }];
+    }
+    // Nested Object map of multiple workers under the same ID (e.g. {"0": {...}, "1": {...}})
+    return Object.entries(entry)
+      .map(([subKey, w]) => (w && typeof w === "object" ? { ...w, _dbKey: dbKey, _arrIdx: subKey } : null))
+      .filter(Boolean);
+  }
+
   function formatMonthHindi(mmYyyy) {
     const parts = String(mmYyyy || "").split("-");
     if (parts.length === 2 && HINDI_MONTHS[parts[0]]) {
@@ -692,11 +710,7 @@
       const list = [];
       if (snap.exists()) {
         Object.entries(snap.val()).forEach(([dbKey, entry]) => {
-          if (Array.isArray(entry)) {
-            entry.forEach((w, arrIdx) => list.push({ ...w, _dbKey: dbKey, _arrIdx: arrIdx }));
-          } else if (entry && typeof entry === "object") {
-            list.push({ ...entry, _dbKey: dbKey, _arrIdx: null });
-          }
+          list.push(...extractWorkerRecords(entry, dbKey));
         });
       }
       allWorkersCache = list;
@@ -704,7 +718,6 @@
     return allWorkersCache;
   }
 
-  // Exact single-pass month mapping (never double-counts normalized months)
   function buildProfileFromCompact(rawWorker, headsList, monthsList, fallbackDbKey = null, arrIdx = null) {
     const monthsObj = {};
     const uniqueCleanMonths = Array.from(new Set((monthsList || []).map(normalizeMonthKey).filter(Boolean)));
@@ -730,8 +743,8 @@
               a: 0
             }));
           }
-          // Assign exact value for that month-head cell (no += doubling)
-          monthsObj[cleanM][idx].a = Number(val) || 0;
+          // Add exact amount safely (+= handles multiple entries normalized to the same month)
+          monthsObj[cleanM][idx].a += (Number(val) || 0);
         });
       });
     }
@@ -740,7 +753,7 @@
     const validPin = /^\d{6}$/.test(savedPin) ? savedPin : DEFAULT_PIN;
 
     return {
-      asha_id: String(rawWorker.id || ""),
+      asha_id: String(rawWorker.id || fallbackDbKey || ""),
       dbKey: rawWorker._dbKey || fallbackDbKey || safeKey(rawWorker.id),
       arrIdx: rawWorker._arrIdx !== undefined ? rawWorker._arrIdx : arrIdx,
       pin: validPin,
@@ -855,17 +868,16 @@
 
       if (exactSnap.exists()) {
         document.getElementById('loader').style.display = 'none';
-        const rawData = exactSnap.val();
-        if (Array.isArray(rawData)) {
-          matchedProfiles = rawData.map((w, idx) => buildProfileFromCompact(w, cachedHeads, cachedMonths, safeIdKey, idx));
-        } else {
-          matchedProfiles = [buildProfileFromCompact(rawData, cachedHeads, cachedMonths, safeIdKey, null)];
-        }
+        const records = extractWorkerRecords(exactSnap.val(), safeIdKey);
+        matchedProfiles = records.map(w => buildProfileFromCompact(w, cachedHeads, cachedMonths, safeIdKey, w._arrIdx));
 
         if (matchedProfiles.length === 1) {
           promptPinForProfile(0);
-        } else {
-          showSelectionList(matchedProfiles, "इस ID से एक से अधिक आशाएं दर्ज हैं। कृपया अपना नाम चुनें:");
+        } else if (matchedProfiles.length > 1) {
+          showSelectionList(
+            matchedProfiles,
+            `⚠️ इस ID (${rawQuery}) पर ${matchedProfiles.length} ASHA दर्ज हैं। कृपया अपने नाम का चयन करें:`
+          );
         }
         return;
       }
@@ -890,7 +902,10 @@
       if (matchedProfiles.length === 1) {
         promptPinForProfile(0);
       } else {
-        showSelectionList(matchedProfiles, `"${rawQuery}" से मिलती-जुलती ${matchedProfiles.length} आशाएं मिलीं — अपना नाम चुनें:`);
+        showSelectionList(
+          matchedProfiles,
+          `⚠️ "${rawQuery}" से मिलती-जुलती ${matchedProfiles.length} ASHA दर्ज हैं। कृपया अपने नाम का चयन करें:`
+        );
       }
     } catch (err) {
       document.getElementById('loader').style.display = 'none';
@@ -905,7 +920,7 @@
     profiles.forEach((p, idx) => {
       listDiv.innerHTML += `
         <button class="asha-choice" onclick="promptPinForProfile(${idx})">
-          <strong>${p.name} <small style="font-weight:600; color:#475569;">(ID: ${p.asha_id})</small></strong>
+          <strong>${idx + 1}. ${p.name} <small style="font-weight:600; color:#475569;">(ID: ${p.asha_id})</small></strong>
           <span>ब्लॉक: ${p.block || '-'} | SC: ${p.sc || '-'} | ग्राम: ${p.village || '-'}</span>
         </button>`;
     });
