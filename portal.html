@@ -3,101 +3,64 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NHM अयोध्या — एकीकृत अधिकारी समीक्षा पोर्टल (Command Hub)</title>
+  <title>NHM अयोध्या — एकीकृत अधिकारी पोर्टल</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen font-sans antialiased">
 
-  <!-- SINGLE SIGN-ON LOGIN SCREEN -->
-  <div id="loginScreen" class="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-slate-950 via-teal-950 to-slate-900">
-    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-7 space-y-5 border border-slate-200">
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen" class="min-h-screen flex items-center justify-center px-4 bg-slate-900">
+    <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-7 space-y-5">
       <div class="text-center border-b pb-4">
-        <span class="inline-block bg-teal-100 text-teal-900 text-[11px] font-extrabold px-3 py-1 rounded-full mb-2">
+        <span class="inline-block bg-teal-100 text-teal-900 text-[11px] font-bold px-3 py-1 rounded-full mb-2">
           जिला स्वास्थ्य समिति (DHS), अयोध्या
         </span>
-        <h1 class="text-xl font-bold text-slate-900">NHM एकीकृत अधिकारी पोर्टल</h1>
-        <p class="text-xs text-slate-500 mt-1">District एवं Block स्तरीय सभी कार्यक्रमों का सिंगल-लॉगिन डैशबोर्ड</p>
+        <h1 class="text-lg font-bold text-slate-900">NHM अधिकारी समीक्षा पोर्टल</h1>
+        <p class="text-xs text-slate-500 mt-1">एक लॉगिन से सभी कार्यक्रमों की समीक्षा करें</p>
       </div>
 
       <form id="hubLoginForm" class="space-y-4">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">पंजीकृत मोबाइल नंबर (10 अंक)</label>
-          <input type="tel" id="loginMobile" maxlength="10" required placeholder="अपना 10 अंकों का मोबाइल नंबर दर्ज करें"
+          <label class="block text-xs font-semibold text-slate-700 mb-1">पंजीकृत मोबाइल नंबर</label>
+          <input type="tel" id="loginMobile" maxlength="10" required placeholder="10 अंकों का मोबाइल नंबर"
             class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:border-teal-700 focus:outline-none" />
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">4-अंकों का PIN</label>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">4-अंकों का PIN</label>
           <input type="password" id="loginPin" maxlength="4" required placeholder="••••"
             class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm tracking-widest focus:border-teal-700 focus:outline-none" />
         </div>
         <div id="loginError" class="hidden p-2.5 bg-red-50 text-red-700 border border-red-200 rounded-lg text-xs font-semibold"></div>
-        <button type="submit" id="loginBtn" class="w-full py-2.5 bg-teal-800 hover:bg-teal-900 text-white font-bold rounded-xl text-sm shadow transition">
-          पोर्टल में प्रवेश करें →
+        <button type="submit" id="loginBtn" class="w-full py-2.5 bg-teal-800 hover:bg-teal-900 text-white font-bold rounded-xl text-sm transition">
+          पोर्टल खोलें →
         </button>
       </form>
-
-      <div class="pt-2 border-t text-center text-xs text-slate-500">
-        <a href="index.html" class="text-teal-800 font-semibold hover:underline">आशा कार्यकर्ता भुगतान पोर्टल पर जाएं →</a>
-      </div>
     </div>
   </div>
 
-  <!-- COMMAND HUB DASHBOARD -->
+  <!-- MAIN HUB -->
   <div id="hubApp" class="hidden">
-    <!-- Top Header -->
-    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-30 border-b border-slate-800">
-      <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-wrap justify-between items-center gap-3">
+    <header class="bg-slate-900 text-white shadow-md">
+      <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-wrap justify-between items-center gap-3">
         <div>
-          <div class="flex items-center gap-2.5">
-            <h1 class="text-base md:text-lg font-bold tracking-tight">राष्ट्रीय स्वास्थ्य मिशन (NHM), अयोध्या — Command Hub</h1>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-bold">NHM अयोध्या — अधिकारी डैशबोर्ड</h1>
             <span id="roleBadge" class="text-[10px] bg-amber-400 text-slate-950 font-extrabold px-2.5 py-0.5 rounded-full">DISTRICT</span>
           </div>
-          <p id="officerInfo" class="text-xs text-slate-300 mt-0.5">लोड हो रहा है...</p>
+          <p id="officerInfo" class="text-xs text-slate-300 mt-0.5"></p>
         </div>
-        <div class="flex items-center gap-2">
-          <button onclick="document.getElementById('pinModal').classList.remove('hidden')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-600">
-            🔑 PIN बदलें
-          </button>
-          <button id="logoutBtn" class="px-3 py-1.5 bg-red-900/60 hover:bg-red-700 text-xs font-semibold rounded-lg border border-red-700">
-            लॉगआउट
-          </button>
-        </div>
+        <button id="logoutBtn" class="px-3 py-1.5 bg-red-800 hover:bg-red-700 text-xs font-semibold rounded-lg">लॉगआउट</button>
       </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
-      <!-- Welcome Banner -->
-      <section class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap justify-between items-center gap-4">
-        <div>
-          <h2 id="scopeHeading" class="text-base font-bold text-slate-900">जनपद स्तरीय कार्यक्रम निगरानी (सभी 11 विकास खंड)</h2>
-          <p class="text-xs text-slate-500 mt-0.5">नीचे दिए गए किसी भी कार्यक्रम पर क्लिक करें — आपका लॉगिन सत्र स्वतः लागू रहेगा।</p>
-        </div>
-        <span id="todayDate" class="text-xs font-semibold bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200"></span>
-      </section>
-
-      <!-- Program Modules Grid -->
-      <section id="modulesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></section>
+    <main class="max-w-6xl mx-auto px-4 py-6">
+      <div id="modulesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
     </main>
-  </div>
-
-  <!-- SELF-SERVICE CHANGE PIN MODAL -->
-  <div id="pinModal" class="hidden fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-4">
-    <div class="bg-white max-w-sm w-full rounded-2xl shadow-xl p-5 space-y-4">
-      <div class="flex justify-between items-center border-b pb-2">
-        <h3 class="text-sm font-bold text-slate-900">नया 4-अंकों का PIN सेट करें</h3>
-        <button onclick="document.getElementById('pinModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 font-bold">✕</button>
-      </div>
-      <input type="password" id="newPinInput" maxlength="4" placeholder="नया 4-अंकों का PIN दर्ज करें"
-        class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm tracking-widest" />
-      <button id="saveNewPinBtn" class="w-full py-2 bg-teal-800 hover:bg-teal-900 text-white text-xs font-bold rounded-xl">
-        PIN अपडेट करें
-      </button>
-    </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
@@ -113,64 +76,34 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // =========================================================================
-    // YAHAN SE AAP NAYE PROGRAMS / LINKS JOD YA UPDATE KAR SAKTE HAIN
-    // access: "ALL" (District & Block dono ko dikhega) | "DISTRICT" (Sirf District ko)
-    // =========================================================================
-    const NHM_PROGRAMS = [
+    const MODULES = [
       {
-        title: "आशा प्रोत्साहन राशि समीक्षा (Gap Analysis)",
-        category: "Community Process • PFMS",
-        desc: "ब्लॉक/उप-केंद्रवार शून्य भुगतान (₹0), PFMS Break, और प्रोग्राम-वार एक्टिविटी ड्रिल-डाउन।",
+        title: "1. आशा प्रोत्साहन राशि समीक्षा",
+        desc: "ब्लॉक एवं उप-केंद्रवार शून्य भुगतान (₹0), PFMS Break और प्रोग्राम-वार विश्लेषण।",
         url: "dashboard.html",
         access: "ALL",
-        badge: "Live",
-        accent: "border-teal-600 bg-teal-50 text-teal-800"
+        badge: "ASHA Payment"
       },
       {
-        title: "JSY एवं संस्थागत प्रसव प्रगति डैशबोर्ड",
-        category: "Maternal Health • JSY",
-        desc: "प्रगतिशील संस्थागत प्रसव (Progressive Facility Delivery) एवं JSY सत्यापन रिपोर्ट।",
-        url: "#jsy-dashboard-link", // Yahan apne JSY HTML dashboard ka link dalein
+        title: "2. JSY भुगतान एवं सत्यापन पाइपलाइन",
+        desc: "प्रसव, PIN Verify, JSY Verify, MOIC Approval एवं भुगतान पेंडेंसी विश्लेषण।",
+        url: "jsy-dashboard.html",
         access: "ALL",
-        badge: "Maternal",
-        accent: "border-indigo-600 bg-indigo-50 text-indigo-800"
+        badge: "JSY Payment"
       },
       {
-        title: "चिकित्सा अधिकारी (MO) GPS उपस्थिति",
-        category: "HR & Facility Deployment",
-        desc: "नवनियुक्त चिकित्सा अधिकारियों की स्वास्थ्य केंद्र पर GPS लोकेशन आधारित उपस्थिति सत्यापन।",
-        url: "#mo-attendance-link", // Yahan Google Form / Attendance Sheet ka link dalein
-        access: "ALL",
-        badge: "Attendance",
-        accent: "border-emerald-600 bg-emerald-50 text-emerald-800"
-      },
-      {
-        title: "जनपद अयोध्या — ब्लॉकवार GIS मानचित्र",
-        category: "Spatial Analytics • 11 Blocks",
-        desc: "सभी 11 विकास खंडों की कार्यक्रमवार उपलब्धि का Choropleth मैप विश्लेषण।",
-        url: "#gis-map-link", // Yahan Datawrapper / GIS map ka link dalein
-        access: "DISTRICT",
-        badge: "GIS Map",
-        accent: "border-amber-600 bg-amber-50 text-amber-800"
-      },
-      {
-        title: "आशा भुगतान डेटा अपलोडर (Admin)",
-        category: "Data Management",
-        desc: "मासिक PFMS / e-Kavach Excel डेटा अपलोड एवं आशा PIN रीसेट।",
+        title: "3. आशा भुगतान डेटा अपलोडर",
+        desc: "मासिक PFMS / e-Kavach Excel डेटा अपलोड एवं PIN रीसेट।",
         url: "admin.html",
         access: "DISTRICT",
-        badge: "Admin",
-        accent: "border-slate-700 bg-slate-100 text-slate-800"
+        badge: "Admin"
       },
       {
-        title: "अधिकारी एक्सेस नियंत्रण (Officers)",
-        category: "User & Role Management",
-        desc: "District एवं 11 ब्लॉकों के अधिकारियों के मोबाइल नंबर व अनुमति प्रबंधन।",
+        title: "4. अधिकारी मोबाइल नंबर प्रबंधन",
+        desc: "District एवं 11 ब्लॉकों के अधिकारियों के लॉगिन व PIN नियंत्रण।",
         url: "officers-admin.html",
         access: "DISTRICT",
-        badge: "Control",
-        accent: "border-purple-600 bg-purple-50 text-purple-800"
+        badge: "Officers"
       }
     ];
 
@@ -185,17 +118,16 @@
 
       errBox.classList.add("hidden");
       btn.disabled = true;
-      btn.textContent = "सत्यापन हो रहा है...";
+      btn.textContent = "जाँच हो रही है...";
 
       try {
         const snap = await get(ref(db, `asha_portal_v2/officers/${mob}`));
         if (!snap.exists()) throw new Error("यह मोबाइल नंबर पंजीकृत नहीं है।");
         const off = snap.val();
-        if (off.active === false) throw new Error("आपका एक्सेस निष्क्रिय है।");
+        if (off.active === false) throw new Error("आपका एक्सेस बंद है।");
         if (String(off.pin) !== pin) throw new Error("गलत PIN दर्ज किया गया है।");
 
         currentOfficer = { mobile: mob, ...off };
-        // Wahi sessionStorage key rakhi gayi hai taaki dashboard.html bina dobara login khule
         sessionStorage.setItem("nhm_ayodhya_officer", JSON.stringify(currentOfficer));
         renderHub();
       } catch (err) {
@@ -203,7 +135,7 @@
         errBox.classList.remove("hidden");
       } finally {
         btn.disabled = false;
-        btn.textContent = "पोर्टल में प्रवेश करें →";
+        btn.textContent = "पोर्टल खोलें →";
       }
     });
 
@@ -218,16 +150,6 @@
       location.reload();
     });
 
-    document.getElementById("saveNewPinBtn").addEventListener("click", async () => {
-      const newPin = document.getElementById("newPinInput").value.trim();
-      if (!/^\d{4}$/.test(newPin)) return alert("कृपया 4 अंकों का संख्यात्मक PIN दर्ज करें।");
-      await update(ref(db, `asha_portal_v2/officers/${currentOfficer.mobile}`), { pin: newPin });
-      currentOfficer.pin = newPin;
-      sessionStorage.setItem("nhm_ayodhya_officer", JSON.stringify(currentOfficer));
-      document.getElementById("pinModal").classList.add("hidden");
-      alert("आपका नया PIN सफलतापूर्वक अपडेट हो गया है!");
-    });
-
     function renderHub() {
       document.getElementById("loginScreen").classList.add("hidden");
       document.getElementById("hubApp").classList.remove("hidden");
@@ -235,33 +157,18 @@
       const isDistrict = currentOfficer.role === "DISTRICT";
       document.getElementById("roleBadge").textContent = isDistrict ? "DISTRICT LEVEL" : `BLOCK: ${currentOfficer.block}`;
       document.getElementById("officerInfo").textContent = `${currentOfficer.name} (${currentOfficer.designation}) • मो. ${currentOfficer.mobile}`;
-      document.getElementById("scopeHeading").textContent = isDistrict
-        ? "जनपद स्तरीय कार्यक्रम निगरानी (समस्त 11 विकास खंड)"
-        : `विकास खंड ${currentOfficer.block} — कार्यक्रम निगरानी डैशबोर्ड`;
-      document.getElementById("todayDate").textContent = new Date().toLocaleDateString("hi-IN", { day: "numeric", month: "long", year: "numeric" });
 
-      const visibleModules = NHM_PROGRAMS.filter(m => isDistrict || m.access === "ALL");
-      const grid = document.getElementById("modulesGrid");
-
-      grid.innerHTML = visibleModules.map(m => {
-        const isPlaceholder = m.url.startsWith("#");
-        return `
-          <a href="${m.url}" ${isPlaceholder ? `onclick="event.preventDefault(); alert('इस मॉड्यूल का लिंक अभी जोड़ा जाना है। portal.html में url अपडेट करें।')"` : ""}
-             class="group bg-white rounded-2xl p-5 border border-slate-200 hover:border-teal-600 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4">
-            <div class="space-y-2">
-              <div class="flex justify-between items-center">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${m.category}</span>
-                <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${m.accent}">${m.badge}</span>
-              </div>
-              <h3 class="text-base font-bold text-slate-900 group-hover:text-teal-800 transition">${m.title}</h3>
-              <p class="text-xs text-slate-600 leading-relaxed">${m.desc}</p>
-            </div>
-            <div class="pt-3 border-t border-slate-100 flex justify-between items-center text-xs font-bold text-teal-800">
-              <span>डैशबोर्ड खोलें</span>
-              <span class="group-hover:translate-x-1 transition">→</span>
-            </div>
-          </a>`;
-      }).join("");
+      const list = MODULES.filter(m => isDistrict || m.access === "ALL");
+      document.getElementById("modulesGrid").innerHTML = list.map(m => `
+        <a href="${m.url}" class="bg-white p-5 rounded-2xl border border-slate-200 hover:border-teal-600 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4">
+          <div class="space-y-2">
+            <span class="inline-block text-[10px] font-bold bg-teal-50 text-teal-800 px-2.5 py-0.5 rounded-full border border-teal-200">${m.badge}</span>
+            <h2 class="text-base font-bold text-slate-900">${m.title}</h2>
+            <p class="text-xs text-slate-600 leading-relaxed">${m.desc}</p>
+          </div>
+          <div class="pt-3 border-t text-xs font-bold text-teal-800">खोलें →</div>
+        </a>
+      `).join("");
     }
   </script>
 </body>
