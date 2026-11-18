@@ -13,7 +13,7 @@
     <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
       <div>
         <h1 class="text-xl font-bold">आशा भुगतान डेटा अपलोडर (Admin Panel)</h1>
-        <p class="text-xs text-teal-100">राष्ट्रीय स्वास्थ्य मिशन (NHM), अयोध्या • 100% Exact Excel SUM Calculation</p>
+        <p class="text-xs text-teal-100">राष्ट्रीय स्वास्थ्य मिशन (NHM), अयोध्या • Duplicate ID Separation &amp; Exact Excel SUM</p>
       </div>
       <div class="flex gap-2">
         <a href="dashboard.html" class="px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-xs font-semibold rounded-lg border border-teal-500">
@@ -32,7 +32,7 @@
       <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
         <h2 class="text-base font-bold text-teal-800">1. Excel (.xlsx) या CSV फ़ाइल अपलोड करें</h2>
         <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded font-semibold">
-          ✅ 100% Excel SUM Match (हर पंक्ति की सटीक गणना)
+          ✅ 1 ID पर 2 ASHA होने पर अलग-अलग रिकॉर्ड सुरक्षित
         </span>
       </div>
 
@@ -61,8 +61,8 @@
 
       <!-- Verification Box -->
       <div id="auditPreviewBox" class="hidden p-4 bg-emerald-50/70 border border-emerald-300 rounded-xl space-y-2 text-xs">
-        <div id="auditSummary" class="text-slate-900 font-semibold"></div>
-        <div id="auditTableWrap" class="bg-white p-3 rounded-lg border border-emerald-200 overflow-x-auto max-h-72"></div>
+        <div id="auditSummary" class="text-slate-900 font-semibold leading-relaxed"></div>
+        <div id="auditTableWrap" class="bg-white p-3 rounded-lg border border-emerald-200 overflow-x-auto max-h-80"></div>
       </div>
     </section>
 
@@ -163,6 +163,18 @@
       return String(str || "").replace(/[.#$\[\]\/]/g, "_").trim().toUpperCase();
     }
 
+    function normalizeIdentityName(name) {
+      return String(name || "").replace(/\s+/g, " ").trim().toUpperCase();
+    }
+
+    // Helper to extract worker objects whether stored as single object or array
+    function toWorkerList(entry) {
+      if (!entry || typeof entry !== "object") return [];
+      if (Array.isArray(entry)) return entry.filter(w => w && typeof w === "object");
+      if ("n" in entry || "p" in entry || "id" in entry) return [entry];
+      return Object.values(entry).filter(w => w && typeof w === "object");
+    }
+
     async function readPrimarySheetOnly(file, statusEl) {
       const buffer = await file.arrayBuffer();
       const workbook = XLSX.read(buffer, { type: "array", raw: true });
@@ -191,7 +203,7 @@
       return allRows;
     }
 
-    // Pure Excel SUMIFS logic: clears old data for uploading months, then sums every row in the file accurately
+    // Separates multiple ASHA workers sharing the same ID by (ID + Normalized Name)
     function processRowsIntoData(combinedRows, existing) {
       const headsList = [...(existing.heads || [])];
       const headIndexMap = new Map();
@@ -200,38 +212,52 @@
       });
 
       const monthsSet = new Set((existing.months || []).map(normalizeMonth).filter(Boolean));
-      const workers = JSON.parse(JSON.stringify(existing.workers || {}));
 
-      // Clear previous data for the months present in the new upload so re-uploading never doubles anything
+      // Flatten existing workers into (idKey + nameKey) map while preserving saved PINs
+      const workerBuckets = new Map(); // idKey -> Map(nameKey -> workerObj)
+      for (const [idKey, entry] of Object.entries(existing.workers || {})) {
+        const list = toWorkerList(entry);
+        const nameMap = new Map();
+        list.forEach(w => {
+          const nKey = normalizeIdentityName(w.n) || "UNKNOWN";
+          nameMap.set(nKey, JSON.parse(JSON.stringify(w)));
+        });
+        if (nameMap.size > 0) workerBuckets.set(idKey, nameMap);
+      }
+
+      // Clear previous data ONLY for the months present in the new upload
       const uploadingMonths = new Set();
       for (const row of combinedRows) {
         const m = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
         if (m) uploadingMonths.add(m);
       }
 
-      for (const wKey of Object.keys(workers)) {
-        const w = workers[wKey];
-        if (!w.p) continue;
-        for (const hIdx of Object.keys(w.p)) {
-          const cleanMonthMap = {};
-          for (const [rawM, val] of Object.entries(w.p[hIdx])) {
-            const normM = normalizeMonth(rawM);
-            if (!uploadingMonths.has(normM)) {
-              cleanMonthMap[normM] = Number(val) || 0;
+      for (const nameMap of workerBuckets.values()) {
+        for (const w of nameMap.values()) {
+          if (!w.p) continue;
+          for (const hIdx of Object.keys(w.p)) {
+            const cleanMonthMap = {};
+            for (const [rawM, val] of Object.entries(w.p[hIdx])) {
+              const normM = normalizeMonth(rawM);
+              if (!uploadingMonths.has(normM)) {
+                cleanMonthMap[normM] = Number(val) || 0;
+              }
             }
+            w.p[hIdx] = cleanMonthMap;
           }
-          w.p[hIdx] = cleanMonthMap;
         }
       }
 
-      // Direct row-by-row addition (100% identical to Excel SUMIFS)
+      // Row-by-row addition grouped strictly by (ASHA_ID + ASHA_NAME)
       for (const row of combinedRows) {
         const rawId = getCol(row, ["ASHA_ID", "ASHA ID", "ASHAID", "ID"]);
-        const id = safeKey(rawId);
-        if (!id || id.includes("TOTAL")) continue;
+        const idKey = safeKey(rawId);
+        if (!idKey || idKey.includes("TOTAL")) continue;
 
-        const rawName = getCol(row, ["ASHA_NAME", "ASHA NAME", "NAME"]);
+        const rawName = getCol(row, ["ASHA_NAME", "ASHA NAME", "NAME"]).replace(/\s+/g, " ").trim();
         if (rawName.toUpperCase().includes("TOTAL")) continue;
+
+        const nameKey = normalizeIdentityName(rawName) || "UNKNOWN";
 
         const month = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
         if (month) monthsSet.add(month);
@@ -248,8 +274,22 @@
           headsList.push({ p: program, h: head });
         }
 
-        if (!workers[id]) {
-          workers[id] = {
+        if (!workerBuckets.has(idKey)) {
+          workerBuckets.set(idKey, new Map());
+        }
+        const nameMap = workerBuckets.get(idKey);
+
+        // If previously only "UNKNOWN" existed and now real name arrived, upgrade it
+        if (!nameMap.has(nameKey) && nameKey !== "UNKNOWN" && nameMap.has("UNKNOWN") && nameMap.size === 1) {
+          const existingUnknown = nameMap.get("UNKNOWN");
+          existingUnknown.n = rawName;
+          nameMap.delete("UNKNOWN");
+          nameMap.set(nameKey, existingUnknown);
+        }
+
+        let w = nameMap.get(nameKey);
+        if (!w) {
+          w = {
             id: rawId,
             n: rawName,
             b: getCol(row, ["BLOCK", "BLOCK NAME"]),
@@ -258,8 +298,8 @@
             t: 0,
             p: {}
           };
+          nameMap.set(nameKey, w);
         } else {
-          const w = workers[id];
           if (!w.n && rawName) w.n = rawName;
           if (!w.b) w.b = getCol(row, ["BLOCK", "BLOCK NAME"]);
           if (!w.s) w.s = getCol(row, ["SC", "SUB CENTER", "SUB_CENTER", "SUBCENTER"]);
@@ -268,35 +308,51 @@
 
         const amount = parseAmount(getCol(row, ["AMOUNT", "PAID_AMOUNT", "NET_AMOUNT", "TOTAL"]));
         if (amount > 0 && month) {
-          const w = workers[id];
           if (!w.p) w.p = {};
           if (!w.p[hIdx]) w.p[hIdx] = {};
           w.p[hIdx][month] = (Number(w.p[hIdx][month]) || 0) + amount;
         }
       }
 
+      // Build final workers object: single object if 1 ASHA, Array if 2+ ASHAs share the ID
+      const finalWorkers = {};
       let totalAllWorkers = 0;
-      for (const wKey of Object.keys(workers)) {
-        const w = workers[wKey];
-        let grandTotal = 0;
-        if (w.p) {
-          for (const hIdx of Object.keys(w.p)) {
-            for (const m of Object.keys(w.p[hIdx])) {
-              grandTotal += Number(w.p[hIdx][m]) || 0;
+      let totalIndividualAshas = 0;
+      let duplicateIdCount = 0;
+
+      for (const [idKey, nameMap] of workerBuckets.entries()) {
+        const list = Array.from(nameMap.values());
+        list.forEach(w => {
+          let grandTotal = 0;
+          if (w.p) {
+            for (const hIdx of Object.keys(w.p)) {
+              for (const m of Object.keys(w.p[hIdx])) {
+                grandTotal += Number(w.p[hIdx][m]) || 0;
+              }
             }
           }
+          w.t = grandTotal;
+          totalAllWorkers += grandTotal;
+          totalIndividualAshas++;
+        });
+
+        if (list.length > 1) {
+          duplicateIdCount++;
+          finalWorkers[idKey] = list; // Saved as Array [0, 1, ...]
+        } else if (list.length === 1) {
+          finalWorkers[idKey] = list[0];
         }
-        w.t = grandTotal;
-        totalAllWorkers += grandTotal;
       }
 
       return {
         payload: {
           heads: headsList,
           months: Array.from(monthsSet).sort(),
-          workers
+          workers: finalWorkers
         },
-        totalAllWorkers
+        totalAllWorkers,
+        totalIndividualAshas,
+        duplicateIdCount
       };
     }
 
@@ -305,16 +361,22 @@
       const snap = await get(rootRef);
       if (snap.exists()) {
         const d = snap.val();
-        const wCount = Object.keys(d.workers || {}).length;
+        let totalAshas = 0;
+        let dupIds = 0;
+        for (const entry of Object.values(d.workers || {})) {
+          const list = toWorkerList(entry);
+          totalAshas += list.length;
+          if (list.length > 1) dupIds++;
+        }
         const hCount = (d.heads || []).length;
         const mList = Array.from(new Set((d.months || []).map(normalizeMonth))).sort().join(", ");
-        statusEl.innerHTML = `📊 <strong>वर्तमान डेटाबेस:</strong> ${wCount.toLocaleString()} आशा कार्यकर्ता • ${hCount} प्रोग्राम/मद • उपलब्ध माह: <strong>${mList || "कोई नहीं"}</strong>`;
+        statusEl.innerHTML = `📊 <strong>वर्तमान डेटाबेस:</strong> ${totalAshas.toLocaleString()} आशा कार्यकर्ता (${dupIds} डुप्लीकेट ID अलग-अलग सेव) • ${hCount} प्रोग्राम/मद • उपलब्ध माह: <strong>${mList || "कोई नहीं"}</strong>`;
       } else {
         statusEl.textContent = "अभी डेटाबेस खाली है। नीचे से अपनी Excel (.xlsx) या CSV फ़ाइल चुनकर अपलोड करें।";
       }
     }
 
-    // Check exact sum for any ASHA ID before uploading
+    // Inspect ID before uploading (shows separate breakdown if 2 ASHAs share the ID)
     document.getElementById("inspectBtn").addEventListener("click", async () => {
       const files = document.getElementById("csvFileInput").files;
       const targetId = document.getElementById("inspectAshaId").value.trim();
@@ -332,31 +394,46 @@
       }
 
       const { payload } = processRowsIntoData(combinedRows, { heads: [], months: [], workers: {} });
-      const w = payload.workers[safeKey(targetId)];
+      const entry = payload.workers[safeKey(targetId)];
+      const matchedList = toWorkerList(entry);
 
-      if (!w) {
+      if (matchedList.length === 0) {
         document.getElementById("auditSummary").textContent = `ID "${targetId}" फ़ाइल में नहीं मिली।`;
         document.getElementById("auditTableWrap").innerHTML = "";
         document.getElementById("auditPreviewBox").classList.remove("hidden");
         return;
       }
 
-      // Month-wise totals for this ASHA
-      const monthTotals = {};
-      let html = `<table class="w-full text-left border-collapse text-[11px]"><thead><tr class="bg-slate-100"><th class="p-1.5 border">माह</th><th class="p-1.5 border">Program</th><th class="p-1.5 border">Head</th><th class="p-1.5 border text-right">राशि (₹)</th></tr></thead><tbody>`;
-      for (const [hIdx, mObj] of Object.entries(w.p || {})) {
-        const meta = payload.heads[Number(hIdx)];
-        for (const [m, amt] of Object.entries(mObj)) {
-          monthTotals[m] = (monthTotals[m] || 0) + amt;
-          html += `<tr><td class="p-1.5 border">${m}</td><td class="p-1.5 border">${meta?.p || ""}</td><td class="p-1.5 border">${meta?.h || ""}</td><td class="p-1.5 border text-right font-bold text-teal-800">₹${amt.toLocaleString("en-IN")}</td></tr>`;
-        }
-      }
-      html += `</tbody></table>`;
+      let summaryHtml = matchedList.length > 1
+        ? `<div class="text-amber-800 bg-amber-100 px-2.5 py-1.5 rounded mb-2">⚠️ इस ID (<strong>${targetId}</strong>) पर <strong>${matchedList.length} अलग-अलग ASHA</strong> पाई गईं:</div>`
+        : "";
 
-      const monthSummaryStr = Object.entries(monthTotals).map(([m, t]) => `${m}: ₹${t.toLocaleString("en-IN")}`).join(" | ");
-      document.getElementById("auditSummary").innerHTML =
-        `✅ आशा: <strong>${w.n}</strong> (ID: <strong>${w.id}</strong>) • माहवार योग: <strong>${monthSummaryStr}</strong> • कुल योग: <strong>₹${w.t.toLocaleString("en-IN")}</strong>`;
-      document.getElementById("auditTableWrap").innerHTML = html;
+      let tablesHtml = "";
+      matchedList.forEach((w, idx) => {
+        const monthTotals = {};
+        let rowsHtml = "";
+        for (const [hIdx, mObj] of Object.entries(w.p || {})) {
+          const meta = payload.heads[Number(hIdx)];
+          for (const [m, amt] of Object.entries(mObj)) {
+            monthTotals[m] = (monthTotals[m] || 0) + amt;
+            rowsHtml += `<tr><td class="p-1.5 border">${m}</td><td class="p-1.5 border">${meta?.p || ""}</td><td class="p-1.5 border">${meta?.h || ""}</td><td class="p-1.5 border text-right font-bold text-teal-800">₹${amt.toLocaleString("en-IN")}</td></tr>`;
+          }
+        }
+        const monthSummaryStr = Object.entries(monthTotals).map(([m, t]) => `${m}: ₹${t.toLocaleString("en-IN")}`).join(" | ");
+        summaryHtml += `<div>✅ <strong>${idx + 1}. ${w.n}</strong> (ब्लॉक: ${w.b || "-"}, SC: ${w.s || "-"}) • माहवार योग: <strong>${monthSummaryStr || "₹0"}</strong> • कुल योग: <strong>₹${w.t.toLocaleString("en-IN")}</strong></div>`;
+
+        tablesHtml += `
+          <div class="mb-3">
+            <div class="font-bold text-teal-800 mb-1">${idx + 1}. ${w.n} (कुल: ₹${w.t.toLocaleString("en-IN")})</div>
+            <table class="w-full text-left border-collapse text-[11px]">
+              <thead><tr class="bg-slate-100"><th class="p-1.5 border">माह</th><th class="p-1.5 border">Program</th><th class="p-1.5 border">Head</th><th class="p-1.5 border text-right">राशि (₹)</th></tr></thead>
+              <tbody>${rowsHtml}</tbody>
+            </table>
+          </div>`;
+      });
+
+      document.getElementById("auditSummary").innerHTML = summaryHtml;
+      document.getElementById("auditTableWrap").innerHTML = tablesHtml;
       document.getElementById("auditPreviewBox").classList.remove("hidden");
       statusEl.textContent = "✅ मिलान पूरा हुआ! अब 'अपलोड और सेव करें' बटन दबाएं।";
     });
@@ -385,15 +462,15 @@
         statusEl.textContent = `कुल ${combinedRows.length.toLocaleString()} पंक्तियों की गणना की जा रही है...`;
         await new Promise(r => setTimeout(r, 20));
 
-        const { payload, totalAllWorkers } = processRowsIntoData(combinedRows, existing);
+        const { payload, totalAllWorkers, totalIndividualAshas, duplicateIdCount } = processRowsIntoData(combinedRows, existing);
 
-        statusEl.textContent = `Firebase पर सेव हो रहा है (${payload.heads.length} मद, ${Object.keys(payload.workers).length} आशा)...`;
+        statusEl.textContent = `Firebase पर सेव हो रहा है (${payload.heads.length} मद, ${totalIndividualAshas} आशा)...`;
         await set(rootRef, payload);
 
         const sec = ((performance.now() - t0) / 1000).toFixed(1);
         statusEl.innerHTML =
           `✅ <strong>अपलोड सफल (${sec} सेकंड)!</strong><br>` +
-          `कुल प्रोग्राम/मद: <strong>${payload.heads.length}</strong> • कुल डेटाबेस योग: <strong>₹${Math.round(totalAllWorkers).toLocaleString("en-IN")}</strong> • माह: <strong>${payload.months.join(", ")}</strong>`;
+          `कुल आशा: <strong>${totalIndividualAshas.toLocaleString()}</strong> (${duplicateIdCount} डुप्लीकेट ID अलग-अलग सेव) • कुल डेटाबेस योग: <strong>₹${Math.round(totalAllWorkers).toLocaleString("en-IN")}</strong> • माह: <strong>${payload.months.join(", ")}</strong>`;
       } catch (err) {
         console.error(err);
         statusEl.textContent = `❌ त्रुटि: ${err.message}`;
