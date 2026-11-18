@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NHM Ayodhya - Officer Access Control</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+  <header class="bg-indigo-900 text-white shadow-md">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
+      <div>
+        <h1 class="text-lg md:text-xl font-bold">NHM अयोध्या — Officer Access Control</h1>
+        <p class="text-xs text-indigo-200">District Level एवं 11 Blocks के अधिकारियों के मोबाइल नंबर व अनुमति प्रबंधन</p>
+      </div>
+      <div class="flex gap-2">
+        <a href="admin.html" class="px-3 py-1.5 bg-indigo-800 hover:bg-indigo-700 text-xs font-semibold rounded-lg border border-indigo-600">← डेटा अपलोडर</a>
+        <a href="dashboard.html" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-xs font-bold rounded-lg">समीक्षा डैशबोर्ड →</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+    <!-- Add / Edit Form + Bulk Upload -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <h2 class="text-base font-bold text-indigo-900 mb-4 border-b pb-2">1. अधिकारी का मोबाइल नंबर जोड़ें / अपडेट करें</h2>
+        <form id="officerForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">मोबाइल नंबर (10 अंक)*</label>
+            <input type="tel" id="mobileInput" maxlength="10" required placeholder="उदा. 9415123456"
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:border-indigo-600 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">अधिकारी का नाम*</label>
+            <input type="text" id="nameInput" required placeholder="उदा. Ram Prakash"
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:border-indigo-600 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">पदनाम (Designation)*</label>
+            <select id="designationInput" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+              <option value="CMO">CMO (मुख्य चिकित्सा अधिकारी)</option>
+              <option value="DPM" selected>DPM (जिला कार्यक्रम प्रबंधक)</option>
+              <option value="DAM">DAM (जिला लेखा प्रबंधक)</option>
+              <option value="DCP">DCP / जिला नोडल अधिकारी</option>
+              <option value="MOIC">MOIC (प्रभारी चिकित्सा अधिकारी)</option>
+              <option value="BPM">BPM (ब्लॉक कार्यक्रम प्रबंधक)</option>
+              <option value="BAM">BAM (ब्लॉक लेखा प्रबंधक)</option>
+              <option value="BCPM">BCPM (ब्लॉक कम्युनिटी प्रोसेस मैनेजर)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">एक्सेस स्तर (Access Level)*</label>
+            <select id="roleInput" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+              <option value="DISTRICT">District Level (सभी 11 ब्लॉक)</option>
+              <option value="BLOCK">Block Level (केवल आवंटित ब्लॉक)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">आवंटित ब्लॉक (Block Level हेतु)*</label>
+            <select id="blockInput" disabled class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-slate-100 text-slate-400">
+              <option value="Amaniganj">Amaniganj (अमानीगंज)</option>
+              <option value="Bikapur">Bikapur (बीकापुर)</option>
+              <option value="Haringtonganj">Haringtonganj (हैरिंग्टनगंज)</option>
+              <option value="Masaudha">Masaudha (मसौधा)</option>
+              <option value="Mavai">Mavai (मवई)</option>
+              <option value="Maya Bazar">Maya Bazar (माया बाजार)</option>
+              <option value="Milkipur">Milkipur (मिल्कीपुर)</option>
+              <option value="Pura Bazar">Pura Bazar (पूरा बाजार)</option>
+              <option value="Rudauli">Rudauli (रुदौली)</option>
+              <option value="Sohawal">Sohawal (सोहावल)</option>
+              <option value="Tarun">Tarun (तारुन)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">4-अंकों का लॉगिन PIN*</label>
+            <input type="text" id="pinInput" maxlength="4" value="1234" required placeholder="उदा. 1234"
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:border-indigo-600 focus:outline-none" />
+          </div>
+          <div class="md:col-span-2 flex justify-end gap-2 pt-2">
+            <button type="reset" id="resetBtn" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold hover:bg-slate-50">क्लियर</button>
+            <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow">अधिकारी सेव करें</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Bulk Excel Upload -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+        <div>
+          <h2 class="text-base font-bold text-indigo-900 mb-2 border-b pb-2">2. एक साथ Excel अपलोड</h2>
+          <p class="text-xs text-slate-600 mb-3 leading-relaxed">सभी 11 ब्लॉकों के MOIC, BPM, BAM की सूची एक साथ अपलोड करें।</p>
+          <div class="bg-slate-50 p-2.5 rounded border border-dashed border-slate-300 text-[11px] text-slate-600 mb-3">
+            कॉलम: <strong>Mobile, Name, Designation, Role, Block, PIN</strong><br>
+            (Role में <code>DISTRICT</code> या <code>BLOCK</code> लिखें)
+          </div>
+          <input type="file" id="bulkFile" accept=".xlsx,.xls,.csv" class="block w-full text-xs text-slate-600 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-indigo-50 file:text-indigo-700 font-semibold mb-3" />
+        </div>
+        <div class="space-y-2">
+          <button id="bulkUploadBtn" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold">Excel सूची अपलोड करें</button>
+          <button id="downloadTplBtn" class="w-full py-1.5 border border-slate-300 hover:bg-slate-50 rounded-lg text-xs font-semibold text-slate-700">सैंपल Excel डाउनलोड करें</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Registered Officers Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="p-4 border-b flex flex-wrap justify-between items-center gap-2">
+        <h2 class="text-base font-bold text-slate-800">पंजीकृत अधिकारियों की सूची (<span id="offCount">0</span>)</h2>
+        <input type="text" id="searchOfficer" placeholder="नाम, मोबाइल या ब्लॉक खोजें..." class="border border-slate-300 rounded-lg px-3 py-1.5 text-xs w-64" />
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-slate-50 text-slate-600 uppercase border-b">
+              <th class="p-3">मोबाइल नंबर</th>
+              <th class="p-3">अधिकारी का नाम</th>
+              <th class="p-3">पदनाम</th>
+              <th class="p-3">एक्सेस क्षेत्र</th>
+              <th class="p-3">PIN</th>
+              <th class="p-3">स्थिति</th>
+              <th class="p-3 text-right">कार्यवाही</th>
+            </tr>
+          </thead>
+          <tbody id="officersBody" class="divide-y divide-slate-100">
+            <tr><td colspan="7" class="p-6 text-center text-slate-400">लोड हो रहा है...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getDatabase, ref, set, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
+      authDomain: "asha-payment.firebaseapp.com",
+      databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "asha-payment",
+      storageBucket: "asha-payment.firebasestorage.app",
+      messagingSenderId: "117935142167",
+      appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
+      measurementId: "G-43YGRC5CKL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const officersRef = ref(db, "asha_portal_v2/officers");
+
+    let allOfficers = {};
+
+    const roleSelect = document.getElementById("roleInput");
+    const blockSelect = document.getElementById("blockInput");
+
+    roleSelect.addEventListener("change", () => {
+      const isDist = roleSelect.value === "DISTRICT";
+      blockSelect.disabled = isDist;
+      blockSelect.className = isDist
+        ? "w-full border border-slate-300 rounded-lg px-3 py-2 bg-slate-100 text-slate-400"
+        : "w-full border border-slate-300 rounded-lg px-3 py-2 bg-white text-slate-800";
+    });
+
+    onValue(officersRef, (snap) => {
+      allOfficers = snap.val() || {};
+      renderTable();
+    });
+
+    document.getElementById("officerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const mobile = document.getElementById("mobileInput").value.replace(/\D/g, "").slice(-10);
+      if (mobile.length !== 10) return alert("कृपया सही 10 अंकों का मोबाइल नंबर दर्ज करें।");
+      const role = roleSelect.value;
+      await set(ref(db, `asha_portal_v2/officers/${mobile}`), {
+        name: document.getElementById("nameInput").value.trim(),
+        designation: document.getElementById("designationInput").value,
+        role,
+        block: role === "DISTRICT" ? "ALL" : blockSelect.value,
+        pin: document.getElementById("pinInput").value.trim() || "1234",
+        active: true
+      });
+      alert("अधिकारी का एक्सेस सफलतापूर्वक सेव हो गया!");
+      e.target.reset();
+      roleSelect.dispatchEvent(new Event("change"));
+    });
+
+    function renderTable() {
+      const q = document.getElementById("searchOfficer").value.toLowerCase();
+      const entries = Object.entries(allOfficers).filter(([mob, o]) =>
+        mob.includes(q) || (o.name || "").toLowerCase().includes(q) || (o.block || "").toLowerCase().includes(q) || (o.designation || "").toLowerCase().includes(q)
+      );
+      document.getElementById("offCount").textContent = entries.length;
+      const tbody = document.getElementById("officersBody");
+      if (!entries.length) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">कोई अधिकारी पंजीकृत नहीं है। ऊपर फॉर्म से जोड़ें।</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = entries.map(([mob, o]) => `
+        <tr class="hover:bg-slate-50">
+          <td class="p-3 font-mono font-bold text-slate-800">${mob}</td>
+          <td class="p-3 font-semibold">${o.name}</td>
+          <td class="p-3"><span class="bg-slate-100 px-2 py-0.5 rounded font-semibold">${o.designation}</span></td>
+          <td class="p-3">${o.role === "DISTRICT"
+            ? `<span class="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full font-bold">DISTRICT (सभी 11 ब्लॉक)</span>`
+            : `<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">Block: ${o.block}</span>`}</td>
+          <td class="p-3 font-mono">${o.pin}</td>
+          <td class="p-3">${o.active !== false ? `<span class="text-emerald-600 font-bold">● सक्रिय</span>` : `<span class="text-red-600 font-bold">● बंद</span>`}</td>
+          <td class="p-3 text-right space-x-2">
+            <button onclick="window.editOff('${mob}')" class="text-indigo-600 hover:underline font-semibold">Edit</button>
+            <button onclick="window.toggleOff('${mob}', ${o.active !== false})" class="text-amber-600 hover:underline font-semibold">${o.active !== false ? "Block" : "Activate"}</button>
+            <button onclick="window.delOff('${mob}')" class="text-red-600 hover:underline font-semibold">Delete</button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    document.getElementById("searchOfficer").addEventListener("input", renderTable);
+
+    window.editOff = (mob) => {
+      const o = allOfficers[mob];
+      document.getElementById("mobileInput").value = mob;
+      document.getElementById("nameInput").value = o.name;
+      document.getElementById("designationInput").value = o.designation;
+      roleSelect.value = o.role;
+      roleSelect.dispatchEvent(new Event("change"));
+      if (o.role === "BLOCK") blockSelect.value = o.block;
+      document.getElementById("pinInput").value = o.pin;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    window.toggleOff = (mob, curr) => update(ref(db, `asha_portal_v2/officers/${mob}`), { active: !curr });
+    window.delOff = (mob) => { if (confirm(`${mob} को हटाएं?`)) remove(ref(db, `asha_portal_v2/officers/${mob}`)); };
+
+    document.getElementById("bulkUploadBtn").addEventListener("click", async () => {
+      const file = document.getElementById("bulkFile").files[0];
+      if (!file) return alert("पहले Excel फ़ाइल चुनें।");
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: "array" });
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+      const updates = {};
+      let c = 0;
+      rows.forEach(r => {
+        const mob = String(r.Mobile || r.MOBILE || "").replace(/\D/g, "").slice(-10);
+        if (mob.length === 10) {
+          const role = String(r.Role || r.ROLE || "BLOCK").toUpperCase().trim() === "DISTRICT" ? "DISTRICT" : "BLOCK";
+          updates[mob] = {
+            name: String(r.Name || r.NAME || "Officer").trim(),
+            designation: String(r.Designation || r.DESIGNATION || "BPM").trim(),
+            role,
+            block: role === "DISTRICT" ? "ALL" : String(r.Block || r.BLOCK || "").trim(),
+            pin: String(r.PIN || "1234").trim(),
+            active: true
+          };
+          c++;
+        }
+      });
+      if (c > 0) {
+        await update(officersRef, updates);
+        alert(`${c} अधिकारियों का एक्सेस अपलोड हो गया!`);
+      }
+    });
+
+    document.getElementById("downloadTplBtn").addEventListener("click", () => {
+      const ws = XLSX.utils.json_to_sheet([
+        { Mobile: "9415000001", Name: "Ram Prakash", Designation: "DPM", Role: "DISTRICT", Block: "ALL", PIN: "1234" },
+        { Mobile: "9415000002", Name: "Dr. A. K. Verma", Designation: "MOIC", Role: "BLOCK", Block: "Amaniganj", PIN: "1234" }
+      ]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Officers");
+      XLSX.writeFile(wb, "Ayodhya_Officers_List.xlsx");
+    });
+  </script>
+</body>
+</html>
