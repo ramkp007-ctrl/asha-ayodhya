@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>गहन समीक्षा डैशबोर्ड — आशा भुगतान Gap Analysis (NHM अयोध्या)</title>
+  <title>Forensic Gap Analysis डैशबोर्ड — NHM अयोध्या</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -11,18 +11,18 @@
 <body class="bg-slate-100 text-slate-800 min-h-screen">
 
   <!-- LOGIN SCREEN -->
-  <div id="loginScreen" class="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-teal-950 via-teal-900 to-slate-900">
+  <div id="loginScreen" class="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-slate-950 via-teal-950 to-slate-900">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-7 space-y-5">
       <div class="text-center border-b pb-4">
-        <span class="inline-block bg-teal-100 text-teal-800 text-[11px] font-bold px-3 py-1 rounded-full mb-2">NHM अयोध्या • अधिकारी समीक्षा पोर्टल</span>
-        <h1 class="text-xl font-bold text-slate-800">आशा भुगतान Deep Gap Analysis</h1>
-        <p class="text-xs text-slate-500 mt-1">District एवं 11 Blocks के अधिकारियों हेतु Role-Based लॉगिन</p>
+        <span class="inline-block bg-teal-100 text-teal-900 text-[11px] font-extrabold px-3 py-1 rounded-full mb-2">NHM अयोध्या • DPM / MOIC समीक्षा प्रणाली</span>
+        <h1 class="text-xl font-bold text-slate-800">आशा भुगतान Forensic Gap Analysis</h1>
+        <p class="text-xs text-slate-500 mt-1">Root-Cause Diagnosis, Peer Outlier &amp; Leakage Audit</p>
       </div>
 
       <form id="officerLoginForm" class="space-y-4">
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">पंजीकृत मोबाइल नंबर (10 अंक)</label>
-          <input type="tel" id="loginMobile" maxlength="10" required placeholder="अपना 10 अंकों का मोबाइल नंबर दर्ज करें"
+          <input type="tel" id="loginMobile" maxlength="10" required placeholder="10 अंकों का मोबाइल नंबर"
             class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:border-teal-600 focus:outline-none" />
         </div>
         <div>
@@ -31,38 +31,38 @@
             class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm tracking-widest focus:border-teal-600 focus:outline-none" />
         </div>
         <div id="loginError" class="hidden p-2.5 bg-red-50 text-red-700 border border-red-200 rounded-lg text-xs font-semibold"></div>
-        <button type="submit" id="loginBtn" class="w-full py-2.5 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl text-sm shadow transition">
-          समीक्षा डैशबोर्ड खोलें →
+        <button type="submit" id="loginBtn" class="w-full py-2.5 bg-teal-800 hover:bg-teal-900 text-white font-bold rounded-xl text-sm shadow transition">
+          फोरेंसिक डैशबोर्ड खोलें →
         </button>
       </form>
 
       <div class="text-center pt-2 border-t text-[11px] text-slate-500 flex justify-between">
         <a href="index.html" class="text-teal-700 hover:underline font-semibold">← ASHA पोर्टल</a>
-        <a href="officers-admin.html" class="text-indigo-700 hover:underline font-semibold">अधिकारी पंजीकरण</a>
+        <a href="officers-admin.html" class="text-indigo-700 hover:underline font-semibold">अधिकारी एक्सेस प्रबंधन</a>
       </div>
     </div>
   </div>
 
-  <!-- MAIN ANALYTICAL DASHBOARD -->
+  <!-- MAIN FORENSIC DASHBOARD -->
   <div id="dashboardApp" class="hidden">
-    <!-- Header -->
-    <header class="bg-teal-900 text-white shadow-md sticky top-0 z-30">
+    <!-- Top Bar -->
+    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-30 border-b border-slate-700">
       <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
         <div>
           <div class="flex flex-wrap items-center gap-2">
-            <h1 class="text-base md:text-lg font-bold">NHM अयोध्या — आशा भुगतान गहन समीक्षा</h1>
+            <h1 class="text-base md:text-lg font-bold tracking-tight">NHM अयोध्या — आशा भुगतान Forensic समीक्षा</h1>
             <span id="roleBadge" class="text-[11px] bg-amber-400 text-slate-950 font-extrabold px-2.5 py-0.5 rounded-full">DISTRICT</span>
           </div>
-          <p id="officerWelcome" class="text-xs text-teal-200 mt-0.5">स्वागत है...</p>
+          <p id="officerWelcome" class="text-xs text-slate-300 mt-0.5">स्वागत है...</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-          <button id="whatsappBriefBtn" class="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-slate-950 text-xs font-extrabold rounded-lg shadow flex items-center gap-1">
-            📲 WhatsApp पर समीक्षा भेजें
+          <button id="whatsappBriefBtn" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs font-extrabold rounded-lg shadow">
+            📲 WhatsApp Review Brief
           </button>
           <button id="exportFullGapBtn" class="px-3 py-1.5 bg-amber-400 hover:bg-amber-500 text-slate-950 text-xs font-extrabold rounded-lg shadow">
-            📥 संपूर्ण Excel रिपोर्ट
+            📥 Master Forensic Excel
           </button>
-          <button id="logoutBtn" class="px-3 py-1.5 bg-teal-950 hover:bg-red-700 text-xs font-semibold rounded-lg border border-teal-700">
+          <button id="logoutBtn" class="px-3 py-1.5 bg-slate-800 hover:bg-red-700 text-xs font-semibold rounded-lg border border-slate-600">
             लॉगआउट
           </button>
         </div>
@@ -70,7 +70,7 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 py-5 space-y-6">
-      <!-- Smart Control & Filter Bar -->
+      <!-- Filter Controls -->
       <section class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
         <div>
           <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">समीक्षा माह (Target Month)</label>
@@ -95,182 +95,148 @@
           </select>
         </div>
         <div>
-          <label class="block text-[11px] font-bold text-rose-600 uppercase mb-1">Chronic ₹0 फ़िल्टर</label>
-          <select id="chronicFilter" class="w-full border border-rose-300 rounded-lg px-3 py-2 text-xs font-bold bg-rose-50 text-rose-900">
-            <option value="1">चयनित माह में ₹0 (1+ माह)</option>
-            <option value="2">लगातार 2+ माह से ₹0</option>
-            <option value="3">लगातार 3+ माह से ₹0 (गंभीर)</option>
+          <label class="block text-[11px] font-bold text-rose-700 uppercase mb-1">Root-Cause प्रकार</label>
+          <select id="rootCauseFilter" class="w-full border border-rose-300 rounded-lg px-3 py-2 text-xs font-bold bg-rose-50 text-rose-950">
+            <option value="ALL">सभी शून्य-भुगतान (All ₹0)</option>
+            <option value="PFMS_BREAK">⚡ अचानक ₹0 (PFMS/Account Break)</option>
+            <option value="CHRONIC_3">🚨 लगातार 3+ माह ₹0 (निष्क्रिय)</option>
+            <option value="CHRONIC_2">⏳ लगातार 2 माह ₹0</option>
           </select>
         </div>
       </section>
 
-      <!-- Executive 6-KPI Diagnostic Strip -->
+      <!-- Executive Diagnostic KPIs -->
       <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        <div class="bg-white p-3.5 rounded-xl shadow-sm border-t-4 border-slate-700">
-          <p class="text-[10px] font-bold text-slate-500 uppercase">कुल पंजीकृत आशा</p>
+        <div class="bg-white p-3.5 rounded-xl shadow-sm border-l-4 border-slate-800">
+          <p class="text-[10px] font-bold text-slate-500 uppercase">कुल आशा / कवरेज</p>
           <p id="kpiTotalAsha" class="text-xl font-extrabold text-slate-800 mt-1">0</p>
-          <p class="text-[10px] text-slate-500 mt-0.5">सक्रिय डेटाबेस</p>
+          <p id="kpiPaidPct" class="text-[11px] text-emerald-700 font-bold mt-0.5">0% को भुगतान</p>
         </div>
-        <div class="bg-white p-3.5 rounded-xl shadow-sm border-t-4 border-emerald-600">
-          <p class="text-[10px] font-bold text-slate-500 uppercase">भुगतान प्राप्त</p>
-          <p id="kpiPaidAsha" class="text-xl font-extrabold text-emerald-700 mt-1">0</p>
-          <p id="kpiPaidPct" class="text-[10px] text-emerald-600 font-bold mt-0.5">0% कवरेज</p>
-        </div>
-        <div class="bg-white p-3.5 rounded-xl shadow-sm border-t-4 border-rose-600">
-          <p class="text-[10px] font-bold text-rose-600 uppercase">⚠️ शून्य भुगतान (₹0)</p>
+        <div class="bg-white p-3.5 rounded-xl shadow-sm border-l-4 border-rose-600">
+          <p class="text-[10px] font-bold text-rose-700 uppercase">कुल शून्य भुगतान (₹0)</p>
           <p id="kpiZeroAsha" class="text-xl font-extrabold text-rose-700 mt-1">0</p>
-          <p id="kpiZeroPct" class="text-[10px] text-rose-600 font-bold mt-0.5">0% वंचित</p>
+          <p id="kpiZeroPct" class="text-[11px] text-rose-600 font-bold mt-0.5">0% वंचित</p>
         </div>
-        <div class="bg-white p-3.5 rounded-xl shadow-sm border-t-4 border-red-800">
-          <p class="text-[10px] font-bold text-red-800 uppercase">🚨 लगातार 2+ माह ₹0</p>
-          <p id="kpiChronicZero" class="text-xl font-extrabold text-red-800 mt-1">0</p>
-          <p class="text-[10px] text-red-700 font-semibold mt-0.5">PFMS / निष्क्रिय जाँच</p>
+        <div class="bg-white p-3.5 rounded-xl shadow-sm border-l-4 border-purple-600">
+          <p class="text-[10px] font-bold text-purple-800 uppercase">⚡ अचानक ₹0 (PFMS Break)</p>
+          <p id="kpiPfmsBreak" class="text-xl font-extrabold text-purple-800 mt-1">0</p>
+          <p class="text-[10px] text-purple-700 mt-0.5">पिछले माह सक्रिय थीं</p>
         </div>
-        <div class="bg-white p-3.5 rounded-xl shadow-sm border-t-4 border-amber-500">
-          <p class="text-[10px] font-bold text-amber-700 uppercase">आंशिक भुगतान (&lt;3 मद)</p>
-          <p id="kpiPartialAsha" class="text-xl font-extrabold text-amber-700 mt-1">0</p>
-          <p class="text-[10px] text-amber-600 mt-0.5">अन्य मदों के वाउचर शेष</p>
+        <div class="bg-white p-3.5 rounded-xl shadow-sm border-l-4 border-red-800">
+          <p class="text-[10px] font-bold text-red-900 uppercase">🚨 लगातार 3+ माह ₹0</p>
+          <p id="kpiChronic3" class="text-xl font-extrabold text-red-900 mt-1">0</p>
+          <p class="text-[10px] text-red-700 mt-0.5">निष्क्रिय / प्रतिस्थापन योग्य</p>
         </div>
-        <div class="bg-white p-3.5 rounded-xl shadow-sm border-t-4 border-indigo-600">
-          <p class="text-[10px] font-bold text-slate-500 uppercase">कुल वितरित राशि</p>
-          <p id="kpiTotalAmount" class="text-xl font-extrabold text-indigo-700 mt-1">₹0</p>
-          <p id="kpiMomDelta" class="text-[10px] font-bold mt-0.5">पिछले माह से: -</p>
+        <div class="bg-white p-3.5 rounded-xl shadow-sm border-l-4 border-amber-500">
+          <p class="text-[10px] font-bold text-amber-800 uppercase">SC Peer Outliers (&lt;50%)</p>
+          <p id="kpiPeerOutliers" class="text-xl font-extrabold text-amber-800 mt-1">0</p>
+          <p class="text-[10px] text-amber-700 mt-0.5">अपने SC औसत से आधी कमाई</p>
+        </div>
+        <div class="bg-white p-3.5 rounded-xl shadow-sm border-l-4 border-indigo-600">
+          <p class="text-[10px] font-bold text-indigo-800 uppercase">संभावित Unspent Gap</p>
+          <p id="kpiUnspentGap" class="text-xl font-extrabold text-indigo-800 mt-1">₹0</p>
+          <p id="kpiAvgEarn" class="text-[10px] text-slate-600 mt-0.5">औसत: ₹0 / आशा</p>
         </div>
       </section>
 
-      <!-- Dual Analytical Charts: Month-on-Month Trend + Unit Gap -->
+      <!-- Dual Charts -->
       <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
           <div class="flex justify-between items-center mb-3">
-            <h2 class="text-sm font-bold text-slate-800">1. माहवार भुगतान ट्रेंड (Month-on-Month Drop Analysis)</h2>
-            <span class="text-[11px] text-indigo-600 font-semibold">राशि (₹ लाख) व लाभान्वित आशा</span>
+            <h2 class="text-sm font-bold text-slate-800">1. Root-Cause Breakdown (शून्य भुगतान के असली कारण)</h2>
+            <span class="text-[11px] text-purple-700 font-semibold">PFMS Break vs Chronic vs Dormant</span>
           </div>
           <div class="h-64">
-            <canvas id="momTrendChart"></canvas>
+            <canvas id="rootCauseChart"></canvas>
           </div>
         </div>
 
         <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
           <div class="flex justify-between items-center mb-3">
-            <h2 id="barChartTitle" class="text-sm font-bold text-slate-800">2. इकाईवार Paid % बनाम Zero-Pay Gap %</h2>
-            <span class="text-[11px] text-rose-600 font-semibold">सबसे कमज़ोर इकाई सबसे ऊपर</span>
+            <h2 id="rankChartTitle" class="text-sm font-bold text-slate-800">2. इकाईवार कंपोज़िट परफॉरमेंस स्कोर (0–100)</h2>
+            <span class="text-[11px] text-indigo-600 font-semibold">कवरेज + औसत आय + निरंतरता</span>
           </div>
           <div class="h-64">
-            <canvas id="coverageChart"></canvas>
+            <canvas id="scoreChart"></canvas>
           </div>
         </div>
       </section>
 
-      <!-- Deep Diagnostic Tabs -->
+      <!-- 6 Forensic Tabs -->
       <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="border-b bg-slate-50 px-3 pt-3 flex flex-wrap gap-1.5">
-          <button data-tab="tabHeatmap" class="tab-btn active px-3.5 py-2 text-xs font-bold rounded-t-lg bg-white border-t border-x border-slate-200 text-teal-900">
-            1. ब्लॉक/SC × प्रोग्राम Heatmap
+        <div class="border-b bg-slate-100 px-3 pt-3 flex flex-wrap gap-1.5">
+          <button data-tab="tabScorecard" class="tab-btn active px-3.5 py-2 text-xs font-bold rounded-t-lg bg-white border-t border-x border-slate-200 text-slate-900">
+            1. रैंकिंग स्कोरकार्ड एवं वित्तीय Leakage
           </button>
-          <button data-tab="tabUnitMom" class="tab-btn px-3.5 py-2 text-xs font-bold rounded-t-lg text-slate-600 hover:text-teal-900">
-            2. माहवार गिरावट (MoM Drop) एवं औसत राशि
+          <button data-tab="tabRootZero" class="tab-btn px-3.5 py-2 text-xs font-bold rounded-t-lg text-rose-700 hover:bg-rose-50">
+            2. Root-Cause ₹0 सूची (<span id="badgeZero">0</span>)
           </button>
-          <button data-tab="tabHeadGap" class="tab-btn px-3.5 py-2 text-xs font-bold rounded-t-lg text-slate-600 hover:text-teal-900">
-            3. हेड-वाइज (FMR/Activity) वाउचर गैप
+          <button data-tab="tabPeerOutlier" class="tab-btn px-3.5 py-2 text-xs font-bold rounded-t-lg text-amber-800 hover:bg-amber-50">
+            3. SC Peer Outlier तुलना (<span id="badgeOutlier">0</span>)
           </button>
-          <button data-tab="tabZeroList" class="tab-btn px-3.5 py-2 text-xs font-bold rounded-t-lg text-rose-700 hover:bg-rose-50">
-            4. शून्य व क्रॉनिक ₹0 आशा सूची (<span id="tabZeroBadge">0</span>)
+          <button data-tab="tabRoutineMissing" class="tab-btn px-3.5 py-2 text-xs font-bold rounded-t-lg text-indigo-800 hover:bg-indigo-50">
+            4. Core Routine मद मिसिंग ऑडिट
           </button>
-          <button data-tab="tabPartialList" class="tab-btn px-3.5 py-2 text-xs font-bold rounded-t-lg text-amber-800 hover:bg-amber-50">
-            5. आंशिक भुगतान / कम मद वाली आशा (<span id="tabPartialBadge">0</span>)
+          <button data-tab="tabHeatmap" class="tab-btn px-3.5 py-2 text-xs font-bold rounded-t-lg text-slate-700 hover:bg-slate-200">
+            5. इकाई × प्रोग्राम Heatmap
           </button>
-          <button data-tab="tabDupAudit" class="tab-btn px-3.5 py-2 text-xs font-bold rounded-t-lg text-slate-700 hover:bg-slate-100">
-            6. डुप्लीकेट ID ऑडिट (<span id="tabDupBadge">0</span>)
+          <button data-tab="tabDupAudit" class="tab-btn px-3.5 py-2 text-xs font-bold rounded-t-lg text-slate-700 hover:bg-slate-200">
+            6. डुप्लीकेट ID ऑडिट (<span id="badgeDup">0</span>)
           </button>
         </div>
 
-        <!-- TAB 1: Cross-Matrix Heatmap -->
-        <div id="tabHeatmap" class="tab-panel p-4 space-y-3">
+        <!-- TAB 1: Composite Ranking & Unspent Leakage -->
+        <div id="tabScorecard" class="tab-panel p-4 space-y-3">
           <div class="flex flex-wrap justify-between items-center gap-2">
             <p class="text-xs text-slate-600">
-              प्रत्येक प्रोग्राम में कितने <strong>% आशाओं</strong> को भुगतान मिला:
-              <span class="inline-block bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded font-bold ml-1">&lt;15% गंभीर गैप</span>
-              <span class="inline-block bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-bold ml-1">15–40% मध्यम</span>
-              <span class="inline-block bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold ml-1">&gt;40% अच्छा</span>
+              <strong>Composite Score (100 में से):</strong> Paid कवरेज (50%) + औसत आय बेंचमार्क (30%) + Chronic Zero नियंत्रण (20%)।
+              <strong>Unspent Gap:</strong> जनपद औसत तक पहुँचने पर अतिरिक्त संभावित भुगतान।
             </p>
-            <button onclick="window.downloadHeatmap()" class="px-3 py-1.5 bg-slate-800 text-white text-xs font-semibold rounded-lg">Heatmap Excel</button>
-          </div>
-          <div class="overflow-x-auto max-h-[480px]">
-            <table class="w-full text-left border-collapse text-xs" id="heatmapTable"></table>
-          </div>
-        </div>
-
-        <!-- TAB 2: Unit MoM Drop & Average Earning -->
-        <div id="tabUnitMom" class="tab-panel hidden p-4 space-y-3">
-          <div class="flex flex-wrap justify-between items-center gap-2">
-            <p class="text-xs text-slate-600">चयनित माह की तुलना ठीक पिछले माह से — <strong>20% से अधिक गिरावट</strong> पर लाल अलर्ट:</p>
-            <button onclick="window.downloadUnitTable()" class="px-3 py-1.5 bg-slate-800 text-white text-xs font-semibold rounded-lg">Excel डाउनलोड</button>
+            <button onclick="window.exportSheet(lastScorecardRows, 'Ranking_Scorecard')" class="px-3 py-1.5 bg-slate-800 text-white text-xs font-semibold rounded-lg">Excel डाउनलोड</button>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-xs">
               <thead>
                 <tr class="bg-slate-100 text-slate-700 border-b">
-                  <th class="p-2.5" id="unitColHeader">ब्लॉक / सब-सेंटर</th>
+                  <th class="p-2.5">रैंक</th>
+                  <th class="p-2.5" id="unitColTitle">ब्लॉक / सब-सेंटर</th>
+                  <th class="p-2.5 text-center">स्कोर (100)</th>
                   <th class="p-2.5 text-right">कुल आशा</th>
-                  <th class="p-2.5 text-right">भुगतान प्राप्त</th>
-                  <th class="p-2.5 text-right text-rose-700">₹0 आशा (Gap %)</th>
-                  <th class="p-2.5 text-right text-red-800">लगातार 2+ माह ₹0</th>
-                  <th class="p-2.5 text-right">पिछला माह (₹)</th>
-                  <th class="p-2.5 text-right">वर्तमान माह (₹)</th>
-                  <th class="p-2.5 text-right">मासिक बदलाव (MoM)</th>
-                  <th class="p-2.5 text-right">औसत / Paid ASHA</th>
-                </tr>
-              </thead>
-              <tbody id="unitTableBody" class="divide-y divide-slate-100"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- TAB 3: Head-Wise Gap -->
-        <div id="tabHeadGap" class="tab-panel hidden p-4 space-y-3">
-          <div class="flex flex-wrap justify-between items-center gap-2">
-            <p class="text-xs text-slate-600">सभी मदों (Heads) का कवरेज विश्लेषण — शून्य या अत्यंत कम कवरेज वाले मदों के वाउचर ब्लॉक पर लंबित हैं:</p>
-            <button onclick="window.downloadHeadTable()" class="px-3 py-1.5 bg-slate-800 text-white text-xs font-semibold rounded-lg">Excel डाउनलोड</button>
-          </div>
-          <div class="overflow-x-auto max-h-[450px]">
-            <table class="w-full text-left border-collapse text-xs">
-              <thead class="sticky top-0 bg-slate-100 text-slate-700 border-b">
-                <tr>
-                  <th class="p-2.5">प्रोग्राम (Program)</th>
-                  <th class="p-2.5">मद का नाम (Incentive Head)</th>
-                  <th class="p-2.5 text-right">लाभान्वित आशा</th>
-                  <th class="p-2.5 text-right">वंचित आशा (Gap)</th>
                   <th class="p-2.5 text-right">कवरेज %</th>
-                  <th class="p-2.5 text-right">पिछला माह (₹)</th>
-                  <th class="p-2.5 text-right">वर्तमान माह (₹)</th>
-                  <th class="p-2.5">निदान / अलर्ट</th>
+                  <th class="p-2.5 text-right text-purple-800">⚡ अचानक ₹0</th>
+                  <th class="p-2.5 text-right text-red-800">🚨 3+ माह ₹0</th>
+                  <th class="p-2.5 text-right">औसत आय / आशा</th>
+                  <th class="p-2.5 text-right text-indigo-800">संभावित Leakage (₹)</th>
                 </tr>
               </thead>
-              <tbody id="headTableBody" class="divide-y divide-slate-100"></tbody>
+              <tbody id="scorecardBody" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
 
-        <!-- TAB 4: Zero & Chronic Zero List -->
-        <div id="tabZeroList" class="tab-panel hidden p-4 space-y-3">
+        <!-- TAB 2: Root-Cause Zero Payment List -->
+        <div id="tabRootZero" class="tab-panel hidden p-4 space-y-3">
           <div class="flex flex-wrap justify-between items-center gap-2">
-            <input type="text" id="zeroSearchInput" placeholder="आशा नाम, ID, ब्लॉक, SC या गाँव खोजें..." class="border border-slate-300 rounded-lg px-3 py-1.5 text-xs w-64" />
-            <button onclick="window.downloadZeroList()" class="px-3 py-1.5 bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold rounded-lg">
-              📥 शून्य / क्रॉनिक ₹0 सूची डाउनलोड करें
+            <div class="flex flex-wrap items-center gap-2">
+              <input type="text" id="zeroSearchInput" placeholder="आशा नाम, ID, ब्लॉक या SC खोजें..." class="border border-slate-300 rounded-lg px-3 py-1.5 text-xs w-64" />
+              <span class="text-[11px] text-teal-700 font-semibold">💡 किसी भी आशा के नाम पर क्लिक कर 360° इतिहास देखें</span>
+            </div>
+            <button onclick="window.exportSheet(lastZeroExport, 'Root_Cause_Zero_List')" class="px-3 py-1.5 bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold rounded-lg">
+              📥 Root-Cause सूची Excel में डाउनलोड करें
             </button>
           </div>
-          <div class="overflow-x-auto max-h-[450px]">
+          <div class="overflow-x-auto max-h-[480px]">
             <table class="w-full text-left border-collapse text-xs">
-              <thead class="sticky top-0 bg-rose-50 text-rose-900 border-b">
+              <thead class="sticky top-0 bg-rose-50 text-rose-950 border-b">
                 <tr>
-                  <th class="p-2.5">क्र.</th>
                   <th class="p-2.5">ASHA ID</th>
-                  <th class="p-2.5">आशा का नाम</th>
+                  <th class="p-2.5">आशा का नाम (क्लिक करें)</th>
                   <th class="p-2.5">ब्लॉक</th>
                   <th class="p-2.5">सब-सेंटर (SC)</th>
-                  <th class="p-2.5">गाँव</th>
-                  <th class="p-2.5 text-center">लगातार ₹0 माह</th>
-                  <th class="p-2.5 text-right">संपूर्ण अवधि कुल (₹)</th>
+                  <th class="p-2.5">निदान (Root Cause)</th>
+                  <th class="p-2.5 text-right">पिछला माह (₹)</th>
+                  <th class="p-2.5 text-center">लगातार ₹0</th>
+                  <th class="p-2.5 text-right">कुल इतिहास (₹)</th>
                 </tr>
               </thead>
               <tbody id="zeroTableBody" class="divide-y divide-slate-100"></tbody>
@@ -278,35 +244,72 @@
           </div>
         </div>
 
-        <!-- TAB 5: Partial / Low Head Count ASHAs -->
-        <div id="tabPartialList" class="tab-panel hidden p-4 space-y-3">
+        <!-- TAB 3: Sub-Center Peer Outlier Detection -->
+        <div id="tabPeerOutlier" class="tab-panel hidden p-4 space-y-3">
           <div class="flex flex-wrap justify-between items-center gap-2">
-            <p class="text-xs text-slate-600">वे आशा कार्यकर्ता जिन्हें भुगतान तो हुआ है, लेकिन <strong>केवल 1 या 2 मदों में</strong> (अन्य नियमित कार्यों के वाउचर छूटे हैं):</p>
-            <button onclick="window.downloadPartialList()" class="px-3 py-1.5 bg-amber-700 text-white text-xs font-bold rounded-lg">Excel डाउनलोड</button>
+            <p class="text-xs text-slate-600">
+              एक ही <strong>Sub-Center (SC)</strong> की साथी आशाओं के औसत भुगतान की तुलना में <strong>50% से कम</strong> पाने वाली आशाएं (वाउचर छूटने या पक्षपात की संभावना):
+            </p>
+            <button onclick="window.exportSheet(lastOutlierRows, 'SC_Peer_Outliers')" class="px-3 py-1.5 bg-amber-700 text-white text-xs font-bold rounded-lg">Excel डाउनलोड</button>
           </div>
-          <div class="overflow-x-auto max-h-[450px]">
+          <div class="overflow-x-auto max-h-[480px]">
             <table class="w-full text-left border-collapse text-xs">
-              <thead class="sticky top-0 bg-amber-50 text-amber-900 border-b">
+              <thead class="sticky top-0 bg-amber-50 text-amber-950 border-b">
                 <tr>
                   <th class="p-2.5">ASHA ID</th>
-                  <th class="p-2.5">आशा का नाम</th>
+                  <th class="p-2.5">आशा का नाम (क्लिक करें)</th>
                   <th class="p-2.5">ब्लॉक</th>
                   <th class="p-2.5">सब-सेंटर (SC)</th>
-                  <th class="p-2.5 text-center">प्राप्त मदों की संख्या</th>
-                  <th class="p-2.5">प्राप्त मदों का विवरण</th>
-                  <th class="p-2.5 text-right">कुल राशि (₹)</th>
+                  <th class="p-2.5 text-right">इस आशा की आय</th>
+                  <th class="p-2.5 text-right">इसी SC का औसत</th>
+                  <th class="p-2.5 text-right text-rose-700">SC औसत से कमी</th>
+                  <th class="p-2.5 text-center">प्राप्त मद</th>
                 </tr>
               </thead>
-              <tbody id="partialTableBody" class="divide-y divide-slate-100"></tbody>
+              <tbody id="outlierTableBody" class="divide-y divide-slate-100"></tbody>
             </table>
+          </div>
+        </div>
+
+        <!-- TAB 4: Core Routine Head Missing Audit -->
+        <div id="tabRoutineMissing" class="tab-panel hidden p-4 space-y-3">
+          <div class="flex flex-wrap justify-between items-center gap-2">
+            <p class="text-xs text-slate-600">
+              जनपद के <strong>शीर्ष 5 नियमित मदों (Top Core Heads)</strong> का ऑडिट — वे सक्रिय आशाएं जिन्हें अन्य मदों में पैसा मिला है पर इनमें से प्रमुख मद छूटे हैं:
+            </p>
+            <button onclick="window.exportSheet(lastMissingRoutineRows, 'Core_Head_Missing_Audit')" class="px-3 py-1.5 bg-indigo-700 text-white text-xs font-bold rounded-lg">Excel डाउनलोड</button>
+          </div>
+          <div id="topCoreHeadsBanner" class="p-3 bg-indigo-50 border border-indigo-200 rounded-lg text-xs text-indigo-950 font-medium"></div>
+          <div class="overflow-x-auto max-h-[440px]">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead class="sticky top-0 bg-slate-100 text-slate-800 border-b">
+                <tr>
+                  <th class="p-2.5">ASHA ID</th>
+                  <th class="p-2.5">आशा का नाम (क्लिक करें)</th>
+                  <th class="p-2.5">ब्लॉक</th>
+                  <th class="p-2.5">सब-सेंटर (SC)</th>
+                  <th class="p-2.5 text-right">प्राप्त राशि (₹)</th>
+                  <th class="p-2.5 text-rose-800">छूटे हुए प्रमुख मद (Missing Core Heads)</th>
+                </tr>
+              </thead>
+              <tbody id="routineMissingBody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 5: Cross-Matrix Heatmap -->
+        <div id="tabHeatmap" class="tab-panel hidden p-4 space-y-3">
+          <div class="flex flex-wrap justify-between items-center gap-2">
+            <p class="text-xs text-slate-600">प्रत्येक प्रोग्राम में कितने % आशाओं को भुगतान मिला (<span class="text-rose-700 font-bold">&lt;15% लाल अलर्ट</span>):</p>
+            <button onclick="window.exportSheet(lastHeatmapExport, 'Program_Heatmap')" class="px-3 py-1.5 bg-slate-800 text-white text-xs font-semibold rounded-lg">Excel डाउनलोड</button>
+          </div>
+          <div class="overflow-x-auto max-h-[480px]">
+            <table class="w-full text-left border-collapse text-xs" id="heatmapTable"></table>
           </div>
         </div>
 
         <!-- TAB 6: Duplicate ID Audit -->
         <div id="tabDupAudit" class="tab-panel hidden p-4 space-y-3">
-          <p class="text-xs text-amber-800 bg-amber-50 p-2.5 rounded border border-amber-200">
-            एक ही ASHA ID पर एक से अधिक नाम दर्ज होने वाले मामले — इन्हें BAM / डेटा ऑपरेटर से शुद्ध कराया जाना आवश्यक है:
-          </p>
           <div class="overflow-x-auto max-h-[400px]">
             <table class="w-full text-left border-collapse text-xs">
               <thead class="bg-slate-100 border-b">
@@ -326,18 +329,36 @@
     </main>
   </div>
 
-  <!-- WHATSAPP SHARE MODAL -->
-  <div id="waModal" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
+  <!-- ASHA 360° DRILL-DOWN MODAL -->
+  <div id="asha360Modal" class="hidden fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-4">
+    <div class="bg-white max-w-4xl w-full rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="bg-teal-900 text-white px-5 py-4 flex justify-between items-center">
+        <div>
+          <h3 id="m360Name" class="text-base font-bold">ASHA 360° भुगतान प्रोफ़ाइल</h3>
+          <p id="m360Meta" class="text-xs text-teal-200 mt-0.5"></p>
+        </div>
+        <button onclick="document.getElementById('asha360Modal').classList.add('hidden')" class="text-white hover:text-amber-300 text-xl font-bold">✕</button>
+      </div>
+      <div class="p-5 overflow-y-auto space-y-4">
+        <div id="m360Diagnosis" class="p-3 rounded-xl text-xs font-semibold border"></div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs" id="m360MatrixTable"></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHATSAPP BRIEF MODAL -->
+  <div id="waModal" class="hidden fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-4">
     <div class="bg-white max-w-lg w-full rounded-2xl shadow-2xl p-5 space-y-4">
       <div class="flex justify-between items-center border-b pb-2">
         <h3 class="text-base font-bold text-slate-800">📲 अधिकारी व्हाट्सएप समीक्षा संदेश</h3>
         <button onclick="document.getElementById('waModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 font-bold text-lg">✕</button>
       </div>
-      <p class="text-xs text-slate-600">नीचे वर्तमान फ़िल्टर (ब्लॉक/माह) के आधार पर ऑटो-जनरेटेड समीक्षा सारांश तैयार है। इसे कॉपी करें या सीधे WhatsApp खोलें:</p>
-      <textarea id="waTextBox" rows="11" class="w-full border border-slate-300 rounded-xl p-3 text-xs font-sans bg-slate-50 leading-relaxed"></textarea>
+      <textarea id="waTextBox" rows="12" class="w-full border border-slate-300 rounded-xl p-3 text-xs font-sans bg-slate-50 leading-relaxed"></textarea>
       <div class="flex justify-end gap-2">
-        <button id="copyWaBtn" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-lg">📋 संदेश कॉपी करें</button>
-        <a id="openWaLink" href="#" target="_blank" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-lg">WhatsApp पर भेजें →</a>
+        <button id="copyWaBtn" class="px-4 py-2 bg-slate-800 text-white text-xs font-bold rounded-lg">📋 कॉपी करें</button>
+        <a id="openWaLink" href="#" target="_blank" class="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg">WhatsApp खोलें →</a>
       </div>
     </div>
   </div>
@@ -362,17 +383,19 @@
 
     let currentOfficer = null;
     let rawPortalData = null;
-    let sortedMonthsAsc = []; // e.g. ["08-2026", "09-2026", "10-2026"]
+    let sortedMonthsAsc = [];
     let flatWorkers = [];
     let duplicateRecords = [];
-    let coverageChartInstance = null;
-    let momChartInstance = null;
+    let rcChart = null;
+    let scChart = null;
 
-    let lastUnitRows = [];
-    let lastHeadRows = [];
-    let lastZeroRows = [];
-    let lastPartialRows = [];
-    let lastHeatmapExport = [];
+    // Export Buffers
+    window.lastScorecardRows = [];
+    window.lastZeroExport = [];
+    window.lastOutlierRows = [];
+    window.lastMissingRoutineRows = [];
+    window.lastHeatmapExport = [];
+    let currentZeroRecords = [];
 
     function sortMonthsChronological(months) {
       return [...new Set(months)].sort((a, b) => {
@@ -389,7 +412,7 @@
       return Object.values(entry).filter(w => w && typeof w === "object");
     }
 
-    // Login Handler
+    // Login
     document.getElementById("officerLoginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const mob = document.getElementById("loginMobile").value.replace(/\D/g, "").slice(-10);
@@ -416,7 +439,7 @@
         errBox.classList.remove("hidden");
       } finally {
         btn.disabled = false;
-        btn.textContent = "समीक्षा डैशबोर्ड खोलें →";
+        btn.textContent = "फोरेंसिक डैशबोर्ड खोलें →";
       }
     });
 
@@ -450,13 +473,13 @@
       flatWorkers = [];
       duplicateRecords = [];
 
+      let uidCounter = 0;
       for (const [idKey, entry] of Object.entries(rawPortalData.workers || {})) {
         const list = toWorkerList(entry);
         list.forEach(w => {
           const bName = (w.b || "Unknown").trim();
           if (!isDistrict && bName.toLowerCase() !== String(currentOfficer.block).trim().toLowerCase()) return;
 
-          // Precompute month-wise totals per worker for fast MoM & Chronic Zero analysis
           const monthTotals = {};
           sortedMonthsAsc.forEach(m => { monthTotals[m] = 0; });
           if (w.p) {
@@ -469,6 +492,7 @@
 
           const rec = {
             ...w,
+            _uid: uidCounter++,
             _idKey: idKey,
             b: bName,
             s: (w.s || "Unknown SC").trim(),
@@ -481,7 +505,7 @@
       }
 
       populateFilters(isDistrict);
-      runAnalysis();
+      runForensicAnalysis();
     }
 
     function populateFilters(isDistrict) {
@@ -493,10 +517,6 @@
         opt.textContent = m;
         mSel.appendChild(opt);
       });
-      const allOpt = document.createElement("option");
-      allOpt.value = "ALL";
-      allOpt.textContent = "सभी उपलब्ध माह (Cumulative)";
-      mSel.appendChild(allOpt);
       if (descMonths.length > 0) mSel.value = descMonths[0];
 
       const bSel = document.getElementById("blockFilter");
@@ -522,11 +542,11 @@
 
       updateScDropdown();
 
-      mSel.addEventListener("change", runAnalysis);
-      bSel.addEventListener("change", () => { updateScDropdown(); runAnalysis(); });
-      document.getElementById("scFilter").addEventListener("change", runAnalysis);
-      pSel.addEventListener("change", runAnalysis);
-      document.getElementById("chronicFilter").addEventListener("change", runAnalysis);
+      mSel.addEventListener("change", runForensicAnalysis);
+      bSel.addEventListener("change", () => { updateScDropdown(); runForensicAnalysis(); });
+      document.getElementById("scFilter").addEventListener("change", runForensicAnalysis);
+      pSel.addEventListener("change", runForensicAnalysis);
+      document.getElementById("rootCauseFilter").addEventListener("change", renderZeroTable);
       document.getElementById("zeroSearchInput").addEventListener("input", renderZeroTable);
     }
 
@@ -547,27 +567,23 @@
     }
 
     function getConsecutiveZeroStreak(w, targetMonth) {
-      if (!sortedMonthsAsc.length) return 0;
-      const endIdx = targetMonth === "ALL" ? sortedMonthsAsc.length - 1 : sortedMonthsAsc.indexOf(targetMonth);
+      const endIdx = sortedMonthsAsc.indexOf(targetMonth);
       if (endIdx < 0) return 0;
       let streak = 0;
       for (let i = endIdx; i >= 0; i--) {
-        const m = sortedMonthsAsc[i];
-        if ((w.monthTotals[m] || 0) <= 0) streak++;
+        if ((w.monthTotals[sortedMonthsAsc[i]] || 0) <= 0) streak++;
         else break;
       }
       return streak;
     }
 
-    function runAnalysis() {
+    function runForensicAnalysis() {
       const selMonth = document.getElementById("monthFilter").value;
       const selBlock = document.getElementById("blockFilter").value;
       const selSc = document.getElementById("scFilter").value;
       const selProg = document.getElementById("programFilter").value;
-      const minChronicStreak = Number(document.getElementById("chronicFilter").value);
       const heads = rawPortalData.heads || [];
 
-      // Determine previous month for MoM comparison
       const currIdx = sortedMonthsAsc.indexOf(selMonth);
       const prevMonth = currIdx > 0 ? sortedMonthsAsc[currIdx - 1] : null;
 
@@ -579,419 +595,445 @@
 
       const programsList = Array.from(new Set(heads.map(h => h.p))).sort();
       const groupBySc = selBlock !== "ALL" || currentOfficer.role === "BLOCK";
-      document.getElementById("unitColHeader").textContent = groupBySc ? "सब-सेंटर (Sub-Center)" : "ब्लॉक (Block)";
-      document.getElementById("barChartTitle").textContent = groupBySc
-        ? "2. सब-सेंटरवार Paid % बनाम Zero-Pay Gap %"
-        : "2. ब्लॉकवार Paid % बनाम Zero-Pay Gap %";
+      document.getElementById("unitColTitle").textContent = groupBySc ? "सब-सेंटर (Sub-Center)" : "ब्लॉक (Block)";
 
-      let paidCount = 0;
-      let zeroCount = 0;
-      let chronic2PlusCount = 0;
-      let partialCount = 0;
-      let currGrandAmt = 0;
-      let prevGrandAmt = 0;
+      // Step 1: Identify Top 5 Core Routine Heads across scoped workers for selected month
+      const headUsageCount = heads.map((h, idx) => ({ idx, p: h.p, h: h.h, count: 0 }));
+      const scTotalsMap = new Map(); // "Block|||SC" -> { sum, paidCount }
 
-      const unitMap = new Map();
-      const headStats = heads.map((h, idx) => ({ idx, p: h.p, h: h.h, paidAshas: 0, currAmt: 0, prevAmt: 0 }));
-      const momAggregate = {};
-      sortedMonthsAsc.forEach(m => { momAggregate[m] = { amt: 0, paidAshas: 0 }; });
-
-      lastZeroRows = [];
-      lastPartialRows = [];
-
-      scopedWorkers.forEach(w => {
-        // Aggregate MoM across all months
-        sortedMonthsAsc.forEach(m => {
-          const v = w.monthTotals[m] || 0;
-          momAggregate[m].amt += v;
-          if (v > 0) momAggregate[m].paidAshas++;
-        });
-
+      const enrichedWorkers = scopedWorkers.map(w => {
         let currAmt = 0;
-        let prevAmt = 0;
-        const paidHeadsSet = new Set();
-        const paidProgramsSet = new Set();
-        const headNamesReceived = [];
+        const prevAmt = prevMonth ? (w.monthTotals[prevMonth] || 0) : 0;
+        const paidHeadIndices = new Set();
+        const paidPrograms = new Set();
 
         if (w.p) {
           for (const [hIdxStr, mObj] of Object.entries(w.p)) {
             const hIdx = Number(hIdxStr);
             const hMeta = heads[hIdx];
             if (!hMeta) continue;
-
-            // Prev month tracking for head
-            if (prevMonth && mObj[prevMonth]) {
-              const pv = Number(mObj[prevMonth]) || 0;
-              if (selProg === "ALL" || hMeta.p === selProg) prevAmt += pv;
-              headStats[hIdx].prevAmt += pv;
-            }
-
-            // Selected month / All months tracking
-            let hCurr = 0;
-            for (const [m, val] of Object.entries(mObj)) {
-              if (selMonth === "ALL" || m === selMonth) hCurr += Number(val) || 0;
-            }
-
-            if (hCurr > 0) {
-              paidProgramsSet.add(hMeta.p);
+            const val = Number(mObj[selMonth]) || 0;
+            if (val > 0) {
+              paidPrograms.add(hMeta.p);
               if (selProg === "ALL" || hMeta.p === selProg) {
-                currAmt += hCurr;
-                headStats[hIdx].currAmt += hCurr;
-                if (!paidHeadsSet.has(hIdx)) {
-                  paidHeadsSet.add(hIdx);
-                  headStats[hIdx].paidAshas++;
-                  headNamesReceived.push(hMeta.h);
-                }
+                currAmt += val;
+                paidHeadIndices.add(hIdx);
+                headUsageCount[hIdx].count++;
               }
             }
           }
         }
 
+        const scKey = `${w.b}|||${w.s}`;
+        if (!scTotalsMap.has(scKey)) scTotalsMap.set(scKey, { sum: 0, paidCount: 0 });
+        if (currAmt > 0) {
+          const scObj = scTotalsMap.get(scKey);
+          scObj.sum += currAmt;
+          scObj.paidCount++;
+        }
+
+        const streak = getConsecutiveZeroStreak(w, selMonth);
+        let causeCode = "PAID";
+        let causeLabel = "सक्रिय भुगतान";
+        if (currAmt <= 0) {
+          if (prevAmt >= 1500) {
+            causeCode = "PFMS_BREAK";
+            causeLabel = "⚡ अचानक ₹0 (PFMS/Account Break)";
+          } else if (streak >= 3) {
+            causeCode = "CHRONIC_3";
+            causeLabel = `🚨 लगातार ${streak} माह ₹0 (निष्क्रिय/ड्रॉपआउट)`;
+          } else if (streak === 2) {
+            causeCode = "CHRONIC_2";
+            causeLabel = "⏳ लगातार 2 माह ₹0 (लंबित)";
+          } else {
+            causeCode = "SINGLE_ZERO";
+            causeLabel = "1 माह ₹0 (वाउचर लंबित)";
+          }
+        }
+
+        return { ...w, currAmt, prevAmt, paidHeadIndices, paidPrograms, streak, causeCode, causeLabel, scKey };
+      });
+
+      // Top 5 Core Heads
+      const topCoreHeads = [...headUsageCount]
+        .filter(h => h.count > 0 && (selProg === "ALL" || h.p === selProg))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+
+      document.getElementById("topCoreHeadsBanner").innerHTML = topCoreHeads.length
+        ? `🔍 <strong>जनपद/ब्लॉक के शीर्ष 5 सक्रिय रूटीन मद:</strong> ` + topCoreHeads.map(h => `<span class="inline-block bg-white px-2 py-0.5 rounded border border-indigo-200 mr-1 mt-1">${h.h} (${h.count} आशा)</span>`).join("")
+        : `इस फ़िल्टर में कोई सक्रिय मद नहीं मिला।`;
+
+      // Calculate District/Scope Benchmark Average per ASHA
+      const totalScopeAshas = enrichedWorkers.length;
+      const totalScopePaidAmt = enrichedWorkers.reduce((s, w) => s + w.currAmt, 0);
+      const benchmarkPerAsha = totalScopeAshas ? totalScopePaidAmt / totalScopeAshas : 0;
+
+      // Unit Aggregation & Root Cause Counters
+      let paidCount = 0;
+      let zeroCount = 0;
+      let pfmsBreakCount = 0;
+      let chronic3Count = 0;
+      let chronic2Count = 0;
+      let singleZeroCount = 0;
+
+      const unitMap = new Map();
+      currentZeroRecords = [];
+      window.lastOutlierRows = [];
+      window.lastMissingRoutineRows = [];
+
+      enrichedWorkers.forEach(w => {
         const unitKey = groupBySc ? w.s : w.b;
         if (!unitMap.has(unitKey)) {
           const progCounts = {};
           programsList.forEach(p => { progCounts[p] = 0; });
           unitMap.set(unitKey, {
-            unit: unitKey, total: 0, paid: 0, zero: 0, chronic2: 0,
-            currAmt: 0, prevAmt: 0, progCounts
+            unit: unitKey, total: 0, paid: 0, zero: 0, pfmsBreak: 0, chronic3: 0, currAmt: 0, progCounts
           });
         }
         const u = unitMap.get(unitKey);
         u.total++;
-        u.currAmt += currAmt;
-        u.prevAmt += prevAmt;
-        paidProgramsSet.forEach(p => { u.progCounts[p] = (u.progCounts[p] || 0) + 1; });
+        u.currAmt += w.currAmt;
+        w.paidPrograms.forEach(p => { u.progCounts[p] = (u.progCounts[p] || 0) + 1; });
 
-        const streak = getConsecutiveZeroStreak(w, selMonth);
-        if (streak >= 2) {
-          chronic2PlusCount++;
-          u.chronic2++;
-        }
-
-        currGrandAmt += currAmt;
-        prevGrandAmt += prevAmt;
-
-        if (currAmt > 0) {
+        if (w.currAmt > 0) {
           paidCount++;
           u.paid++;
-          if (paidHeadsSet.size > 0 && paidHeadsSet.size < 3) {
-            partialCount++;
-            lastPartialRows.push({
-              id: w.id || w._idKey,
-              name: w.n || "-",
-              block: w.b,
-              sc: w.s,
-              headCount: paidHeadsSet.size,
-              headsText: headNamesReceived.join(", "),
-              amount: currAmt
+
+          // Peer Outlier Check (compared to own SC paid average)
+          const scStat = scTotalsMap.get(w.scKey);
+          const scAvg = scStat && scStat.paidCount > 1 ? scStat.sum / scStat.paidCount : 0;
+          if (scAvg >= 2000 && w.currAmt < scAvg * 0.5) {
+            window.lastOutlierRows.push({
+              _uid: w._uid,
+              ASHA_ID: w.id || w._idKey,
+              ASHA_Name: w.n || "-",
+              Block: w.b,
+              Sub_Center: w.s,
+              ASHA_Amount: Math.round(w.currAmt),
+              SC_Average: Math.round(scAvg),
+              Shortfall_Rs: Math.round(scAvg - w.currAmt),
+              Heads_Count: w.paidHeadIndices.size
             });
+          }
+
+          // Core Routine Missing Check (if ASHA received < 3 core heads)
+          if (topCoreHeads.length >= 3) {
+            const missing = topCoreHeads.filter(ch => !w.paidHeadIndices.has(ch.idx)).map(ch => ch.h);
+            if (missing.length >= 2) {
+              window.lastMissingRoutineRows.push({
+                _uid: w._uid,
+                ASHA_ID: w.id || w._idKey,
+                ASHA_Name: w.n || "-",
+                Block: w.b,
+                Sub_Center: w.s,
+                Received_Rs: Math.round(w.currAmt),
+                Missing_Core_Heads: missing.join(" | ")
+              });
+            }
           }
         } else {
           zeroCount++;
           u.zero++;
-          if (streak >= minChronicStreak) {
-            lastZeroRows.push({
-              id: w.id || w._idKey,
-              name: w.n || "-",
-              block: w.b,
-              sc: w.s,
-              village: w.v,
-              streak,
-              otherTotal: w.t || 0
-            });
-          }
+          if (w.causeCode === "PFMS_BREAK") { pfmsBreakCount++; u.pfmsBreak++; }
+          else if (w.causeCode === "CHRONIC_3") { chronic3Count++; u.chronic3++; }
+          else if (w.causeCode === "CHRONIC_2") chronic2Count++;
+          else singleZeroCount++;
+
+          currentZeroRecords.push(w);
         }
       });
 
-      const total = scopedWorkers.length;
-      const paidPct = total ? ((paidCount / total) * 100).toFixed(1) : 0;
-      const zeroPct = total ? ((zeroCount / total) * 100).toFixed(1) : 0;
+      // Scorecard & Financial Leakage Computation
+      let totalUnspentLeakage = 0;
+      window.lastScorecardRows = Array.from(unitMap.values()).map(u => {
+        const covPct = u.total ? (u.paid / u.total) * 100 : 0;
+        const chronicPct = u.total ? (u.chronic3 / u.total) * 100 : 0;
+        const avgPerAsha = u.total ? u.currAmt / u.total : 0;
+        const expectedAmt = u.total * benchmarkPerAsha;
+        const leakage = Math.max(0, Math.round(expectedAmt - u.currAmt));
+        totalUnspentLeakage += leakage;
 
-      document.getElementById("kpiTotalAsha").textContent = total.toLocaleString("en-IN");
-      document.getElementById("kpiPaidAsha").textContent = paidCount.toLocaleString("en-IN");
-      document.getElementById("kpiPaidPct").textContent = `${paidPct}% कवरेज`;
-      document.getElementById("kpiZeroAsha").textContent = zeroCount.toLocaleString("en-IN");
-      document.getElementById("kpiZeroPct").textContent = `${zeroPct}% वंचित`;
-      document.getElementById("kpiChronicZero").textContent = chronic2PlusCount.toLocaleString("en-IN");
-      document.getElementById("kpiPartialAsha").textContent = partialCount.toLocaleString("en-IN");
-      document.getElementById("kpiTotalAmount").textContent = `₹${Math.round(currGrandAmt).toLocaleString("en-IN")}`;
+        // Composite Score out of 100
+        const earnRatio = benchmarkPerAsha > 0 ? Math.min(1, avgPerAsha / benchmarkPerAsha) : 0;
+        const score = Math.round((covPct * 0.5) + (earnRatio * 30) + (Math.max(0, 100 - chronicPct * 3) * 0.2));
 
-      const momEl = document.getElementById("kpiMomDelta");
-      if (prevMonth && prevGrandAmt > 0) {
-        const diffPct = (((currGrandAmt - prevGrandAmt) / prevGrandAmt) * 100).toFixed(1);
-        momEl.textContent = `${prevMonth} से: ${diffPct > 0 ? "+" : ""}${diffPct}%`;
-        momEl.className = `text-[10px] font-bold mt-0.5 ${diffPct < -10 ? "text-rose-600" : "text-emerald-600"}`;
-      } else {
-        momEl.textContent = prevMonth ? `पिछला माह (${prevMonth}): ₹0` : "तुलना हेतु पिछला माह नहीं";
-        momEl.className = "text-[10px] text-slate-500 mt-0.5";
-      }
-
-      document.getElementById("tabZeroBadge").textContent = lastZeroRows.length;
-      document.getElementById("tabPartialBadge").textContent = lastPartialRows.length;
-
-      lastUnitRows = Array.from(unitMap.values()).map(u => {
-        const momPct = u.prevAmt > 0 ? ((u.currAmt - u.prevAmt) / u.prevAmt) * 100 : null;
         return {
-          ...u,
-          zeroPct: u.total ? (u.zero / u.total) * 100 : 0,
-          paidPct: u.total ? (u.paid / u.total) * 100 : 0,
-          momPct,
-          avg: u.paid ? Math.round(u.currAmt / u.paid) : 0
+          Unit: u.unit,
+          Score: score,
+          Total_ASHA: u.total,
+          Paid_ASHA: u.paid,
+          Zero_ASHA: u.zero,
+          Coverage_Pct: Number(covPct.toFixed(1)),
+          PFMS_Break_Count: u.pfmsBreak,
+          Chronic_3Plus_Count: u.chronic3,
+          Avg_Per_ASHA_Rs: Math.round(avgPerAsha),
+          Potential_Leakage_Rs: leakage,
+          progCounts: u.progCounts
         };
-      }).sort((a, b) => b.zeroPct - a.zeroPct);
+      }).sort((a, b) => b.Score - a.Score);
 
-      lastHeadRows = headStats
-        .filter(h => selProg === "ALL" || h.p === selProg)
-        .map(h => ({
-          ...h,
-          gapAshas: Math.max(0, total - h.paidAshas),
-          covPct: total ? (h.paidAshas / total) * 100 : 0
-        }))
-        .sort((a, b) => a.covPct - b.covPct);
+      window.lastOutlierRows.sort((a, b) => b.Shortfall_Rs - a.Shortfall_Rs);
 
-      lastZeroRows.sort((a, b) => b.streak - a.streak);
-      lastPartialRows.sort((a, b) => a.headCount - b.headCount || a.amount - b.amount);
+      // Update KPIs
+      document.getElementById("kpiTotalAsha").textContent = totalScopeAshas.toLocaleString("en-IN");
+      document.getElementById("kpiPaidPct").textContent = `${totalScopeAshas ? ((paidCount / totalScopeAshas) * 100).toFixed(1) : 0}% को भुगतान`;
+      document.getElementById("kpiZeroAsha").textContent = zeroCount.toLocaleString("en-IN");
+      document.getElementById("kpiZeroPct").textContent = `${totalScopeAshas ? ((zeroCount / totalScopeAshas) * 100).toFixed(1) : 0}% वंचित`;
+      document.getElementById("kpiPfmsBreak").textContent = pfmsBreakCount.toLocaleString("en-IN");
+      document.getElementById("kpiChronic3").textContent = chronic3Count.toLocaleString("en-IN");
+      document.getElementById("kpiPeerOutliers").textContent = window.lastOutlierRows.length.toLocaleString("en-IN");
+      document.getElementById("kpiUnspentGap").textContent = `₹${(totalUnspentLeakage / 100000).toFixed(2)} लाख`;
+      document.getElementById("kpiAvgEarn").textContent = `औसत: ₹${Math.round(benchmarkPerAsha).toLocaleString("en-IN")} / आशा`;
 
-      renderHeatmap(lastUnitRows, programsList);
-      renderUnitTable();
-      renderHeadTable();
+      document.getElementById("badgeZero").textContent = currentZeroRecords.length;
+      document.getElementById("badgeOutlier").textContent = window.lastOutlierRows.length;
+      document.getElementById("badgeDup").textContent = duplicateRecords.length;
+
+      renderScorecardTable();
       renderZeroTable();
-      renderPartialTable();
+      renderOutlierTable();
+      renderRoutineMissingTable();
+      renderHeatmap(window.lastScorecardRows, programsList);
       renderDuplicateTable();
-      renderCharts(momAggregate, lastUnitRows);
+      renderCharts({ pfmsBreakCount, chronic3Count, chronic2Count, singleZeroCount }, window.lastScorecardRows);
     }
 
-    function renderHeatmap(units, programs) {
-      const table = document.getElementById("heatmapTable");
-      lastHeatmapExport = [];
-      let thead = `<thead><tr class="bg-slate-100 text-slate-700 border-b">
-        <th class="p-2.5 sticky left-0 bg-slate-100 z-10">इकाई (Block / SC)</th>
-        <th class="p-2.5 text-right">कुल आशा</th>`;
-      programs.forEach(p => { thead += `<th class="p-2.5 text-center">${p}</th>`; });
-      thead += `</tr></thead>`;
-
-      let tbody = `<tbody class="divide-y divide-slate-100">`;
-      units.forEach(u => {
-        const exportObj = { Unit: u.unit, Total_ASHA: u.total };
-        tbody += `<tr class="hover:bg-slate-50">
-          <td class="p-2.5 font-bold text-slate-800 sticky left-0 bg-white">${u.unit}</td>
-          <td class="p-2.5 text-right font-semibold">${u.total}</td>`;
-        programs.forEach(p => {
-          const cnt = u.progCounts[p] || 0;
-          const pct = u.total ? (cnt / u.total) * 100 : 0;
-          exportObj[`${p}_Pct`] = Number(pct.toFixed(1));
-          const cellStyle = pct < 15
-            ? "bg-rose-100 text-rose-900 font-bold"
-            : pct < 40
-            ? "bg-amber-100 text-amber-900 font-semibold"
-            : "bg-emerald-100 text-emerald-900 font-bold";
-          tbody += `<td class="p-2 text-center border-l border-slate-100"><span class="px-2 py-0.5 rounded ${cellStyle}">${pct.toFixed(0)}%</span></td>`;
-        });
-        tbody += `</tr>`;
-        lastHeatmapExport.push(exportObj);
-      });
-      tbody += `</tbody>`;
-      table.innerHTML = thead + tbody;
-    }
-
-    function renderUnitTable() {
-      const tbody = document.getElementById("unitTableBody");
-      tbody.innerHTML = lastUnitRows.map(u => {
-        const momHtml = u.momPct === null
-          ? `<span class="text-slate-400">-</span>`
-          : u.momPct <= -20
-          ? `<span class="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold">▼ ${u.momPct.toFixed(1)}%</span>`
-          : u.momPct < 0
-          ? `<span class="text-amber-700 font-semibold">▼ ${u.momPct.toFixed(1)}%</span>`
-          : `<span class="text-emerald-700 font-semibold">▲ +${u.momPct.toFixed(1)}%</span>`;
-
+    function renderScorecardTable() {
+      const tbody = document.getElementById("scorecardBody");
+      tbody.innerHTML = window.lastScorecardRows.map((r, idx) => {
+        const badge = r.Score >= 75 ? "bg-emerald-100 text-emerald-900"
+          : r.Score >= 50 ? "bg-amber-100 text-amber-900"
+          : "bg-rose-100 text-rose-900";
         return `
           <tr class="hover:bg-slate-50">
-            <td class="p-2.5 font-bold text-slate-800">${u.unit}</td>
-            <td class="p-2.5 text-right">${u.total}</td>
-            <td class="p-2.5 text-right text-emerald-700 font-semibold">${u.paid}</td>
-            <td class="p-2.5 text-right text-rose-700 font-bold">${u.zero} (${u.zeroPct.toFixed(1)}%)</td>
-            <td class="p-2.5 text-right font-bold text-red-800">${u.chronic2}</td>
-            <td class="p-2.5 text-right text-slate-500">₹${Math.round(u.prevAmt).toLocaleString("en-IN")}</td>
-            <td class="p-2.5 text-right font-bold text-slate-800">₹${Math.round(u.currAmt).toLocaleString("en-IN")}</td>
-            <td class="p-2.5 text-right">${momHtml}</td>
-            <td class="p-2.5 text-right text-slate-600">₹${u.avg.toLocaleString("en-IN")}</td>
-          </tr>`;
-      }).join("");
-    }
-
-    function renderHeadTable() {
-      const tbody = document.getElementById("headTableBody");
-      tbody.innerHTML = lastHeadRows.map(h => {
-        const status = h.paidAshas === 0
-          ? `<span class="bg-rose-600 text-white px-2 py-0.5 rounded text-[11px] font-bold">0% (वाउचर लंबित)</span>`
-          : h.prevAmt > 0 && h.currAmt < h.prevAmt * 0.7
-          ? `<span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded text-[11px] font-bold">▼ पिछली बार से कम</span>`
-          : `<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[11px] font-semibold">सक्रिय</span>`;
-        return `
-          <tr class="hover:bg-slate-50">
-            <td class="p-2.5 font-semibold text-slate-600">${h.p}</td>
-            <td class="p-2.5 font-medium text-slate-800">${h.h}</td>
-            <td class="p-2.5 text-right font-bold text-emerald-700">${h.paidAshas}</td>
-            <td class="p-2.5 text-right text-rose-700">${h.gapAshas}</td>
-            <td class="p-2.5 text-right font-bold">${h.covPct.toFixed(1)}%</td>
-            <td class="p-2.5 text-right text-slate-500">₹${Math.round(h.prevAmt).toLocaleString("en-IN")}</td>
-            <td class="p-2.5 text-right font-bold">₹${Math.round(h.currAmt).toLocaleString("en-IN")}</td>
-            <td class="p-2.5">${status}</td>
+            <td class="p-2.5 font-extrabold text-slate-600">#${idx + 1}</td>
+            <td class="p-2.5 font-bold text-slate-900">${r.Unit}</td>
+            <td class="p-2.5 text-center"><span class="px-2.5 py-0.5 rounded-full font-extrabold ${badge}">${r.Score}</span></td>
+            <td class="p-2.5 text-right">${r.Total_ASHA}</td>
+            <td class="p-2.5 text-right font-bold text-emerald-700">${r.Coverage_Pct}%</td>
+            <td class="p-2.5 text-right font-bold text-purple-800">${r.PFMS_Break_Count}</td>
+            <td class="p-2.5 text-right font-bold text-red-800">${r.Chronic_3Plus_Count}</td>
+            <td class="p-2.5 text-right">₹${r.Avg_Per_ASHA_Rs.toLocaleString("en-IN")}</td>
+            <td class="p-2.5 text-right font-extrabold text-indigo-800">₹${r.Potential_Leakage_Rs.toLocaleString("en-IN")}</td>
           </tr>`;
       }).join("");
     }
 
     function renderZeroTable() {
+      const rcFilter = document.getElementById("rootCauseFilter").value;
       const q = document.getElementById("zeroSearchInput").value.toLowerCase();
-      const filtered = lastZeroRows.filter(r =>
-        String(r.id).toLowerCase().includes(q) || r.name.toLowerCase().includes(q) ||
-        r.block.toLowerCase().includes(q) || r.sc.toLowerCase().includes(q) || r.village.toLowerCase().includes(q)
-      );
+
+      const filtered = currentZeroRecords.filter(w => {
+        if (rcFilter !== "ALL" && w.causeCode !== rcFilter) return false;
+        if (q && !(String(w.id).toLowerCase().includes(q) || (w.n || "").toLowerCase().includes(q) || w.b.toLowerCase().includes(q) || w.s.toLowerCase().includes(q))) return false;
+        return true;
+      });
+
+      window.lastZeroExport = filtered.map(w => ({
+        ASHA_ID: w.id || w._idKey,
+        ASHA_Name: w.n || "-",
+        Block: w.b,
+        Sub_Center: w.s,
+        Village: w.v,
+        Root_Cause: w.causeLabel,
+        Prev_Month_Paid_Rs: Math.round(w.prevAmt),
+        Consecutive_Zero_Months: w.streak,
+        Lifetime_Total_Rs: Math.round(w.t || 0)
+      }));
+
       const tbody = document.getElementById("zeroTableBody");
       if (!filtered.length) {
-        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-emerald-700 font-bold">🎉 इस फ़िल्टर में कोई शून्य-भुगतान आशा शेष नहीं है!</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-emerald-700 font-bold">इस फ़िल्टर में कोई रिकॉर्ड नहीं है।</td></tr>`;
         return;
       }
-      tbody.innerHTML = filtered.slice(0, 600).map((r, i) => `
-        <tr class="hover:bg-rose-50/40">
-          <td class="p-2.5 text-slate-500">${i + 1}</td>
-          <td class="p-2.5 font-mono font-bold text-slate-800">${r.id}</td>
-          <td class="p-2.5 font-semibold text-slate-900">${r.name}</td>
-          <td class="p-2.5">${r.block}</td>
-          <td class="p-2.5">${r.sc}</td>
-          <td class="p-2.5">${r.village}</td>
-          <td class="p-2.5 text-center">
-            <span class="${r.streak >= 3 ? "bg-red-700 text-white" : r.streak === 2 ? "bg-amber-200 text-amber-900" : "bg-slate-200 text-slate-700"} px-2 py-0.5 rounded-full font-bold">
-              ${r.streak} माह
-            </span>
-          </td>
-          <td class="p-2.5 text-right text-slate-600">₹${Math.round(r.otherTotal).toLocaleString("en-IN")}</td>
+
+      tbody.innerHTML = filtered.slice(0, 600).map(w => {
+        const pill = w.causeCode === "PFMS_BREAK" ? "bg-purple-100 text-purple-900"
+          : w.causeCode === "CHRONIC_3" ? "bg-red-700 text-white"
+          : w.causeCode === "CHRONIC_2" ? "bg-amber-200 text-amber-950"
+          : "bg-slate-200 text-slate-800";
+        return `
+          <tr class="hover:bg-rose-50/40">
+            <td class="p-2.5 font-mono font-bold">${w.id || w._idKey}</td>
+            <td class="p-2.5">
+              <button onclick="window.openAsha360(${w._uid})" class="font-bold text-teal-800 hover:underline text-left">${w.n || "-"}</button>
+            </td>
+            <td class="p-2.5">${w.b}</td>
+            <td class="p-2.5">${w.s}</td>
+            <td class="p-2.5"><span class="px-2 py-0.5 rounded font-bold text-[11px] ${pill}">${w.causeLabel}</span></td>
+            <td class="p-2.5 text-right font-semibold text-slate-700">₹${Math.round(w.prevAmt).toLocaleString("en-IN")}</td>
+            <td class="p-2.5 text-center font-bold">${w.streak} माह</td>
+            <td class="p-2.5 text-right text-slate-600">₹${Math.round(w.t || 0).toLocaleString("en-IN")}</td>
+          </tr>`;
+      }).join("");
+    }
+
+    function renderOutlierTable() {
+      const tbody = document.getElementById("outlierTableBody");
+      if (!window.lastOutlierRows.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">कोई SC Peer Outlier नहीं मिला।</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = window.lastOutlierRows.slice(0, 500).map(r => `
+        <tr class="hover:bg-amber-50/40">
+          <td class="p-2.5 font-mono font-bold">${r.ASHA_ID}</td>
+          <td class="p-2.5"><button onclick="window.openAsha360(${r._uid})" class="font-bold text-teal-800 hover:underline text-left">${r.ASHA_Name}</button></td>
+          <td class="p-2.5">${r.Block}</td>
+          <td class="p-2.5">${r.Sub_Center}</td>
+          <td class="p-2.5 text-right font-bold text-rose-700">₹${r.ASHA_Amount.toLocaleString("en-IN")}</td>
+          <td class="p-2.5 text-right font-semibold text-slate-700">₹${r.SC_Average.toLocaleString("en-IN")}</td>
+          <td class="p-2.5 text-right font-extrabold text-rose-800">-₹${r.Shortfall_Rs.toLocaleString("en-IN")}</td>
+          <td class="p-2.5 text-center">${r.Heads_Count} मद</td>
         </tr>`).join("");
     }
 
-    function renderPartialTable() {
-      const tbody = document.getElementById("partialTableBody");
-      if (!lastPartialRows.length) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-5 text-center text-slate-400">कोई आंशिक भुगतान रिकॉर्ड नहीं।</td></tr>`;
+    function renderRoutineMissingTable() {
+      const tbody = document.getElementById("routineMissingBody");
+      if (!window.lastMissingRoutineRows.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">कोई रूटीन मद मिसिंग रिकॉर्ड नहीं।</td></tr>`;
         return;
       }
-      tbody.innerHTML = lastPartialRows.slice(0, 500).map(r => `
-        <tr class="hover:bg-amber-50/40">
-          <td class="p-2.5 font-mono font-bold">${r.id}</td>
-          <td class="p-2.5 font-semibold">${r.name}</td>
-          <td class="p-2.5">${r.block}</td>
-          <td class="p-2.5">${r.sc}</td>
-          <td class="p-2.5 text-center"><span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded font-bold">${r.headCount} मद</span></td>
-          <td class="p-2.5 text-slate-600 max-w-xs truncate" title="${r.headsText}">${r.headsText}</td>
-          <td class="p-2.5 text-right font-bold">₹${Math.round(r.amount).toLocaleString("en-IN")}</td>
+      tbody.innerHTML = window.lastMissingRoutineRows.slice(0, 500).map(r => `
+        <tr class="hover:bg-indigo-50/40">
+          <td class="p-2.5 font-mono font-bold">${r.ASHA_ID}</td>
+          <td class="p-2.5"><button onclick="window.openAsha360(${r._uid})" class="font-bold text-teal-800 hover:underline text-left">${r.ASHA_Name}</button></td>
+          <td class="p-2.5">${r.Block}</td>
+          <td class="p-2.5">${r.Sub_Center}</td>
+          <td class="p-2.5 text-right font-bold">₹${r.Received_Rs.toLocaleString("en-IN")}</td>
+          <td class="p-2.5 text-rose-800 font-medium">${r.Missing_Core_Heads}</td>
         </tr>`).join("");
+    }
+
+    function renderHeatmap(units, programs) {
+      const table = document.getElementById("heatmapTable");
+      window.lastHeatmapExport = [];
+      let thead = `<thead><tr class="bg-slate-100 text-slate-700 border-b"><th class="p-2.5 sticky left-0 bg-slate-100">इकाई</th><th class="p-2.5 text-right">कुल आशा</th>`;
+      programs.forEach(p => { thead += `<th class="p-2.5 text-center">${p}</th>`; });
+      thead += `</tr></thead>`;
+
+      let tbody = `<tbody class="divide-y divide-slate-100">`;
+      units.forEach(u => {
+        const exp = { Unit: u.Unit, Total_ASHA: u.Total_ASHA };
+        tbody += `<tr><td class="p-2.5 font-bold sticky left-0 bg-white">${u.Unit}</td><td class="p-2.5 text-right">${u.Total_ASHA}</td>`;
+        programs.forEach(p => {
+          const pct = u.Total_ASHA ? ((u.progCounts[p] || 0) / u.Total_ASHA) * 100 : 0;
+          exp[`${p}_Pct`] = Number(pct.toFixed(1));
+          const cls = pct < 15 ? "bg-rose-100 text-rose-900 font-bold" : pct < 40 ? "bg-amber-100 text-amber-900 font-semibold" : "bg-emerald-100 text-emerald-900 font-bold";
+          tbody += `<td class="p-2 text-center border-l border-slate-100"><span class="px-2 py-0.5 rounded ${cls}">${pct.toFixed(0)}%</span></td>`;
+        });
+        tbody += `</tr>`;
+        window.lastHeatmapExport.push(exp);
+      });
+      tbody += `</tbody>`;
+      table.innerHTML = thead + tbody;
     }
 
     function renderDuplicateTable() {
       const selBlock = document.getElementById("blockFilter").value;
       const list = duplicateRecords.filter(w => selBlock === "ALL" || w.b.toLowerCase() === selBlock.toLowerCase());
-      document.getElementById("tabDupBadge").textContent = list.length;
       const tbody = document.getElementById("dupTableBody");
-      if (!list.length) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-5 text-center text-slate-400">कोई डुप्लीकेट ID रिकॉर्ड नहीं।</td></tr>`;
-        return;
-      }
-      tbody.innerHTML = list.map(w => `
+      tbody.innerHTML = list.length ? list.map(w => `
         <tr>
           <td class="p-2.5 font-mono font-bold text-amber-800">${w.id || w._idKey}</td>
           <td class="p-2.5 font-semibold">${w.n}</td>
           <td class="p-2.5">${w.b}</td>
           <td class="p-2.5">${w.s}</td>
           <td class="p-2.5 text-right font-bold">₹${Math.round(w.t || 0).toLocaleString("en-IN")}</td>
-        </tr>`).join("");
+        </tr>`).join("") : `<tr><td colspan="5" class="p-5 text-center text-slate-400">कोई डुप्लीकेट ID नहीं।</td></tr>`;
     }
 
-    function renderCharts(momAgg, units) {
-      if (momChartInstance) momChartInstance.destroy();
-      momChartInstance = new Chart(document.getElementById("momTrendChart"), {
-        type: "line",
+    function renderCharts(rc, units) {
+      if (rcChart) rcChart.destroy();
+      rcChart = new Chart(document.getElementById("rootCauseChart"), {
+        type: "doughnut",
         data: {
-          labels: sortedMonthsAsc,
-          datasets: [
-            {
-              label: "कुल राशि (₹ लाख में)",
-              data: sortedMonthsAsc.map(m => Number(((momAgg[m]?.amt || 0) / 100000).toFixed(2))),
-              borderColor: "#4f46e5",
-              backgroundColor: "rgba(79,70,229,0.12)",
-              fill: true,
-              tension: 0.3,
-              yAxisID: "y"
-            },
-            {
-              label: "भुगतान प्राप्त आशा",
-              data: sortedMonthsAsc.map(m => momAgg[m]?.paidAshas || 0),
-              borderColor: "#0d9488",
-              borderDash: [5, 5],
-              tension: 0.3,
-              yAxisID: "y1"
-            }
-          ]
+          labels: [
+            "⚡ अचानक ₹0 (PFMS/Account Break)",
+            "🚨 लगातार 3+ माह ₹0 (निष्क्रिय)",
+            "⏳ लगातार 2 माह ₹0",
+            "1 माह ₹0 (वाउचर लंबित)"
+          ],
+          datasets: [{
+            data: [rc.pfmsBreakCount, rc.chronic3Count, rc.chronic2Count, rc.singleZeroCount],
+            backgroundColor: ["#7e22ce", "#991b1b", "#d97706", "#64748b"]
+          }]
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: { type: "linear", position: "left", title: { display: true, text: "₹ लाख" } },
-            y1: { type: "linear", position: "right", grid: { drawOnChartArea: false }, title: { display: true, text: "आशा संख्या" } }
-          }
-        }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "right" } } }
       });
 
       const topUnits = units.slice(0, 12);
-      if (coverageChartInstance) coverageChartInstance.destroy();
-      coverageChartInstance = new Chart(document.getElementById("coverageChart"), {
+      if (scChart) scChart.destroy();
+      scChart = new Chart(document.getElementById("scoreChart"), {
         type: "bar",
         data: {
-          labels: topUnits.map(u => u.unit),
-          datasets: [
-            { label: "भुगतान प्राप्त (%)", data: topUnits.map(u => Number(u.paidPct.toFixed(1))), backgroundColor: "#0d9488" },
-            { label: "शून्य भुगतान Gap (%)", data: topUnits.map(u => Number(u.zeroPct.toFixed(1))), backgroundColor: "#e11d48" }
-          ]
+          labels: topUnits.map(u => u.Unit),
+          datasets: [{
+            label: "Composite Score (100 में से)",
+            data: topUnits.map(u => u.Score),
+            backgroundColor: topUnits.map(u => u.Score >= 75 ? "#059669" : u.Score >= 50 ? "#d97706" : "#e11d48")
+          }]
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: { x: { stacked: true }, y: { stacked: true, max: 100 } }
-        }
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { max: 100 } } }
       });
     }
 
-    // WhatsApp Brief Generator
+    // ASHA 360° Drill-Down Modal
+    window.openAsha360 = (uid) => {
+      const w = flatWorkers.find(x => x._uid === uid);
+      if (!w) return;
+      const heads = rawPortalData.heads || [];
+      document.getElementById("m360Name").textContent = `${w.n} (ID: ${w.id || w._idKey})`;
+      document.getElementById("m360Meta").textContent = `ब्लॉक: ${w.b} • सब-सेंटर: ${w.s} • गाँव: ${w.v} • कुल संचित भुगतान: ₹${Math.round(w.t || 0).toLocaleString("en-IN")}`;
+
+      const diagEl = document.getElementById("m360Diagnosis");
+      diagEl.className = "p-3 rounded-xl text-xs font-semibold border bg-amber-50 border-amber-300 text-amber-950";
+      diagEl.textContent = `माहवार कुल भुगतान इतिहास: ` + sortedMonthsAsc.map(m => `${m}: ₹${Math.round(w.monthTotals[m] || 0).toLocaleString("en-IN")}`).join("  |  ");
+
+      let html = `<thead><tr class="bg-slate-100 border-b"><th class="p-2">प्रोग्राम</th><th class="p-2">मद का नाम (Head)</th>`;
+      sortedMonthsAsc.forEach(m => { html += `<th class="p-2 text-right">${m}</th>`; });
+      html += `<th class="p-2 text-right font-bold">कुल योग</th></tr></thead><tbody class="divide-y">`;
+
+      if (w.p) {
+        for (const [hIdxStr, mObj] of Object.entries(w.p)) {
+          const meta = heads[Number(hIdxStr)] || { p: "-", h: "-" };
+          let rowSum = 0;
+          html += `<tr><td class="p-2 text-slate-600">${meta.p}</td><td class="p-2 font-semibold">${meta.h}</td>`;
+          sortedMonthsAsc.forEach(m => {
+            const v = Number(mObj[m]) || 0;
+            rowSum += v;
+            html += `<td class="p-2 text-right ${v === 0 ? "text-rose-500 bg-rose-50/40" : "font-bold text-emerald-700"}">₹${v.toLocaleString("en-IN")}</td>`;
+          });
+          html += `<td class="p-2 text-right font-extrabold">₹${rowSum.toLocaleString("en-IN")}</td></tr>`;
+        }
+      }
+      html += `</tbody>`;
+      document.getElementById("m360MatrixTable").innerHTML = html;
+      document.getElementById("asha360Modal").classList.remove("hidden");
+    };
+
+    // WhatsApp Brief
     document.getElementById("whatsappBriefBtn").addEventListener("click", () => {
       const m = document.getElementById("monthFilter").value;
       const b = document.getElementById("blockFilter").value;
-      const scopeName = b === "ALL" ? "जनपद अयोध्या (सभी 11 ब्लॉक)" : `ब्लॉक ${b}`;
-      const tot = document.getElementById("kpiTotalAsha").textContent;
-      const zero = document.getElementById("kpiZeroAsha").textContent;
-      const chronic = document.getElementById("kpiChronicZero").textContent;
-      const worstUnits = lastUnitRows.slice(0, 3).map(u => `• ${u.unit}: ${u.zero} आशा ₹0 (${u.zeroPct.toFixed(0)}%)`).join("\n");
-      const zeroHeads = lastHeadRows.filter(h => h.paidAshas === 0).slice(0, 3).map(h => `• ${h.h}`).join("\n") || "• सभी प्रमुख मद सक्रिय";
+      const scope = b === "ALL" ? "जनपद अयोध्या (सभी 11 ब्लॉक)" : `ब्लॉक ${b}`;
+      const worst = [...window.lastScorecardRows].reverse().slice(0, 3).map(u => `• ${u.Unit}: स्कोर ${u.Score}/100 (₹0: ${u.Zero_ASHA}, Leakage: ₹${u.Potential_Leakage_Rs.toLocaleString("en-IN")})`).join("\n");
 
       const msg =
-`*NHM अयोध्या — आशा भुगतान समीक्षा रिपोर्ट*
-📍 *क्षेत्र:* ${scopeName}
-📅 *समीक्षा माह:* ${m}
+`*NHM अयोध्या — आशा भुगतान Forensic समीक्षा*
+📍 *क्षेत्र:* ${scope} | 📅 *माह:* ${m}
 
-📊 *मुख्य Gap बिंदु:*
-• कुल पंजीकृत आशा: ${tot}
-• ⚠️ शून्य भुगतान (₹0): *${zero}*
-• 🚨 लगातार 2+ माह से ₹0: *${chronic}*
+🚨 *Root-Cause Gap सारांश:*
+• कुल शून्य भुगतान (₹0): *${document.getElementById("kpiZeroAsha").textContent}*
+• ⚡ अचानक ₹0 (PFMS/Account Break): *${document.getElementById("kpiPfmsBreak").textContent}*
+• 🚨 लगातार 3+ माह ₹0 (निष्क्रिय): *${document.getElementById("kpiChronic3").textContent}*
+• 📉 संभावित Unspent Leakage: *${document.getElementById("kpiUnspentGap").textContent}*
 
-🔻 *सर्वाधिक Gap वाली इकाइयाँ:*
-${worstUnits}
+🔻 *निम्नतम रैंकिंग इकाइयाँ:*
+${worst}
 
-⏳ *लंबित (0% भुगतान) प्रमुख मद:*
-${zeroHeads}
-
-🔗 *विस्तृत सूची एवं Excel डाउनलोड:*
-https://ramkp007-ctrl.github.io/asha-ayodhya/dashboard.html
-_(अपने पंजीकृत मोबाइल नंबर व PIN से लॉगिन कर तत्काल निस्तारण करें)_`;
+🔗 *लाइव डैशबोर्ड एवं सूची डाउनलोड:*
+https://ramkp007-ctrl.github.io/asha-ayodhya/dashboard.html`;
 
       document.getElementById("waTextBox").value = msg;
       document.getElementById("openWaLink").href = `https://wa.me/?text=${encodeURIComponent(msg)}`;
@@ -999,60 +1041,39 @@ _(अपने पंजीकृत मोबाइल नंबर व PIN स
     });
 
     document.getElementById("copyWaBtn").addEventListener("click", () => {
-      const box = document.getElementById("waTextBox");
-      box.select();
-      navigator.clipboard.writeText(box.value);
-      alert("समीक्षा संदेश कॉपी हो गया है!");
+      navigator.clipboard.writeText(document.getElementById("waTextBox").value);
+      alert("संदेश कॉपी हो गया!");
     });
 
-    // Tab Switching
+    // Tabs
     document.querySelectorAll(".tab-btn").forEach(btn => {
       btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active", "bg-white", "border-t", "border-x", "border-slate-200", "text-teal-900"));
-        btn.classList.add("active", "bg-white", "border-t", "border-x", "border-slate-200", "text-teal-900");
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active", "bg-white", "border-t", "border-x", "border-slate-200", "text-slate-900"));
+        btn.classList.add("active", "bg-white", "border-t", "border-x", "border-slate-200", "text-slate-900");
         document.querySelectorAll(".tab-panel").forEach(p => p.classList.add("hidden"));
         document.getElementById(btn.dataset.tab).classList.remove("hidden");
       });
     });
 
-    // Excel Exports
-    window.downloadHeatmap = () => {
+    // Generic Sheet Export
+    window.exportSheet = (rows, sheetName) => {
+      const clean = rows.map(({ progCounts, _uid, ...rest }) => rest);
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(lastHeatmapExport), "Program_Heatmap");
-      XLSX.writeFile(wb, `Block_Program_Heatmap_${document.getElementById("monthFilter").value}.xlsx`);
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(clean), sheetName);
+      XLSX.writeFile(wb, `${sheetName}_${document.getElementById("monthFilter").value}.xlsx`);
     };
-    window.downloadZeroList = () => {
-      const ws = XLSX.utils.json_to_sheet(lastZeroRows.map((r, i) => ({
-        "S.No": i + 1, "ASHA_ID": r.id, "ASHA_Name": r.name, "Block": r.block,
-        "Sub_Center": r.sc, "Village": r.village, "Consecutive_Zero_Months": r.streak, "Cumulative_Total_Rs": r.otherTotal
-      })));
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Zero_Payment_ASHAs");
-      XLSX.writeFile(wb, `Zero_Chronic_Gap_${document.getElementById("monthFilter").value}.xlsx`);
-    };
-    window.downloadUnitTable = () => {
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(lastUnitRows), "MoM_Unit_Gap");
-      XLSX.writeFile(wb, `Unit_MoM_Gap_Summary.xlsx`);
-    };
-    window.downloadHeadTable = () => {
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(lastHeadRows), "Head_Wise_Gap");
-      XLSX.writeFile(wb, `Head_Wise_Voucher_Gap.xlsx`);
-    };
-    window.downloadPartialList = () => {
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(lastPartialRows), "Partial_Payment_ASHAs");
-      XLSX.writeFile(wb, `Partial_Payment_Gap.xlsx`);
-    };
+
     document.getElementById("exportFullGapBtn").addEventListener("click", () => {
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(lastHeatmapExport), "1_Program_Heatmap");
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(lastUnitRows), "2_MoM_Unit_Summary");
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(lastHeadRows), "3_Head_Wise_Gap");
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(lastZeroRows), "4_Zero_Chronic_ASHAs");
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(lastPartialRows), "5_Partial_Pay_ASHAs");
-      XLSX.writeFile(wb, `NHM_Ayodhya_Deep_Gap_Report_${document.getElementById("monthFilter").value}.xlsx`);
+      const cleanScore = window.lastScorecardRows.map(({ progCounts, ...r }) => r);
+      const cleanOut = window.lastOutlierRows.map(({ _uid, ...r }) => r);
+      const cleanMiss = window.lastMissingRoutineRows.map(({ _uid, ...r }) => r);
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(cleanScore), "1_Ranking_Leakage");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(window.lastZeroExport), "2_RootCause_Zero");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(cleanOut), "3_SC_Peer_Outliers");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(cleanMiss), "4_Core_Head_Missing");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(window.lastHeatmapExport), "5_Program_Heatmap");
+      XLSX.writeFile(wb, `NHM_Ayodhya_Forensic_Gap_Report_${document.getElementById("monthFilter").value}.xlsx`);
     });
   </script>
 </body>
