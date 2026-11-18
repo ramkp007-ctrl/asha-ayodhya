@@ -19,8 +19,13 @@
           ← पोर्टल
         </a>
         <div>
-          <h1 class="text-sm sm:text-base font-bold leading-tight">JSY भुगतान एवं सत्यापन डैशबोर्ड</h1>
-          <p id="officerMeta" class="text-[11px] text-slate-300">लोड हो रहा है...</p>
+          <div class="flex flex-wrap items-center gap-2">
+            <h1 class="text-sm sm:text-base font-bold leading-tight">JSY भुगतान एवं सत्यापन डैशबोर्ड</h1>
+            <span id="headerDateBadge" class="text-[11px] bg-amber-400 text-slate-950 font-extrabold px-2.5 py-0.5 rounded-full">
+              📅 दिनांक: लोड हो रहा है...
+            </span>
+          </div>
+          <p id="officerMeta" class="text-[11px] text-slate-300 mt-0.5">लोड हो रहा है...</p>
         </div>
       </div>
       <div class="flex items-center gap-1.5 sm:gap-2">
@@ -39,21 +44,30 @@
 
   <main class="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-5">
 
+    <!-- Prominent Active Report Date & Sync Status Strip -->
+    <section class="bg-indigo-950 text-white px-4 py-3 rounded-2xl shadow-sm flex flex-wrap justify-between items-center gap-2">
+      <div class="flex items-center gap-2 text-xs sm:text-sm font-bold">
+        <span class="bg-indigo-700 px-2.5 py-1 rounded-lg">📅 सक्रिय रिपोर्ट दिनांक: <span id="bannerDateText" class="text-amber-300">-</span></span>
+        <span id="bannerFileText" class="text-[11px] text-indigo-200 hidden sm:inline"></span>
+      </div>
+      <div id="bannerDeltaText" class="text-xs font-semibold text-emerald-300"></div>
+    </section>
+
     <!-- Filter Bar -->
     <section class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-3">
       <div>
-        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">दिनांक / रिपोर्ट अवधि</label>
-        <select id="dateFilter" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-bold bg-white focus:border-indigo-600 focus:outline-none"></select>
+        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">रिपोर्ट दिनांक चुनें (File Date)</label>
+        <select id="dateFilter" class="w-full border-2 border-indigo-200 rounded-xl px-3 py-2 text-xs font-bold bg-indigo-50/40 text-indigo-950 focus:border-indigo-600 focus:outline-none"></select>
       </div>
       <div>
         <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">विकास खंड / जिला चिकित्सालय</label>
-        <select id="blockFilter" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-bold bg-white focus:border-indigo-600 focus:outline-none">
+        <select id="blockFilter" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold bg-white focus:border-indigo-600 focus:outline-none">
           <option value="ALL">सभी ब्लॉक एवं जिला चिकित्सालय</option>
         </select>
       </div>
       <div>
         <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">लंबित चरण (Bottleneck Filter)</label>
-        <select id="bottleneckFilter" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-bold bg-white focus:border-indigo-600 focus:outline-none">
+        <select id="bottleneckFilter" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold bg-white focus:border-indigo-600 focus:outline-none">
           <option value="ALL">सभी स्वास्थ्य केंद्र (All Facilities)</option>
           <option value="JSY_PENDING">1. JSY Verification लंबित</option>
           <option value="REG_PENDING">2. Beneficiary Registration लंबित</option>
@@ -63,7 +77,7 @@
       </div>
     </section>
 
-    <!-- Visual Step-by-Step Pipeline KPI Cards -->
+    <!-- 7-Stage Pipeline KPI Cards -->
     <section class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 sm:gap-3">
       <div class="bg-white p-3.5 rounded-2xl border-l-4 border-slate-800 shadow-sm">
         <span class="text-[10px] font-bold text-slate-500 uppercase block">1. कुल प्रसव</span>
@@ -104,26 +118,20 @@
 
     <!-- High-Visibility Charts with Direct Data Labels -->
     <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-      <!-- Chart 1: 7-Stage Funnel -->
       <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
-        <div class="flex justify-between items-center mb-3">
-          <div>
-            <h2 class="text-sm font-bold text-slate-900">1. JSY भुगतान पाइपलाइन (Stage-Wise संख्या व %)</h2>
-            <p class="text-[11px] text-slate-500">किस चरण पर सबसे ज़्यादा लाभार्थी रुके हैं</p>
-          </div>
+        <div class="mb-3">
+          <h2 class="text-sm font-bold text-slate-900">1. JSY भुगतान पाइपलाइन (Stage-Wise संख्या व %)</h2>
+          <p id="chart1Sub" class="text-[11px] text-slate-500">रिपोर्ट दिनांक: -</p>
         </div>
         <div class="h-72 sm:h-80">
           <canvas id="funnelChart"></canvas>
         </div>
       </div>
 
-      <!-- Chart 2: Block / Facility Comparison -->
       <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
-        <div class="flex justify-between items-center mb-3">
-          <div>
-            <h2 id="compChartTitle" class="text-sm font-bold text-slate-900">2. शीर्ष संस्थान/ब्लॉक: कुल प्रसव बनाम भुगतान</h2>
-            <p class="text-[11px] text-slate-500">नीला = कुल प्रसव | हरा = भुगतान पूर्ण</p>
-          </div>
+        <div class="mb-3">
+          <h2 id="compChartTitle" class="text-sm font-bold text-slate-900">2. प्रमुख संस्थान/ब्लॉक: कुल प्रसव बनाम भुगतान</h2>
+          <p class="text-[11px] text-slate-500">नीला = कुल प्रसव | हरा = भुगतान पूर्ण</p>
         </div>
         <div class="h-72 sm:h-80">
           <canvas id="blockCompChart"></canvas>
@@ -131,11 +139,11 @@
       </div>
     </section>
 
-    <!-- Block / Hospital Summary Cards & Table -->
+    <!-- Block / Hospital Summary Table -->
     <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <div class="p-4 border-b border-slate-200 flex flex-wrap justify-between items-center gap-2 bg-slate-50">
-        <h3 class="text-xs sm:text-sm font-bold text-slate-900">ब्लॉक / जिला चिकित्सालयवार सारांश</h3>
-        <span class="text-[11px] font-semibold text-slate-500">कुल लंबित = प्रसव - भुगतान</span>
+        <h3 class="text-xs sm:text-sm font-bold text-slate-900">ब्लॉक / जिला चिकित्सालयवार पेंडेंसी एवं अनुमानित रुकी धनराशि</h3>
+        <span class="text-[11px] font-semibold text-slate-500">अनुमानित राशि @ ₹1,400/लाभार्थी</span>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse text-xs">
@@ -147,7 +155,8 @@
               <th class="py-2.5 px-3 text-right">Reg.</th>
               <th class="py-2.5 px-3 text-right">MOIC App.</th>
               <th class="py-2.5 px-3 text-right text-emerald-700">Paid</th>
-              <th class="py-2.5 px-3 text-right text-rose-700">लंबित</th>
+              <th class="py-2.5 px-3 text-right text-rose-700">लंबित लाभार्थी</th>
+              <th class="py-2.5 px-3 text-right text-indigo-800">रुकी राशि (अनुमानित)</th>
               <th class="py-2.5 px-3 text-right">भुगतान %</th>
             </tr>
           </thead>
@@ -161,16 +170,16 @@
       <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap justify-between items-center gap-3">
         <div>
           <h3 class="text-sm font-bold text-slate-900">स्वास्थ्य केंद्रवार (CHC / PHC / SC) पेंडेंसी विवरण</h3>
-          <p class="text-[11px] text-slate-500">प्रत्येक केंद्र का मुख्य अवरोध (Bottleneck) लाल/नीले बैज में</p>
+          <p class="text-[11px] text-slate-500">प्रत्येक केंद्र का मुख्य अवरोध (Bottleneck)</p>
         </div>
         <input type="text" id="facSearch" placeholder="CHC, PHC, SC या ब्लॉक खोजें..."
           class="w-full sm:w-64 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-medium focus:border-indigo-600 focus:outline-none" />
       </div>
 
-      <!-- Mobile Card View (Visible on small screens) -->
+      <!-- Mobile Card View -->
       <div id="mobileFacilityCards" class="grid grid-cols-1 gap-3 md:hidden"></div>
 
-      <!-- Desktop Table View (Visible on medium+ screens) -->
+      <!-- Desktop Table View -->
       <div class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="overflow-x-auto max-h-[540px]">
           <table class="w-full text-left border-collapse text-xs">
@@ -215,7 +224,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
     import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
-    // Register ChartDataLabels Plugin Globally
     Chart.register(ChartDataLabels);
 
     const firebaseConfig = {
@@ -246,23 +254,33 @@
     });
 
     let allRows = [];
+    let sortedDatesDesc = [];
     let filteredExport = [];
     let funnelChartInst = null;
     let blockChartInst = null;
     let currentWaSummary = "";
 
+    function parseDateWeight(dStr) {
+      const m = String(dStr || "").match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})$/);
+      if (m) {
+        const y = m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3]);
+        return y * 10000 + Number(m[2]) * 100 + Number(m[1]);
+      }
+      return 0;
+    }
+
     async function loadJsyData() {
       const snap = await get(jsyRef);
       if (!snap.exists()) {
-        alert("अभी JSY डेटा अपलोड नहीं किया गया है। कृपया पहले admin.html से JSY Excel अपलोड करें।");
+        alert("अभी JSY डेटा अपलोड नहीं किया गया है। पहले admin.html से JSY Excel अपलोड करें।");
         return;
       }
       const data = snap.val();
       allRows = (data.records || []).filter(r => isDistrict || r.block.toLowerCase() === String(officer.block).trim().toLowerCase());
 
-      const dates = Array.from(new Set(allRows.map(r => r.date))).sort().reverse();
+      sortedDatesDesc = Array.from(new Set(allRows.map(r => r.date))).sort((a, b) => parseDateWeight(b) - parseDateWeight(a));
       const dSel = document.getElementById("dateFilter");
-      dSel.innerHTML = dates.map(d => `<option value="${d}">दिनांक: ${d}</option>`).join("");
+      dSel.innerHTML = sortedDatesDesc.map(d => `<option value="${d}">${d}</option>`).join("");
 
       const bSel = document.getElementById("blockFilter");
       if (!isDistrict) {
@@ -296,7 +314,22 @@
       const selBn = document.getElementById("bottleneckFilter").value;
       const q = document.getElementById("facSearch").value.toLowerCase();
 
+      // Prominent Date Display Updates
+      document.getElementById("headerDateBadge").textContent = `📅 दिनांक: ${selDate}`;
+      document.getElementById("bannerDateText").textContent = selDate;
+      document.getElementById("chart1Sub").textContent = `रिपोर्ट दिनांक: ${selDate}`;
+
       const scoped = allRows.filter(r => (!selDate || r.date === selDate) && (selBlock === "ALL" || r.block === selBlock));
+      const sampleFile = scoped[0]?.fileName || `${selDate}.xlsx`;
+      document.getElementById("bannerFileText").textContent = `(स्रोत फ़ाइल: ${sampleFile})`;
+
+      // Compare with previous uploaded date if available
+      const dateIdx = sortedDatesDesc.indexOf(selDate);
+      const prevDate = dateIdx >= 0 && dateIdx < sortedDatesDesc.length - 1 ? sortedDatesDesc[dateIdx + 1] : null;
+      let prevPaidTotal = 0;
+      if (prevDate) {
+        allRows.filter(r => r.date === prevDate && (selBlock === "ALL" || r.block === selBlock)).forEach(r => { prevPaidTotal += r.pay; });
+      }
 
       let tDel = 0, tPin = 0, tJsy = 0, tReg = 0, tMoic = 0, tProp = 0, tPay = 0;
       const blockMap = new Map();
@@ -308,6 +341,14 @@
         b.del += r.del; b.jsy += r.jsy; b.reg += r.reg; b.moic += r.moic; b.pay += r.pay;
       });
 
+      const deltaEl = document.getElementById("bannerDeltaText");
+      if (prevDate) {
+        const diff = tPay - prevPaidTotal;
+        deltaEl.textContent = `पिछली रिपोर्ट (${prevDate}) से बदलाव: ${diff >= 0 ? "+" : ""}${diff} भुगतान`;
+      } else {
+        deltaEl.textContent = `कुल स्वास्थ्य केंद्र: ${scoped.length}`;
+      }
+
       const pct = (n) => tDel ? `${((n / tDel) * 100).toFixed(1)}%` : "0%";
       document.getElementById("kDel").textContent = tDel.toLocaleString("en-IN");
       document.getElementById("kPin").textContent = tPin.toLocaleString("en-IN"); document.getElementById("pPin").textContent = pct(tPin);
@@ -317,7 +358,7 @@
       document.getElementById("kProp").textContent = tProp.toLocaleString("en-IN"); document.getElementById("pProp").textContent = pct(tProp);
       document.getElementById("kPay").textContent = tPay.toLocaleString("en-IN"); document.getElementById("pPay").textContent = `${pct(tPay)} भुगतान`;
 
-      // 1. High-Visibility Funnel Chart with Direct Data Labels
+      // 1. Funnel Chart with Data Labels
       const stageVals = [tDel, tPin, tJsy, tReg, tMoic, tProp, tPay];
       const maxVal = Math.max(...stageVals, 10);
       if (funnelChartInst) funnelChartInst.destroy();
@@ -335,9 +376,9 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 26 } },
+          layout: { padding: { top: 28 } },
           scales: {
-            y: { beginAtZero: true, suggestedMax: maxVal * 1.18, grid: { color: "#f1f5f9" } },
+            y: { beginAtZero: true, suggestedMax: maxVal * 1.2, grid: { color: "#f1f5f9" } },
             x: { grid: { display: false }, ticks: { font: { size: 10, weight: "bold" } } }
           },
           plugins: {
@@ -348,23 +389,20 @@
               offset: 2,
               color: "#0f172a",
               font: { weight: "bold", size: 10 },
-              formatter: (val) => {
-                const p = tDel ? Math.round((val / tDel) * 100) : 0;
-                return `${val}\n(${p}%)`;
-              }
+              formatter: (val) => `${val}\n(${tDel ? Math.round((val / tDel) * 100) : 0}%)`
             }
           }
         }
       });
 
-      // 2. Top Blocks / Facilities Comparison Chart with Direct Data Labels
+      // 2. Comparison Chart
       const compSource = selBlock === "ALL"
         ? Array.from(blockMap.values()).filter(b => b.del > 0).sort((a, b) => b.del - a.del).slice(0, 7)
         : scoped.filter(f => f.del > 0).sort((a, b) => b.del - a.del).slice(0, 7).map(f => ({ block: f.facility, del: f.del, pay: f.pay }));
 
       document.getElementById("compChartTitle").textContent = selBlock === "ALL"
-        ? "2. प्रमुख संस्थान/ब्लॉक: कुल प्रसव बनाम भुगतान"
-        : `2. ${selBlock}: प्रमुख स्वास्थ्य केंद्र (प्रसव बनाम भुगतान)`;
+        ? `2. प्रमुख संस्थान/ब्लॉक: प्रसव बनाम भुगतान (${selDate})`
+        : `2. ${selBlock}: प्रमुख स्वास्थ्य केंद्र (${selDate})`;
 
       const maxComp = Math.max(...compSource.map(x => x.del), 10);
       if (blockChartInst) blockChartInst.destroy();
@@ -404,6 +442,7 @@
       const sortedBlocks = Array.from(blockMap.values()).sort((a, b) => b.del - a.del);
       document.getElementById("blockSummaryBody").innerHTML = sortedBlocks.map(b => {
         const pend = Math.max(0, b.del - b.pay);
+        const estRs = pend * 1400;
         const payPct = b.del ? ((b.pay / b.del) * 100).toFixed(0) : 0;
         return `
           <tr class="hover:bg-slate-50">
@@ -414,11 +453,12 @@
             <td class="py-2.5 px-3 text-right">${b.moic}</td>
             <td class="py-2.5 px-3 text-right font-bold text-emerald-700">${b.pay}</td>
             <td class="py-2.5 px-3 text-right font-bold text-rose-700">${pend}</td>
+            <td class="py-2.5 px-3 text-right font-semibold text-indigo-900">₹${estRs.toLocaleString("en-IN")}</td>
             <td class="py-2.5 px-3 text-right font-extrabold">${payPct}%</td>
           </tr>`;
       }).join("");
 
-      // Facility Breakdown (Both Mobile Cards & Desktop Table)
+      // Facility Breakdown
       const facRows = scoped.map(r => ({ ...r, bn: detectBottleneck(r) })).filter(r => {
         if (selBn !== "ALL" && r.bn.code !== selBn) return false;
         if (q && !(r.facility.toLowerCase().includes(q) || r.block.toLowerCase().includes(q))) return false;
@@ -427,12 +467,11 @@
 
       filteredExport = facRows.map(({ bn, ...rest }) => ({ ...rest, Bottleneck: bn.label }));
 
-      // Render Mobile Cards
       document.getElementById("mobileFacilityCards").innerHTML = facRows.length ? facRows.map(r => `
         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
           <div class="flex justify-between items-start gap-2">
             <div>
-              <span class="text-[10px] font-bold uppercase text-slate-400">${r.block}</span>
+              <span class="text-[10px] font-bold uppercase text-slate-400">${r.block} • ${r.date}</span>
               <h4 class="text-sm font-bold text-slate-900">${r.facility}</h4>
             </div>
             <span class="px-2.5 py-1 rounded-lg text-[10px] ${r.bn.cls}">${r.bn.label}</span>
@@ -446,7 +485,6 @@
         </div>
       `).join("") : `<div class="bg-white p-6 rounded-2xl text-center text-xs text-slate-400">कोई स्वास्थ्य केंद्र नहीं मिला।</div>`;
 
-      // Render Desktop Table
       document.getElementById("desktopFacilityBody").innerHTML = facRows.map(r => `
         <tr class="hover:bg-slate-50">
           <td class="py-2.5 px-3 font-semibold text-slate-700">${r.block}</td>
@@ -461,11 +499,11 @@
           <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[11px] ${r.bn.cls}">${r.bn.label}</span></td>
         </tr>`).join("");
 
-      // Prepare WhatsApp Brief
       const scopeTitle = selBlock === "ALL" ? "जनपद अयोध्या (समस्त संस्थान)" : `ब्लॉक ${selBlock}`;
       currentWaSummary =
 `*NHM अयोध्या — JSY भुगतान समीक्षा*
-📍 *क्षेत्र:* ${scopeTitle} | 📅 *दिनांक:* ${selDate}
+📍 *क्षेत्र:* ${scopeTitle}
+📅 *रिपोर्ट दिनांक:* ${selDate}
 
 📊 *पाइपलाइन प्रगति:*
 • कुल प्रसव (Deliveries): *${tDel}*
