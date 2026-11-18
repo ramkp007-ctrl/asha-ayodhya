@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NHM अयोध्या — एकीकृत अधिकारी पोर्टल</title>
+  <title>NHM अयोध्या — एकीकृत अधिकारी समीक्षा पोर्टल</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen font-sans antialiased">
@@ -16,7 +16,7 @@
           जिला स्वास्थ्य समिति (DHS), अयोध्या
         </span>
         <h1 class="text-lg font-bold text-slate-900">NHM अधिकारी समीक्षा पोर्टल</h1>
-        <p class="text-xs text-slate-500 mt-1">एक लॉगिन से सभी कार्यक्रमों की समीक्षा करें</p>
+        <p class="text-xs text-slate-500 mt-1">एक लॉगिन से सभी कार्यक्रमों की प्रगति एवं भुगतान देखें</p>
       </div>
 
       <form id="hubLoginForm" class="space-y-4">
@@ -38,13 +38,13 @@
     </div>
   </div>
 
-  <!-- MAIN HUB -->
+  <!-- MAIN COMMAND HUB -->
   <div id="hubApp" class="hidden">
     <header class="bg-slate-900 text-white shadow-md">
       <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-wrap justify-between items-center gap-3">
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="text-base font-bold">NHM अयोध्या — अधिकारी डैशबोर्ड</h1>
+            <h1 class="text-base font-bold">NHM अयोध्या — एकीकृत कार्यक्रम समीक्षा डैशबोर्ड</h1>
             <span id="roleBadge" class="text-[10px] bg-amber-400 text-slate-950 font-extrabold px-2.5 py-0.5 rounded-full">DISTRICT</span>
           </div>
           <p id="officerInfo" class="text-xs text-slate-300 mt-0.5"></p>
@@ -53,7 +53,12 @@
       </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 py-6">
+    <main class="max-w-6xl mx-auto px-4 py-6 space-y-5">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap justify-between items-center gap-2">
+        <p id="scopeBanner" class="text-xs font-bold text-slate-700"></p>
+        <span class="text-[11px] text-slate-500">किसी भी कार्यक्रम कार्ड पर क्लिक कर विस्तृत समीक्षा खोलें</span>
+      </div>
+
       <div id="modulesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
     </main>
   </div>
@@ -78,32 +83,44 @@
 
     const MODULES = [
       {
-        title: "1. आशा प्रोत्साहन राशि समीक्षा",
-        desc: "ब्लॉक एवं उप-केंद्रवार शून्य भुगतान (₹0), PFMS Break और प्रोग्राम-वार विश्लेषण।",
+        title: "ASHA Payment समीक्षा",
+        desc: "आशा कार्यकर्ताओं की प्रोत्साहन राशि, शून्य भुगतान (₹0), PFMS Break और प्रोग्राम-वार एक्टिविटी विश्लेषण।",
         url: "dashboard.html",
         access: "ALL",
-        badge: "ASHA Payment"
+        badge: "Community Process",
+        color: "border-teal-600 text-teal-800 bg-teal-50"
       },
       {
-        title: "2. JSY भुगतान एवं सत्यापन पाइपलाइन",
-        desc: "प्रसव, PIN Verify, JSY Verify, MOIC Approval एवं भुगतान पेंडेंसी विश्लेषण।",
+        title: "JSY Payment एवं सत्यापन",
+        desc: "संस्थागत प्रसव, PIN Verification, JSY Verification, MOIC स्वीकृति एवं भुगतान पाइपलाइन पेंडेंसी।",
         url: "jsy-dashboard.html",
         access: "ALL",
-        badge: "JSY Payment"
+        badge: "Maternal Health",
+        color: "border-indigo-600 text-indigo-800 bg-indigo-50"
       },
       {
-        title: "3. आशा भुगतान डेटा अपलोडर",
-        desc: "मासिक PFMS / e-Kavach Excel डेटा अपलोड एवं PIN रीसेट।",
+        title: "ABHA Progress एवं Scan-Share",
+        desc: "ब्लॉक एवं स्वास्थ्य केंद्रवार ABHA ID निर्माण लक्ष्य बनाम उपलब्धि और OPD Scan & Share प्रगति।",
+        url: "abha-dashboard.html",
+        access: "ALL",
+        badge: "Digital Health",
+        color: "border-emerald-600 text-emerald-800 bg-emerald-50"
+      },
+      {
+        title: "Master Data Uploader (Admin)",
+        desc: "ASHA Payment, JSY Payment और ABHA Progress की मासिक Excel शीट अपलोड एवं PIN रीसेट।",
         url: "admin.html",
         access: "DISTRICT",
-        badge: "Admin"
+        badge: "Admin Only",
+        color: "border-slate-700 text-slate-800 bg-slate-100"
       },
       {
-        title: "4. अधिकारी मोबाइल नंबर प्रबंधन",
-        desc: "District एवं 11 ब्लॉकों के अधिकारियों के लॉगिन व PIN नियंत्रण।",
+        title: "अधिकारी एक्सेस नियंत्रण",
+        desc: "जनपद एवं सभी 11 ब्लॉकों के MOIC, BPM, BAM के मोबाइल नंबर व लॉगिन अनुमति प्रबंधन।",
         url: "officers-admin.html",
         access: "DISTRICT",
-        badge: "Officers"
+        badge: "Access Control",
+        color: "border-purple-600 text-purple-800 bg-purple-50"
       }
     ];
 
@@ -118,13 +135,13 @@
 
       errBox.classList.add("hidden");
       btn.disabled = true;
-      btn.textContent = "जाँच हो रही है...";
+      btn.textContent = "सत्यापन हो रहा है...";
 
       try {
         const snap = await get(ref(db, `asha_portal_v2/officers/${mob}`));
         if (!snap.exists()) throw new Error("यह मोबाइल नंबर पंजीकृत नहीं है।");
         const off = snap.val();
-        if (off.active === false) throw new Error("आपका एक्सेस बंद है।");
+        if (off.active === false) throw new Error("आपका एक्सेस निष्क्रिय है।");
         if (String(off.pin) !== pin) throw new Error("गलत PIN दर्ज किया गया है।");
 
         currentOfficer = { mobile: mob, ...off };
@@ -157,16 +174,22 @@
       const isDistrict = currentOfficer.role === "DISTRICT";
       document.getElementById("roleBadge").textContent = isDistrict ? "DISTRICT LEVEL" : `BLOCK: ${currentOfficer.block}`;
       document.getElementById("officerInfo").textContent = `${currentOfficer.name} (${currentOfficer.designation}) • मो. ${currentOfficer.mobile}`;
+      document.getElementById("scopeBanner").textContent = isDistrict
+        ? "कार्यक्षेत्र: जनपद अयोध्या (समस्त 11 विकास खंड एवं जिला चिकित्सालय)"
+        : `कार्यक्षेत्र: विकास खंड ${currentOfficer.block}`;
 
       const list = MODULES.filter(m => isDistrict || m.access === "ALL");
       document.getElementById("modulesGrid").innerHTML = list.map(m => `
-        <a href="${m.url}" class="bg-white p-5 rounded-2xl border border-slate-200 hover:border-teal-600 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4">
+        <a href="${m.url}" class="group bg-white p-5 rounded-2xl border border-slate-200 hover:border-teal-600 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4">
           <div class="space-y-2">
-            <span class="inline-block text-[10px] font-bold bg-teal-50 text-teal-800 px-2.5 py-0.5 rounded-full border border-teal-200">${m.badge}</span>
-            <h2 class="text-base font-bold text-slate-900">${m.title}</h2>
+            <span class="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${m.color}">${m.badge}</span>
+            <h2 class="text-base font-bold text-slate-900 group-hover:text-teal-800">${m.title}</h2>
             <p class="text-xs text-slate-600 leading-relaxed">${m.desc}</p>
           </div>
-          <div class="pt-3 border-t text-xs font-bold text-teal-800">खोलें →</div>
+          <div class="pt-3 border-t text-xs font-bold text-teal-800 flex justify-between items-center">
+            <span>डैशबोर्ड खोलें</span>
+            <span class="group-hover:translate-x-1 transition">→</span>
+          </div>
         </a>
       `).join("");
     }
