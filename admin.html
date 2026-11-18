@@ -10,14 +10,17 @@
 <body class="bg-slate-100 text-slate-800 min-h-screen">
 
   <header class="bg-teal-700 text-white shadow-md">
-    <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="max-w-5xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
       <div>
         <h1 class="text-xl font-bold">आशा भुगतान डेटा अपलोडर (Admin Panel)</h1>
         <p class="text-xs text-teal-100">राष्ट्रीय स्वास्थ्य मिशन (NHM), अयोध्या • Duplicate ID Separation &amp; Exact Excel SUM</p>
       </div>
-      <div class="flex gap-2">
+      <div class="flex flex-wrap gap-2">
+        <a href="officers-admin.html" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-xs font-bold rounded-lg border border-indigo-400 shadow-sm">
+          👮 अधिकारी प्रबंधन
+        </a>
         <a href="dashboard.html" class="px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-xs font-semibold rounded-lg border border-teal-500">
-          समीक्षा डैशबोर्ड
+          📊 समीक्षा डैशबोर्ड
         </a>
         <a href="index.html" class="px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-xs font-semibold rounded-lg border border-teal-500">
           ASHA पोर्टल →
@@ -51,7 +54,7 @@
           अपलोड और सेव करें
         </button>
         <button id="clearDbBtn" class="px-3 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 ml-auto">
-          पूरा डेटा रीसेट करें
+          भुगतान डेटा रीसेट करें (Officers सुरक्षित)
         </button>
       </div>
 
@@ -89,7 +92,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getDatabase, ref, set, get, remove, child } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+    import { getDatabase, ref, update, get, remove, child } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
@@ -167,7 +170,6 @@
       return String(name || "").replace(/\s+/g, " ").trim().toUpperCase();
     }
 
-    // Helper to extract worker objects whether stored as single object or array
     function toWorkerList(entry) {
       if (!entry || typeof entry !== "object") return [];
       if (Array.isArray(entry)) return entry.filter(w => w && typeof w === "object");
@@ -203,7 +205,6 @@
       return allRows;
     }
 
-    // Separates multiple ASHA workers sharing the same ID by (ID + Normalized Name)
     function processRowsIntoData(combinedRows, existing) {
       const headsList = [...(existing.heads || [])];
       const headIndexMap = new Map();
@@ -213,8 +214,7 @@
 
       const monthsSet = new Set((existing.months || []).map(normalizeMonth).filter(Boolean));
 
-      // Flatten existing workers into (idKey + nameKey) map while preserving saved PINs
-      const workerBuckets = new Map(); // idKey -> Map(nameKey -> workerObj)
+      const workerBuckets = new Map();
       for (const [idKey, entry] of Object.entries(existing.workers || {})) {
         const list = toWorkerList(entry);
         const nameMap = new Map();
@@ -225,7 +225,6 @@
         if (nameMap.size > 0) workerBuckets.set(idKey, nameMap);
       }
 
-      // Clear previous data ONLY for the months present in the new upload
       const uploadingMonths = new Set();
       for (const row of combinedRows) {
         const m = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
@@ -248,7 +247,6 @@
         }
       }
 
-      // Row-by-row addition grouped strictly by (ASHA_ID + ASHA_NAME)
       for (const row of combinedRows) {
         const rawId = getCol(row, ["ASHA_ID", "ASHA ID", "ASHAID", "ID"]);
         const idKey = safeKey(rawId);
@@ -279,7 +277,6 @@
         }
         const nameMap = workerBuckets.get(idKey);
 
-        // If previously only "UNKNOWN" existed and now real name arrived, upgrade it
         if (!nameMap.has(nameKey) && nameKey !== "UNKNOWN" && nameMap.has("UNKNOWN") && nameMap.size === 1) {
           const existingUnknown = nameMap.get("UNKNOWN");
           existingUnknown.n = rawName;
@@ -314,7 +311,6 @@
         }
       }
 
-      // Build final workers object: single object if 1 ASHA, Array if 2+ ASHAs share the ID
       const finalWorkers = {};
       let totalAllWorkers = 0;
       let totalIndividualAshas = 0;
@@ -338,7 +334,7 @@
 
         if (list.length > 1) {
           duplicateIdCount++;
-          finalWorkers[idKey] = list; // Saved as Array [0, 1, ...]
+          finalWorkers[idKey] = list;
         } else if (list.length === 1) {
           finalWorkers[idKey] = list[0];
         }
@@ -370,13 +366,13 @@
         }
         const hCount = (d.heads || []).length;
         const mList = Array.from(new Set((d.months || []).map(normalizeMonth))).sort().join(", ");
-        statusEl.innerHTML = `📊 <strong>वर्तमान डेटाबेस:</strong> ${totalAshas.toLocaleString()} आशा कार्यकर्ता (${dupIds} डुप्लीकेट ID अलग-अलग सेव) • ${hCount} प्रोग्राम/मद • उपलब्ध माह: <strong>${mList || "कोई नहीं"}</strong>`;
+        const offCount = Object.keys(d.officers || {}).length;
+        statusEl.innerHTML = `📊 <strong>वर्तमान डेटाबेस:</strong> ${totalAshas.toLocaleString()} आशा कार्यकर्ता (${dupIds} डुप्लीकेट ID अलग-अलग सेव) • ${hCount} प्रोग्राम/मद • 👮 ${offCount} पंजीकृत अधिकारी • उपलब्ध माह: <strong>${mList || "कोई नहीं"}</strong>`;
       } else {
         statusEl.textContent = "अभी डेटाबेस खाली है। नीचे से अपनी Excel (.xlsx) या CSV फ़ाइल चुनकर अपलोड करें।";
       }
     }
 
-    // Inspect ID before uploading (shows separate breakdown if 2 ASHAs share the ID)
     document.getElementById("inspectBtn").addEventListener("click", async () => {
       const files = document.getElementById("csvFileInput").files;
       const targetId = document.getElementById("inspectAshaId").value.trim();
@@ -465,7 +461,8 @@
         const { payload, totalAllWorkers, totalIndividualAshas, duplicateIdCount } = processRowsIntoData(combinedRows, existing);
 
         statusEl.textContent = `Firebase पर सेव हो रहा है (${payload.heads.length} मद, ${totalIndividualAshas} आशा)...`;
-        await set(rootRef, payload);
+        // update() का उपयोग किया गया है ताकि 'officers' नोड सुरक्षित रहे
+        await update(rootRef, payload);
 
         const sec = ((performance.now() - t0) / 1000).toFixed(1);
         statusEl.innerHTML =
@@ -513,9 +510,16 @@
       document.getElementById("resetPinAshaId").value = "";
     });
 
+    // केवल भुगतान डेटा (heads, months, workers) साफ़ करता है — officers सुरक्षित रहते हैं
     document.getElementById("clearDbBtn").addEventListener("click", async () => {
-      if (!confirm("क्या आप वाकई पूरा डेटाबेस खाली करके नए सिरे से अपलोड करना चाहते हैं?")) return;
-      await remove(rootRef);
+      if (!confirm("क्या आप वाकई आशा भुगतान डेटा (Workers, Heads, Months) रीसेट करना चाहते हैं?\n\n(नोट: पंजीकृत अधिकारियों की सूची पूरी तरह सुरक्षित रहेगी)")) return;
+      const statusEl = document.getElementById("uploadStatus");
+      statusEl.textContent = "भुगतान डेटा साफ़ किया जा रहा है (अधिकारी सूची सुरक्षित)...";
+      await update(rootRef, {
+        heads: null,
+        months: null,
+        workers: null
+      });
       await refreshStatus();
     });
 
