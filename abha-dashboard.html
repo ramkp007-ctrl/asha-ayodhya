@@ -1,101 +1,42 @@
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ABHA Progress डैशबोर्ड — NHM अयोध्या</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-50 text-slate-800 min-h-screen font-sans">
-  <header class="bg-slate-900 text-white px-4 py-3.5">
-    <div class="max-w-6xl mx-auto flex justify-between items-center">
-      <div class="flex items-center gap-3">
-        <a href="portal.html" class="px-2.5 py-1 bg-slate-800 rounded text-xs font-semibold">← Command Hub</a>
-        <h1 class="text-base font-bold">NHM अयोध्या — ABHA ID एवं Scan-Share प्रगति</h1>
-      </div>
-      <span id="offName" class="text-xs text-slate-300"></span>
-    </div>
-  </header>
+// 3. ABHA Upload (Exact Columns: Block, SC, Village, Asha Area, ASHA Name, ASHA ID, Population, ABHA Created)
+    document.getElementById("uploadAbhaBtn").addEventListener("click", async () => {
+      const file = document.getElementById("abhaFileInput").files[0];
+      if (!file) return alert("पहले ABHA Excel/CSV फ़ाइल चुनें।");
 
-  <main class="max-w-6xl mx-auto px-4 py-6 space-y-5">
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="bg-white p-4 rounded-xl border border-slate-200">
-        <p class="text-xs text-slate-500">कुल लक्ष्य (Target)</p>
-        <p id="kTarget" class="text-2xl font-bold text-slate-900 mt-1">0</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-200">
-        <p class="text-xs text-slate-500">ABHA Created (उपलब्धि)</p>
-        <p id="kCreated" class="text-2xl font-bold text-emerald-700 mt-1">0</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-200">
-        <p class="text-xs text-slate-500">Scan &amp; Share टोकन</p>
-        <p id="kScan" class="text-2xl font-bold text-indigo-700 mt-1">0</p>
-      </div>
-    </div>
+      // File name "ABHA ID_18-11-2026.xlsx" se date nikalna -> "18-11-2026"
+      const dateMatch = file.name.match(/(\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4})/);
+      const fileDateLabel = dateMatch ? dateMatch[1] : file.name.replace(/\.[^.]+$/, "").trim();
 
-    <div class="bg-white rounded-xl border border-slate-200 overflow-x-auto">
-      <table class="w-full text-left border-collapse text-xs">
-        <thead>
-          <tr class="bg-slate-100 text-slate-600 border-b">
-            <th class="p-3">दिनांक</th>
-            <th class="p-3">ब्लॉक</th>
-            <th class="p-3">स्वास्थ्य केंद्र / SC</th>
-            <th class="p-3 text-right">लक्ष्य</th>
-            <th class="p-3 text-right">ABHA Created</th>
-            <th class="p-3 text-right">उपलब्धि %</th>
-            <th class="p-3 text-right">Scan &amp; Share</th>
-          </tr>
-        </thead>
-        <tbody id="abhaBody" class="divide-y divide-slate-100"></tbody>
-      </table>
-    </div>
-  </main>
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: "array" });
+      const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "" });
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+      const newRecords = raw.map(r => {
+        const pop = Number(r["Population"] || r["POPULATION"] || 0);
+        const created = Number(r["ABHA Created"] || r["ABHA_CREATED"] || 0);
+        return {
+          date: fileDateLabel,
+          fileName: file.name,
+          block: String(r["Block"] || r["BLOCK"] || "").trim(),
+          sc: String(r["SC"] || r["Sub Center"] || "").trim(),
+          village: String(r["Village"] || r["VILLAGE"] || "").trim(),
+          area: String(r["Asha Area"] || r["ASHA Area"] || "").trim(),
+          ashaName: String(r["ASHA Name"] || r["ASHA_NAME"] || "").trim(),
+          ashaId: String(r["ASHA ID"] || r["ASHA_ID"] || "").trim(),
+          pop,
+          created
+        };
+      }).filter(x => x.block && (x.ashaName || x.sc));
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
-      authDomain: "asha-payment.firebaseapp.com",
-      databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "asha-payment",
-      storageBucket: "asha-payment.firebasestorage.app",
-      messagingSenderId: "117935142167",
-      appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
-      measurementId: "G-43YGRC5CKL"
-    };
+      const snap = await get(abhaRef);
+      const oldRecords = snap.exists() ? (snap.val().records || []).filter(r => r.date !== fileDateLabel) : [];
+      const mergedRecords = [...oldRecords, ...newRecords];
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    const saved = sessionStorage.getItem("nhm_ayodhya_officer");
-    if (!saved) window.location.href = "portal.html";
-    const officer = JSON.parse(saved);
-    const isDistrict = officer.role === "DISTRICT";
-    document.getElementById("offName").textContent = `${officer.name} (${officer.designation})`;
-
-    const snap = await get(ref(db, "asha_portal_v2/abha_portal"));
-    if (snap.exists()) {
-      const rows = (snap.val().records || []).filter(r => isDistrict || r.block.toLowerCase() === String(officer.block).trim().toLowerCase());
-      let t = 0, c = 0, s = 0;
-      document.getElementById("abhaBody").innerHTML = rows.map(r => {
-        t += r.target; c += r.created; s += r.scanShare;
-        const pct = r.target ? ((r.created / r.target) * 100).toFixed(1) : 0;
-        return `<tr>
-          <td class="p-3">${r.date}</td>
-          <td class="p-3 font-semibold">${r.block}</td>
-          <td class="p-3 font-bold">${r.facility}</td>
-          <td class="p-3 text-right">${r.target}</td>
-          <td class="p-3 text-right font-bold text-emerald-700">${r.created}</td>
-          <td class="p-3 text-right font-bold">${pct}%</td>
-          <td class="p-3 text-right text-indigo-700 font-semibold">${r.scanShare}</td>
-        </tr>`;
-      }).join("");
-      document.getElementById("kTarget").textContent = t.toLocaleString("en-IN");
-      document.getElementById("kCreated").textContent = c.toLocaleString("en-IN");
-      document.getElementById("kScan").textContent = s.toLocaleString("en-IN");
-    }
-  </script>
-</body>
-</html>
+      await set(abhaRef, {
+        updatedAt: new Date().toLocaleString("hi-IN"),
+        latestDate: fileDateLabel,
+        records: mergedRecords
+      });
+      refreshStatus();
+      alert(`फ़ाइल "${file.name}" (दिनांक: ${fileDateLabel}) के ${newRecords.length} आशा क्षेत्रों का ABHA डेटा सेव हो गया!`);
+    });
