@@ -1,42 +1,595 @@
-// 3. ABHA Upload (Exact Columns: Block, SC, Village, Asha Area, ASHA Name, ASHA ID, Population, ABHA Created)
-    document.getElementById("uploadAbhaBtn").addEventListener("click", async () => {
-      const file = document.getElementById("abhaFileInput").files[0];
-      if (!file) return alert("पहले ABHA Excel/CSV फ़ाइल चुनें।");
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ABHA ID प्रगति एवं गैप विश्लेषण — NHM अयोध्या</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen font-sans antialiased pb-10">
 
-      // File name "ABHA ID_18-11-2026.xlsx" se date nikalna -> "18-11-2026"
-      const dateMatch = file.name.match(/(\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4})/);
-      const fileDateLabel = dateMatch ? dateMatch[1] : file.name.replace(/\.[^.]+$/, "").trim();
+  <!-- Sticky Top Header -->
+  <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 py-3 flex flex-wrap justify-between items-center gap-2">
+      <div class="flex items-center gap-2.5">
+        <a href="portal.html" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-bold border border-slate-700">
+          ← पोर्टल
+        </a>
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <h1 class="text-sm sm:text-base font-bold leading-tight">ABHA ID निर्माण एवं गैप समीक्षा</h1>
+            <span id="headerDateBadge" class="text-[11px] bg-amber-400 text-slate-950 font-extrabold px-2.5 py-0.5 rounded-full">
+              📅 दिनांक: लोड हो रहा है...
+            </span>
+          </div>
+          <p id="officerMeta" class="text-[11px] text-slate-300 mt-0.5">लोड हो रहा है...</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <button id="waShareBtn" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg">
+          📲 WhatsApp
+        </button>
+        <button id="exportBtn" class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg">
+          📥 Excel
+        </button>
+        <button id="logoutBtn" class="px-2.5 py-1.5 bg-slate-800 hover:bg-red-800 text-xs font-semibold rounded-lg border border-slate-700">
+          लॉगआउट
+        </button>
+      </div>
+    </div>
+  </header>
 
-      const buf = await file.arrayBuffer();
-      const wb = XLSX.read(buf, { type: "array" });
-      const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "" });
+  <main class="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-5">
 
-      const newRecords = raw.map(r => {
-        const pop = Number(r["Population"] || r["POPULATION"] || 0);
-        const created = Number(r["ABHA Created"] || r["ABHA_CREATED"] || 0);
-        return {
-          date: fileDateLabel,
-          fileName: file.name,
-          block: String(r["Block"] || r["BLOCK"] || "").trim(),
-          sc: String(r["SC"] || r["Sub Center"] || "").trim(),
-          village: String(r["Village"] || r["VILLAGE"] || "").trim(),
-          area: String(r["Asha Area"] || r["ASHA Area"] || "").trim(),
-          ashaName: String(r["ASHA Name"] || r["ASHA_NAME"] || "").trim(),
-          ashaId: String(r["ASHA ID"] || r["ASHA_ID"] || "").trim(),
-          pop,
-          created
-        };
-      }).filter(x => x.block && (x.ashaName || x.sc));
+    <!-- Filter Bar -->
+    <section class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div>
+        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">रिपोर्ट दिनांक (Date)</label>
+        <select id="dateFilter" class="w-full border-2 border-emerald-200 rounded-xl px-3 py-2 text-xs font-bold bg-emerald-50/40 text-emerald-950"></select>
+      </div>
+      <div>
+        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">ब्लॉक / UPHC</label>
+        <select id="blockFilter" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold bg-white">
+          <option value="ALL">सभी 18 ब्लॉक एवं UPHC</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">उप-केंद्र (Sub-Center)</label>
+        <select id="scFilter" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold bg-white">
+          <option value="ALL">सभी उप-केंद्र</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[11px] font-bold text-rose-700 uppercase mb-1">गैप फ़िल्टर (Performance Tier)</label>
+        <select id="gapFilter" class="w-full border border-rose-300 rounded-xl px-3 py-2 text-xs font-bold bg-rose-50 text-rose-950">
+          <option value="ALL">सभी आशा क्षेत्र (All Areas)</option>
+          <option value="ZERO">🚨 शून्य प्रगति (0 ABHA Created)</option>
+          <option value="LOW_50">⚠️ 50% से कम उपलब्धि (&lt;50%)</option>
+          <option value="SANGINI">🔑 संगिनी / नॉन-आशा ID मैपिंग</option>
+          <option value="HIGH_90">🏆 90%+ उत्कृष्ट उपलब्धि</option>
+        </select>
+      </div>
+    </section>
 
-      const snap = await get(abhaRef);
-      const oldRecords = snap.exists() ? (snap.val().records || []).filter(r => r.date !== fileDateLabel) : [];
-      const mergedRecords = [...oldRecords, ...newRecords];
+    <!-- 5 Executive KPI Cards -->
+    <section class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div class="bg-white p-4 rounded-2xl border-l-4 border-slate-800 shadow-sm">
+        <span class="text-[10px] font-bold text-slate-500 uppercase block">लक्षित जनसंख्या (Population)</span>
+        <span id="kPop" class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1 block">0</span>
+        <span id="kAreas" class="text-[11px] text-slate-500">कुल 0 आशा क्षेत्र</span>
+      </div>
 
-      await set(abhaRef, {
-        updatedAt: new Date().toLocaleString("hi-IN"),
-        latestDate: fileDateLabel,
-        records: mergedRecords
-      });
-      refreshStatus();
-      alert(`फ़ाइल "${file.name}" (दिनांक: ${fileDateLabel}) के ${newRecords.length} आशा क्षेत्रों का ABHA डेटा सेव हो गया!`);
+      <div class="bg-white p-4 rounded-2xl border-l-4 border-emerald-600 shadow-sm">
+        <span class="text-[10px] font-bold text-emerald-700 uppercase block">निर्मित ABHA ID</span>
+        <span id="kCreated" class="text-xl sm:text-2xl font-extrabold text-emerald-800 mt-1 block">0</span>
+        <span id="kPctBadge" class="inline-block mt-0.5 text-[11px] font-extrabold bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded">0% उपलब्धि</span>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl border-l-4 border-indigo-600 shadow-sm">
+        <span class="text-[10px] font-bold text-indigo-700 uppercase block">शेष लंबित (Pending Gap)</span>
+        <span id="kPending" class="text-xl sm:text-2xl font-extrabold text-indigo-900 mt-1 block">0</span>
+        <span id="kPendingPct" class="text-[11px] font-semibold text-indigo-700">0% शेष</span>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl border-l-4 border-rose-600 shadow-sm">
+        <span class="text-[10px] font-bold text-rose-700 uppercase block">🚨 शून्य (0) व &lt;50% क्षेत्र</span>
+        <span id="kLowCount" class="text-xl sm:text-2xl font-extrabold text-rose-700 mt-1 block">0</span>
+        <span id="kZeroText" class="text-[11px] font-bold text-rose-600">0 क्षेत्र पूर्णतः शून्य</span>
+      </div>
+
+      <div class="col-span-2 lg:col-span-1 bg-white p-4 rounded-2xl border-l-4 border-purple-600 shadow-sm">
+        <span class="text-[10px] font-bold text-purple-800 uppercase block">संगिनी ID पर संचालित क्षेत्र</span>
+        <span id="kSanginiCount" class="text-xl sm:text-2xl font-extrabold text-purple-900 mt-1 block">0</span>
+        <span class="text-[11px] text-slate-500">आशा रिक्त / मैपिंग लंबित</span>
+      </div>
+    </section>
+
+    <!-- High-Visibility Charts with Direct Data Labels -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <!-- Bar Chart: Block/SC Ranking by Achievement % -->
+      <div class="lg:col-span-8 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="mb-3">
+          <h2 id="barChartTitle" class="text-sm font-bold text-slate-900">1. ब्लॉक / UPHC वार ABHA उपलब्धि % (Achievement Ranking)</h2>
+          <p class="text-[11px] text-slate-500">हरा = 70%+ | पीला = 50–70% | लाल = 50% से कम</p>
+        </div>
+        <div class="h-80 sm:h-96">
+          <canvas id="unitBarChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Doughnut Chart: Performance Tiers -->
+      <div class="lg:col-span-4 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <h2 class="text-sm font-bold text-slate-900">2. आशा क्षेत्रों का प्रदर्शन वर्गीकरण</h2>
+          <p class="text-[11px] text-slate-500">कुल आशा क्षेत्रों की श्रेणीवार संख्या</p>
+        </div>
+        <div class="h-72 my-auto">
+          <canvas id="tierDoughnutChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="border-b border-slate-200 bg-slate-50 px-4 flex flex-wrap gap-4">
+        <button data-tab="tabUnitSummary" class="tab-btn active py-3 text-xs font-bold border-b-2 border-emerald-700 text-emerald-900">
+          1. ब्लॉक / उप-केंद्र तुलनात्मक सारांश
+        </button>
+        <button data-tab="tabAshaList" class="tab-btn py-3 text-xs font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900">
+          2. आशा क्षेत्रवार विवरण एवं गैप सूची (<span id="badgeAreas">0</span>)
+        </button>
+      </div>
+
+      <!-- TAB 1: UNIT SUMMARY TABLE -->
+      <div id="tabUnitSummary" class="tab-panel p-4 space-y-3">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-semibold text-slate-500">उपलब्धि % के अनुसार रैंकिंग (क्लिक कर ड्रिल-डाउन करें):</span>
+          <button onclick="window.exportSheet(window.lastUnitRows, 'ABHA_Unit_Summary')" class="text-xs font-bold text-emerald-800 hover:underline">Excel डाउनलोड</button>
+        </div>
+        <div class="overflow-x-auto border border-slate-200 rounded-xl">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 border-b">
+                <th class="py-2.5 px-3">रैंक</th>
+                <th class="py-2.5 px-3" id="unitColHeader">ब्लॉक / UPHC</th>
+                <th class="py-2.5 px-3 text-right">आशा क्षेत्र</th>
+                <th class="py-2.5 px-3 text-right">लक्षित जनसंख्या</th>
+                <th class="py-2.5 px-3 text-right text-emerald-700">ABHA Created</th>
+                <th class="py-2.5 px-3 text-right text-rose-700">शेष लंबित</th>
+                <th class="py-2.5 px-3 text-right">उपलब्धि %</th>
+                <th class="py-2.5 px-3 text-right text-rose-800">0 ABHA क्षेत्र</th>
+              </tr>
+            </thead>
+            <tbody id="unitSummaryBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 2: ASHA AREA BREAKDOWN (Mobile Cards + Desktop Table) -->
+      <div id="tabAshaList" class="tab-panel hidden p-4 space-y-3">
+        <div class="flex flex-wrap justify-between items-center gap-2">
+          <input type="text" id="areaSearch" placeholder="आशा का नाम, ID, गाँव या SC खोजें..."
+            class="w-full sm:w-72 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-medium" />
+          <button onclick="window.exportSheet(window.lastAreaExport, 'ABHA_ASHA_Areas')" class="px-3 py-1.5 bg-emerald-700 text-white text-xs font-bold rounded-lg">
+            📥 फ़िल्टर्ड सूची Excel
+          </button>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div id="mobileAreaCards" class="grid grid-cols-1 gap-3 md:hidden"></div>
+
+        <!-- Desktop Table -->
+        <div class="hidden md:block border border-slate-200 rounded-xl overflow-x-auto max-h-[540px]">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="sticky top-0 bg-slate-100 text-slate-700 border-b">
+              <tr>
+                <th class="py-2.5 px-3">ब्लॉक</th>
+                <th class="py-2.5 px-3">उप-केंद्र (SC)</th>
+                <th class="py-2.5 px-3">गाँव / आशा क्षेत्र</th>
+                <th class="py-2.5 px-3">आशा का नाम (ID)</th>
+                <th class="py-2.5 px-3 text-right">Population</th>
+                <th class="py-2.5 px-3 text-right text-emerald-700">ABHA Created</th>
+                <th class="py-2.5 px-3 text-right text-rose-700">शेष</th>
+                <th class="py-2.5 px-3 text-right">उपलब्धि %</th>
+              </tr>
+            </thead>
+            <tbody id="desktopAreaBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- WhatsApp Share Modal -->
+  <div id="waModal" class="hidden fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-4">
+    <div class="bg-white max-w-md w-full rounded-2xl shadow-2xl p-5 space-y-3">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="text-sm font-bold text-slate-900">WhatsApp ABHA समीक्षा संदेश</h3>
+        <button onclick="document.getElementById('waModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 font-bold text-lg">✕</button>
+      </div>
+      <textarea id="waTextBox" rows="11" class="w-full border border-slate-300 rounded-xl p-3 text-xs bg-slate-50 leading-relaxed"></textarea>
+      <div class="flex justify-end gap-2">
+        <button id="copyWaBtn" class="px-3.5 py-2 bg-slate-800 text-white text-xs font-bold rounded-lg">📋 कॉपी करें</button>
+        <a id="openWaLink" href="#" target="_blank" class="px-3.5 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg">WhatsApp भेजें →</a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+    Chart.register(ChartDataLabels);
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
+      authDomain: "asha-payment.firebaseapp.com",
+      databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "asha-payment",
+      storageBucket: "asha-payment.firebasestorage.app",
+      messagingSenderId: "117935142167",
+      appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
+      measurementId: "G-43YGRC5CKL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const abhaRef = ref(db, "asha_portal_v2/abha_portal");
+
+    const saved = sessionStorage.getItem("nhm_ayodhya_officer");
+    if (!saved) window.location.href = "portal.html";
+    const officer = JSON.parse(saved);
+    const isDistrict = officer.role === "DISTRICT";
+
+    document.getElementById("officerMeta").textContent = `${officer.name} (${officer.designation}) • ${isDistrict ? "District Access" : officer.block}`;
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      sessionStorage.removeItem("nhm_ayodhya_officer");
+      window.location.href = "portal.html";
     });
+
+    let allRecords = [];
+    let barChartInst = null;
+    let doughnutInst = null;
+    let currentWaMsg = "";
+
+    window.lastUnitRows = [];
+    window.lastAreaExport = [];
+
+    function normalizeBlockMatch(recBlock, officerBlock) {
+      const a = String(recBlock || "").toLowerCase().replace(/[^a-z]/g, "");
+      const b = String(officerBlock || "").toLowerCase().replace(/[^a-z]/g, "");
+      // Handles spelling variations like Hariyangatanganj vs Haringtonganj, Masodha vs Masaudha
+      return a.slice(0, 5) === b.slice(0, 5);
+    }
+
+    async function loadAbhaData() {
+      const snap = await get(abhaRef);
+      if (!snap.exists()) {
+        alert("अभी ABHA डेटा अपलोड नहीं किया गया है। कृपया पहले admin.html से ABHA Excel अपलोड करें।");
+        return;
+      }
+      const data = snap.val();
+      allRecords = (data.records || []).filter(r => isDistrict || normalizeBlockMatch(r.block, officer.block));
+
+      const dates = Array.from(new Set(allRecords.map(r => r.date))).sort().reverse();
+      const dSel = document.getElementById("dateFilter");
+      dSel.innerHTML = dates.map(d => `<option value="${d}">दिनांक: ${d}</option>`).join("");
+
+      const bSel = document.getElementById("blockFilter");
+      if (!isDistrict) {
+        const matchedBlockName = allRecords[0]?.block || officer.block;
+        bSel.innerHTML = `<option value="${matchedBlockName}">${matchedBlockName}</option>`;
+        bSel.disabled = true;
+      } else {
+        const blocks = Array.from(new Set(allRecords.map(r => r.block))).sort();
+        bSel.innerHTML = `<option value="ALL">सभी 18 ब्लॉक एवं UPHC</option>` + blocks.map(b => `<option value="${b}">${b}</option>`).join("");
+      }
+
+      updateScDropdown();
+
+      dSel.onchange = renderDashboard;
+      bSel.onchange = () => { updateScDropdown(); renderDashboard(); };
+      document.getElementById("scFilter").onchange = renderDashboard;
+      document.getElementById("gapFilter").onchange = renderDashboard;
+      document.getElementById("areaSearch").oninput = renderDashboard;
+
+      renderDashboard();
+    }
+
+    function updateScDropdown() {
+      const selDate = document.getElementById("dateFilter").value;
+      const selBlock = document.getElementById("blockFilter").value;
+      const scSel = document.getElementById("scFilter");
+      scSel.innerHTML = `<option value="ALL">सभी उप-केंद्र (Sub-Centers)</option>`;
+      const scSet = new Set();
+      allRecords.forEach(r => {
+        if ((!selDate || r.date === selDate) && (selBlock === "ALL" || r.block === selBlock) && r.sc) {
+          scSet.add(r.sc);
+        }
+      });
+      Array.from(scSet).sort().forEach(sc => {
+        const opt = document.createElement("option");
+        opt.value = sc;
+        opt.textContent = sc;
+        scSel.appendChild(opt);
+      });
+    }
+
+    function renderDashboard() {
+      const selDate = document.getElementById("dateFilter").value;
+      const selBlock = document.getElementById("blockFilter").value;
+      const selSc = document.getElementById("scFilter").value;
+      const selGap = document.getElementById("gapFilter").value;
+      const q = document.getElementById("areaSearch").value.toLowerCase();
+
+      document.getElementById("headerDateBadge").textContent = `📅 दिनांक: ${selDate}`;
+
+      const scoped = allRecords.filter(r =>
+        (!selDate || r.date === selDate) &&
+        (selBlock === "ALL" || r.block === selBlock) &&
+        (selSc === "ALL" || r.sc === selSc)
+      );
+
+      let totalPop = 0, totalCreated = 0, zeroAreas = 0, low50Areas = 0, sanginiAreas = 0;
+      let tier90Plus = 0, tier70to90 = 0, tier50to70 = 0, tierBelow50 = 0;
+
+      const groupBySc = selBlock !== "ALL" || !isDistrict;
+      document.getElementById("unitColHeader").textContent = groupBySc ? "उप-केंद्र (Sub-Center)" : "ब्लॉक / UPHC";
+      document.getElementById("barChartTitle").textContent = groupBySc
+        ? `1. ${selBlock}: उप-केंद्रवार ABHA उपलब्धि % (${selDate})`
+        : `1. ब्लॉक / UPHC वार ABHA उपलब्धि % (${selDate})`;
+
+      const unitMap = new Map();
+
+      const enriched = scoped.map(r => {
+        const pop = Number(r.pop) || 0;
+        const created = Number(r.created) || 0;
+        const pct = pop > 0 ? (created / pop) * 100 : (created > 0 ? 100 : 0);
+        const pending = Math.max(0, pop - created);
+        const isSangini = String(r.ashaId || "").toLowerCase().includes("sangini");
+
+        totalPop += pop;
+        totalCreated += created;
+        if (created === 0) zeroAreas++;
+        if (pct < 50) low50Areas++;
+        if (isSangini) sanginiAreas++;
+
+        if (pct >= 90) tier90Plus++;
+        else if (pct >= 70) tier70to90++;
+        else if (pct >= 50) tier50to70++;
+        else tierBelow50++;
+
+        const uKey = groupBySc ? (r.sc || "Other") : r.block;
+        if (!unitMap.has(uKey)) unitMap.set(uKey, { unit: uKey, areas: 0, pop: 0, created: 0, zero: 0 });
+        const u = unitMap.get(uKey);
+        u.areas++;
+        u.pop += pop;
+        u.created += created;
+        if (created === 0) u.zero++;
+
+        return { ...r, pop, created, pending, pct, isSangini };
+      });
+
+      const overallPct = totalPop > 0 ? ((totalCreated / totalPop) * 100).toFixed(1) : 0;
+      const totalPending = Math.max(0, totalPop - totalCreated);
+
+      document.getElementById("kPop").textContent = totalPop.toLocaleString("en-IN");
+      document.getElementById("kAreas").textContent = `कुल ${scoped.length.toLocaleString("en-IN")} आशा क्षेत्र`;
+      document.getElementById("kCreated").textContent = totalCreated.toLocaleString("en-IN");
+      document.getElementById("kPctBadge").textContent = `${overallPct}% उपलब्धि`;
+      document.getElementById("kPending").textContent = totalPending.toLocaleString("en-IN");
+      document.getElementById("kPendingPct").textContent = `${(100 - Number(overallPct)).toFixed(1)}% शेष`;
+      document.getElementById("kLowCount").textContent = low50Areas.toLocaleString("en-IN");
+      document.getElementById("kZeroText").textContent = `${zeroAreas} क्षेत्र पूर्णतः शून्य (0)`;
+      document.getElementById("kSanginiCount").textContent = sanginiAreas.toLocaleString("en-IN");
+
+      // Unit Summary Ranking
+      window.lastUnitRows = Array.from(unitMap.values()).map(u => ({
+        Unit: u.unit,
+        Areas: u.areas,
+        Population: u.pop,
+        ABHA_Created: u.created,
+        Pending: Math.max(0, u.pop - u.created),
+        Achievement_Pct: u.pop > 0 ? Number(((u.created / u.pop) * 100).toFixed(1)) : 0,
+        Zero_Areas: u.zero
+      })).sort((a, b) => b.Achievement_Pct - a.Achievement_Pct);
+
+      document.getElementById("unitSummaryBody").innerHTML = window.lastUnitRows.map((u, i) => {
+        const badge = u.Achievement_Pct >= 70 ? "bg-emerald-100 text-emerald-900"
+          : u.Achievement_Pct >= 50 ? "bg-amber-100 text-amber-900"
+          : "bg-rose-100 text-rose-900";
+        return `
+          <tr class="hover:bg-slate-50">
+            <td class="py-2.5 px-3 font-bold text-slate-500">#${i + 1}</td>
+            <td class="py-2.5 px-3 font-bold text-slate-900">${u.Unit}</td>
+            <td class="py-2.5 px-3 text-right">${u.Areas}</td>
+            <td class="py-2.5 px-3 text-right">${u.Population.toLocaleString("en-IN")}</td>
+            <td class="py-2.5 px-3 text-right font-bold text-emerald-700">${u.ABHA_Created.toLocaleString("en-IN")}</td>
+            <td class="py-2.5 px-3 text-right font-semibold text-rose-700">${u.Pending.toLocaleString("en-IN")}</td>
+            <td class="py-2.5 px-3 text-right"><span class="px-2 py-0.5 rounded font-extrabold ${badge}">${u.Achievement_Pct}%</span></td>
+            <td class="py-2.5 px-3 text-right font-bold text-rose-800">${u.Zero_Areas}</td>
+          </tr>`;
+      }).join("");
+
+      // 1. Horizontal Bar Chart with Direct Data Labels
+      const chartUnits = window.lastUnitRows.slice(0, 18);
+      if (barChartInst) barChartInst.destroy();
+      barChartInst = new Chart(document.getElementById("unitBarChart"), {
+        type: "bar",
+        data: {
+          labels: chartUnits.map(u => u.Unit.length > 18 ? u.Unit.slice(0, 17) + "…" : u.Unit),
+          datasets: [{
+            label: "उपलब्धि %",
+            data: chartUnits.map(u => u.Achievement_Pct),
+            backgroundColor: chartUnits.map(u => u.Achievement_Pct >= 70 ? "#059669" : u.Achievement_Pct >= 50 ? "#d97706" : "#e11d48"),
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { right: 42 } },
+          scales: {
+            x: { beginAtZero: true, max: 112, grid: { color: "#f1f5f9" } },
+            y: { grid: { display: false }, ticks: { font: { size: 10, weight: "bold" } } }
+          },
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              anchor: "end",
+              align: "right",
+              offset: 4,
+              color: "#0f172a",
+              font: { weight: "bold", size: 10 },
+              formatter: (val) => `${val}%`
+            }
+          }
+        }
+      });
+
+      // 2. Doughnut Chart for Performance Tiers
+      if (doughnutInst) doughnutInst.destroy();
+      doughnutInst = new Chart(document.getElementById("tierDoughnutChart"), {
+        type: "doughnut",
+        data: {
+          labels: ["90%+ (उत्कृष्ट)", "70%–90% (अच्छा)", "50%–70% (मध्यम)", "<50% (गंभीर गैप)"],
+          datasets: [{
+            data: [tier90Plus, tier70to90, tier50to70, tierBelow50],
+            backgroundColor: ["#059669", "#0284c7", "#d97706", "#e11d48"]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "bottom", labels: { font: { size: 11, weight: "bold" } } },
+            datalabels: {
+              color: "#ffffff",
+              font: { weight: "bold", size: 11 },
+              formatter: (val) => val > 0 ? val : ""
+            }
+          }
+        }
+      });
+
+      // Filtered ASHA Areas
+      const filteredAreas = enriched.filter(r => {
+        if (selGap === "ZERO" && r.created !== 0) return false;
+        if (selGap === "LOW_50" && r.pct >= 50) return false;
+        if (selGap === "SANGINI" && !r.isSangini) return false;
+        if (selGap === "HIGH_90" && r.pct < 90) return false;
+        if (q && !(r.ashaName.toLowerCase().includes(q) || r.ashaId.toLowerCase().includes(q) || r.village.toLowerCase().includes(q) || r.sc.toLowerCase().includes(q))) return false;
+        return true;
+      }).sort((a, b) => a.pct - b.pct);
+
+      document.getElementById("badgeAreas").textContent = filteredAreas.length;
+      window.lastAreaExport = filteredAreas.map(r => ({
+        Block: r.block, Sub_Center: r.sc, Village: r.village, Asha_Area: r.area,
+        ASHA_Name: r.ashaName, ASHA_ID: r.ashaId, Population: r.pop,
+        ABHA_Created: r.created, Pending: r.pending, Achievement_Pct: Number(r.pct.toFixed(1))
+      }));
+
+      // Mobile Cards
+      document.getElementById("mobileAreaCards").innerHTML = filteredAreas.slice(0, 300).map(r => {
+        const badge = r.created === 0 ? "bg-rose-600 text-white" : r.pct < 50 ? "bg-amber-100 text-amber-900" : "bg-emerald-100 text-emerald-900";
+        return `
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+            <div class="flex justify-between items-start gap-2">
+              <div>
+                <span class="text-[10px] font-bold uppercase text-slate-400">${r.block} • ${r.sc}</span>
+                <h4 class="text-sm font-bold text-slate-900">${r.ashaName} <span class="text-xs font-mono text-slate-500">(${r.ashaId})</span></h4>
+                <p class="text-xs text-slate-600">गाँव: ${r.village} (${r.area})</p>
+              </div>
+              <span class="px-2.5 py-1 rounded-lg text-xs font-extrabold ${badge}">${r.pct.toFixed(1)}%</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 bg-slate-50 p-2 rounded-xl text-center text-xs">
+              <div><span class="text-[10px] text-slate-500 block">लक्ष्य</span><strong>${r.pop}</strong></div>
+              <div><span class="text-[10px] text-emerald-700 block">ABHA Created</span><strong class="text-emerald-800">${r.created}</strong></div>
+              <div><span class="text-[10px] text-rose-700 block">शेष</span><strong class="text-rose-800">${r.pending}</strong></div>
+            </div>
+          </div>`;
+      }).join("");
+
+      // Desktop Table
+      document.getElementById("desktopAreaBody").innerHTML = filteredAreas.slice(0, 600).map(r => {
+        const badge = r.created === 0 ? "bg-rose-100 text-rose-900 font-bold" : r.pct < 50 ? "bg-amber-100 text-amber-900 font-bold" : "bg-emerald-100 text-emerald-900 font-bold";
+        return `
+          <tr class="hover:bg-slate-50">
+            <td class="py-2.5 px-3 font-semibold">${r.block}</td>
+            <td class="py-2.5 px-3">${r.sc}</td>
+            <td class="py-2.5 px-3">${r.village} <span class="text-slate-400">(${r.area})</span></td>
+            <td class="py-2.5 px-3 font-bold text-slate-900">${r.ashaName} <span class="font-mono text-[11px] text-slate-500">[${r.ashaId}]</span></td>
+            <td class="py-2.5 px-3 text-right">${r.pop.toLocaleString("en-IN")}</td>
+            <td class="py-2.5 px-3 text-right font-bold text-emerald-700">${r.created.toLocaleString("en-IN")}</td>
+            <td class="py-2.5 px-3 text-right text-rose-700">${r.pending.toLocaleString("en-IN")}</td>
+            <td class="py-2.5 px-3 text-right"><span class="px-2 py-0.5 rounded ${badge}">${r.pct.toFixed(1)}%</span></td>
+          </tr>`;
+      }).join("");
+
+      // WhatsApp Brief
+      const scopeName = selBlock === "ALL" ? "जनपद अयोध्या (समस्त 18 ब्लॉक/UPHC)" : `ब्लॉक ${selBlock}`;
+      const worstUnits = [...window.lastUnitRows].reverse().slice(0, 3).map(u => `• ${u.Unit}: ${u.Achievement_Pct}% (${u.Zero_Areas} शून्य क्षेत्र)`).join("\n");
+      currentWaMsg =
+`*NHM अयोध्या — ABHA ID प्रगति समीक्षा*
+📍 *क्षेत्र:* ${scopeName} | 📅 *दिनांक:* ${selDate}
+
+📊 *मुख्य प्रगति:*
+• लक्षित जनसंख्या: *${totalPop.toLocaleString("en-IN")}*
+• निर्मित ABHA ID: *${totalCreated.toLocaleString("en-IN")}* (*${overallPct}%*)
+• शेष लंबित: *${totalPending.toLocaleString("en-IN")}*
+• 🚨 शून्य (0 ABHA) क्षेत्र: *${zeroAreas}*
+
+🔻 *न्यूनतम उपलब्धि वाली इकाइयाँ:*
+${worstUnits}
+
+🔗 *पोर्टल:* https://ramkp007-ctrl.github.io/asha-ayodhya/portal.html`;
+    }
+
+    // Tabs
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => {
+          b.classList.remove("active", "border-emerald-700", "text-emerald-900", "font-bold");
+          b.classList.add("border-transparent", "text-slate-600", "font-semibold");
+        });
+        btn.classList.add("active", "border-emerald-700", "text-emerald-900", "font-bold");
+        btn.classList.remove("border-transparent", "text-slate-600", "font-semibold");
+        document.querySelectorAll(".tab-panel").forEach(p => p.classList.add("hidden"));
+        document.getElementById(btn.dataset.tab).classList.remove("hidden");
+      });
+    });
+
+    document.getElementById("waShareBtn").addEventListener("click", () => {
+      document.getElementById("waTextBox").value = currentWaMsg;
+      document.getElementById("openWaLink").href = `https://wa.me/?text=${encodeURIComponent(currentWaMsg)}`;
+      document.getElementById("waModal").classList.remove("hidden");
+    });
+
+    document.getElementById("copyWaBtn").addEventListener("click", () => {
+      navigator.clipboard.writeText(document.getElementById("waTextBox").value);
+      alert("संदेश कॉपी हो गया!");
+    });
+
+    window.exportSheet = (rows, name) => {
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), name);
+      XLSX.writeFile(wb, `${name}_${document.getElementById("dateFilter").value}.xlsx`);
+    };
+
+    document.getElementById("exportBtn").addEventListener("click", () => {
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(window.lastUnitRows), "1_Unit_Summary");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(window.lastAreaExport), "2_ASHA_Areas_Detail");
+      XLSX.writeFile(wb, `NHM_Ayodhya_ABHA_Report_${document.getElementById("dateFilter").value}.xlsx`);
+    });
+
+    loadAbhaData();
+  </script>
+</body>
+</html>
