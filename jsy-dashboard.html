@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JSY भुगतान एवं सत्यापन डैशबोर्ड — NHM अयोध्या</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans antialiased">
+
+  <!-- Top Header -->
+  <header class="bg-slate-900 text-white sticky top-0 z-30 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+      <div class="flex items-center gap-3">
+        <a href="portal.html" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold border border-slate-700">← Command Hub</a>
+        <div>
+          <h1 class="text-base font-bold">NHM अयोध्या — JSY भुगतान एवं सत्यापन पाइपलाइन</h1>
+          <p id="officerMeta" class="text-[11px] text-slate-400">लोड हो रहा है...</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="exportJsyBtn" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg">Excel रिपोर्ट</button>
+        <button id="logoutBtn" class="px-3 py-1.5 bg-slate-800 hover:bg-red-800 text-xs rounded-lg border border-slate-700">लॉगआउट</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-5 space-y-5">
+
+    <!-- District Admin Excel Uploader (Visible only to DISTRICT role) -->
+    <section id="adminUploadBox" class="hidden bg-white p-4 rounded-xl border border-indigo-200 shadow-sm flex flex-wrap justify-between items-center gap-3">
+      <div>
+        <h2 class="text-xs font-bold text-indigo-950 uppercase">JSY डेटा अपडेट करें (Excel / CSV)</h2>
+        <p class="text-[11px] text-slate-500">कॉलम: Date, Block, facility_name_id, total_deliveries, pin_verified, jsy_verified, beneficiaries_registered, moic_approvals, proposals_initiated, payments_made</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <input type="file" id="jsyFileInput" accept=".xlsx,.xls,.csv" class="text-xs text-slate-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-800 file:font-semibold" />
+        <button id="uploadJsyBtn" class="px-4 py-2 bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold rounded-lg shadow">अपलोड एवं सेव करें</button>
+      </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div>
+        <label class="block text-[11px] font-semibold text-slate-500 mb-1">दिनांक / अवधि (Date)</label>
+        <select id="dateFilter" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold bg-white"></select>
+      </div>
+      <div>
+        <label class="block text-[11px] font-semibold text-slate-500 mb-1">ब्लॉक / संस्थान (Block / Hospital)</label>
+        <select id="blockFilter" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold bg-white">
+          <option value="ALL">सभी ब्लॉक एवं जिला चिकित्सालय</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[11px] font-semibold text-slate-500 mb-1">गैप फ़िल्टर (Bottleneck Stage)</label>
+        <select id="bottleneckFilter" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold bg-white">
+          <option value="ALL">सभी स्वास्थ्य केंद्र (All Facilities)</option>
+          <option value="JSY_PENDING">JSY Verification लंबित (PIN Verified > JSY Verified)</option>
+          <option value="REG_PENDING">Beneficiary Registration लंबित (JSY Verified > Registered)</option>
+          <option value="MOIC_PENDING">MOIC Approval लंबित (Registered > MOIC Approved)</option>
+          <option value="PAY_PENDING">Payment लंबित (MOIC Approved > Paid)</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- 7-Stage Pipeline Funnel KPIs -->
+    <section class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
+      <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-[10px] font-bold text-slate-500">1. कुल प्रसव</p>
+        <p id="kDel" class="text-xl font-extrabold text-slate-900 mt-1">0</p>
+      </div>
+      <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-[10px] font-bold text-sky-700">2. PIN Verified</p>
+        <p id="kPin" class="text-xl font-extrabold text-sky-800 mt-1">0</p>
+        <p id="pPin" class="text-[10px] text-slate-500">0%</p>
+      </div>
+      <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-[10px] font-bold text-teal-700">3. JSY Verified</p>
+        <p id="kJsy" class="text-xl font-extrabold text-teal-800 mt-1">0</p>
+        <p id="pJsy" class="text-[10px] text-slate-500">0%</p>
+      </div>
+      <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-[10px] font-bold text-indigo-700">4. Registered</p>
+        <p id="kReg" class="text-xl font-extrabold text-indigo-800 mt-1">0</p>
+        <p id="pReg" class="text-[10px] text-slate-500">0%</p>
+      </div>
+      <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-[10px] font-bold text-purple-700">5. MOIC Approval</p>
+        <p id="kMoic" class="text-xl font-extrabold text-purple-800 mt-1">0</p>
+        <p id="pMoic" class="text-[10px] text-slate-500">0%</p>
+      </div>
+      <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-[10px] font-bold text-amber-700">6. Proposal Initiated</p>
+        <p id="kProp" class="text-xl font-extrabold text-amber-800 mt-1">0</p>
+        <p id="pProp" class="text-[10px] text-slate-500">0%</p>
+      </div>
+      <div class="bg-white p-3 rounded-xl border-2 border-emerald-500 shadow-sm">
+        <p class="text-[10px] font-bold text-emerald-800">7. Payments Made</p>
+        <p id="kPay" class="text-xl font-extrabold text-emerald-700 mt-1">0</p>
+        <p id="pPay" class="text-[10px] font-bold text-emerald-700">0% भुगतान</p>
+      </div>
+    </section>
+
+    <!-- Funnel Chart & Block Summary -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <div class="lg:col-span-5 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <h3 class="text-xs font-bold text-slate-700 mb-3">JSY भुगतान पाइपलाइन ड्रॉप-ऑफ (Funnel)</h3>
+        <div class="h-64"><canvas id="funnelChart"></canvas></div>
+      </div>
+
+      <div class="lg:col-span-7 bg-white p-4 rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
+        <h3 class="text-xs font-bold text-slate-700 mb-3">ब्लॉक / संस्थानवार पेंडेंसी सारांश</h3>
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-slate-100 text-slate-600 border-b">
+              <th class="p-2">ब्लॉक / संस्थान</th>
+              <th class="p-2 text-right">प्रसव</th>
+              <th class="p-2 text-right">JSY Ver.</th>
+              <th class="p-2 text-right">Reg.</th>
+              <th class="p-2 text-right">MOIC App.</th>
+              <th class="p-2 text-right text-emerald-700">Paid</th>
+              <th class="p-2 text-right text-rose-700">कुल लंबित</th>
+            </tr>
+          </thead>
+          <tbody id="blockSummaryBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Facility-Wise Action Table -->
+    <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-4 border-b flex justify-between items-center">
+        <h3 class="text-xs font-bold text-slate-800 uppercase">स्वास्थ्य केंद्रवार (CHC / PHC / SC) पेंडेंसी एवं बोतलनेक पहचान</h3>
+        <input type="text" id="facSearch" placeholder="स्वास्थ्य केंद्र खोजें..." class="border border-slate-300 rounded-lg px-3 py-1.5 text-xs w-56" />
+      </div>
+      <div class="overflow-x-auto max-h-[500px]">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead class="sticky top-0 bg-slate-100 text-slate-600 border-b">
+            <tr>
+              <th class="p-2.5">ब्लॉक</th>
+              <th class="p-2.5">स्वास्थ्य केंद्र (Facility)</th>
+              <th class="p-2.5 text-right">Deliveries</th>
+              <th class="p-2.5 text-right">PIN Ver.</th>
+              <th class="p-2.5 text-right">JSY Ver.</th>
+              <th class="p-2.5 text-right">Reg.</th>
+              <th class="p-2.5 text-right">MOIC App.</th>
+              <th class="p-2.5 text-right">Proposal</th>
+              <th class="p-2.5 text-right text-emerald-700">Paid</th>
+              <th class="p-2.5">मुख्य अवरोध (Bottleneck)</th>
+            </tr>
+          </thead>
+          <tbody id="facilityBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
+      authDomain: "asha-payment.firebaseapp.com",
+      databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "asha-payment",
+      storageBucket: "asha-payment.firebasestorage.app",
+      messagingSenderId: "117935142167",
+      appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
+      measurementId: "G-43YGRC5CKL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const jsyRef = ref(db, "asha_portal_v2/jsy_portal");
+
+    // Check SSO Session from portal.html
+    const saved = sessionStorage.getItem("nhm_ayodhya_officer");
+    if (!saved) {
+      window.location.href = "portal.html";
+    }
+    const officer = JSON.parse(saved);
+    const isDistrict = officer.role === "DISTRICT";
+
+    document.getElementById("officerMeta").textContent = `${officer.name} (${officer.designation}) • ${isDistrict ? "District Access" : "Block: " + officer.block}`;
+    if (isDistrict) document.getElementById("adminUploadBox").classList.remove("hidden");
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      sessionStorage.removeItem("nhm_ayodhya_officer");
+      window.location.href = "portal.html";
+    });
+
+    let allRows = [];
+    let filteredExport = [];
+    let chartInst = null;
+
+    function formatExcelDate(val) {
+      if (typeof val === "number" && val > 30000) {
+        const d = new Date((val - 25569) * 86400 * 1000);
+        return `${String(d.getUTCDate()).padStart(2, "0")}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCFullYear()).slice(-2)}`;
+      }
+      return String(val || "").trim();
+    }
+
+    // Upload Handler (District Admin)
+    document.getElementById("uploadJsyBtn").addEventListener("click", async () => {
+      const file = document.getElementById("jsyFileInput").files[0];
+      if (!file) return alert("पहले JSY Excel/CSV फ़ाइल चुनें।");
+
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: "array" });
+      const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: 0 });
+
+      const parsed = raw.map(r => ({
+        date: formatExcelDate(r.Date || r.DATE),
+        block: String(r.Block || r.BLOCK || "").trim(),
+        facility: String(r.facility_name_id || r.FACILITY_NAME_ID || r.Facility || "").trim(),
+        del: Number(r.total_deliveries || 0),
+        pin: Number(r.pin_verified || 0),
+        jsy: Number(r.jsy_verified || 0),
+        reg: Number(r.beneficiaries_registered || 0),
+        moic: Number(r.moic_approvals || 0),
+        prop: Number(r.proposals_initiated || 0),
+        pay: Number(r.payments_made || 0)
+      })).filter(x => x.block && x.facility);
+
+      await set(jsyRef, { updatedAt: new Date().toLocaleDateString("hi-IN"), records: parsed });
+      alert(`${parsed.length} स्वास्थ्य केंद्रों का JSY डेटा सफलतापूर्वक सेव हो गया!`);
+      loadJsyData();
+    });
+
+    async function loadJsyData() {
+      const snap = await get(jsyRef);
+      if (!snap.exists()) return;
+      const data = snap.val();
+      allRows = (data.records || []).filter(r => isDistrict || r.block.toLowerCase() === String(officer.block).trim().toLowerCase());
+
+      const dates = Array.from(new Set(allRows.map(r => r.date))).sort().reverse();
+      const dSel = document.getElementById("dateFilter");
+      dSel.innerHTML = dates.map(d => `<option value="${d}">${d}</option>`).join("");
+
+      const bSel = document.getElementById("blockFilter");
+      if (!isDistrict) {
+        bSel.innerHTML = `<option value="${officer.block}">${officer.block}</option>`;
+        bSel.disabled = true;
+      } else {
+        const blocks = Array.from(new Set(allRows.map(r => r.block))).sort();
+        bSel.innerHTML = `<option value="ALL">सभी ब्लॉक एवं जिला चिकित्सालय</option>` + blocks.map(b => `<option value="${b}">${b}</option>`).join("");
+      }
+
+      dSel.onchange = renderDashboard;
+      bSel.onchange = renderDashboard;
+      document.getElementById("bottleneckFilter").onchange = renderDashboard;
+      document.getElementById("facSearch").oninput = renderDashboard;
+
+      renderDashboard();
+    }
+
+    function detectBottleneck(r) {
+      if (r.del === 0) return { code: "NONE", label: "कोई प्रसव नहीं", cls: "text-slate-400" };
+      if (r.pin > r.jsy) return { code: "JSY_PENDING", label: `JSY Verify लंबित (${r.pin - r.jsy})`, cls: "bg-teal-100 text-teal-900 font-bold" };
+      if (r.jsy > r.reg) return { code: "REG_PENDING", label: `Registration लंबित (${r.jsy - r.reg})`, cls: "bg-indigo-100 text-indigo-900 font-bold" };
+      if (r.reg > r.moic) return { code: "MOIC_PENDING", label: `MOIC Approval लंबित (${r.reg - r.moic})`, cls: "bg-purple-100 text-purple-900 font-bold" };
+      if (r.moic > r.pay) return { code: "PAY_PENDING", label: `भुगतान/Proposal लंबित (${r.moic - r.pay})`, cls: "bg-rose-100 text-rose-900 font-bold" };
+      return { code: "DONE", label: "100% पूर्ण", cls: "bg-emerald-100 text-emerald-800 font-semibold" };
+    }
+
+    function renderDashboard() {
+      const selDate = document.getElementById("dateFilter").value;
+      const selBlock = document.getElementById("blockFilter").value;
+      const selBn = document.getElementById("bottleneckFilter").value;
+      const q = document.getElementById("facSearch").value.toLowerCase();
+
+      const scoped = allRows.filter(r => (!selDate || r.date === selDate) && (selBlock === "ALL" || r.block === selBlock));
+
+      let tDel = 0, tPin = 0, tJsy = 0, tReg = 0, tMoic = 0, tProp = 0, tPay = 0;
+      const blockMap = new Map();
+
+      scoped.forEach(r => {
+        tDel += r.del; tPin += r.pin; tJsy += r.jsy; tReg += r.reg; tMoic += r.moic; tProp += r.prop; tPay += r.pay;
+        if (!blockMap.has(r.block)) blockMap.set(r.block, { block: r.block, del: 0, jsy: 0, reg: 0, moic: 0, pay: 0 });
+        const b = blockMap.get(r.block);
+        b.del += r.del; b.jsy += r.jsy; b.reg += r.reg; b.moic += r.moic; b.pay += r.pay;
+      });
+
+      const pct = (n) => tDel ? `${((n / tDel) * 100).toFixed(1)}%` : "0%";
+      document.getElementById("kDel").textContent = tDel;
+      document.getElementById("kPin").textContent = tPin; document.getElementById("pPin").textContent = pct(tPin);
+      document.getElementById("kJsy").textContent = tJsy; document.getElementById("pJsy").textContent = pct(tJsy);
+      document.getElementById("kReg").textContent = tReg; document.getElementById("pReg").textContent = pct(tReg);
+      document.getElementById("kMoic").textContent = tMoic; document.getElementById("pMoic").textContent = pct(tMoic);
+      document.getElementById("kProp").textContent = tProp; document.getElementById("pProp").textContent = pct(tProp);
+      document.getElementById("kPay").textContent = tPay; document.getElementById("pPay").textContent = `${pct(tPay)} भुगतान`;
+
+      // Funnel Chart
+      if (chartInst) chartInst.destroy();
+      chartInst = new Chart(document.getElementById("funnelChart"), {
+        type: "bar",
+        data: {
+          labels: ["Deliveries", "PIN Ver.", "JSY Ver.", "Registered", "MOIC App.", "Proposal", "Paid"],
+          datasets: [{
+            data: [tDel, tPin, tJsy, tReg, tMoic, tProp, tPay],
+            backgroundColor: ["#334155", "#0284c7", "#0d9488", "#4f46e5", "#7e22ce", "#d97706", "#059669"],
+            borderRadius: 5
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      });
+
+      // Block Summary Table
+      document.getElementById("blockSummaryBody").innerHTML = Array.from(blockMap.values()).map(b => `
+        <tr class="hover:bg-slate-50">
+          <td class="p-2 font-bold text-slate-900">${b.block}</td>
+          <td class="p-2 text-right">${b.del}</td>
+          <td class="p-2 text-right">${b.jsy}</td>
+          <td class="p-2 text-right">${b.reg}</td>
+          <td class="p-2 text-right">${b.moic}</td>
+          <td class="p-2 text-right font-bold text-emerald-700">${b.pay}</td>
+          <td class="p-2 text-right font-bold text-rose-700">${Math.max(0, b.del - b.pay)}</td>
+        </tr>`).join("");
+
+      // Facility Table
+      const facRows = scoped.map(r => ({ ...r, bn: detectBottleneck(r) })).filter(r => {
+        if (selBn !== "ALL" && r.bn.code !== selBn) return false;
+        if (q && !(r.facility.toLowerCase().includes(q) || r.block.toLowerCase().includes(q))) return false;
+        return true;
+      });
+
+      filteredExport = facRows.map(({ bn, ...rest }) => ({ ...rest, Bottleneck: bn.label }));
+
+      document.getElementById("facilityBody").innerHTML = facRows.map(r => `
+        <tr class="hover:bg-slate-50">
+          <td class="p-2.5 font-semibold">${r.block}</td>
+          <td class="p-2.5 font-bold text-slate-900">${r.facility}</td>
+          <td class="p-2.5 text-right">${r.del}</td>
+          <td class="p-2.5 text-right">${r.pin}</td>
+          <td class="p-2.5 text-right">${r.jsy}</td>
+          <td class="p-2.5 text-right">${r.reg}</td>
+          <td class="p-2.5 text-right">${r.moic}</td>
+          <td class="p-2.5 text-right">${r.prop}</td>
+          <td class="p-2.5 text-right font-bold text-emerald-700">${r.pay}</td>
+          <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[11px] ${r.bn.cls}">${r.bn.label}</span></td>
+        </tr>`).join("");
+    }
+
+    document.getElementById("exportJsyBtn").addEventListener("click", () => {
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(filteredExport), "JSY_Pipeline_Gap");
+      XLSX.writeFile(wb, `NHM_Ayodhya_JSY_Report_${document.getElementById("dateFilter").value}.xlsx`);
+    });
+
+    loadJsyData();
+  </script>
+</body>
+</html>
