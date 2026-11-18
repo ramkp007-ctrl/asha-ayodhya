@@ -3,96 +3,125 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin - आशा डेटा अपलोड एवं PIN प्रबंधन (NHM अयोध्या)</title>
+  <title>Master Admin - NHM अयोध्या डेटा अपलोड एवं प्रबंधन</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen">
 
-  <header class="bg-teal-700 text-white shadow-md">
-    <div class="max-w-5xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
+  <header class="bg-slate-900 text-white shadow-md">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
       <div>
-        <h1 class="text-xl font-bold">आशा भुगतान डेटा अपलोडर (Admin Panel)</h1>
-        <p class="text-xs text-teal-100">राष्ट्रीय स्वास्थ्य मिशन (NHM), अयोध्या • Duplicate ID Separation &amp; Exact Excel SUM</p>
+        <h1 class="text-lg md:text-xl font-bold">NHM अयोध्या — Master Data Uploader &amp; Control</h1>
+        <p class="text-xs text-slate-300">ASHA Payment, JSY Pipeline, ABHA Progress एवं अधिकारी एक्सेस प्रबंधन</p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <a href="officers-admin.html" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-xs font-bold rounded-lg border border-indigo-400 shadow-sm">
+        <a href="officers-admin.html" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-xs font-bold rounded-lg">
           👮 अधिकारी प्रबंधन
         </a>
-        <a href="dashboard.html" class="px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-xs font-semibold rounded-lg border border-teal-500">
-          📊 समीक्षा डैशबोर्ड
-        </a>
-        <a href="index.html" class="px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-xs font-semibold rounded-lg border border-teal-500">
-          ASHA पोर्टल →
+        <a href="portal.html" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-xs font-bold rounded-lg">
+          🏛️ अधिकारी पोर्टल (Command Hub) →
         </a>
       </div>
     </div>
   </header>
 
-  <main class="max-w-5xl mx-auto px-4 py-6 space-y-6">
-    <!-- Section 1: Upload & Verify -->
-    <section class="bg-white p-6 rounded-xl shadow border border-teal-200 space-y-4">
+  <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+
+    <!-- SECTION 1: ASHA PAYMENT UPLOADER -->
+    <section class="bg-white p-6 rounded-xl shadow-sm border border-teal-200 space-y-4">
       <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
-        <h2 class="text-base font-bold text-teal-800">1. Excel (.xlsx) या CSV फ़ाइल अपलोड करें</h2>
+        <h2 class="text-base font-bold text-teal-900">1. आशा प्रोत्साहन राशि (ASHA Payment) Excel / CSV अपलोड</h2>
         <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded font-semibold">
-          ✅ 1 ID पर 2 ASHA होने पर अलग-अलग रिकॉर्ड सुरक्षित
+          ✅ 1 ID पर 2 ASHA अलग-अलग सुरक्षित
         </span>
       </div>
 
       <div class="flex flex-wrap items-center gap-3">
         <input type="file" id="csvFileInput" accept=".xlsx,.xls,.csv" multiple
-          class="block text-sm text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100" />
-        <input type="text" id="inspectAshaId" value="2404031" placeholder="जाँचने के लिए ASHA ID (उदा. 2404031)"
-          class="px-3 py-2 border border-slate-300 rounded-lg text-xs w-52 focus:border-sky-600 focus:outline-none" />
-        <button id="inspectBtn" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-lg shadow">
-          🔍 इस ID का कुल योग जाँचें
+          class="block text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-800 hover:file:bg-teal-100" />
+        <input type="text" id="inspectAshaId" value="2404031" placeholder="ASHA ID जाँचें (उदा. 2404031)"
+          class="px-3 py-2 border border-slate-300 rounded-lg text-xs w-48" />
+        <button id="inspectBtn" class="px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-lg">
+          🔍 ID योग जाँचें
         </button>
       </div>
 
       <div class="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-100">
-        <button id="uploadCsvBtn" class="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold rounded-lg shadow">
-          अपलोड और सेव करें
+        <button id="uploadCsvBtn" class="px-5 py-2 bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold rounded-lg shadow">
+          ASHA डेटा अपलोड और सेव करें
         </button>
-        <button id="clearDbBtn" class="px-3 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 ml-auto">
-          भुगतान डेटा रीसेट करें (Officers सुरक्षित)
+        <button id="clearDbBtn" class="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 ml-auto">
+          ASHA भुगतान डेटा रीसेट करें
         </button>
       </div>
 
-      <div id="uploadStatus" class="p-3 bg-slate-50 rounded-lg text-xs font-medium text-slate-700 border border-slate-200 leading-relaxed">
+      <div id="uploadStatus" class="p-3 bg-slate-50 rounded-lg text-xs font-medium text-slate-700 border border-slate-200">
         डेटाबेस स्थिति जाँची जा रही है...
       </div>
 
-      <!-- Verification Box -->
       <div id="auditPreviewBox" class="hidden p-4 bg-emerald-50/70 border border-emerald-300 rounded-xl space-y-2 text-xs">
-        <div id="auditSummary" class="text-slate-900 font-semibold leading-relaxed"></div>
-        <div id="auditTableWrap" class="bg-white p-3 rounded-lg border border-emerald-200 overflow-x-auto max-h-80"></div>
+        <div id="auditSummary" class="text-slate-900 font-semibold"></div>
+        <div id="auditTableWrap" class="bg-white p-3 rounded-lg border border-emerald-200 overflow-x-auto max-h-72"></div>
       </div>
     </section>
 
-    <!-- Section 2: Reset Forgotten 6-Digit ASHA PIN -->
-    <section class="bg-white p-6 rounded-xl shadow border border-amber-200 space-y-4">
-      <div class="flex flex-wrap justify-between items-center gap-2 border-b border-amber-100 pb-3">
-        <h2 class="text-base font-bold text-amber-800">2. भूला हुआ 6-अंकों का ASHA PIN रीसेट करें (डिफ़ॉल्ट 123456 पर)</h2>
-        <span class="text-xs bg-amber-50 text-amber-700 px-2.5 py-1 rounded font-semibold">
-          🔑 BCPM / Admin सहायता
-        </span>
-      </div>
+    <!-- SECTION 2 & 3: JSY PAYMENT & ABHA PROGRESS UPLOADERS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- JSY Uploader -->
+      <section class="bg-white p-6 rounded-xl shadow-sm border border-indigo-200 space-y-4">
+        <div class="border-b pb-3">
+          <h2 class="text-base font-bold text-indigo-950">2. JSY भुगतान पाइपलाइन डेटा अपलोड</h2>
+          <p class="text-[11px] text-slate-500 mt-0.5">कॉलम: Date, Block, facility_name_id, total_deliveries, pin_verified, jsy_verified, beneficiaries_registered, moic_approvals, proposals_initiated, payments_made</p>
+        </div>
+        <input type="file" id="jsyFileInput" accept=".xlsx,.xls,.csv"
+          class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-800" />
+        <button id="uploadJsyBtn" class="w-full py-2.5 bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold rounded-lg shadow">
+          JSY डेटा अपलोड करें
+        </button>
+        <div id="jsyStatus" class="p-2.5 bg-slate-50 rounded-lg text-xs text-slate-700 border border-slate-200">
+          JSY डेटाबेस जाँचा जा रहा है...
+        </div>
+      </section>
 
-      <div class="flex flex-wrap items-center gap-3">
-        <input type="text" id="resetPinAshaId" placeholder="ASHA ID दर्ज करें (उदा. 2404031)"
-          class="px-3.5 py-2 border border-slate-300 rounded-lg text-sm w-64 focus:border-amber-600 focus:outline-none" />
-        <button id="resetPinBtn" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold rounded-lg shadow-sm">
-          PIN रीसेट करें (123456)
+      <!-- ABHA Progress Uploader -->
+      <section class="bg-white p-6 rounded-xl shadow-sm border border-emerald-200 space-y-4">
+        <div class="border-b pb-3">
+          <h2 class="text-base font-bold text-emerald-950">3. ABHA ID / Scan &amp; Share प्रगति अपलोड</h2>
+          <p class="text-[11px] text-slate-500 mt-0.5">कॉलम: Date, Block, Facility (या Sub_Center), Target, ABHA_Created, Scan_Share_Count</p>
+        </div>
+        <input type="file" id="abhaFileInput" accept=".xlsx,.xls,.csv"
+          class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-800" />
+        <button id="uploadAbhaBtn" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow">
+          ABHA डेटा अपलोड करें
+        </button>
+        <div id="abhaStatus" class="p-2.5 bg-slate-50 rounded-lg text-xs text-slate-700 border border-slate-200">
+          ABHA डेटाबेस जाँचा जा रहा है...
+        </div>
+      </section>
+    </div>
+
+    <!-- SECTION 4: RESET FORGOTTEN 6-DIGIT ASHA PIN -->
+    <section class="bg-white p-5 rounded-xl shadow-sm border border-amber-200 flex flex-wrap justify-between items-center gap-4">
+      <div>
+        <h2 class="text-sm font-bold text-amber-900">4. भूला हुआ 6-अंकों का ASHA PIN रीसेट करें (डिफ़ॉल्ट 123456)</h2>
+        <p class="text-xs text-slate-500">आशा कार्यकर्ता द्वारा अपना PIN भूल जाने पर यहाँ से रीसेट करें</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <input type="text" id="resetPinAshaId" placeholder="ASHA ID दर्ज करें"
+          class="px-3 py-2 border border-slate-300 rounded-lg text-xs w-48" />
+        <button id="resetPinBtn" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg">
+          PIN रीसेट करें
         </button>
       </div>
-
-      <div id="pinResetStatus" class="hidden p-3 rounded-lg text-xs font-semibold"></div>
+      <div id="pinResetStatus" class="hidden w-full p-2.5 rounded-lg text-xs font-semibold"></div>
     </section>
+
   </main>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getDatabase, ref, update, get, remove, child } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+    import { getDatabase, ref, update, set, get, remove, child } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
@@ -108,14 +137,22 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const rootRef = ref(db, "asha_portal_v2");
+    const jsyRef = ref(db, "asha_portal_v2/jsy_portal");
+    const abhaRef = ref(db, "asha_portal_v2/abha_portal");
 
     function getCol(row, candidates) {
       for (const key of candidates) {
-        if (row[key] !== undefined && String(row[key]).trim() !== "") {
-          return String(row[key]).trim();
-        }
+        if (row[key] !== undefined && String(row[key]).trim() !== "") return String(row[key]).trim();
       }
       return "";
+    }
+
+    function formatExcelDate(val) {
+      if (typeof val === "number" && val > 30000) {
+        const d = new Date((val - 25569) * 86400 * 1000);
+        return `${String(d.getUTCDate()).padStart(2, "0")}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCFullYear()).slice(-2)}`;
+      }
+      return String(val || "").trim();
     }
 
     function parseAmount(raw) {
@@ -126,34 +163,18 @@
     function normalizeMonth(raw) {
       const str = String(raw || "").trim();
       if (!str) return "";
-
       if (/^\d{5}(\.\d+)?$/.test(str)) {
         const serial = Math.floor(Number(str));
         if (serial > 30000 && serial < 70000) {
-          const utcDays = serial - 25569;
-          const date = new Date(utcDays * 86400 * 1000);
-          const mm = String(date.getUTCMonth() + 1).padStart(2, "0");
-          const yyyy = date.getUTCFullYear();
-          return `${mm}-${yyyy}`;
+          const date = new Date((serial - 25569) * 86400 * 1000);
+          return `${String(date.getUTCMonth() + 1).padStart(2, "0")}-${date.getUTCFullYear()}`;
         }
       }
-
       const map = { jan:"01", feb:"02", mar:"03", apr:"04", may:"05", jun:"06", jul:"07", aug:"08", sep:"09", oct:"10", nov:"11", dec:"12" };
       const m1 = str.match(/^([A-Za-z]{3})[-/\s](\d{2,4})$/);
       if (m1 && map[m1[1].toLowerCase()]) {
         const yy = m1[2].length === 2 ? `20${m1[2]}` : m1[2];
         return `${map[m1[1].toLowerCase()]}-${yy}`;
-      }
-      const m2 = str.match(/^(?:\d{1,2}[-/\s])?(\d{2,4})[-/\s]([A-Za-z]{3})$/) || str.match(/^\d{1,2}[-/\s]([A-Za-z]{3})[-/\s](\d{2,4})$/);
-      if (m2) {
-        if (map[m2[2]?.toLowerCase()]) {
-          const yy = m2[1].length === 2 ? `20${m2[1]}` : m2[1];
-          return `${map[m2[2].toLowerCase()]}-${yy}`;
-        }
-        if (map[m2[1]?.toLowerCase()]) {
-          const yy = m2[2].length === 2 ? `20${m2[2]}` : m2[2];
-          return `${map[m2[1].toLowerCase()]}-${yy}`;
-        }
       }
       const mDate = str.match(/^\d{1,2}[-/](\d{1,2})[-/](\d{4})$/);
       if (mDate) return `${mDate[1].padStart(2, "0")}-${mDate[2]}`;
@@ -162,14 +183,8 @@
       return str;
     }
 
-    function safeKey(str) {
-      return String(str || "").replace(/[.#$\[\]\/]/g, "_").trim().toUpperCase();
-    }
-
-    function normalizeIdentityName(name) {
-      return String(name || "").replace(/\s+/g, " ").trim().toUpperCase();
-    }
-
+    function safeKey(str) { return String(str || "").replace(/[.#$\[\]\/]/g, "_").trim().toUpperCase(); }
+    function normalizeIdentityName(name) { return String(name || "").replace(/\s+/g, " ").trim().toUpperCase(); }
     function toWorkerList(entry) {
       if (!entry || typeof entry !== "object") return [];
       if (Array.isArray(entry)) return entry.filter(w => w && typeof w === "object");
@@ -181,47 +196,29 @@
       const buffer = await file.arrayBuffer();
       const workbook = XLSX.read(buffer, { type: "array", raw: true });
       const firstSheetName = workbook.SheetNames[0];
-
-      statusEl.textContent = `फ़ाइल "${file.name}" की मुख्य शीट "${firstSheetName}" पढ़ी जा रही है...`;
+      if (statusEl) statusEl.textContent = `फ़ाइल "${file.name}" की शीट "${firstSheetName}" पढ़ी जा रही है...`;
       await new Promise(r => setTimeout(r, 15));
-
-      const sheet = workbook.Sheets[firstSheetName];
-      const jsonRows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-      const fileMonthFallback = normalizeMonth(file.name.replace(/\.[^.]+$/, ""));
-      const sheetMonthFallback = normalizeMonth(firstSheetName);
-      const fallbackMonth = /^\d{2}-\d{4}$/.test(sheetMonthFallback) ? sheetMonthFallback : fileMonthFallback;
-
-      const allRows = [];
-      for (const r of jsonRows) {
-        const normalizedObj = {};
-        for (const [k, v] of Object.entries(r)) {
-          normalizedObj[String(k).trim().toUpperCase()] = v;
-        }
-        if (!normalizedObj["MONTH"] && !normalizedObj["PAY_MONTH"] && !normalizedObj["BILL_MONTH"]) {
-          normalizedObj["MONTH"] = fallbackMonth;
-        }
-        allRows.push(normalizedObj);
-      }
-      return allRows;
+      const jsonRows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheetName], { defval: "" });
+      const fallbackMonth = normalizeMonth(firstSheetName);
+      return jsonRows.map(r => {
+        const obj = {};
+        for (const [k, v] of Object.entries(r)) obj[String(k).trim().toUpperCase()] = v;
+        if (!obj["MONTH"] && !obj["PAY_MONTH"] && !obj["BILL_MONTH"]) obj["MONTH"] = fallbackMonth;
+        return obj;
+      });
     }
 
     function processRowsIntoData(combinedRows, existing) {
       const headsList = [...(existing.heads || [])];
       const headIndexMap = new Map();
-      headsList.forEach((item, idx) => {
-        headIndexMap.set(`${item.p}|||${item.h}`, idx);
-      });
-
+      headsList.forEach((item, idx) => headIndexMap.set(`${item.p}|||${item.h}`, idx));
       const monthsSet = new Set((existing.months || []).map(normalizeMonth).filter(Boolean));
-
       const workerBuckets = new Map();
+
       for (const [idKey, entry] of Object.entries(existing.workers || {})) {
         const list = toWorkerList(entry);
         const nameMap = new Map();
-        list.forEach(w => {
-          const nKey = normalizeIdentityName(w.n) || "UNKNOWN";
-          nameMap.set(nKey, JSON.parse(JSON.stringify(w)));
-        });
+        list.forEach(w => nameMap.set(normalizeIdentityName(w.n) || "UNKNOWN", JSON.parse(JSON.stringify(w))));
         if (nameMap.size > 0) workerBuckets.set(idKey, nameMap);
       }
 
@@ -238,9 +235,7 @@
             const cleanMonthMap = {};
             for (const [rawM, val] of Object.entries(w.p[hIdx])) {
               const normM = normalizeMonth(rawM);
-              if (!uploadingMonths.has(normM)) {
-                cleanMonthMap[normM] = Number(val) || 0;
-              }
+              if (!uploadingMonths.has(normM)) cleanMonthMap[normM] = Number(val) || 0;
             }
             w.p[hIdx] = cleanMonthMap;
           }
@@ -251,15 +246,11 @@
         const rawId = getCol(row, ["ASHA_ID", "ASHA ID", "ASHAID", "ID"]);
         const idKey = safeKey(rawId);
         if (!idKey || idKey.includes("TOTAL")) continue;
-
         const rawName = getCol(row, ["ASHA_NAME", "ASHA NAME", "NAME"]).replace(/\s+/g, " ").trim();
         if (rawName.toUpperCase().includes("TOTAL")) continue;
-
         const nameKey = normalizeIdentityName(rawName) || "UNKNOWN";
-
         const month = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
         if (month) monthsSet.add(month);
-
         const program = getCol(row, ["PROGRAM NAME", "PROGRAM", "SCHEME", "PROG_NAME"]) || "Other";
         const head = getCol(row, ["HEAD", "HEAD NAME", "INCENTIVE HEAD", "ACTIVITY"]).replace(/\s+/g, " ");
         if (!head || head.toUpperCase() === "TOTAL") continue;
@@ -272,37 +263,19 @@
           headsList.push({ p: program, h: head });
         }
 
-        if (!workerBuckets.has(idKey)) {
-          workerBuckets.set(idKey, new Map());
-        }
+        if (!workerBuckets.has(idKey)) workerBuckets.set(idKey, new Map());
         const nameMap = workerBuckets.get(idKey);
-
-        if (!nameMap.has(nameKey) && nameKey !== "UNKNOWN" && nameMap.has("UNKNOWN") && nameMap.size === 1) {
-          const existingUnknown = nameMap.get("UNKNOWN");
-          existingUnknown.n = rawName;
-          nameMap.delete("UNKNOWN");
-          nameMap.set(nameKey, existingUnknown);
-        }
-
         let w = nameMap.get(nameKey);
         if (!w) {
           w = {
-            id: rawId,
-            n: rawName,
+            id: rawId, n: rawName,
             b: getCol(row, ["BLOCK", "BLOCK NAME"]),
             s: getCol(row, ["SC", "SUB CENTER", "SUB_CENTER", "SUBCENTER"]),
             v: getCol(row, ["VILLAGE", "VILLAGE NAME"]),
-            t: 0,
-            p: {}
+            t: 0, p: {}
           };
           nameMap.set(nameKey, w);
-        } else {
-          if (!w.n && rawName) w.n = rawName;
-          if (!w.b) w.b = getCol(row, ["BLOCK", "BLOCK NAME"]);
-          if (!w.s) w.s = getCol(row, ["SC", "SUB CENTER", "SUB_CENTER", "SUBCENTER"]);
-          if (!w.v) w.v = getCol(row, ["VILLAGE", "VILLAGE NAME"]);
         }
-
         const amount = parseAmount(getCol(row, ["AMOUNT", "PAID_AMOUNT", "NET_AMOUNT", "TOTAL"]));
         if (amount > 0 && month) {
           if (!w.p) w.p = {};
@@ -312,215 +285,150 @@
       }
 
       const finalWorkers = {};
-      let totalAllWorkers = 0;
-      let totalIndividualAshas = 0;
-      let duplicateIdCount = 0;
-
+      let totalAllWorkers = 0, totalIndividualAshas = 0, duplicateIdCount = 0;
       for (const [idKey, nameMap] of workerBuckets.entries()) {
         const list = Array.from(nameMap.values());
         list.forEach(w => {
           let grandTotal = 0;
           if (w.p) {
             for (const hIdx of Object.keys(w.p)) {
-              for (const m of Object.keys(w.p[hIdx])) {
-                grandTotal += Number(w.p[hIdx][m]) || 0;
-              }
+              for (const m of Object.keys(w.p[hIdx])) grandTotal += Number(w.p[hIdx][m]) || 0;
             }
           }
           w.t = grandTotal;
           totalAllWorkers += grandTotal;
           totalIndividualAshas++;
         });
-
-        if (list.length > 1) {
-          duplicateIdCount++;
-          finalWorkers[idKey] = list;
-        } else if (list.length === 1) {
-          finalWorkers[idKey] = list[0];
-        }
+        if (list.length > 1) { duplicateIdCount++; finalWorkers[idKey] = list; }
+        else if (list.length === 1) finalWorkers[idKey] = list[0];
       }
 
-      return {
-        payload: {
-          heads: headsList,
-          months: Array.from(monthsSet).sort(),
-          workers: finalWorkers
-        },
-        totalAllWorkers,
-        totalIndividualAshas,
-        duplicateIdCount
-      };
+      return { payload: { heads: headsList, months: Array.from(monthsSet).sort(), workers: finalWorkers }, totalAllWorkers, totalIndividualAshas, duplicateIdCount };
     }
 
     async function refreshStatus() {
-      const statusEl = document.getElementById("uploadStatus");
       const snap = await get(rootRef);
+      const statusEl = document.getElementById("uploadStatus");
       if (snap.exists()) {
         const d = snap.val();
         let totalAshas = 0;
-        let dupIds = 0;
-        for (const entry of Object.values(d.workers || {})) {
-          const list = toWorkerList(entry);
-          totalAshas += list.length;
-          if (list.length > 1) dupIds++;
-        }
-        const hCount = (d.heads || []).length;
-        const mList = Array.from(new Set((d.months || []).map(normalizeMonth))).sort().join(", ");
+        for (const entry of Object.values(d.workers || {})) totalAshas += toWorkerList(entry).length;
         const offCount = Object.keys(d.officers || {}).length;
-        statusEl.innerHTML = `📊 <strong>वर्तमान डेटाबेस:</strong> ${totalAshas.toLocaleString()} आशा कार्यकर्ता (${dupIds} डुप्लीकेट ID अलग-अलग सेव) • ${hCount} प्रोग्राम/मद • 👮 ${offCount} पंजीकृत अधिकारी • उपलब्ध माह: <strong>${mList || "कोई नहीं"}</strong>`;
-      } else {
-        statusEl.textContent = "अभी डेटाबेस खाली है। नीचे से अपनी Excel (.xlsx) या CSV फ़ाइल चुनकर अपलोड करें।";
+        statusEl.innerHTML = `📊 <strong>ASHA डेटाबेस:</strong> ${totalAshas.toLocaleString()} आशा • 👮 ${offCount} अधिकारी • माह: <strong>${(d.months || []).join(", ") || "-"}</strong>`;
+
+        const jsyData = d.jsy_portal;
+        document.getElementById("jsyStatus").innerHTML = jsyData
+          ? `✅ <strong>JSY डेटा सक्रिय:</strong> ${(jsyData.records || []).length} केंद्र (अपडेट: ${jsyData.updatedAt || "-"})`
+          : "अभी कोई JSY डेटा अपलोड नहीं है।";
+
+        const abhaData = d.abha_portal;
+        document.getElementById("abhaStatus").innerHTML = abhaData
+          ? `✅ <strong>ABHA डेटा सक्रिय:</strong> ${(abhaData.records || []).length} इकाइयाँ (अपडेट: ${abhaData.updatedAt || "-"})`
+          : "अभी कोई ABHA डेटा अपलोड नहीं है।";
       }
     }
 
+    // 1. ASHA Upload
+    document.getElementById("uploadCsvBtn").addEventListener("click", async () => {
+      const files = document.getElementById("csvFileInput").files;
+      const statusEl = document.getElementById("uploadStatus");
+      if (!files.length) return alert("पहले ASHA Excel/CSV फ़ाइल चुनें।");
+      const existingSnap = await get(rootRef);
+      const existing = existingSnap.exists() ? existingSnap.val() : { heads: [], months: [], workers: {} };
+      let combinedRows = [];
+      for (const file of files) combinedRows = combinedRows.concat(await readPrimarySheetOnly(file, statusEl));
+      const { payload, totalAllWorkers, totalIndividualAshas } = processRowsIntoData(combinedRows, existing);
+      await update(rootRef, payload);
+      statusEl.innerHTML = `✅ <strong>ASHA अपलोड सफल!</strong> ${totalIndividualAshas.toLocaleString()} आशा • कुल राशि: ₹${Math.round(totalAllWorkers).toLocaleString("en-IN")}`;
+    });
+
+    // Inspect ASHA ID
     document.getElementById("inspectBtn").addEventListener("click", async () => {
       const files = document.getElementById("csvFileInput").files;
       const targetId = document.getElementById("inspectAshaId").value.trim();
       const statusEl = document.getElementById("uploadStatus");
-
-      if (!files.length) {
-        statusEl.textContent = "⚠️ कृपया पहले अपनी Excel (.xlsx) फ़ाइल चुनें।";
-        return;
-      }
-
+      if (!files.length) return alert("पहले फ़ाइल चुनें।");
       let combinedRows = [];
-      for (const file of files) {
-        const rows = await readPrimarySheetOnly(file, statusEl);
-        combinedRows = combinedRows.concat(rows);
-      }
-
+      for (const file of files) combinedRows = combinedRows.concat(await readPrimarySheetOnly(file, statusEl));
       const { payload } = processRowsIntoData(combinedRows, { heads: [], months: [], workers: {} });
-      const entry = payload.workers[safeKey(targetId)];
-      const matchedList = toWorkerList(entry);
-
-      if (matchedList.length === 0) {
-        document.getElementById("auditSummary").textContent = `ID "${targetId}" फ़ाइल में नहीं मिली।`;
-        document.getElementById("auditTableWrap").innerHTML = "";
-        document.getElementById("auditPreviewBox").classList.remove("hidden");
-        return;
-      }
-
-      let summaryHtml = matchedList.length > 1
-        ? `<div class="text-amber-800 bg-amber-100 px-2.5 py-1.5 rounded mb-2">⚠️ इस ID (<strong>${targetId}</strong>) पर <strong>${matchedList.length} अलग-अलग ASHA</strong> पाई गईं:</div>`
-        : "";
-
-      let tablesHtml = "";
-      matchedList.forEach((w, idx) => {
-        const monthTotals = {};
-        let rowsHtml = "";
-        for (const [hIdx, mObj] of Object.entries(w.p || {})) {
-          const meta = payload.heads[Number(hIdx)];
-          for (const [m, amt] of Object.entries(mObj)) {
-            monthTotals[m] = (monthTotals[m] || 0) + amt;
-            rowsHtml += `<tr><td class="p-1.5 border">${m}</td><td class="p-1.5 border">${meta?.p || ""}</td><td class="p-1.5 border">${meta?.h || ""}</td><td class="p-1.5 border text-right font-bold text-teal-800">₹${amt.toLocaleString("en-IN")}</td></tr>`;
-          }
-        }
-        const monthSummaryStr = Object.entries(monthTotals).map(([m, t]) => `${m}: ₹${t.toLocaleString("en-IN")}`).join(" | ");
-        summaryHtml += `<div>✅ <strong>${idx + 1}. ${w.n}</strong> (ब्लॉक: ${w.b || "-"}, SC: ${w.s || "-"}) • माहवार योग: <strong>${monthSummaryStr || "₹0"}</strong> • कुल योग: <strong>₹${w.t.toLocaleString("en-IN")}</strong></div>`;
-
-        tablesHtml += `
-          <div class="mb-3">
-            <div class="font-bold text-teal-800 mb-1">${idx + 1}. ${w.n} (कुल: ₹${w.t.toLocaleString("en-IN")})</div>
-            <table class="w-full text-left border-collapse text-[11px]">
-              <thead><tr class="bg-slate-100"><th class="p-1.5 border">माह</th><th class="p-1.5 border">Program</th><th class="p-1.5 border">Head</th><th class="p-1.5 border text-right">राशि (₹)</th></tr></thead>
-              <tbody>${rowsHtml}</tbody>
-            </table>
-          </div>`;
-      });
-
-      document.getElementById("auditSummary").innerHTML = summaryHtml;
-      document.getElementById("auditTableWrap").innerHTML = tablesHtml;
+      const matchedList = toWorkerList(payload.workers[safeKey(targetId)]);
+      document.getElementById("auditSummary").textContent = matchedList.length
+        ? matchedList.map(w => `${w.n} (${w.b}): ₹${w.t.toLocaleString("en-IN")}`).join(" | ")
+        : `ID "${targetId}" फ़ाइल में नहीं मिली।`;
       document.getElementById("auditPreviewBox").classList.remove("hidden");
-      statusEl.textContent = "✅ मिलान पूरा हुआ! अब 'अपलोड और सेव करें' बटन दबाएं।";
     });
 
-    document.getElementById("uploadCsvBtn").addEventListener("click", async () => {
-      const files = document.getElementById("csvFileInput").files;
-      const statusEl = document.getElementById("uploadStatus");
+    // 2. JSY Upload
+    document.getElementById("uploadJsyBtn").addEventListener("click", async () => {
+      const file = document.getElementById("jsyFileInput").files[0];
+      if (!file) return alert("पहले JSY Excel/CSV फ़ाइल चुनें।");
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: "array" });
+      const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: 0 });
+      const parsed = raw.map(r => ({
+        date: formatExcelDate(r.Date || r.DATE),
+        block: String(r.Block || r.BLOCK || "").trim(),
+        facility: String(r.facility_name_id || r.FACILITY_NAME_ID || r.Facility || "").trim(),
+        del: Number(r.total_deliveries || 0),
+        pin: Number(r.pin_verified || 0),
+        jsy: Number(r.jsy_verified || 0),
+        reg: Number(r.beneficiaries_registered || 0),
+        moic: Number(r.moic_approvals || 0),
+        prop: Number(r.proposals_initiated || 0),
+        pay: Number(r.payments_made || 0)
+      })).filter(x => x.block && x.facility);
 
-      if (!files.length) {
-        statusEl.textContent = "⚠️ कृपया पहले अपनी Excel (.xlsx) या CSV फ़ाइल चुनें।";
-        return;
-      }
-
-      const t0 = performance.now();
-      try {
-        statusEl.textContent = "मौजूदा डेटाबेस लोड किया जा रहा है...";
-        const existingSnap = await get(rootRef);
-        const existing = existingSnap.exists() ? existingSnap.val() : { heads: [], months: [], workers: {} };
-
-        let combinedRows = [];
-        for (const file of files) {
-          const rows = await readPrimarySheetOnly(file, statusEl);
-          combinedRows = combinedRows.concat(rows);
-        }
-
-        statusEl.textContent = `कुल ${combinedRows.length.toLocaleString()} पंक्तियों की गणना की जा रही है...`;
-        await new Promise(r => setTimeout(r, 20));
-
-        const { payload, totalAllWorkers, totalIndividualAshas, duplicateIdCount } = processRowsIntoData(combinedRows, existing);
-
-        statusEl.textContent = `Firebase पर सेव हो रहा है (${payload.heads.length} मद, ${totalIndividualAshas} आशा)...`;
-        // update() का उपयोग किया गया है ताकि 'officers' नोड सुरक्षित रहे
-        await update(rootRef, payload);
-
-        const sec = ((performance.now() - t0) / 1000).toFixed(1);
-        statusEl.innerHTML =
-          `✅ <strong>अपलोड सफल (${sec} सेकंड)!</strong><br>` +
-          `कुल आशा: <strong>${totalIndividualAshas.toLocaleString()}</strong> (${duplicateIdCount} डुप्लीकेट ID अलग-अलग सेव) • कुल डेटाबेस योग: <strong>₹${Math.round(totalAllWorkers).toLocaleString("en-IN")}</strong> • माह: <strong>${payload.months.join(", ")}</strong>`;
-      } catch (err) {
-        console.error(err);
-        statusEl.textContent = `❌ त्रुटि: ${err.message}`;
-      }
+      await set(jsyRef, { updatedAt: new Date().toLocaleDateString("hi-IN"), records: parsed });
+      refreshStatus();
+      alert(`${parsed.length} स्वास्थ्य केंद्रों का JSY डेटा सफलतापूर्वक सेव हो गया!`);
     });
 
+    // 3. ABHA Upload
+    document.getElementById("uploadAbhaBtn").addEventListener("click", async () => {
+      const file = document.getElementById("abhaFileInput").files[0];
+      if (!file) return alert("पहले ABHA Excel/CSV फ़ाइल चुनें।");
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: "array" });
+      const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: 0 });
+      const parsed = raw.map(r => ({
+        date: formatExcelDate(r.Date || r.DATE || new Date().toLocaleDateString("hi-IN")),
+        block: String(r.Block || r.BLOCK || "").trim(),
+        facility: String(r.Facility || r.FACILITY || r.Sub_Center || r.SC || "").trim(),
+        target: Number(r.Target || r.TARGET || 0),
+        created: Number(r.ABHA_Created || r.ABHA_CREATED || r.Created || 0),
+        scanShare: Number(r.Scan_Share_Count || r.SCAN_SHARE || 0)
+      })).filter(x => x.block);
+
+      await set(abhaRef, { updatedAt: new Date().toLocaleDateString("hi-IN"), records: parsed });
+      refreshStatus();
+      alert(`${parsed.length} इकाइयों का ABHA प्रगति डेटा सेव हो गया!`);
+    });
+
+    // Reset ASHA PIN
     document.getElementById("resetPinBtn").addEventListener("click", async () => {
       const rawId = document.getElementById("resetPinAshaId").value.trim();
-      const statusBox = document.getElementById("pinResetStatus");
-      statusBox.classList.remove("hidden");
-
-      if (!rawId) {
-        statusBox.className = "p-3 rounded-lg text-xs font-semibold bg-red-50 text-red-700 border border-red-200";
-        statusBox.textContent = "⚠️ कृपया पहले ASHA ID दर्ज करें।";
-        return;
-      }
-
-      const idKey = safeKey(rawId);
-      const workerRef = child(rootRef, `workers/${idKey}`);
+      const box = document.getElementById("pinResetStatus");
+      box.classList.remove("hidden");
+      if (!rawId) return;
+      const workerRef = child(rootRef, `workers/${safeKey(rawId)}`);
       const snap = await get(workerRef);
-
       if (!snap.exists()) {
-        statusBox.className = "p-3 rounded-lg text-xs font-semibold bg-red-50 text-red-700 border border-red-200";
-        statusBox.textContent = `❌ ASHA ID "${rawId}" डेटाबेस में नहीं मिली।`;
+        box.className = "w-full p-2.5 rounded-lg text-xs font-semibold bg-red-50 text-red-700";
+        box.textContent = `❌ ASHA ID "${rawId}" नहीं मिली।`;
         return;
       }
-
       const val = snap.val();
       if (Array.isArray(val)) {
-        for (let i = 0; i < val.length; i++) {
-          await remove(child(workerRef, `${i}/pin`));
-        }
-      } else {
-        await remove(child(workerRef, "pin"));
-      }
-
-      const workerName = Array.isArray(val) ? val.map(x => x.n).join(", ") : (val.n || rawId);
-      statusBox.className = "p-3 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200";
-      statusBox.innerHTML = `✅ <strong>${workerName}</strong> (ID: ${rawId}) का PIN रीसेट हो गया है। अब वे डिफ़ॉल्ट PIN <strong>123456</strong> से लॉगिन कर सकती हैं।`;
-      document.getElementById("resetPinAshaId").value = "";
+        for (let i = 0; i < val.length; i++) await remove(child(workerRef, `${i}/pin`));
+      } else await remove(child(workerRef, "pin"));
+      box.className = "w-full p-2.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-800";
+      box.textContent = `✅ ID ${rawId} का PIN रीसेट हो गया (डिफ़ॉल्ट 123456)।`;
     });
 
-    // केवल भुगतान डेटा (heads, months, workers) साफ़ करता है — officers सुरक्षित रहते हैं
     document.getElementById("clearDbBtn").addEventListener("click", async () => {
-      if (!confirm("क्या आप वाकई आशा भुगतान डेटा (Workers, Heads, Months) रीसेट करना चाहते हैं?\n\n(नोट: पंजीकृत अधिकारियों की सूची पूरी तरह सुरक्षित रहेगी)")) return;
-      const statusEl = document.getElementById("uploadStatus");
-      statusEl.textContent = "भुगतान डेटा साफ़ किया जा रहा है (अधिकारी सूची सुरक्षित)...";
-      await update(rootRef, {
-        heads: null,
-        months: null,
-        workers: null
-      });
-      await refreshStatus();
+      if (!confirm("केवल ASHA भुगतान डेटा साफ़ करें? (Officers, JSY और ABHA सुरक्षित रहेंगे)")) return;
+      await update(rootRef, { heads: null, months: null, workers: null });
+      refreshStatus();
     });
 
     refreshStatus();
