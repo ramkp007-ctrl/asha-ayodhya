@@ -87,8 +87,8 @@
       <!-- ABHA Progress Uploader -->
       <section class="bg-white p-6 rounded-xl shadow-sm border border-emerald-200 space-y-4">
         <div class="border-b pb-3">
-          <h2 class="text-base font-bold text-emerald-950">3. ABHA ID / Scan &amp; Share प्रगति अपलोड</h2>
-          <p class="text-[11px] text-slate-500 mt-0.5">कॉलम: Date, Block, Facility (या Sub_Center), Target, ABHA_Created, Scan_Share_Count</p>
+          <h2 class="text-base font-bold text-emerald-950">3. ABHA ID प्रगति डेटा अपलोड</h2>
+          <p class="text-[11px] text-slate-500 mt-0.5">कॉलम: Block, SC, Village, Asha Area, ASHA Name, ASHA ID, Population, ABHA Created</p>
         </div>
         <input type="file" id="abhaFileInput" accept=".xlsx,.xls,.csv"
           class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-800" />
@@ -325,9 +325,12 @@
         }
 
         const abhaData = d.abha_portal;
-        document.getElementById("abhaStatus").innerHTML = abhaData
-          ? `✅ <strong>ABHA डेटा सक्रिय:</strong> ${(abhaData.records || []).length} इकाइयाँ (अपडेट: ${abhaData.updatedAt || "-"})`
-          : "अभी कोई ABHA डेटा अपलोड नहीं है।";
+        if (abhaData && abhaData.records) {
+          const uniqueAbhaDates = Array.from(new Set(abhaData.records.map(r => r.date))).join(", ");
+          document.getElementById("abhaStatus").innerHTML = `✅ <strong>ABHA सक्रिय दिनांक:</strong> ${uniqueAbhaDates} (कुल ${abhaData.records.length} आशा क्षेत्र)`;
+        } else {
+          document.getElementById("abhaStatus").textContent = "अभी कोई ABHA डेटा अपलोड नहीं है।";
+        }
       }
     }
 
@@ -399,26 +402,51 @@
       alert(`फ़ाइल "${file.name}" (दिनांक: ${fileDateLabel}) के ${newRecords.length} केंद्रों का डेटा सेव हो गया!`);
     });
 
-    // 3. ABHA Upload
+    // 3. ABHA Upload (Supports "Population" & "ABHA Created" exact headers)
     document.getElementById("uploadAbhaBtn").addEventListener("click", async () => {
       const file = document.getElementById("abhaFileInput").files[0];
       if (!file) return alert("पहले ABHA Excel/CSV फ़ाइल चुनें।");
-      const fileDateLabel = file.name.replace(/\.[^.]+$/, "").trim();
+
+      const dateMatch = file.name.match(/(\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4})/);
+      const fileDateLabel = dateMatch ? dateMatch[1] : file.name.replace(/\.[^.]+$/, "").trim();
+
       const buf = await file.arrayBuffer();
       const wb = XLSX.read(buf, { type: "array" });
-      const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: 0 });
-      const parsed = raw.map(r => ({
-        date: fileDateLabel || formatExcelDate(r.Date || r.DATE),
-        block: String(r.Block || r.BLOCK || "").trim(),
-        facility: String(r.Facility || r.FACILITY || r.Sub_Center || r.SC || "").trim(),
-        target: Number(r.Target || r.TARGET || 0),
-        created: Number(r.ABHA_Created || r.ABHA_CREATED || r.Created || 0),
-        scanShare: Number(r.Scan_Share_Count || r.SCAN_SHARE || 0)
-      })).filter(x => x.block);
+      const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "" });
 
-      await set(abhaRef, { updatedAt: new Date().toLocaleDateString("hi-IN"), records: parsed });
+      const newRecords = raw.map(r => {
+        const norm = {};
+        for (const [k, v] of Object.entries(r)) {
+          norm[String(k).trim().toUpperCase()] = v;
+        }
+        const pop = Number(String(norm["POPULATION"] || norm["TARGET"] || 0).replace(/,/g, "")) || 0;
+        const created = Number(String(norm["ABHA CREATED"] || norm["ABHA_CREATED"] || norm["CREATED"] || 0).replace(/,/g, "")) || 0;
+
+        return {
+          date: fileDateLabel,
+          fileName: file.name,
+          block: String(norm["BLOCK"] || "").trim(),
+          sc: String(norm["SC"] || norm["SUB CENTER"] || norm["SUB_CENTER"] || "").trim(),
+          village: String(norm["VILLAGE"] || "").trim(),
+          area: String(norm["ASHA AREA"] || norm["AREA"] || "").trim(),
+          ashaName: String(norm["ASHA NAME"] || norm["ASHA_NAME"] || "").trim(),
+          ashaId: String(norm["ASHA ID"] || norm["ASHA_ID"] || "").trim(),
+          pop,
+          created
+        };
+      }).filter(x => x.block && (x.ashaName || x.sc));
+
+      const snap = await get(abhaRef);
+      const oldRecords = snap.exists() ? (snap.val().records || []).filter(r => r.date !== fileDateLabel) : [];
+      const mergedRecords = [...oldRecords, ...newRecords];
+
+      await set(abhaRef, {
+        updatedAt: new Date().toLocaleString("hi-IN"),
+        latestDate: fileDateLabel,
+        records: mergedRecords
+      });
       refreshStatus();
-      alert(`${parsed.length} इकाइयों का ABHA प्रगति डेटा सेव हो गया!`);
+      alert(`फ़ाइल "${file.name}" (दिनांक: ${fileDateLabel}) के ${newRecords.length} आशा क्षेत्रों का ABHA डेटा सेव हो गया!`);
     });
 
     // Reset ASHA PIN
