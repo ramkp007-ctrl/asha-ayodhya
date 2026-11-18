@@ -68,11 +68,11 @@
 
     <!-- SECTION 2 & 3: JSY PAYMENT & ABHA PROGRESS UPLOADERS -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- JSY Uploader -->
+      <!-- JSY Uploader (File Name = Date) -->
       <section class="bg-white p-6 rounded-xl shadow-sm border border-indigo-200 space-y-4">
         <div class="border-b pb-3">
           <h2 class="text-base font-bold text-indigo-950">2. JSY भुगतान पाइपलाइन डेटा अपलोड</h2>
-          <p class="text-[11px] text-slate-500 mt-0.5">कॉलम: Date, Block, facility_name_id, total_deliveries, pin_verified, jsy_verified, beneficiaries_registered, moic_approvals, proposals_initiated, payments_made</p>
+          <p class="text-[11px] text-slate-500 mt-0.5">नोट: फ़ाइल का नाम ही रिपोर्ट दिनांक माना जाएगा (जैसे <b>18-11-2026.xlsx</b>)।</p>
         </div>
         <input type="file" id="jsyFileInput" accept=".xlsx,.xls,.csv"
           class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-800" />
@@ -317,9 +317,12 @@
         statusEl.innerHTML = `📊 <strong>ASHA डेटाबेस:</strong> ${totalAshas.toLocaleString()} आशा • 👮 ${offCount} अधिकारी • माह: <strong>${(d.months || []).join(", ") || "-"}</strong>`;
 
         const jsyData = d.jsy_portal;
-        document.getElementById("jsyStatus").innerHTML = jsyData
-          ? `✅ <strong>JSY डेटा सक्रिय:</strong> ${(jsyData.records || []).length} केंद्र (अपडेट: ${jsyData.updatedAt || "-"})`
-          : "अभी कोई JSY डेटा अपलोड नहीं है।";
+        if (jsyData && jsyData.records) {
+          const uniqueDates = Array.from(new Set(jsyData.records.map(r => r.date))).join(", ");
+          document.getElementById("jsyStatus").innerHTML = `✅ <strong>JSY सक्रिय दिनांक:</strong> ${uniqueDates} (कुल ${jsyData.records.length} रिकॉर्ड)`;
+        } else {
+          document.getElementById("jsyStatus").textContent = "अभी कोई JSY डेटा अपलोड नहीं है।";
+        }
 
         const abhaData = d.abha_portal;
         document.getElementById("abhaStatus").innerHTML = abhaData
@@ -358,15 +361,20 @@
       document.getElementById("auditPreviewBox").classList.remove("hidden");
     });
 
-    // 2. JSY Upload
+    // 2. JSY Upload (File Name = Date + Multi-Date History Safe)
     document.getElementById("uploadJsyBtn").addEventListener("click", async () => {
       const file = document.getElementById("jsyFileInput").files[0];
       if (!file) return alert("पहले JSY Excel/CSV फ़ाइल चुनें।");
+
+      const fileDateLabel = file.name.replace(/\.[^.]+$/, "").trim();
+
       const buf = await file.arrayBuffer();
       const wb = XLSX.read(buf, { type: "array" });
       const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: 0 });
-      const parsed = raw.map(r => ({
-        date: formatExcelDate(r.Date || r.DATE),
+
+      const newRecords = raw.map(r => ({
+        date: fileDateLabel || formatExcelDate(r.Date || r.DATE),
+        fileName: file.name,
         block: String(r.Block || r.BLOCK || "").trim(),
         facility: String(r.facility_name_id || r.FACILITY_NAME_ID || r.Facility || "").trim(),
         del: Number(r.total_deliveries || 0),
@@ -378,20 +386,29 @@
         pay: Number(r.payments_made || 0)
       })).filter(x => x.block && x.facility);
 
-      await set(jsyRef, { updatedAt: new Date().toLocaleDateString("hi-IN"), records: parsed });
+      const snap = await get(jsyRef);
+      const oldRecords = snap.exists() ? (snap.val().records || []).filter(r => r.date !== fileDateLabel) : [];
+      const mergedRecords = [...oldRecords, ...newRecords];
+
+      await set(jsyRef, {
+        updatedAt: new Date().toLocaleString("hi-IN"),
+        latestDate: fileDateLabel,
+        records: mergedRecords
+      });
       refreshStatus();
-      alert(`${parsed.length} स्वास्थ्य केंद्रों का JSY डेटा सफलतापूर्वक सेव हो गया!`);
+      alert(`फ़ाइल "${file.name}" (दिनांक: ${fileDateLabel}) के ${newRecords.length} केंद्रों का डेटा सेव हो गया!`);
     });
 
     // 3. ABHA Upload
     document.getElementById("uploadAbhaBtn").addEventListener("click", async () => {
       const file = document.getElementById("abhaFileInput").files[0];
       if (!file) return alert("पहले ABHA Excel/CSV फ़ाइल चुनें।");
+      const fileDateLabel = file.name.replace(/\.[^.]+$/, "").trim();
       const buf = await file.arrayBuffer();
       const wb = XLSX.read(buf, { type: "array" });
       const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: 0 });
       const parsed = raw.map(r => ({
-        date: formatExcelDate(r.Date || r.DATE || new Date().toLocaleDateString("hi-IN")),
+        date: fileDateLabel || formatExcelDate(r.Date || r.DATE),
         block: String(r.Block || r.BLOCK || "").trim(),
         facility: String(r.Facility || r.FACILITY || r.Sub_Center || r.SC || "").trim(),
         target: Number(r.Target || r.TARGET || 0),
