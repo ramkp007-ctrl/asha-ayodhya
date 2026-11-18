@@ -3,310 +3,239 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Executive Review & Program Drill-Down — NHM अयोध्या</title>
+  <title>आशा भुगतान समीक्षा डैशबोर्ड — NHM अयोध्या</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen font-sans">
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans antialiased">
 
   <!-- LOGIN SCREEN -->
-  <div id="loginScreen" class="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-slate-950 via-teal-950 to-slate-900">
-    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-7 space-y-5">
-      <div class="text-center border-b pb-4">
-        <span class="inline-block bg-teal-100 text-teal-900 text-[11px] font-extrabold px-3 py-1 rounded-full mb-2">NHM अयोध्या • Executive Review System</span>
-        <h1 class="text-xl font-bold text-slate-800">आशा भुगतान एवं प्रोग्राम समीक्षा पोर्टल</h1>
-        <p class="text-xs text-slate-500 mt-1">Program Drill-Down, Core Scheme Audit &amp; Professional Review</p>
+  <div id="loginScreen" class="min-h-screen flex items-center justify-center px-4 bg-slate-900">
+    <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl p-7 space-y-5 border border-slate-200">
+      <div class="border-b pb-4">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-teal-700">NHM अयोध्या • MIS पोर्टल</p>
+        <h1 class="text-lg font-bold text-slate-900 mt-0.5">अधिकारी समीक्षा लॉगिन</h1>
       </div>
 
       <form id="officerLoginForm" class="space-y-4">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">पंजीकृत मोबाइल नंबर (10 अंक)</label>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">पंजीकृत मोबाइल नंबर</label>
           <input type="tel" id="loginMobile" maxlength="10" required placeholder="10 अंकों का मोबाइल नंबर"
-            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:border-teal-600 focus:outline-none" />
+            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm focus:border-teal-700 focus:outline-none" />
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">4-अंकों का PIN</label>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">4-अंकों का PIN</label>
           <input type="password" id="loginPin" maxlength="4" required placeholder="••••"
-            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm tracking-widest focus:border-teal-600 focus:outline-none" />
+            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm tracking-widest focus:border-teal-700 focus:outline-none" />
         </div>
-        <div id="loginError" class="hidden p-2.5 bg-red-50 text-red-700 border border-red-200 rounded-lg text-xs font-semibold"></div>
-        <button type="submit" id="loginBtn" class="w-full py-2.5 bg-teal-800 hover:bg-teal-900 text-white font-bold rounded-xl text-sm shadow transition">
-          समीक्षा डैशबोर्ड खोलें →
+        <div id="loginError" class="hidden p-2.5 bg-red-50 text-red-700 border border-red-200 rounded-lg text-xs font-medium"></div>
+        <button type="submit" id="loginBtn" class="w-full py-2.5 bg-teal-800 hover:bg-teal-900 text-white font-semibold rounded-lg text-sm transition">
+          लॉगिन करें
         </button>
       </form>
 
-      <div class="text-center pt-2 border-t text-[11px] text-slate-500 flex justify-between">
-        <a href="index.html" class="text-teal-700 hover:underline font-semibold">← ASHA पोर्टल</a>
-        <a href="officers-admin.html" class="text-indigo-700 hover:underline font-semibold">अधिकारी प्रबंधन</a>
+      <div class="pt-2 border-t text-xs text-slate-500 flex justify-between">
+        <a href="index.html" class="hover:text-teal-800">← ASHA पोर्टल</a>
+        <a href="officers-admin.html" class="hover:text-teal-800">अधिकारी पंजीकरण</a>
       </div>
     </div>
   </div>
 
   <!-- MAIN EXECUTIVE DASHBOARD -->
   <div id="dashboardApp" class="hidden">
-    <!-- Top Header -->
-    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-30 border-b border-slate-700">
+    <!-- Minimalist Top Header -->
+    <header class="bg-slate-900 text-white sticky top-0 z-30 border-b border-slate-800">
       <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
-        <div>
-          <div class="flex flex-wrap items-center gap-2">
-            <h1 class="text-base md:text-lg font-bold tracking-tight">NHM अयोध्या — आशा प्रोत्साहन राशि एवं प्रोग्राम समीक्षा</h1>
-            <span id="roleBadge" class="text-[11px] bg-amber-400 text-slate-950 font-extrabold px-2.5 py-0.5 rounded-full">DISTRICT</span>
+        <div class="flex items-center gap-3">
+          <div>
+            <h1 class="text-base font-bold tracking-tight">NHM अयोध्या — आशा प्रोत्साहन राशि समीक्षा</h1>
+            <p id="officerWelcome" class="text-[11px] text-slate-400">लोड हो रहा है...</p>
           </div>
-          <p id="officerWelcome" class="text-xs text-slate-300 mt-0.5">स्वागत है...</p>
+          <span id="roleBadge" class="text-[10px] bg-teal-500/20 text-teal-300 border border-teal-500/40 font-bold px-2.5 py-0.5 rounded-full">DISTRICT</span>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <button id="whatsappBriefBtn" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs font-extrabold rounded-lg shadow">
-            📲 WhatsApp Review Brief
+        <div class="flex items-center gap-2">
+          <button id="whatsappBriefBtn" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition">
+            WhatsApp रिपोर्ट
           </button>
-          <button id="exportFullGapBtn" class="px-3 py-1.5 bg-amber-400 hover:bg-amber-500 text-slate-950 text-xs font-extrabold rounded-lg shadow">
-            📥 Master Excel रिपोर्ट
+          <button id="exportFullGapBtn" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold rounded-lg transition">
+            Excel डाउनलोड
           </button>
-          <button id="logoutBtn" class="px-3 py-1.5 bg-slate-800 hover:bg-red-700 text-xs font-semibold rounded-lg border border-slate-600">
+          <button id="logoutBtn" class="px-3 py-1.5 bg-transparent hover:bg-red-900/50 text-slate-300 hover:text-white text-xs font-medium rounded-lg border border-slate-700 transition">
             लॉगआउट
           </button>
         </div>
       </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-5 space-y-6">
-      <!-- Filter Controls -->
-      <section class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
+    <main class="max-w-7xl mx-auto px-4 py-5 space-y-5">
+      <!-- Clean Filter Bar -->
+      <section class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
-          <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">समीक्षा अवधि (Month)</label>
-          <select id="monthFilter" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold bg-white"></select>
+          <label class="block text-[11px] font-semibold text-slate-500 mb-1">समीक्षा अवधि (Month)</label>
+          <select id="monthFilter" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:border-teal-700 focus:outline-none"></select>
         </div>
         <div>
-          <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">ब्लॉक (Block)</label>
-          <select id="blockFilter" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold bg-white">
+          <label class="block text-[11px] font-semibold text-slate-500 mb-1">विकास खंड (Block)</label>
+          <select id="blockFilter" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:border-teal-700 focus:outline-none">
             <option value="ALL">सभी 11 ब्लॉक (जनपद स्तर)</option>
           </select>
         </div>
         <div>
-          <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">सब-सेंटर (Sub-Center)</label>
-          <select id="scFilter" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold bg-white">
-            <option value="ALL">सभी सब-सेंटर</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-[11px] font-bold text-rose-700 uppercase mb-1">Root-Cause फ़िल्टर (₹0 सूची हेतु)</label>
-          <select id="rootCauseFilter" class="w-full border border-rose-300 rounded-lg px-3 py-2 text-xs font-bold bg-rose-50 text-rose-950">
-            <option value="ALL">सभी शून्य-भुगतान (All ₹0)</option>
-            <option value="PFMS_BREAK">⚡ अचानक ₹0 (PFMS/Account Break)</option>
-            <option value="CHRONIC_3">🚨 लगातार 3+ माह ₹0 (निष्क्रिय)</option>
-            <option value="CHRONIC_2">⏳ लगातार 2 माह ₹0</option>
+          <label class="block text-[11px] font-semibold text-slate-500 mb-1">उप-केंद्र (Sub-Center)</label>
+          <select id="scFilter" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:border-teal-700 focus:outline-none">
+            <option value="ALL">सभी उप-केंद्र</option>
           </select>
         </div>
       </section>
 
-      <!-- 6 Executive KPIs -->
-      <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        <div class="bg-white p-3.5 rounded-xl shadow-sm border-l-4 border-slate-800">
-          <p class="text-[10px] font-bold text-slate-500 uppercase">कुल पंजीकृत आशा</p>
-          <p id="kpiTotalAsha" class="text-xl font-extrabold text-slate-800 mt-1">0</p>
-          <p id="kpiPaidPct" class="text-[11px] text-emerald-700 font-bold mt-0.5">0% को भुगतान</p>
+      <!-- 4 Core Executive KPI Cards -->
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <p class="text-xs font-medium text-slate-500">कुल पंजीकृत आशा / कवरेज</p>
+          <div class="flex items-baseline justify-between mt-1.5">
+            <p id="kpiTotalAsha" class="text-2xl font-bold text-slate-900">0</p>
+            <span id="kpiPaidBadge" class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">0% Paid</span>
+          </div>
+          <p id="kpiPaidCountText" class="text-[11px] text-slate-500 mt-1">0 आशाओं को भुगतान प्राप्त</p>
         </div>
-        <div class="bg-white p-3.5 rounded-xl shadow-sm border-l-4 border-indigo-600">
-          <p class="text-[10px] font-bold text-indigo-800 uppercase">कुल वितरित प्रोत्साहन</p>
-          <p id="kpiTotalDisbursed" class="text-xl font-extrabold text-indigo-800 mt-1">₹0</p>
-          <p id="kpiAvgEarn" class="text-[10px] text-slate-600 mt-0.5">औसत: ₹0 / आशा</p>
+
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <p class="text-xs font-medium text-slate-500">कुल वितरित प्रोत्साहन राशि</p>
+          <div class="flex items-baseline justify-between mt-1.5">
+            <p id="kpiTotalAmount" class="text-2xl font-bold text-indigo-900">₹0</p>
+            <span id="kpiAvgEarn" class="text-xs font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">औसत ₹0</span>
+          </div>
+          <p id="kpiLeakageText" class="text-[11px] text-slate-500 mt-1">बेंचमार्क गैप: ₹0</p>
         </div>
-        <div class="bg-white p-3.5 rounded-xl shadow-sm border-l-4 border-rose-600">
-          <p class="text-[10px] font-bold text-rose-700 uppercase">कुल शून्य भुगतान (₹0)</p>
-          <p id="kpiZeroAsha" class="text-xl font-extrabold text-rose-700 mt-1">0</p>
-          <p id="kpiZeroPct" class="text-[11px] text-rose-600 font-bold mt-0.5">0% वंचित</p>
+
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <p class="text-xs font-medium text-rose-700">शून्य भुगतान (₹0 Gap)</p>
+          <div class="flex items-baseline justify-between mt-1.5">
+            <p id="kpiZeroAsha" class="text-2xl font-bold text-rose-700">0</p>
+            <span id="kpiZeroPct" class="text-xs font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded">0%</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1">समीक्षा अवधि में ₹0 प्राप्त</p>
         </div>
-        <div class="bg-white p-3.5 rounded-xl shadow-sm border-l-4 border-purple-600">
-          <p class="text-[10px] font-bold text-purple-800 uppercase">⚡ अचानक ₹0 (PFMS Break)</p>
-          <p id="kpiPfmsBreak" class="text-xl font-extrabold text-purple-800 mt-1">0</p>
-          <p class="text-[10px] text-purple-700 mt-0.5">पिछले माह सक्रिय थीं</p>
-        </div>
-        <div class="bg-white p-3.5 rounded-xl shadow-sm border-l-4 border-red-800">
-          <p class="text-[10px] font-bold text-red-900 uppercase">🚨 लगातार 3+ माह ₹0</p>
-          <p id="kpiChronic3" class="text-xl font-extrabold text-red-900 mt-1">0</p>
-          <p class="text-[10px] text-red-700 mt-0.5">निष्क्रिय / प्रतिस्थापन योग्य</p>
-        </div>
-        <div class="bg-white p-3.5 rounded-xl shadow-sm border-l-4 border-amber-500">
-          <p class="text-[10px] font-bold text-amber-800 uppercase">संभावित Unspent Gap</p>
-          <p id="kpiUnspentGap" class="text-xl font-extrabold text-amber-800 mt-1">₹0</p>
-          <p class="text-[10px] text-amber-700 mt-0.5">बेंचमार्क से कम वितरण</p>
+
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <p class="text-xs font-medium text-amber-800">गंभीर तकनीकी / निष्क्रिय गैप</p>
+          <div class="flex items-baseline justify-between mt-1.5">
+            <p id="kpiPfmsBreak" class="text-2xl font-bold text-purple-800">0</p>
+            <span id="kpiChronic3" class="text-xs font-bold text-red-800 bg-red-50 px-2 py-0.5 rounded">3+ माह ₹0: 0</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1">अचानक ₹0 (PFMS/Account Break)</p>
         </div>
       </section>
 
-      <!-- SECTION A: PROGRAM-WISE INCENTIVE & INTERACTIVE ACTIVITY DRILL-DOWN -->
-      <section class="bg-white rounded-xl shadow-sm border border-teal-200 overflow-hidden">
-        <div class="bg-teal-900 text-white px-5 py-3.5 flex flex-wrap justify-between items-center gap-2">
-          <div>
-            <h2 class="text-sm md:text-base font-bold">1. प्रोग्रामवार प्रोत्साहन राशि (Program-Wise Incentive) एवं एक्टिविटी ड्रिल-डाउन</h2>
-            <p class="text-[11px] text-teal-200">किसी भी <strong>Program</strong> पर क्लिक करें — उसके अंतर्गत आने वाली सभी <strong>Activities (Heads)</strong> का विवरण नीचे खुलेगा</p>
-          </div>
-          <button onclick="window.exportSheet(window.lastProgramRows, 'Program_Wise_Summary')" class="px-3 py-1.5 bg-teal-700 hover:bg-teal-600 text-xs font-bold rounded-lg border border-teal-500">
-            📥 Program रिपोर्ट Excel
+      <!-- Navigation Tabs -->
+      <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="border-b border-slate-200 bg-slate-50 px-4 flex flex-wrap gap-4">
+          <button data-tab="tabPrograms" class="tab-btn active py-3 text-xs font-bold border-b-2 border-teal-800 text-teal-900">
+            1. प्रोग्रामवार विश्लेषण (Program → Activity)
+          </button>
+          <button data-tab="tabUnits" class="tab-btn py-3 text-xs font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900">
+            2. ब्लॉक / उप-केंद्र तुलनात्मक रिपोर्ट
+          </button>
+          <button data-tab="tabZero" class="tab-btn py-3 text-xs font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900">
+            3. शून्य-भुगतान सूची (<span id="badgeZero">0</span>)
+          </button>
+          <button data-tab="tabOutliers" class="tab-btn py-3 text-xs font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900">
+            4. SC Peer Outliers (<span id="badgeOutlier">0</span>)
           </button>
         </div>
 
-        <div class="p-4 grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-          <!-- Program Table (Left 7 cols) -->
-          <div class="lg:col-span-7 overflow-x-auto border border-slate-200 rounded-xl">
-            <table class="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr class="bg-slate-100 text-slate-700 border-b">
-                  <th class="p-2.5">प्रोग्राम का नाम (क्लिक करें)</th>
-                  <th class="p-2.5 text-center">मद (Activities)</th>
-                  <th class="p-2.5 text-right">लाभान्वित आशा</th>
-                  <th class="p-2.5 text-right">कवरेज %</th>
-                  <th class="p-2.5 text-right">कुल भुगतान (₹)</th>
-                  <th class="p-2.5 text-right">हिस्सेदारी %</th>
-                </tr>
-              </thead>
-              <tbody id="programSummaryBody" class="divide-y divide-slate-100"></tbody>
-            </table>
-          </div>
+        <!-- TAB 1: PROGRAM -> INLINE ACCORDION ACTIVITY DRILL-DOWN -->
+        <div id="tabPrograms" class="tab-panel p-5 space-y-5">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <!-- Interactive Accordion Table (8 Cols) -->
+            <div class="lg:col-span-8 space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-semibold text-slate-500">किसी भी <strong>Program</strong> पर क्लिक कर उसकी Activities देखें:</span>
+                <button onclick="window.exportSheet(window.lastProgramRows, 'Program_Summary')" class="text-xs font-semibold text-teal-800 hover:underline">Excel डाउनलोड</button>
+              </div>
+              <div class="border border-slate-200 rounded-xl overflow-hidden">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="bg-slate-100 text-slate-600 border-b border-slate-200">
+                      <th class="py-2.5 px-3">प्रोग्राम का नाम (Program)</th>
+                      <th class="py-2.5 px-3 text-center">Activities</th>
+                      <th class="py-2.5 px-3 text-right">लाभान्वित आशा</th>
+                      <th class="py-2.5 px-3 text-right">कवरेज %</th>
+                      <th class="py-2.5 px-3 text-right">कुल राशि (₹)</th>
+                      <th class="py-2.5 px-3 text-right">हिस्सेदारी</th>
+                    </tr>
+                  </thead>
+                  <tbody id="programAccordionBody" class="divide-y divide-slate-200"></tbody>
+                </table>
+              </div>
+            </div>
 
-          <!-- Program Chart (Right 5 cols) -->
-          <div class="lg:col-span-5 bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <h3 class="text-xs font-bold text-slate-700 mb-2">प्रोग्रामवार कुल वितरण (₹ लाख में)</h3>
-            <div class="h-64">
-              <canvas id="programBarChart"></canvas>
+            <!-- Program Share Chart (4 Cols) -->
+            <div class="lg:col-span-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <h3 class="text-xs font-bold text-slate-700 mb-3">प्रोग्रामवार राशि वितरण (₹ लाख)</h3>
+              <div class="h-72">
+                <canvas id="programChart"></canvas>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Interactive Activity Drill-Down Panel (Triggered on Program Click) -->
-        <div id="activityDrillPanel" class="border-t-2 border-teal-600 bg-teal-50/40 p-4 space-y-3">
-          <div class="flex flex-wrap justify-between items-center gap-2">
-            <div>
-              <span class="text-[10px] font-extrabold uppercase bg-teal-700 text-white px-2 py-0.5 rounded">Selected Program Activities</span>
-              <h3 id="selectedProgramTitle" class="text-sm font-bold text-teal-950 mt-1">प्रोग्राम की सभी गतिविधियाँ (Activities / Heads)</h3>
-            </div>
-            <button onclick="window.exportSheet(window.lastSelectedActivities, 'Program_Activities_Detail')" class="px-3 py-1.5 bg-slate-800 text-white text-xs font-semibold rounded-lg">
-              📥 इस प्रोग्राम की Activities Excel
-            </button>
+        <!-- TAB 2: BLOCK / SUB-CENTER PERFORMANCE -->
+        <div id="tabUnits" class="tab-panel hidden p-5 space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-semibold text-slate-500">कवरेज, औसत आय और लंबित ₹0 के आधार पर रैंकिंग:</span>
+            <button onclick="window.exportSheet(window.lastUnitRows, 'Unit_Performance')" class="text-xs font-semibold text-teal-800 hover:underline">Excel डाउनलोड</button>
           </div>
-          <div class="overflow-x-auto bg-white rounded-xl border border-teal-200">
+          <div class="border border-slate-200 rounded-xl overflow-x-auto">
             <table class="w-full text-left border-collapse text-xs">
               <thead>
-                <tr class="bg-teal-100/70 text-teal-950 border-b">
-                  <th class="p-2.5">क्र.</th>
-                  <th class="p-2.5">एक्टिविटी / मद का नाम (Activity / Head)</th>
-                  <th class="p-2.5 text-right">भुगतान प्राप्त आशा</th>
-                  <th class="p-2.5 text-right text-rose-700">वंचित आशा (Gap)</th>
-                  <th class="p-2.5 text-right">कवरेज %</th>
-                  <th class="p-2.5 text-right">कुल राशि (₹)</th>
-                  <th class="p-2.5 text-right">औसत / लाभान्वित आशा</th>
-                  <th class="p-2.5">समीक्षा स्थिति</th>
+                <tr class="bg-slate-100 text-slate-600 border-b">
+                  <th class="py-2.5 px-3">रैंक</th>
+                  <th class="py-2.5 px-3" id="unitColHeader">विकास खंड / उप-केंद्र</th>
+                  <th class="py-2.5 px-3 text-right">कुल आशा</th>
+                  <th class="py-2.5 px-3 text-right">भुगतान प्राप्त</th>
+                  <th class="py-2.5 px-3 text-right">कवरेज %</th>
+                  <th class="py-2.5 px-3 text-right text-rose-700">₹0 आशा</th>
+                  <th class="py-2.5 px-3 text-right text-purple-800">PFMS Break</th>
+                  <th class="py-2.5 px-3 text-right text-red-800">3+ माह ₹0</th>
+                  <th class="py-2.5 px-3 text-right">कुल राशि (₹)</th>
+                  <th class="py-2.5 px-3 text-right">औसत / आशा</th>
                 </tr>
               </thead>
-              <tbody id="activityDrillBody" class="divide-y divide-slate-100"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- SECTION B: DEEP FORENSIC & PROFESSIONAL REVIEW TABS -->
-      <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="border-b bg-slate-100 px-3 pt-3 flex flex-wrap gap-1.5">
-          <button data-tab="tabProfReview" class="tab-btn active px-3.5 py-2 text-xs font-bold rounded-t-lg bg-white border-t border-x border-slate-200 text-indigo-950">
-            📋 1. Professional Review Note (DPM / MOIC ब्रीफ)
-          </button>
-          <button data-tab="tabMainPrograms" class="tab-btn px-3.5 py-2 text-xs font-bold rounded-t-lg text-teal-900 hover:bg-teal-50">
-            🎯 2. Main Programs Deep Analysis (RI / JSY / HBNC / FP / NCD)
-          </button>
-          <button data-tab="tabScorecard" class="tab-btn px-3.5 py-2 text-xs font-bold rounded-t-lg text-slate-700 hover:bg-slate-200">
-            🏆 3. ब्लॉक / SC रैंकिंग एवं Leakage स्कोरकार्ड
-          </button>
-          <button data-tab="tabRootZero" class="tab-btn px-3.5 py-2 text-xs font-bold rounded-t-lg text-rose-700 hover:bg-rose-50">
-            ⚠️ 4. Root-Cause ₹0 सूची (<span id="badgeZero">0</span>)
-          </button>
-          <button data-tab="tabPeerOutlier" class="tab-btn px-3.5 py-2 text-xs font-bold rounded-t-lg text-amber-800 hover:bg-amber-50">
-            🔍 5. SC Peer Outlier तुलना (<span id="badgeOutlier">0</span>)
-          </button>
-          <button data-tab="tabDupAudit" class="tab-btn px-3.5 py-2 text-xs font-bold rounded-t-lg text-slate-700 hover:bg-slate-200">
-            🧾 6. डुप्लीकेट ID ऑडिट (<span id="badgeDup">0</span>)
-          </button>
-        </div>
-
-        <!-- TAB 1: PROFESSIONAL EXECUTIVE REVIEW NOTE -->
-        <div id="tabProfReview" class="tab-panel p-5 space-y-5">
-          <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
-            <div>
-              <h3 class="text-base font-bold text-slate-900">प्रशासनिक एवं वित्तीय समीक्षा टिप्पणी (Executive Review Observations)</h3>
-              <p class="text-xs text-slate-500">चयनित अवधि एवं कार्यक्षेत्र के वास्तविक डेटा पर आधारित स्वचालित (Auto-Generated) समीक्षा निष्कर्ष</p>
-            </div>
-            <button id="copyProfReviewBtn" class="px-3.5 py-2 bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold rounded-lg shadow">
-              📋 समीक्षा नोट कॉपी करें (Minutes / Letter हेतु)
-            </button>
-          </div>
-          <div id="profReviewContainer" class="space-y-4 text-xs leading-relaxed"></div>
-        </div>
-
-        <!-- TAB 2: MAIN PROGRAMS DEEP FORENSIC ANALYSIS -->
-        <div id="tabMainPrograms" class="tab-panel hidden p-4 space-y-4">
-          <div class="flex flex-wrap justify-between items-center gap-2">
-            <p class="text-xs text-slate-600">
-              जनपद के <strong>प्रमुख कार्यक्रमों (Routine Immunization, Maternal Health/JSY, Child Health/HBNC, Family Planning, NCD/CBAC)</strong> का ब्लॉक/सब-सेंटरवार गहरा तुलनात्मक विश्लेषण:
-            </p>
-            <button onclick="window.exportSheet(window.lastMainProgMatrix, 'Main_Programs_Deep_Analysis')" class="px-3 py-1.5 bg-teal-800 text-white text-xs font-bold rounded-lg">
-              📥 Main Programs Matrix Excel
-            </button>
-          </div>
-          <div id="mainProgramCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-          <div class="overflow-x-auto border border-slate-200 rounded-xl">
-            <table class="w-full text-left border-collapse text-xs" id="mainProgramMatrixTable"></table>
-          </div>
-        </div>
-
-        <!-- TAB 3: Composite Ranking Scorecard -->
-        <div id="tabScorecard" class="tab-panel hidden p-4 space-y-3">
-          <div class="flex flex-wrap justify-between items-center gap-2">
-            <p class="text-xs text-slate-600">
-              <strong>Composite Score (100 में से):</strong> कवरेज % (50 अंक) + औसत आय बेंचमार्क (30 अंक) + Chronic Zero नियंत्रण (20 अंक)।
-            </p>
-            <button onclick="window.exportSheet(window.lastScorecardRows, 'Ranking_Scorecard')" class="px-3 py-1.5 bg-slate-800 text-white text-xs font-semibold rounded-lg">Excel डाउनलोड</button>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr class="bg-slate-100 text-slate-700 border-b">
-                  <th class="p-2.5">रैंक</th>
-                  <th class="p-2.5" id="unitColTitle">ब्लॉक / सब-सेंटर</th>
-                  <th class="p-2.5 text-center">स्कोर (100)</th>
-                  <th class="p-2.5 text-right">कुल आशा</th>
-                  <th class="p-2.5 text-right">कवरेज %</th>
-                  <th class="p-2.5 text-right text-purple-800">⚡ अचानक ₹0</th>
-                  <th class="p-2.5 text-right text-red-800">🚨 3+ माह ₹0</th>
-                  <th class="p-2.5 text-right">औसत आय / आशा</th>
-                  <th class="p-2.5 text-right text-indigo-800">संभावित Leakage (₹)</th>
-                </tr>
-              </thead>
-              <tbody id="scorecardBody" class="divide-y divide-slate-100"></tbody>
+              <tbody id="unitTableBody" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
 
-        <!-- TAB 4: Root-Cause Zero List -->
-        <div id="tabRootZero" class="tab-panel hidden p-4 space-y-3">
-          <div class="flex flex-wrap justify-between items-center gap-2">
+        <!-- TAB 3: ZERO PAYMENT LIST -->
+        <div id="tabZero" class="tab-panel hidden p-5 space-y-3">
+          <div class="flex flex-wrap justify-between items-center gap-3">
             <div class="flex flex-wrap items-center gap-2">
-              <input type="text" id="zeroSearchInput" placeholder="आशा नाम, ID, ब्लॉक या SC खोजें..." class="border border-slate-300 rounded-lg px-3 py-1.5 text-xs w-64" />
-              <span class="text-[11px] text-teal-700 font-semibold">💡 आशा के नाम पर क्लिक कर 360° प्रोफ़ाइल देखें</span>
+              <select id="rootCauseFilter" class="border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-semibold bg-white">
+                <option value="ALL">सभी शून्य-भुगतान (All ₹0)</option>
+                <option value="PFMS_BREAK">अचानक ₹0 (PFMS/Account Break)</option>
+                <option value="CHRONIC_3">लगातार 3+ माह ₹0 (निष्क्रिय)</option>
+                <option value="CHRONIC_2">लगातार 2 माह ₹0</option>
+              </select>
+              <input type="text" id="zeroSearchInput" placeholder="आशा नाम, ID, ब्लॉक या SC खोजें..." class="border border-slate-300 rounded-lg px-3 py-1.5 text-xs w-60" />
             </div>
-            <button onclick="window.exportSheet(window.lastZeroExport, 'Root_Cause_Zero_List')" class="px-3 py-1.5 bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold rounded-lg">
-              📥 शून्य-भुगतान सूची Excel
+            <button onclick="window.exportSheet(window.lastZeroExport, 'Zero_Payment_List')" class="px-3 py-1.5 bg-rose-700 hover:bg-rose-800 text-white text-xs font-semibold rounded-lg">
+              शून्य-भुगतान Excel डाउनलोड
             </button>
           </div>
-          <div class="overflow-x-auto max-h-[480px]">
+          <div class="border border-slate-200 rounded-xl overflow-x-auto max-h-[500px]">
             <table class="w-full text-left border-collapse text-xs">
-              <thead class="sticky top-0 bg-rose-50 text-rose-950 border-b">
+              <thead class="sticky top-0 bg-slate-100 text-slate-600 border-b">
                 <tr>
-                  <th class="p-2.5">ASHA ID</th>
-                  <th class="p-2.5">आशा का नाम (क्लिक करें)</th>
-                  <th class="p-2.5">ब्लॉक</th>
-                  <th class="p-2.5">सब-सेंटर (SC)</th>
-                  <th class="p-2.5">निदान (Root Cause)</th>
-                  <th class="p-2.5 text-right">पिछला माह (₹)</th>
-                  <th class="p-2.5 text-center">लगातार ₹0</th>
-                  <th class="p-2.5 text-right">कुल इतिहास (₹)</th>
+                  <th class="py-2.5 px-3">ASHA ID</th>
+                  <th class="py-2.5 px-3">आशा का नाम (प्रोफ़ाइल हेतु क्लिक करें)</th>
+                  <th class="py-2.5 px-3">ब्लॉक</th>
+                  <th class="py-2.5 px-3">उप-केंद्र (SC)</th>
+                  <th class="py-2.5 px-3">कारण (Diagnosis)</th>
+                  <th class="py-2.5 px-3 text-right">पिछला माह (₹)</th>
+                  <th class="py-2.5 px-3 text-center">लगातार ₹0</th>
+                  <th class="py-2.5 px-3 text-right">कुल संचित (₹)</th>
                 </tr>
               </thead>
               <tbody id="zeroTableBody" class="divide-y divide-slate-100"></tbody>
@@ -314,45 +243,27 @@
           </div>
         </div>
 
-        <!-- TAB 5: Peer Outliers -->
-        <div id="tabPeerOutlier" class="tab-panel hidden p-4 space-y-3">
-          <div class="flex flex-wrap justify-between items-center gap-2">
-            <p class="text-xs text-slate-600">एक ही Sub-Center की साथी आशाओं के औसत भुगतान की तुलना में <strong>50% से कम</strong> पाने वाली आशाएं:</p>
-            <button onclick="window.exportSheet(window.lastOutlierRows, 'SC_Peer_Outliers')" class="px-3 py-1.5 bg-amber-700 text-white text-xs font-bold rounded-lg">Excel डाउनलोड</button>
+        <!-- TAB 4: PEER OUTLIERS -->
+        <div id="tabOutliers" class="tab-panel hidden p-5 space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-slate-500">एक ही उप-केंद्र (SC) के औसत भुगतान से <strong>50% से कम</strong> पाने वाली आशाएं:</span>
+            <button onclick="window.exportSheet(window.lastOutlierRows, 'SC_Peer_Outliers')" class="text-xs font-semibold text-teal-800 hover:underline">Excel डाउनलोड</button>
           </div>
-          <div class="overflow-x-auto max-h-[480px]">
+          <div class="border border-slate-200 rounded-xl overflow-x-auto max-h-[500px]">
             <table class="w-full text-left border-collapse text-xs">
-              <thead class="sticky top-0 bg-amber-50 text-amber-950 border-b">
+              <thead class="sticky top-0 bg-slate-100 text-slate-600 border-b">
                 <tr>
-                  <th class="p-2.5">ASHA ID</th>
-                  <th class="p-2.5">आशा का नाम (क्लिक करें)</th>
-                  <th class="p-2.5">ब्लॉक</th>
-                  <th class="p-2.5">सब-सेंटर (SC)</th>
-                  <th class="p-2.5 text-right">इस आशा की आय</th>
-                  <th class="p-2.5 text-right">इसी SC का औसत</th>
-                  <th class="p-2.5 text-right text-rose-700">SC औसत से कमी</th>
-                  <th class="p-2.5 text-center">प्राप्त मद</th>
+                  <th class="py-2.5 px-3">ASHA ID</th>
+                  <th class="py-2.5 px-3">आशा का नाम</th>
+                  <th class="py-2.5 px-3">ब्लॉक</th>
+                  <th class="py-2.5 px-3">उप-केंद्र (SC)</th>
+                  <th class="py-2.5 px-3 text-right">प्राप्त राशि</th>
+                  <th class="py-2.5 px-3 text-right">SC औसत</th>
+                  <th class="py-2.5 px-3 text-right text-rose-700">अंतर (Shortfall)</th>
+                  <th class="py-2.5 px-3 text-center">प्राप्त मद</th>
                 </tr>
               </thead>
               <tbody id="outlierTableBody" class="divide-y divide-slate-100"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- TAB 6: Duplicate ID Audit -->
-        <div id="tabDupAudit" class="tab-panel hidden p-4 space-y-3">
-          <div class="overflow-x-auto max-h-[400px]">
-            <table class="w-full text-left border-collapse text-xs">
-              <thead class="bg-slate-100 border-b">
-                <tr>
-                  <th class="p-2.5">ASHA ID</th>
-                  <th class="p-2.5">आशा का नाम</th>
-                  <th class="p-2.5">ब्लॉक</th>
-                  <th class="p-2.5">सब-सेंटर (SC)</th>
-                  <th class="p-2.5 text-right">कुल राशि (₹)</th>
-                </tr>
-              </thead>
-              <tbody id="dupTableBody" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
@@ -360,36 +271,36 @@
     </main>
   </div>
 
-  <!-- ASHA 360° DRILL-DOWN MODAL -->
-  <div id="asha360Modal" class="hidden fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-4">
+  <!-- ASHA 360° MODAL -->
+  <div id="asha360Modal" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
     <div class="bg-white max-w-4xl w-full rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-      <div class="bg-teal-900 text-white px-5 py-4 flex justify-between items-center">
+      <div class="bg-slate-900 text-white px-5 py-3.5 flex justify-between items-center">
         <div>
-          <h3 id="m360Name" class="text-base font-bold">ASHA 360° भुगतान प्रोफ़ाइल</h3>
-          <p id="m360Meta" class="text-xs text-teal-200 mt-0.5"></p>
+          <h3 id="m360Name" class="text-sm font-bold">ASHA भुगतान इतिहास</h3>
+          <p id="m360Meta" class="text-[11px] text-slate-300 mt-0.5"></p>
         </div>
-        <button onclick="document.getElementById('asha360Modal').classList.add('hidden')" class="text-white hover:text-amber-300 text-xl font-bold">✕</button>
+        <button onclick="document.getElementById('asha360Modal').classList.add('hidden')" class="text-slate-300 hover:text-white text-lg font-bold">✕</button>
       </div>
-      <div class="p-5 overflow-y-auto space-y-4">
-        <div id="m360Diagnosis" class="p-3 rounded-xl text-xs font-semibold border bg-amber-50 border-amber-300 text-amber-950"></div>
-        <div class="overflow-x-auto">
+      <div class="p-5 overflow-y-auto space-y-3">
+        <div id="m360MonthStrip" class="p-2.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-800"></div>
+        <div class="overflow-x-auto border border-slate-200 rounded-xl">
           <table class="w-full text-left border-collapse text-xs" id="m360MatrixTable"></table>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- WHATSAPP BRIEF MODAL -->
-  <div id="waModal" class="hidden fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-4">
-    <div class="bg-white max-w-lg w-full rounded-2xl shadow-2xl p-5 space-y-4">
+  <!-- WHATSAPP SHARE MODAL -->
+  <div id="waModal" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white max-w-md w-full rounded-2xl shadow-2xl p-5 space-y-3">
       <div class="flex justify-between items-center border-b pb-2">
-        <h3 class="text-base font-bold text-slate-800">📲 अधिकारी व्हाट्सएप समीक्षा संदेश</h3>
-        <button onclick="document.getElementById('waModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 font-bold text-lg">✕</button>
+        <h3 class="text-sm font-bold text-slate-900">WhatsApp समीक्षा संदेश</h3>
+        <button onclick="document.getElementById('waModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 font-bold">✕</button>
       </div>
-      <textarea id="waTextBox" rows="13" class="w-full border border-slate-300 rounded-xl p-3 text-xs font-sans bg-slate-50 leading-relaxed"></textarea>
+      <textarea id="waTextBox" rows="10" class="w-full border border-slate-300 rounded-xl p-3 text-xs bg-slate-50 leading-relaxed"></textarea>
       <div class="flex justify-end gap-2">
-        <button id="copyWaBtn" class="px-4 py-2 bg-slate-800 text-white text-xs font-bold rounded-lg">📋 कॉपी करें</button>
-        <a id="openWaLink" href="#" target="_blank" class="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg">WhatsApp खोलें →</a>
+        <button id="copyWaBtn" class="px-3.5 py-2 bg-slate-800 text-white text-xs font-semibold rounded-lg">कॉपी करें</button>
+        <a id="openWaLink" href="#" target="_blank" class="px-3.5 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-lg">WhatsApp खोलें</a>
       </div>
     </div>
   </div>
@@ -416,17 +327,14 @@
     let rawPortalData = null;
     let sortedMonthsAsc = [];
     let flatWorkers = [];
-    let duplicateRecords = [];
     let progChartInstance = null;
-
-    let selectedProgramName = null;
+    let expandedPrograms = new Set();
     let currentZeroRecords = [];
-    let plainProfReviewText = "";
+    let allActivityStats = [];
+    let totalScopedCount = 0;
 
     window.lastProgramRows = [];
-    window.lastSelectedActivities = [];
-    window.lastMainProgMatrix = [];
-    window.lastScorecardRows = [];
+    window.lastUnitRows = [];
     window.lastZeroExport = [];
     window.lastOutlierRows = [];
 
@@ -459,20 +367,20 @@
 
       try {
         const snap = await get(ref(db, `asha_portal_v2/officers/${mob}`));
-        if (!snap.exists()) throw new Error("यह मोबाइल नंबर अधिकारी पोर्टल पर पंजीकृत नहीं है।");
+        if (!snap.exists()) throw new Error("मोबाइल नंबर पंजीकृत नहीं है।");
         const off = snap.val();
-        if (off.active === false) throw new Error("आपका एक्सेस निष्क्रिय (Blocked) है।");
+        if (off.active === false) throw new Error("आपका एक्सेस निष्क्रिय है।");
         if (String(off.pin) !== pin) throw new Error("गलत PIN दर्ज किया गया है।");
 
         currentOfficer = { mobile: mob, ...off };
         sessionStorage.setItem("nhm_ayodhya_officer", JSON.stringify(currentOfficer));
         await initDashboard();
       } catch (err) {
-        errBox.textContent = "⚠️ " + err.message;
+        errBox.textContent = err.message;
         errBox.classList.remove("hidden");
       } finally {
         btn.disabled = false;
-        btn.textContent = "समीक्षा डैशबोर्ड खोलें →";
+        btn.textContent = "लॉगिन करें";
       }
     });
 
@@ -492,19 +400,15 @@
       document.getElementById("dashboardApp").classList.remove("hidden");
 
       const isDistrict = currentOfficer.role === "DISTRICT";
-      document.getElementById("roleBadge").textContent = isDistrict
-        ? "DISTRICT ACCESS (सभी 11 ब्लॉक)"
-        : `BLOCK ACCESS: ${currentOfficer.block}`;
-      document.getElementById("officerWelcome").textContent =
-        `${currentOfficer.name} (${currentOfficer.designation}) • मो. ${currentOfficer.mobile}`;
+      document.getElementById("roleBadge").textContent = isDistrict ? "DISTRICT (11 BLOCKS)" : `BLOCK: ${currentOfficer.block}`;
+      document.getElementById("officerWelcome").textContent = `${currentOfficer.name} (${currentOfficer.designation}) • ${currentOfficer.mobile}`;
 
       const snap = await get(ref(db, "asha_portal_v2"));
-      if (!snap.exists()) return alert("डेटाबेस में अभी कोई भुगतान डेटा अपलोड नहीं है।");
+      if (!snap.exists()) return alert("डेटाबेस में भुगतान डेटा उपलब्ध नहीं है।");
 
       rawPortalData = snap.val();
       sortedMonthsAsc = sortMonthsChronological(rawPortalData.months || []);
       flatWorkers = [];
-      duplicateRecords = [];
 
       let uidCounter = 0;
       for (const [idKey, entry] of Object.entries(rawPortalData.workers || {})) {
@@ -523,7 +427,7 @@
             }
           }
 
-          const rec = {
+          flatWorkers.push({
             ...w,
             _uid: uidCounter++,
             _idKey: idKey,
@@ -531,9 +435,7 @@
             s: (w.s || "Unknown SC").trim(),
             v: (w.v || "-").trim(),
             monthTotals
-          };
-          flatWorkers.push(rec);
-          if (list.length > 1) duplicateRecords.push(rec);
+          });
         });
       }
 
@@ -545,7 +447,6 @@
       const mSel = document.getElementById("monthFilter");
       mSel.innerHTML = "";
 
-      // All Months Option at Top
       const allOpt = document.createElement("option");
       allOpt.value = "ALL";
       allOpt.textContent = `सभी उपलब्ध माह (All ${sortedMonthsAsc.length} Months)`;
@@ -558,12 +459,11 @@
         opt.textContent = `माह: ${m}`;
         mSel.appendChild(opt);
       });
-      // Default to latest month if available, user can switch to ALL anytime
       mSel.value = descMonths.length > 0 ? descMonths[0] : "ALL";
 
       const bSel = document.getElementById("blockFilter");
       if (!isDistrict) {
-        bSel.innerHTML = `<option value="${currentOfficer.block}">${currentOfficer.block} (आवंटित ब्लॉक)</option>`;
+        bSel.innerHTML = `<option value="${currentOfficer.block}">${currentOfficer.block}</option>`;
         bSel.disabled = true;
       } else {
         Array.from(new Set(flatWorkers.map(w => w.b))).sort().forEach(b => {
@@ -586,7 +486,7 @@
     function updateScDropdown() {
       const selBlock = document.getElementById("blockFilter").value;
       const scSel = document.getElementById("scFilter");
-      scSel.innerHTML = `<option value="ALL">सभी सब-सेंटर</option>`;
+      scSel.innerHTML = `<option value="ALL">सभी उप-केंद्र</option>`;
       const scSet = new Set();
       flatWorkers.forEach(w => {
         if (selBlock === "ALL" || w.b.toLowerCase() === selBlock.toLowerCase()) scSet.add(w.s);
@@ -626,12 +526,12 @@
         return true;
       });
 
+      totalScopedCount = scopedWorkers.length;
       const groupBySc = selBlock !== "ALL" || currentOfficer.role === "BLOCK";
-      document.getElementById("unitColTitle").textContent = groupBySc ? "सब-सेंटर (Sub-Center)" : "ब्लॉक (Block)";
+      document.getElementById("unitColHeader").textContent = groupBySc ? "उप-केंद्र (Sub-Center)" : "विकास खंड (Block)";
 
-      // Program & Activity Aggregation Structures
-      const programAggMap = new Map(); // progName -> { name, headIndices: Set, paidAshaSet: Set, amount }
-      const activityAgg = heads.map((h, idx) => ({
+      const programAggMap = new Map();
+      allActivityStats = heads.map((h, idx) => ({
         idx,
         program: h.p || "Other",
         activity: h.h || "Unnamed",
@@ -648,12 +548,20 @@
       });
 
       const scTotalsMap = new Map();
+      let paidCount = 0;
+      let zeroCount = 0;
+      let pfmsBreakCount = 0;
+      let chronic3Count = 0;
+      let totalDisbursed = 0;
 
-      const enrichedWorkers = scopedWorkers.map((w, wIdx) => {
+      const unitMap = new Map();
+      currentZeroRecords = [];
+      window.lastOutlierRows = [];
+
+      scopedWorkers.forEach((w, wIdx) => {
         let currAmt = 0;
         const prevAmt = prevMonth ? (w.monthTotals[prevMonth] || 0) : 0;
         const paidHeadIndices = new Set();
-        const paidPrograms = new Set();
 
         if (w.p) {
           for (const [hIdxStr, mObj] of Object.entries(w.p)) {
@@ -671,10 +579,8 @@
             if (val > 0) {
               currAmt += val;
               paidHeadIndices.add(hIdx);
-              paidPrograms.add(hMeta.p || "Other");
-
-              activityAgg[hIdx].paidAshas++;
-              activityAgg[hIdx].amount += val;
+              allActivityStats[hIdx].paidAshas++;
+              allActivityStats[hIdx].amount += val;
 
               const pObj = programAggMap.get(hMeta.p || "Other");
               if (pObj) {
@@ -685,438 +591,273 @@
           }
         }
 
+        totalDisbursed += currAmt;
+
         const scKey = `${w.b}|||${w.s}`;
         if (!scTotalsMap.has(scKey)) scTotalsMap.set(scKey, { sum: 0, paidCount: 0 });
         if (currAmt > 0) {
-          const scObj = scTotalsMap.get(scKey);
-          scObj.sum += currAmt;
-          scObj.paidCount++;
+          scTotalsMap.get(scKey).sum += currAmt;
+          scTotalsMap.get(scKey).paidCount++;
         }
 
         const streak = getConsecutiveZeroStreak(w, selMonth);
         let causeCode = "PAID";
-        let causeLabel = "सक्रिय भुगतान";
+        let causeLabel = "सक्रिय";
         if (currAmt <= 0) {
           if (selMonth !== "ALL" && prevAmt >= 1500) {
             causeCode = "PFMS_BREAK";
-            causeLabel = "⚡ अचानक ₹0 (PFMS/Account Break)";
+            causeLabel = "अचानक ₹0 (PFMS Break)";
           } else if (streak >= 3) {
             causeCode = "CHRONIC_3";
-            causeLabel = `🚨 लगातार ${streak} माह ₹0 (निष्क्रिय/ड्रॉपआउट)`;
+            causeLabel = `लगातार ${streak} माह ₹0`;
           } else if (streak === 2) {
             causeCode = "CHRONIC_2";
-            causeLabel = "⏳ लगातार 2 माह ₹0 (लंबित)";
+            causeLabel = "लगातार 2 माह ₹0";
           } else {
             causeCode = "SINGLE_ZERO";
-            causeLabel = selMonth === "ALL" ? "संपूर्ण अवधि में ₹0 (पूर्णतः निष्क्रिय)" : "1 माह ₹0 (वाउचर लंबित)";
+            causeLabel = selMonth === "ALL" ? "पूर्णतः ₹0" : "1 माह ₹0";
           }
         }
 
-        return { ...w, currAmt, prevAmt, paidHeadIndices, paidPrograms, streak, causeCode, causeLabel, scKey };
-      });
-
-      const totalScopeAshas = enrichedWorkers.length;
-      const totalScopePaidAmt = enrichedWorkers.reduce((s, w) => s + w.currAmt, 0);
-      const benchmarkPerAsha = totalScopeAshas ? totalScopePaidAmt / totalScopeAshas : 0;
-
-      // Build Program Summary Rows sorted by Amount Desc
-      window.lastProgramRows = Array.from(programAggMap.values()).map(p => ({
-        Program: p.name,
-        Activities_Count: p.headIndices.size,
-        Paid_ASHAs: p.paidAshaSet.size,
-        Coverage_Pct: totalScopeAshas ? Number(((p.paidAshaSet.size / totalScopeAshas) * 100).toFixed(1)) : 0,
-        Total_Amount_Rs: Math.round(p.amount),
-        Share_Pct: totalScopePaidAmt > 0 ? Number(((p.amount / totalScopePaidAmt) * 100).toFixed(1)) : 0
-      })).sort((a, b) => b.Total_Amount_Rs - a.Total_Amount_Rs);
-
-      // Default select top program if none selected or not found
-      if (!selectedProgramName || !window.lastProgramRows.some(p => p.Program === selectedProgramName)) {
-        selectedProgramName = window.lastProgramRows.length ? window.lastProgramRows[0].Program : null;
-      }
-
-      renderProgramSection(activityAgg, totalScopeAshas);
-
-      // Unit & Root Cause Aggregation
-      let paidCount = 0;
-      let zeroCount = 0;
-      let pfmsBreakCount = 0;
-      let chronic3Count = 0;
-
-      const unitMap = new Map();
-      currentZeroRecords = [];
-      window.lastOutlierRows = [];
-
-      enrichedWorkers.forEach(w => {
         const unitKey = groupBySc ? w.s : w.b;
         if (!unitMap.has(unitKey)) {
-          unitMap.set(unitKey, {
-            unit: unitKey, total: 0, paid: 0, zero: 0, pfmsBreak: 0, chronic3: 0, currAmt: 0,
-            progPaid: {}, progAmt: {}
-          });
+          unitMap.set(unitKey, { unit: unitKey, total: 0, paid: 0, zero: 0, pfmsBreak: 0, chronic3: 0, amount: 0 });
         }
         const u = unitMap.get(unitKey);
         u.total++;
-        u.currAmt += w.currAmt;
+        u.amount += currAmt;
 
-        // Track program-wise paid & amount per unit
-        if (w.p) {
-          const countedProgInWorker = new Set();
-          for (const [hIdxStr, mObj] of Object.entries(w.p)) {
-            const hIdx = Number(hIdxStr);
-            const pName = heads[hIdx]?.p || "Other";
-            let v = 0;
-            if (selMonth === "ALL") {
-              for (const mv of Object.values(mObj)) v += Number(mv) || 0;
-            } else {
-              v = Number(mObj[selMonth]) || 0;
-            }
-            if (v > 0) {
-              u.progAmt[pName] = (u.progAmt[pName] || 0) + v;
-              if (!countedProgInWorker.has(pName)) {
-                countedProgInWorker.add(pName);
-                u.progPaid[pName] = (u.progPaid[pName] || 0) + 1;
-              }
-            }
-          }
-        }
-
-        if (w.currAmt > 0) {
+        if (currAmt > 0) {
           paidCount++;
           u.paid++;
-          const scStat = scTotalsMap.get(w.scKey);
+        } else {
+          zeroCount++;
+          u.zero++;
+          if (causeCode === "PFMS_BREAK") { pfmsBreakCount++; u.pfmsBreak++; }
+          else if (causeCode === "CHRONIC_3") { chronic3Count++; u.chronic3++; }
+          currentZeroRecords.push({ ...w, currAmt, prevAmt, streak, causeCode, causeLabel });
+        }
+
+        w._tempCurrAmt = currAmt;
+        w._tempScKey = scKey;
+        w._tempHeadsCount = paidHeadIndices.size;
+      });
+
+      // Second pass for SC Peer Outliers
+      scopedWorkers.forEach(w => {
+        if (w._tempCurrAmt > 0) {
+          const scStat = scTotalsMap.get(w._tempScKey);
           const scAvg = scStat && scStat.paidCount > 1 ? scStat.sum / scStat.paidCount : 0;
-          if (scAvg >= 2000 && w.currAmt < scAvg * 0.5) {
+          if (scAvg >= 2000 && w._tempCurrAmt < scAvg * 0.5) {
             window.lastOutlierRows.push({
               _uid: w._uid,
               ASHA_ID: w.id || w._idKey,
               ASHA_Name: w.n || "-",
               Block: w.b,
               Sub_Center: w.s,
-              ASHA_Amount: Math.round(w.currAmt),
-              SC_Average: Math.round(scAvg),
-              Shortfall_Rs: Math.round(scAvg - w.currAmt),
-              Heads_Count: w.paidHeadIndices.size
+              Amount: Math.round(w._tempCurrAmt),
+              SC_Avg: Math.round(scAvg),
+              Shortfall: Math.round(scAvg - w._tempCurrAmt),
+              Heads: w._tempHeadsCount
             });
           }
-        } else {
-          zeroCount++;
-          u.zero++;
-          if (w.causeCode === "PFMS_BREAK") { pfmsBreakCount++; u.pfmsBreak++; }
-          else if (w.causeCode === "CHRONIC_3") { chronic3Count++; u.chronic3++; }
-          currentZeroRecords.push(w);
         }
       });
 
-      let totalUnspentLeakage = 0;
-      window.lastScorecardRows = Array.from(unitMap.values()).map(u => {
-        const covPct = u.total ? (u.paid / u.total) * 100 : 0;
-        const chronicPct = u.total ? (u.chronic3 / u.total) * 100 : 0;
-        const avgPerAsha = u.total ? u.currAmt / u.total : 0;
-        const leakage = Math.max(0, Math.round((u.total * benchmarkPerAsha) - u.currAmt));
-        totalUnspentLeakage += leakage;
-        const earnRatio = benchmarkPerAsha > 0 ? Math.min(1, avgPerAsha / benchmarkPerAsha) : 0;
-        const score = Math.round((covPct * 0.5) + (earnRatio * 30) + (Math.max(0, 100 - chronicPct * 3) * 0.2));
+      window.lastOutlierRows.sort((a, b) => b.Shortfall - a.Shortfall);
 
+      const benchmarkPerAsha = totalScopedCount ? totalDisbursed / totalScopedCount : 0;
+      let totalLeakage = 0;
+
+      window.lastUnitRows = Array.from(unitMap.values()).map(u => {
+        const covPct = u.total ? (u.paid / u.total) * 100 : 0;
+        const avg = u.total ? u.amount / u.total : 0;
+        const leakage = Math.max(0, Math.round((u.total * benchmarkPerAsha) - u.amount));
+        totalLeakage += leakage;
         return {
           Unit: u.unit,
-          Score: score,
           Total_ASHA: u.total,
           Paid_ASHA: u.paid,
-          Zero_ASHA: u.zero,
           Coverage_Pct: Number(covPct.toFixed(1)),
-          PFMS_Break_Count: u.pfmsBreak,
-          Chronic_3Plus_Count: u.chronic3,
-          Total_Disbursed_Rs: Math.round(u.currAmt),
-          Avg_Per_ASHA_Rs: Math.round(avgPerAsha),
-          Potential_Leakage_Rs: leakage,
-          progPaid: u.progPaid,
-          progAmt: u.progAmt
+          Zero_ASHA: u.zero,
+          PFMS_Break: u.pfmsBreak,
+          Chronic_3Plus: u.chronic3,
+          Total_Amount: Math.round(u.amount),
+          Avg_Per_ASHA: Math.round(avg),
+          Leakage: leakage
         };
-      }).sort((a, b) => b.Score - a.Score);
+      }).sort((a, b) => b.Coverage_Pct - a.Coverage_Pct || b.Avg_Per_ASHA - a.Avg_Per_ASHA);
 
-      window.lastOutlierRows.sort((a, b) => b.Shortfall_Rs - a.Shortfall_Rs);
+      window.lastProgramRows = Array.from(programAggMap.values()).map(p => ({
+        Program: p.name,
+        Activities_Count: p.headIndices.size,
+        Paid_ASHAs: p.paidAshaSet.size,
+        Coverage_Pct: totalScopedCount ? Number(((p.paidAshaSet.size / totalScopedCount) * 100).toFixed(1)) : 0,
+        Total_Amount: Math.round(p.amount),
+        Share_Pct: totalDisbursed > 0 ? Number(((p.amount / totalDisbursed) * 100).toFixed(1)) : 0
+      })).sort((a, b) => b.Total_Amount - a.Total_Amount);
 
       // Update KPIs
-      document.getElementById("kpiTotalAsha").textContent = totalScopeAshas.toLocaleString("en-IN");
-      document.getElementById("kpiPaidPct").textContent = `${totalScopeAshas ? ((paidCount / totalScopeAshas) * 100).toFixed(1) : 0}% को भुगतान`;
-      document.getElementById("kpiTotalDisbursed").textContent = `₹${(totalScopePaidAmt / 100000).toFixed(2)} लाख`;
-      document.getElementById("kpiAvgEarn").textContent = `औसत: ₹${Math.round(benchmarkPerAsha).toLocaleString("en-IN")} / आशा`;
+      document.getElementById("kpiTotalAsha").textContent = totalScopedCount.toLocaleString("en-IN");
+      document.getElementById("kpiPaidBadge").textContent = `${totalScopedCount ? ((paidCount / totalScopedCount) * 100).toFixed(1) : 0}% Paid`;
+      document.getElementById("kpiPaidCountText").textContent = `${paidCount.toLocaleString("en-IN")} आशाओं को भुगतान प्राप्त`;
+
+      document.getElementById("kpiTotalAmount").textContent = `₹${(totalDisbursed / 100000).toFixed(2)} L`;
+      document.getElementById("kpiAvgEarn").textContent = `औसत ₹${Math.round(benchmarkPerAsha).toLocaleString("en-IN")}`;
+      document.getElementById("kpiLeakageText").textContent = `बेंचमार्क गैप: ₹${(totalLeakage / 100000).toFixed(2)} लाख`;
+
       document.getElementById("kpiZeroAsha").textContent = zeroCount.toLocaleString("en-IN");
-      document.getElementById("kpiZeroPct").textContent = `${totalScopeAshas ? ((zeroCount / totalScopeAshas) * 100).toFixed(1) : 0}% वंचित`;
+      document.getElementById("kpiZeroPct").textContent = `${totalScopedCount ? ((zeroCount / totalScopedCount) * 100).toFixed(1) : 0}%`;
+
       document.getElementById("kpiPfmsBreak").textContent = pfmsBreakCount.toLocaleString("en-IN");
-      document.getElementById("kpiChronic3").textContent = chronic3Count.toLocaleString("en-IN");
-      document.getElementById("kpiUnspentGap").textContent = `₹${(totalUnspentLeakage / 100000).toFixed(2)} लाख`;
+      document.getElementById("kpiChronic3").textContent = `3+ माह ₹0: ${chronic3Count}`;
 
       document.getElementById("badgeZero").textContent = currentZeroRecords.length;
       document.getElementById("badgeOutlier").textContent = window.lastOutlierRows.length;
-      document.getElementById("badgeDup").textContent = duplicateRecords.length;
 
-      renderMainProgramsAnalysis(window.lastProgramRows, window.lastScorecardRows);
-      renderScorecardTable();
+      renderProgramAccordion();
+      renderUnitTable();
       renderZeroTable();
       renderOutlierTable();
-      renderDuplicateTable();
-      generateProfessionalReview(selMonth, selBlock, selSc, totalScopeAshas, paidCount, zeroCount, pfmsBreakCount, chronic3Count, totalScopePaidAmt, benchmarkPerAsha);
     }
 
-    // PROGRAM & ACTIVITY INTERACTIVE DRILL-DOWN
-    function renderProgramSection(activityAgg, totalAshas) {
-      const tbody = document.getElementById("programSummaryBody");
-      tbody.innerHTML = window.lastProgramRows.map(p => {
-        const isSel = p.Program === selectedProgramName;
-        return `
-          <tr onclick="window.selectProgram('${p.Program.replace(/'/g, "\\'")}')"
-              class="cursor-pointer transition ${isSel ? "bg-teal-100/80 font-bold border-l-4 border-teal-700" : "hover:bg-slate-50"}">
-            <td class="p-2.5 text-teal-950 font-bold flex items-center gap-1.5">
-              <span>${isSel ? "▼" : "▶"}</span>
+    // INLINE ACCORDION FOR PROGRAM -> ACTIVITIES
+    function renderProgramAccordion() {
+      const tbody = document.getElementById("programAccordionBody");
+      let html = "";
+
+      window.lastProgramRows.forEach(p => {
+        const isOpen = expandedPrograms.has(p.Program);
+        const safeProg = p.Program.replace(/'/g, "\\'");
+
+        html += `
+          <tr onclick="window.toggleProgramAccordion('${safeProg}')"
+              class="cursor-pointer transition ${isOpen ? "bg-teal-50 font-semibold" : "hover:bg-slate-50"}">
+            <td class="py-3 px-3 text-slate-900 font-bold flex items-center gap-2">
+              <span class="inline-flex items-center justify-center w-5 h-5 rounded bg-slate-200 text-slate-700 text-[10px]">${isOpen ? "▼" : "▶"}</span>
               <span>${p.Program}</span>
             </td>
-            <td class="p-2.5 text-center"><span class="bg-slate-200 text-slate-800 px-2 py-0.5 rounded-full font-semibold">${p.Activities_Count}</span></td>
-            <td class="p-2.5 text-right font-semibold text-emerald-700">${p.Paid_ASHAs.toLocaleString("en-IN")}</td>
-            <td class="p-2.5 text-right font-bold">${p.Coverage_Pct}%</td>
-            <td class="p-2.5 text-right font-extrabold text-indigo-900">₹${p.Total_Amount_Rs.toLocaleString("en-IN")}</td>
-            <td class="p-2.5 text-right text-slate-600">${p.Share_Pct}%</td>
+            <td class="py-3 px-3 text-center">
+              <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full text-[11px] font-semibold">${p.Activities_Count}</span>
+            </td>
+            <td class="py-3 px-3 text-right text-emerald-700 font-semibold">${p.Paid_ASHAs.toLocaleString("en-IN")}</td>
+            <td class="py-3 px-3 text-right font-bold">${p.Coverage_Pct}%</td>
+            <td class="py-3 px-3 text-right font-bold text-slate-900">₹${p.Total_Amount.toLocaleString("en-IN")}</td>
+            <td class="py-3 px-3 text-right text-slate-500">${p.Share_Pct}%</td>
           </tr>`;
-      }).join("");
 
-      // Render Bar Chart for Top Programs
+        if (isOpen) {
+          const acts = allActivityStats
+            .filter(a => a.program === p.Program)
+            .map(a => ({
+              ...a,
+              covPct: totalScopedCount ? (a.paidAshas / totalScopedCount) * 100 : 0,
+              gapAshas: Math.max(0, totalScopedCount - a.paidAshas),
+              avg: a.paidAshas ? Math.round(a.amount / a.paidAshas) : 0
+            }))
+            .sort((a, b) => b.amount - a.amount);
+
+          html += `
+            <tr class="bg-slate-50/90">
+              <td colspan="6" class="p-3 pl-8">
+                <div class="bg-white border border-teal-200 rounded-lg overflow-hidden shadow-inner">
+                  <div class="bg-teal-900 text-white px-3 py-1.5 flex justify-between items-center text-[11px]">
+                    <span class="font-bold">${p.Program} — Activities (${acts.length})</span>
+                    <button onclick="event.stopPropagation(); window.exportProgramActivities('${safeProg}')" class="text-teal-200 hover:text-white underline">Excel डाउनलोड</button>
+                  </div>
+                  <table class="w-full text-left border-collapse text-[11px]">
+                    <thead>
+                      <tr class="bg-slate-100 text-slate-600 border-b">
+                        <th class="py-2 px-3">Activity / मद का नाम</th>
+                        <th class="py-2 px-3 text-right">Paid ASHAs</th>
+                        <th class="py-2 px-3 text-right text-rose-700">Pending Gap</th>
+                        <th class="py-2 px-3 text-right">कवरेज %</th>
+                        <th class="py-2 px-3 text-right">कुल राशि (₹)</th>
+                        <th class="py-2 px-3 text-right">औसत / ASHA</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                      ${acts.map(a => `
+                        <tr class="hover:bg-teal-50/40">
+                          <td class="py-2 px-3 font-medium text-slate-800">${a.activity}</td>
+                          <td class="py-2 px-3 text-right font-semibold text-emerald-700">${a.paidAshas.toLocaleString("en-IN")}</td>
+                          <td class="py-2 px-3 text-right text-rose-600">${a.gapAshas.toLocaleString("en-IN")}</td>
+                          <td class="py-2 px-3 text-right font-bold">${a.covPct.toFixed(1)}%</td>
+                          <td class="py-2 px-3 text-right font-bold text-slate-900">₹${Math.round(a.amount).toLocaleString("en-IN")}</td>
+                          <td class="py-2 px-3 text-right text-slate-600">₹${a.avg.toLocaleString("en-IN")}</td>
+                        </tr>`).join("")}
+                    </tbody>
+                  </table>
+                </div>
+              </td>
+            </tr>`;
+        }
+      });
+
+      tbody.innerHTML = html || `<tr><td colspan="6" class="p-6 text-center text-slate-400">कोई डेटा उपलब्ध नहीं।</td></tr>`;
+
+      // Render Clean Chart
       const topProgs = window.lastProgramRows.slice(0, 8);
       if (progChartInstance) progChartInstance.destroy();
-      progChartInstance = new Chart(document.getElementById("programBarChart"), {
+      progChartInstance = new Chart(document.getElementById("programChart"), {
         type: "bar",
         data: {
           labels: topProgs.map(p => p.Program.slice(0, 18)),
           datasets: [{
-            label: "वितरित राशि (₹ लाख)",
-            data: topProgs.map(p => Number((p.Total_Amount_Rs / 100000).toFixed(2))),
-            backgroundColor: topProgs.map(p => p.Program === selectedProgramName ? "#0f766e" : "#6366f1")
+            label: "₹ लाख",
+            data: topProgs.map(p => Number((p.Total_Amount / 100000).toFixed(2))),
+            backgroundColor: "#0f766e",
+            borderRadius: 4
           }]
         },
         options: {
           indexAxis: "y",
           responsive: true,
           maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
           onClick: (_, els) => {
-            if (els.length > 0) {
-              const idx = els[0].index;
-              window.selectProgram(topProgs[idx].Program);
-            }
+            if (els.length > 0) window.toggleProgramAccordion(topProgs[els[0].index].Program);
           }
         }
       });
-
-      // Render Activities for Selected Program
-      document.getElementById("selectedProgramTitle").textContent =
-        selectedProgramName ? `प्रोग्राम: "${selectedProgramName}" — अंतर्गत आने वाली सभी Activities` : "कोई प्रोग्राम उपलब्ध नहीं";
-
-      const acts = activityAgg
-        .filter(a => a.program === selectedProgramName)
-        .map(a => {
-          const cov = totalAshas ? (a.paidAshas / totalAshas) * 100 : 0;
-          const avg = a.paidAshas ? Math.round(a.amount / a.paidAshas) : 0;
-          return {
-            Activity: a.activity,
-            Paid_ASHAs: a.paidAshas,
-            Gap_ASHAs: Math.max(0, totalAshas - a.paidAshas),
-            Coverage_Pct: Number(cov.toFixed(1)),
-            Total_Amount_Rs: Math.round(a.amount),
-            Avg_Per_Paid_ASHA: avg
-          };
-        })
-        .sort((a, b) => b.Total_Amount_Rs - a.Total_Amount_Rs);
-
-      window.lastSelectedActivities = acts;
-
-      const actBody = document.getElementById("activityDrillBody");
-      if (!acts.length) {
-        actBody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400">इस प्रोग्राम में कोई एक्टिविटी रिकॉर्ड नहीं है।</td></tr>`;
-        return;
-      }
-
-      actBody.innerHTML = acts.map((a, i) => {
-        const badge = a.Paid_ASHAs === 0
-          ? `<span class="bg-rose-600 text-white px-2 py-0.5 rounded text-[11px] font-bold">0% (वाउचर लंबित)</span>`
-          : a.Coverage_Pct < 20
-          ? `<span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded text-[11px] font-bold">कम कवरेज</span>`
-          : `<span class="bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded text-[11px] font-semibold">सक्रिय</span>`;
-        return `
-          <tr class="hover:bg-teal-50/40">
-            <td class="p-2.5 text-slate-500">${i + 1}</td>
-            <td class="p-2.5 font-bold text-slate-800">${a.Activity}</td>
-            <td class="p-2.5 text-right font-bold text-emerald-700">${a.Paid_ASHAs.toLocaleString("en-IN")}</td>
-            <td class="p-2.5 text-right text-rose-700">${a.Gap_ASHAs.toLocaleString("en-IN")}</td>
-            <td class="p-2.5 text-right font-bold">${a.Coverage_Pct}%</td>
-            <td class="p-2.5 text-right font-extrabold text-indigo-900">₹${a.Total_Amount_Rs.toLocaleString("en-IN")}</td>
-            <td class="p-2.5 text-right text-slate-700">₹${a.Avg_Per_Paid_ASHA.toLocaleString("en-IN")}</td>
-            <td class="p-2.5">${badge}</td>
-          </tr>`;
-      }).join("");
     }
 
-    window.selectProgram = (progName) => {
-      selectedProgramName = progName;
-      runAnalysis();
+    window.toggleProgramAccordion = (progName) => {
+      if (expandedPrograms.has(progName)) expandedPrograms.delete(progName);
+      else expandedPrograms.add(progName);
+      renderProgramAccordion();
     };
 
-    // MAIN PROGRAMS DEEP ANALYSIS (Top 5 Main Programs by Disbursement/Core Priority)
-    function renderMainProgramsAnalysis(progRows, unitRows) {
-      const mainProgs = progRows.slice(0, 5); // Top 5 Main Programs in the dataset
-      const cardsGrid = document.getElementById("mainProgramCardsGrid");
+    window.exportProgramActivities = (progName) => {
+      const rows = allActivityStats
+        .filter(a => a.program === progName)
+        .map(a => ({
+          Program: a.program,
+          Activity: a.activity,
+          Paid_ASHAs: a.paidAshas,
+          Pending_Gap_ASHAs: Math.max(0, totalScopedCount - a.paidAshas),
+          Coverage_Pct: totalScopedCount ? Number(((a.paidAshas / totalScopedCount) * 100).toFixed(1)) : 0,
+          Total_Amount_Rs: Math.round(a.amount),
+          Avg_Per_ASHA_Rs: a.paidAshas ? Math.round(a.amount / a.paidAshas) : 0
+        }));
+      window.exportSheet(rows, progName.slice(0, 25));
+    };
 
-      cardsGrid.innerHTML = mainProgs.map(mp => {
-        // Find best and worst unit for this main program
-        const unitStats = unitRows.map(u => {
-          const paid = u.progPaid[mp.Program] || 0;
-          const pct = u.Total_ASHA ? (paid / u.Total_ASHA) * 100 : 0;
-          const amt = u.progAmt[mp.Program] || 0;
-          return { unit: u.Unit, pct, amt, paid, total: u.Total_ASHA };
-        }).sort((a, b) => b.pct - a.pct);
-
-        const best = unitStats[0];
-        const worst = unitStats[unitStats.length - 1];
-
-        return `
-          <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/70 space-y-2.5">
-            <div class="flex justify-between items-start gap-2 border-b pb-2">
-              <h4 class="text-xs font-extrabold text-teal-950">${mp.Program}</h4>
-              <span class="bg-indigo-100 text-indigo-900 text-[11px] font-bold px-2 py-0.5 rounded">₹${(mp.Total_Amount_Rs / 100000).toFixed(2)}L</span>
-            </div>
-            <div class="grid grid-cols-2 gap-2 text-xs">
-              <div><span class="text-slate-500 block text-[10px]">कवरेज %</span><strong class="text-slate-800">${mp.Coverage_Pct}% (${mp.Paid_ASHAs})</strong></div>
-              <div><span class="text-slate-500 block text-[10px]">कुल हिस्सेदारी</span><strong class="text-slate-800">${mp.Share_Pct}%</strong></div>
-            </div>
-            ${best && worst ? `
-              <div class="text-[11px] pt-1 border-t space-y-1">
-                <div class="text-emerald-800">🏆 <strong>अग्रणी:</strong> ${best.unit} (${best.pct.toFixed(0)}%)</div>
-                <div class="text-rose-800">⚠️ <strong>न्यूनतम:</strong> ${worst.unit} (${worst.pct.toFixed(0)}%)</div>
-              </div>` : ""}
-          </div>`;
-      }).join("");
-
-      // Cross Matrix Table for Main Programs
-      const tbl = document.getElementById("mainProgramMatrixTable");
-      window.lastMainProgMatrix = [];
-      let thead = `<thead><tr class="bg-slate-100 text-slate-700 border-b">
-        <th class="p-2.5 sticky left-0 bg-slate-100">इकाई (Block / SC)</th>
-        <th class="p-2.5 text-right">कुल आशा</th>`;
-      mainProgs.forEach(mp => {
-        thead += `<th class="p-2.5 text-center">${mp.Program}<br><span class="text-[10px] font-normal text-slate-500">(कवरेज % | राशि)</span></th>`;
-      });
-      thead += `</tr></thead>`;
-
-      let tbody = `<tbody class="divide-y divide-slate-100">`;
-      unitRows.forEach(u => {
-        const expRow = { Unit: u.Unit, Total_ASHA: u.Total_ASHA };
-        tbody += `<tr class="hover:bg-slate-50">
-          <td class="p-2.5 font-bold sticky left-0 bg-white">${u.Unit}</td>
-          <td class="p-2.5 text-right font-semibold">${u.Total_ASHA}</td>`;
-        mainProgs.forEach(mp => {
-          const paid = u.progPaid[mp.Program] || 0;
-          const amt = Math.round(u.progAmt[mp.Program] || 0);
-          const pct = u.Total_ASHA ? (paid / u.Total_ASHA) * 100 : 0;
-          expRow[`${mp.Program}_CovPct`] = Number(pct.toFixed(1));
-          expRow[`${mp.Program}_Amt`] = amt;
-          const badge = pct < 15 ? "bg-rose-100 text-rose-900" : pct < 45 ? "bg-amber-100 text-amber-900" : "bg-emerald-100 text-emerald-900";
-          tbody += `<td class="p-2 text-center border-l border-slate-100">
-            <span class="px-2 py-0.5 rounded font-bold ${badge}">${pct.toFixed(0)}%</span>
-            <span class="block text-[10px] text-slate-600 mt-0.5">₹${amt.toLocaleString("en-IN")}</span>
-          </td>`;
-        });
-        tbody += `</tr>`;
-        window.lastMainProgMatrix.push(expRow);
-      });
-      tbody += `</tbody>`;
-      tbl.innerHTML = thead + tbody;
-    }
-
-    // PROFESSIONAL EXECUTIVE REVIEW NOTE GENERATOR
-    function generateProfessionalReview(selMonth, selBlock, selSc, totalAshas, paidCount, zeroCount, pfmsCount, chronic3Count, totalAmt, avgPerAsha) {
-      const scopeLabel = selBlock === "ALL" ? "जनपद अयोध्या (समस्त 11 विकास खंड)" : `विकास खंड ${selBlock}${selSc !== "ALL" ? ` (सब-सेंटर: ${selSc})` : ""}`;
-      const periodLabel = selMonth === "ALL" ? `समस्त उपलब्ध माह (${sortedMonthsAsc.join(", ")})` : `माह ${selMonth}`;
-      const covPct = totalAshas ? ((paidCount / totalAshas) * 100).toFixed(1) : 0;
-      const zeroPct = totalAshas ? ((zeroCount / totalAshas) * 100).toFixed(1) : 0;
-
-      const topUnits = window.lastScorecardRows.slice(0, 3);
-      const bottomUnits = [...window.lastScorecardRows].reverse().slice(0, 3);
-      const topProgram = window.lastProgramRows[0];
-      const weakPrograms = window.lastProgramRows.filter(p => p.Coverage_Pct < 20).slice(0, 3);
-
-      const container = document.getElementById("profReviewContainer");
-      container.innerHTML = `
-        <div class="p-4 bg-slate-50 border-l-4 border-indigo-700 rounded-r-xl space-y-1.5">
-          <h4 class="font-bold text-indigo-950 text-sm">1. समग्र वित्तीय एवं कवरेज स्थिति (${scopeLabel} — ${periodLabel})</h4>
-          <p class="text-slate-700">
-            कुल पंजीकृत <strong>${totalAshas.toLocaleString("en-IN")}</strong> आशा कार्यकर्ताओं के सापेक्ष <strong>${paidCount.toLocaleString("en-IN")} (${covPct}%)</strong> आशाओं को कुल <strong>₹${Math.round(totalAmt).toLocaleString("en-IN")}</strong> की प्रोत्साहन राशि वितरित की गई है (औसत <strong>₹${Math.round(avgPerAsha).toLocaleString("en-IN")}</strong> प्रति आशा)। शेष <strong>${zeroCount.toLocaleString("en-IN")} (${zeroPct}%)</strong> आशाओं को समीक्षा अवधि में कोई भुगतान प्राप्त नहीं हुआ है।
-          </p>
-        </div>
-
-        <div class="p-4 bg-rose-50/60 border-l-4 border-rose-700 rounded-r-xl space-y-1.5">
-          <h4 class="font-bold text-rose-950 text-sm">2. शून्य-भुगतान (Zero-Payment) के तकनीकी एवं प्रशासनिक कारण</h4>
-          <ul class="list-disc pl-5 text-slate-800 space-y-1">
-            <li><strong>आकस्मिक भुगतान अवरोध (PFMS / Account Break):</strong> <strong>${pfmsCount}</strong> आशाएं ऐसी चिह्नित हुई हैं जिन्हें पिछले माह नियमित भुगतान प्राप्त हुआ था, किंतु वर्तमान माह में राशि <strong>₹0</strong> है। यह स्पष्ट रूप से बैंक खाता अमान्य होने, PFMS मैपिंग त्रुटि अथवा ब्लॉक स्तर पर वाउचर फीडिंग छूटने का संकेत है।</li>
-            <li><strong>दीर्घकालिक निष्क्रियता (Chronic 3+ Months ₹0):</strong> <strong>${chronic3Count}</strong> आशाओं को विगत 3 या अधिक माह से लगातार शून्य भुगतान हुआ है। संबंधित MOIC एवं BCPM इनके फील्ड में सक्रिय होने की तत्काल पुष्टि करें; निष्क्रिय पाए जाने पर नियमानुसार चयन निरस्तीकरण/नवीन चयन की कार्यवाही प्रस्तावित करें।</li>
-          </ul>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="p-4 bg-emerald-50/60 border border-emerald-200 rounded-xl space-y-1">
-            <h4 class="font-bold text-emerald-950">3. उत्कृष्ट प्रदर्शन करने वाली इकाइयाँ (Top Performers)</h4>
-            ${topUnits.map((u, i) => `<p class="text-slate-700"><strong>#${i + 1} ${u.Unit}:</strong> स्कोर ${u.Score}/100 • कवरेज ${u.Coverage_Pct}% • औसत ₹${u.Avg_Per_ASHA_Rs.toLocaleString("en-IN")}</p>`).join("")}
-          </div>
-          <div class="p-4 bg-amber-50/70 border border-amber-200 rounded-xl space-y-1">
-            <h4 class="font-bold text-amber-950">4. तत्काल सुधारात्मक हस्तक्षेप वाली इकाइयाँ (Priority Action)</h4>
-            ${bottomUnits.map(u => `<p class="text-slate-700"><strong>• ${u.Unit}:</strong> स्कोर ${u.Score}/100 • ₹0 आशा: <strong>${u.Zero_ASHA}</strong> • संभावित Leakage: ₹${u.Potential_Leakage_Rs.toLocaleString("en-IN")}</p>`).join("")}
-          </div>
-        </div>
-
-        <div class="p-4 bg-teal-50/60 border-l-4 border-teal-700 rounded-r-xl space-y-1.5">
-          <h4 class="font-bold text-teal-950 text-sm">5. कार्यक्रमवार (Program-Wise) समीक्षा एवं निर्देश</h4>
-          <p class="text-slate-700">
-            सर्वाधिक वितरण <strong>${topProgram ? topProgram.Program : "-"}</strong> कार्यक्रम के अंतर्गत (<strong>₹${topProgram ? topProgram.Total_Amount_Rs.toLocaleString("en-IN") : 0}</strong>, कवरेज ${topProgram ? topProgram.Coverage_Pct : 0}%) दर्ज किया गया है।
-            ${weakPrograms.length ? `इसके विपरीत <strong>${weakPrograms.map(w => `${w.Program} (${w.Coverage_Pct}%)`).join(", ")}</strong> में कवरेज 20% से कम है।` : ""}
-          </p>
-          <p class="font-bold text-slate-900 pt-1">
-            आदेशित कार्यवाही: समस्त प्रभारी चिकित्सा अधिकारी (MOIC), BPM एवं BAM को निर्देशित किया जाता है कि वे डैशबोर्ड से अपने क्षेत्र की PFMS Break एवं Chronic ₹0 सूची डाउनलोड कर 07 कार्यदिवस के भीतर लंबित वाउचर ई-कवच/PFMS पर अपलोड कराना सुनिश्चित करें।
-          </p>
-        </div>
-      `;
-
-      plainProfReviewText =
-`आशा प्रोत्साहन राशि भुगतान — प्रशासनिक एवं वित्तीय समीक्षा टिप्पणी
-क्षेत्र: ${scopeLabel} | अवधि: ${periodLabel}
-
-1. समग्र स्थिति: कुल ${totalAshas} पंजीकृत आशाओं के सापेक्ष ${paidCount} (${covPct}%) को ₹${Math.round(totalAmt).toLocaleString("en-IN")} का भुगतान किया गया (औसत ₹${Math.round(avgPerAsha).toLocaleString("en-IN")}/आशा), जबकि ${zeroCount} (${zeroPct}%) आशाएं शून्य भुगतान (₹0) पर हैं।
-2. तकनीकी एवं प्रशासनिक गैप:
-   - आकस्मिक अवरोध (PFMS/Account Break): ${pfmsCount} आशाएं पिछले माह सक्रिय रहने के बाद इस माह ₹0 पर हैं।
-   - दीर्घकालिक शून्य भुगतान (3+ माह ₹0): ${chronic3Count} आशाएं लगातार 3+ माह से ₹0 पर हैं।
-3. निम्नतम प्रदर्शन वाली इकाइयाँ: ${bottomUnits.map(u => `${u.Unit} (₹0: ${u.Zero_ASHA}, स्कोर: ${u.Score}/100)`).join("; ")}।
-4. निर्देश: संबंधित MOIC/BPM/BAM 07 दिवस के भीतर लंबित वाउचर एवं बैंक मैपिंग त्रुटियों का निस्तारण सुनिश्चित करें।`;
-    }
-
-    document.getElementById("copyProfReviewBtn").addEventListener("click", () => {
-      navigator.clipboard.writeText(plainProfReviewText);
-      alert("Professional Review Note क्लिपबोर्ड पर कॉपी हो गया है!");
-    });
-
-    function renderScorecardTable() {
-      const tbody = document.getElementById("scorecardBody");
-      tbody.innerHTML = window.lastScorecardRows.map((r, idx) => {
-        const badge = r.Score >= 75 ? "bg-emerald-100 text-emerald-900"
-          : r.Score >= 50 ? "bg-amber-100 text-amber-900"
-          : "bg-rose-100 text-rose-900";
-        return `
-          <tr class="hover:bg-slate-50">
-            <td class="p-2.5 font-extrabold text-slate-600">#${idx + 1}</td>
-            <td class="p-2.5 font-bold text-slate-900">${r.Unit}</td>
-            <td class="p-2.5 text-center"><span class="px-2.5 py-0.5 rounded-full font-extrabold ${badge}">${r.Score}</span></td>
-            <td class="p-2.5 text-right">${r.Total_ASHA}</td>
-            <td class="p-2.5 text-right font-bold text-emerald-700">${r.Coverage_Pct}%</td>
-            <td class="p-2.5 text-right font-bold text-purple-800">${r.PFMS_Break_Count}</td>
-            <td class="p-2.5 text-right font-bold text-red-800">${r.Chronic_3Plus_Count}</td>
-            <td class="p-2.5 text-right">₹${r.Avg_Per_ASHA_Rs.toLocaleString("en-IN")}</td>
-            <td class="p-2.5 text-right font-extrabold text-indigo-800">₹${r.Potential_Leakage_Rs.toLocaleString("en-IN")}</td>
-          </tr>`;
-      }).join("");
+    function renderUnitTable() {
+      const tbody = document.getElementById("unitTableBody");
+      tbody.innerHTML = window.lastUnitRows.map((r, i) => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-2.5 px-3 font-bold text-slate-500">#${i + 1}</td>
+          <td class="py-2.5 px-3 font-bold text-slate-900">${r.Unit}</td>
+          <td class="py-2.5 px-3 text-right">${r.Total_ASHA}</td>
+          <td class="py-2.5 px-3 text-right text-emerald-700 font-semibold">${r.Paid_ASHA}</td>
+          <td class="py-2.5 px-3 text-right font-bold">${r.Coverage_Pct}%</td>
+          <td class="py-2.5 px-3 text-right font-bold text-rose-700">${r.Zero_ASHA}</td>
+          <td class="py-2.5 px-3 text-right font-semibold text-purple-800">${r.PFMS_Break}</td>
+          <td class="py-2.5 px-3 text-right font-semibold text-red-800">${r.Chronic_3Plus}</td>
+          <td class="py-2.5 px-3 text-right font-bold">₹${r.Total_Amount.toLocaleString("en-IN")}</td>
+          <td class="py-2.5 px-3 text-right text-slate-600">₹${r.Avg_Per_ASHA.toLocaleString("en-IN")}</td>
+        </tr>`).join("");
     }
 
     function renderZeroTable() {
@@ -1135,35 +876,34 @@
         Block: w.b,
         Sub_Center: w.s,
         Village: w.v,
-        Root_Cause: w.causeLabel,
-        Prev_Month_Paid_Rs: Math.round(w.prevAmt),
+        Diagnosis: w.causeLabel,
+        Prev_Month_Rs: Math.round(w.prevAmt),
         Consecutive_Zero_Months: w.streak,
-        Lifetime_Total_Rs: Math.round(w.t || 0)
+        Total_History_Rs: Math.round(w.t || 0)
       }));
 
       const tbody = document.getElementById("zeroTableBody");
       if (!filtered.length) {
-        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-emerald-700 font-bold">इस फ़िल्टर में कोई रिकॉर्ड नहीं है।</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">कोई रिकॉर्ड नहीं मिला।</td></tr>`;
         return;
       }
 
       tbody.innerHTML = filtered.slice(0, 600).map(w => {
-        const pill = w.causeCode === "PFMS_BREAK" ? "bg-purple-100 text-purple-900"
-          : w.causeCode === "CHRONIC_3" ? "bg-red-700 text-white"
-          : w.causeCode === "CHRONIC_2" ? "bg-amber-200 text-amber-950"
-          : "bg-slate-200 text-slate-800";
+        const badge = w.causeCode === "PFMS_BREAK" ? "bg-purple-100 text-purple-900"
+          : w.causeCode === "CHRONIC_3" ? "bg-red-100 text-red-900"
+          : "bg-slate-100 text-slate-700";
         return `
-          <tr class="hover:bg-rose-50/40">
-            <td class="p-2.5 font-mono font-bold">${w.id || w._idKey}</td>
-            <td class="p-2.5">
+          <tr class="hover:bg-slate-50">
+            <td class="py-2.5 px-3 font-mono font-semibold">${w.id || w._idKey}</td>
+            <td class="py-2.5 px-3">
               <button onclick="window.openAsha360(${w._uid})" class="font-bold text-teal-800 hover:underline text-left">${w.n || "-"}</button>
             </td>
-            <td class="p-2.5">${w.b}</td>
-            <td class="p-2.5">${w.s}</td>
-            <td class="p-2.5"><span class="px-2 py-0.5 rounded font-bold text-[11px] ${pill}">${w.causeLabel}</span></td>
-            <td class="p-2.5 text-right font-semibold text-slate-700">₹${Math.round(w.prevAmt).toLocaleString("en-IN")}</td>
-            <td class="p-2.5 text-center font-bold">${w.streak} माह</td>
-            <td class="p-2.5 text-right text-slate-600">₹${Math.round(w.t || 0).toLocaleString("en-IN")}</td>
+            <td class="py-2.5 px-3">${w.b}</td>
+            <td class="py-2.5 px-3">${w.s}</td>
+            <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[11px] font-semibold ${badge}">${w.causeLabel}</span></td>
+            <td class="py-2.5 px-3 text-right">₹${Math.round(w.prevAmt).toLocaleString("en-IN")}</td>
+            <td class="py-2.5 px-3 text-center font-semibold">${w.streak} माह</td>
+            <td class="py-2.5 px-3 text-right text-slate-600">₹${Math.round(w.t || 0).toLocaleString("en-IN")}</td>
           </tr>`;
       }).join("");
     }
@@ -1175,58 +915,43 @@
         return;
       }
       tbody.innerHTML = window.lastOutlierRows.slice(0, 500).map(r => `
-        <tr class="hover:bg-amber-50/40">
-          <td class="p-2.5 font-mono font-bold">${r.ASHA_ID}</td>
-          <td class="p-2.5"><button onclick="window.openAsha360(${r._uid})" class="font-bold text-teal-800 hover:underline text-left">${r.ASHA_Name}</button></td>
-          <td class="p-2.5">${r.Block}</td>
-          <td class="p-2.5">${r.Sub_Center}</td>
-          <td class="p-2.5 text-right font-bold text-rose-700">₹${r.ASHA_Amount.toLocaleString("en-IN")}</td>
-          <td class="p-2.5 text-right font-semibold text-slate-700">₹${r.SC_Average.toLocaleString("en-IN")}</td>
-          <td class="p-2.5 text-right font-extrabold text-rose-800">-₹${r.Shortfall_Rs.toLocaleString("en-IN")}</td>
-          <td class="p-2.5 text-center">${r.Heads_Count} मद</td>
+        <tr class="hover:bg-slate-50">
+          <td class="py-2.5 px-3 font-mono font-semibold">${r.ASHA_ID}</td>
+          <td class="py-2.5 px-3"><button onclick="window.openAsha360(${r._uid})" class="font-bold text-teal-800 hover:underline text-left">${r.ASHA_Name}</button></td>
+          <td class="py-2.5 px-3">${r.Block}</td>
+          <td class="py-2.5 px-3">${r.Sub_Center}</td>
+          <td class="py-2.5 px-3 text-right font-bold text-rose-700">₹${r.Amount.toLocaleString("en-IN")}</td>
+          <td class="py-2.5 px-3 text-right">₹${r.SC_Avg.toLocaleString("en-IN")}</td>
+          <td class="py-2.5 px-3 text-right font-bold text-rose-800">-₹${r.Shortfall.toLocaleString("en-IN")}</td>
+          <td class="py-2.5 px-3 text-center">${r.Heads}</td>
         </tr>`).join("");
     }
 
-    function renderDuplicateTable() {
-      const selBlock = document.getElementById("blockFilter").value;
-      const list = duplicateRecords.filter(w => selBlock === "ALL" || w.b.toLowerCase() === selBlock.toLowerCase());
-      const tbody = document.getElementById("dupTableBody");
-      tbody.innerHTML = list.length ? list.map(w => `
-        <tr>
-          <td class="p-2.5 font-mono font-bold text-amber-800">${w.id || w._idKey}</td>
-          <td class="p-2.5 font-semibold">${w.n}</td>
-          <td class="p-2.5">${w.b}</td>
-          <td class="p-2.5">${w.s}</td>
-          <td class="p-2.5 text-right font-bold">₹${Math.round(w.t || 0).toLocaleString("en-IN")}</td>
-        </tr>`).join("") : `<tr><td colspan="5" class="p-5 text-center text-slate-400">कोई डुप्लीकेट ID नहीं।</td></tr>`;
-    }
-
-    // ASHA 360° Drill-Down Modal
+    // ASHA 360° Modal
     window.openAsha360 = (uid) => {
       const w = flatWorkers.find(x => x._uid === uid);
       if (!w) return;
       const heads = rawPortalData.heads || [];
       document.getElementById("m360Name").textContent = `${w.n} (ID: ${w.id || w._idKey})`;
-      document.getElementById("m360Meta").textContent = `ब्लॉक: ${w.b} • सब-सेंटर: ${w.s} • गाँव: ${w.v} • कुल संचित भुगतान: ₹${Math.round(w.t || 0).toLocaleString("en-IN")}`;
+      document.getElementById("m360Meta").textContent = `ब्लॉक: ${w.b} • उप-केंद्र: ${w.s} • गाँव: ${w.v}`;
+      document.getElementById("m360MonthStrip").textContent =
+        `माहवार योग: ` + sortedMonthsAsc.map(m => `${m}: ₹${Math.round(w.monthTotals[m] || 0).toLocaleString("en-IN")}`).join(" | ");
 
-      const diagEl = document.getElementById("m360Diagnosis");
-      diagEl.textContent = `माहवार कुल भुगतान इतिहास: ` + sortedMonthsAsc.map(m => `${m}: ₹${Math.round(w.monthTotals[m] || 0).toLocaleString("en-IN")}`).join("  |  ");
-
-      let html = `<thead><tr class="bg-slate-100 border-b"><th class="p-2">प्रोग्राम</th><th class="p-2">मद का नाम (Head)</th>`;
+      let html = `<thead><tr class="bg-slate-100 border-b"><th class="p-2">प्रोग्राम</th><th class="p-2">Activity / मद</th>`;
       sortedMonthsAsc.forEach(m => { html += `<th class="p-2 text-right">${m}</th>`; });
-      html += `<th class="p-2 text-right font-bold">कुल योग</th></tr></thead><tbody class="divide-y">`;
+      html += `<th class="p-2 text-right font-bold">कुल</th></tr></thead><tbody class="divide-y">`;
 
       if (w.p) {
         for (const [hIdxStr, mObj] of Object.entries(w.p)) {
           const meta = heads[Number(hIdxStr)] || { p: "-", h: "-" };
           let rowSum = 0;
-          html += `<tr><td class="p-2 text-slate-600">${meta.p}</td><td class="p-2 font-semibold">${meta.h}</td>`;
+          html += `<tr><td class="p-2 text-slate-500">${meta.p}</td><td class="p-2 font-semibold">${meta.h}</td>`;
           sortedMonthsAsc.forEach(m => {
             const v = Number(mObj[m]) || 0;
             rowSum += v;
-            html += `<td class="p-2 text-right ${v === 0 ? "text-rose-500 bg-rose-50/40" : "font-bold text-emerald-700"}">₹${v.toLocaleString("en-IN")}</td>`;
+            html += `<td class="p-2 text-right ${v === 0 ? "text-slate-300" : "font-bold text-emerald-700"}">₹${v.toLocaleString("en-IN")}</td>`;
           });
-          html += `<td class="p-2 text-right font-extrabold">₹${rowSum.toLocaleString("en-IN")}</td></tr>`;
+          html += `<td class="p-2 text-right font-bold">₹${rowSum.toLocaleString("en-IN")}</td></tr>`;
         }
       }
       html += `</tbody>`;
@@ -1236,8 +961,26 @@
 
     // WhatsApp Brief
     document.getElementById("whatsappBriefBtn").addEventListener("click", () => {
-      document.getElementById("waTextBox").value = plainProfReviewText + `\n\n🔗 डैशबोर्ड लिंक:\nhttps://ramkp007-ctrl.github.io/asha-ayodhya/dashboard.html`;
-      document.getElementById("openWaLink").href = `https://wa.me/?text=${encodeURIComponent(document.getElementById("waTextBox").value)}`;
+      const m = document.getElementById("monthFilter").value;
+      const b = document.getElementById("blockFilter").value;
+      const scope = b === "ALL" ? "जनपद अयोध्या (11 ब्लॉक)" : `ब्लॉक ${b}`;
+      const worst = [...window.lastUnitRows].reverse().slice(0, 3).map(u => `• ${u.Unit}: कवरेज ${u.Coverage_Pct}% (₹0: ${u.Zero_ASHA})`).join("\n");
+
+      const msg =
+`*NHM अयोध्या — आशा भुगतान समीक्षा*
+क्षेत्र: ${scope} | अवधि: ${m}
+
+• कुल आशा: ${document.getElementById("kpiTotalAsha").textContent} (${document.getElementById("kpiPaidBadge").textContent})
+• शून्य भुगतान (₹0): ${document.getElementById("kpiZeroAsha").textContent}
+• अचानक ₹0 (PFMS Break): ${document.getElementById("kpiPfmsBreak").textContent}
+
+न्यूनतम कवरेज इकाइयाँ:
+${worst}
+
+पोर्टल: https://ramkp007-ctrl.github.io/asha-ayodhya/dashboard.html`;
+
+      document.getElementById("waTextBox").value = msg;
+      document.getElementById("openWaLink").href = `https://wa.me/?text=${encodeURIComponent(msg)}`;
       document.getElementById("waModal").classList.remove("hidden");
     });
 
@@ -1249,16 +992,19 @@
     // Tabs
     document.querySelectorAll(".tab-btn").forEach(btn => {
       btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active", "bg-white", "border-t", "border-x", "border-slate-200", "text-indigo-950"));
-        btn.classList.add("active", "bg-white", "border-t", "border-x", "border-slate-200", "text-indigo-950");
+        document.querySelectorAll(".tab-btn").forEach(b => {
+          b.classList.remove("active", "border-teal-800", "text-teal-900", "font-bold");
+          b.classList.add("border-transparent", "text-slate-600", "font-semibold");
+        });
+        btn.classList.add("active", "border-teal-800", "text-teal-900", "font-bold");
+        btn.classList.remove("border-transparent", "text-slate-600", "font-semibold");
         document.querySelectorAll(".tab-panel").forEach(p => p.classList.add("hidden"));
         document.getElementById(btn.dataset.tab).classList.remove("hidden");
       });
     });
 
-    // Generic Sheet Export
     window.exportSheet = (rows, sheetName) => {
-      const clean = rows.map(({ progPaid, progAmt, _uid, ...rest }) => rest);
+      const clean = rows.map(({ _uid, ...rest }) => rest);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(clean), sheetName);
       XLSX.writeFile(wb, `${sheetName}_${document.getElementById("monthFilter").value}.xlsx`);
@@ -1266,15 +1012,12 @@
 
     document.getElementById("exportFullGapBtn").addEventListener("click", () => {
       const wb = XLSX.utils.book_new();
-      const cleanScore = window.lastScorecardRows.map(({ progPaid, progAmt, ...r }) => r);
       const cleanOut = window.lastOutlierRows.map(({ _uid, ...r }) => r);
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(window.lastProgramRows), "1_Program_Summary");
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(window.lastSelectedActivities), "2_Program_Activities");
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(window.lastMainProgMatrix), "3_Main_Programs_Matrix");
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(cleanScore), "4_Ranking_Scorecard");
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(window.lastZeroExport), "5_RootCause_Zero");
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(cleanOut), "6_SC_Peer_Outliers");
-      XLSX.writeFile(wb, `NHM_Ayodhya_Executive_Review_${document.getElementById("monthFilter").value}.xlsx`);
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(window.lastProgramRows), "1_Programs");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(window.lastUnitRows), "2_Units");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(window.lastZeroExport), "3_Zero_Payment");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(cleanOut), "4_Peer_Outliers");
+      XLSX.writeFile(wb, `NHM_Ayodhya_Review_${document.getElementById("monthFilter").value}.xlsx`);
     });
   </script>
 </body>
