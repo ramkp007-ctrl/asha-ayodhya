@@ -263,15 +263,17 @@
     }
 
     async function loadNcdData() {
-      // Render immediately with default dataset so screen never gets stuck
       initDropdownAndRender();
 
-      // Then fetch latest uploaded dataset from Firebase and refresh if available
       try {
         const snap = await get(ref(db, "asha_portal_v2/ncd_screening"));
         if (snap.exists() && snap.val().units && snap.val().units.length > 0) {
-          ncdData = snap.val();
-          initDropdownAndRender();
+          const remote = snap.val();
+          // Only accept remote data if unit names are valid text (not numeric population)
+          if (isNaN(Number(remote.units[0].unit))) {
+            ncdData = remote;
+            initDropdownAndRender();
+          }
         }
       } catch (e) {
         console.warn("Firebase fetch skipped/fallback used:", e);
