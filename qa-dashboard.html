@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quality Assurance (NQAS) समीक्षा — Program Review Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen font-sans antialiased">
+
+  <!-- TOP HEADER -->
+  <header class="bg-gradient-to-r from-slate-900 via-cyan-950 to-teal-950 text-white shadow-lg sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-wrap justify-between items-center gap-3">
+      <div class="flex items-center gap-3">
+        <a href="portal.html" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-xs font-bold rounded-xl border border-white/15 transition">
+          ← पोर्टल होम
+        </a>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-extrabold tracking-tight">✅ Quality Assurance (NQAS) मूल्यांकन एवं प्रमाणीकरण डैशबोर्ड</h1>
+            <span class="hidden sm:inline-block text-[10px] bg-cyan-500/20 text-cyan-200 border border-cyan-400/30 px-2 py-0.5 rounded-full font-bold">
+              NHM अयोध्या
+            </span>
+          </div>
+          <p id="reportSubtitle" class="text-[11px] text-slate-300 mt-0.5">NQAS Certification Status Report — 18-11-2026 (कुल 154 स्वास्थ्य इकाइयां)</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <select id="blockFilter" class="bg-slate-800/90 text-white text-xs font-semibold px-3 py-2 rounded-xl border border-slate-600 focus:border-cyan-400 focus:outline-none">
+          <option value="ALL">समस्त जनपद अयोध्या (11 ब्लॉक + CHC/DH)</option>
+        </select>
+        <a href="admin.html" class="px-3.5 py-2 bg-cyan-600 hover:bg-cyan-500 text-xs font-bold rounded-xl shadow transition">
+          + Excel अपलोड
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
+    <!-- 5 KPI SUMMARY CARDS -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5" id="kpiCards"></div>
+
+    <!-- CHARTS ROW -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <!-- Block-wise Stacked Bar Chart -->
+      <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+          <div>
+            <h2 class="text-sm font-extrabold text-slate-900">ब्लॉक-वार NQAS प्रमाणीकरण स्थिति (Certified / Conditional / Deferred)</h2>
+            <p class="text-[11px] text-slate-500">सभी 11 विकास खंड एवं जिला चिकित्सालय (DH Level)</p>
+          </div>
+          <div class="flex gap-1.5 text-[10px] font-bold">
+            <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Certified</span>
+            <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800">Conditional</span>
+            <span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800">Deferred</span>
+          </div>
+        </div>
+        <div class="h-80">
+          <canvas id="blockStackedChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Doughnut & Facility Type Breakdown -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
+        <div>
+          <h2 class="text-sm font-extrabold text-slate-900">समग्र NQAS स्टेटस वितरण</h2>
+          <p id="donutSubtitle" class="text-[11px] text-slate-500">चयनित कार्यक्षेत्र के अनुसार अनुपात</p>
+        </div>
+        <div class="h-52">
+          <canvas id="statusDonutChart"></canvas>
+        </div>
+        <div id="facilityTypeSummary" class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-center"></div>
+      </div>
+    </div>
+
+    <!-- BLOCK-WISE SUMMARY MATRIX TABLE -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-4 bg-slate-50 border-b border-slate-200 flex flex-wrap justify-between items-center gap-2">
+        <div>
+          <h2 class="text-sm font-extrabold text-slate-900">ब्लॉक-वार NQAS प्रगति सारांश तालिका</h2>
+          <p class="text-[11px] text-slate-500">Quality Certified दर (%) के अनुसार रैंकिंग (किसी भी ब्लॉक पर क्लिक कर नीचे उसकी इकाइयां देखें)</p>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left border-collapse">
+          <thead class="bg-slate-800 text-white text-[11px] uppercase">
+            <tr>
+              <th class="px-3 py-2.5 text-center">रैंक</th>
+              <th class="px-3 py-2.5">ब्लॉक / स्तर</th>
+              <th class="px-3 py-2.5 text-right">कुल इकाइयां</th>
+              <th class="px-3 py-2.5 text-right bg-emerald-950/60">Quality Certified</th>
+              <th class="px-3 py-2.5 text-right bg-amber-950/60">Conditional</th>
+              <th class="px-3 py-2.5 text-right bg-rose-950/60">Deferred</th>
+              <th class="px-3 py-2.5 text-right">7 पैकेज</th>
+              <th class="px-3 py-2.5 text-right">12 पैकेज</th>
+              <th class="px-3 py-2.5 text-right bg-cyan-900">Certified %</th>
+            </tr>
+          </thead>
+          <tbody id="blockSummaryBody" class="divide-y divide-slate-200"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FACILITY-WISE COMPLETE LIST WITH FILTERS -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-4 bg-slate-50 border-b border-slate-200 space-y-3">
+        <div class="flex flex-wrap justify-between items-center gap-2">
+          <div>
+            <h2 class="text-sm font-extrabold text-slate-900">स्वास्थ्य इकाई-वार (Facility-Wise) विस्तृत NQAS सूची</h2>
+            <p id="facilityCountLabel" class="text-[11px] text-slate-500">कुल 154 इकाइयां प्रदर्शित</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <select id="statusFilter" class="text-xs font-semibold border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white">
+              <option value="ALL">सभी स्टेटस (All)</option>
+              <option value="Quality Certified">✅ Quality Certified</option>
+              <option value="Conditional">⚠️ Conditional</option>
+              <option value="Deferred">❌ Deferred</option>
+            </select>
+            <select id="typeFilter" class="text-xs font-semibold border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white">
+              <option value="ALL">सभी इकाई प्रकार</option>
+              <option value="AAM-SC">AAM-SC</option>
+              <option value="CHC">CHC</option>
+              <option value="DH Level">DH Level</option>
+            </select>
+            <select id="fyFilter" class="text-xs font-semibold border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white">
+              <option value="ALL">सभी FY / मोड</option>
+              <option value="26-27">FY 26-27</option>
+              <option value="25-26">FY 25-26</option>
+              <option value="24-25">FY 24-25</option>
+              <option value="Vitrual">Virtual</option>
+            </select>
+            <input type="text" id="searchFacility" placeholder="इकाई का नाम खोजें..."
+              class="text-xs border border-slate-300 rounded-lg px-3 py-1.5 w-44 focus:border-cyan-600 focus:outline-none" />
+          </div>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto max-h-[540px]">
+        <table class="w-full text-xs text-left border-collapse">
+          <thead class="bg-slate-900 text-white text-[11px] uppercase sticky top-0 z-10">
+            <tr>
+              <th class="px-3 py-3 text-center">क्र.</th>
+              <th class="px-3 py-3">ब्लॉक</th>
+              <th class="px-3 py-3">स्वास्थ्य इकाई (Facility Name)</th>
+              <th class="px-3 py-3 text-center">प्रकार</th>
+              <th class="px-3 py-3 text-center">पैकेज / विभाग</th>
+              <th class="px-3 py-3 text-center">प्रमाणीकरण स्थिति (Status)</th>
+              <th class="px-3 py-3 text-center">मूल्यांकन दिनांक</th>
+              <th class="px-3 py-3 text-center">FY / मोड</th>
+            </tr>
+          </thead>
+          <tbody id="facilityTableBody" class="divide-y divide-slate-200"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+    if (window.ChartDataLabels) {
+      Chart.register(ChartDataLabels);
+    }
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
+      authDomain: "asha-payment.firebaseapp.com",
+      databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "asha-payment",
+      storageBucket: "asha-payment.firebasestorage.app",
+      messagingSenderId: "117935142167",
+      appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
+      measurementId: "G-43YGRC5CKL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const saved = sessionStorage.getItem("nhm_ayodhya_officer");
+    const officer = saved ? JSON.parse(saved) : { role: "DISTRICT", block: "ALL" };
+
+    // Normalize block names & statuses consistently
+    function normalizeBlockName(b) {
+      const s = String(b || "").trim().toUpperCase();
+      const map = {
+        "MAVAI": "MAWAI",
+        "PURA BAZAR": "POORA BAZAR",
+        "HARIYANGATANGANJ": "HARINGTANGANJ",
+        "HAIRINGTANGANJ": "HARINGTANGANJ",
+        "CHC POORA BAZAR": "POORA BAZAR",
+        "CHC BIKAPUR": "BIKAPUR",
+        "SRIRAM HOSPITAL": "DH / DISTRICT HOSPITAL",
+        "DWH": "DH / DISTRICT HOSPITAL"
+      };
+      return map[s] || s;
+    }
+
+    function normalizeStatus(st) {
+      const s = String(st || "").trim().toUpperCase();
+      if (s.includes("CONDITIONAL")) return "Conditional";
+      if (s.includes("CERTIFIED")) return "Quality Certified";
+      if (s.includes("DEFFERED") || s.includes("DEFERRED")) return "Deferred";
+      return s;
+    }
+
+    function normalizeType(t) {
+      const s = String(t || "").trim().toUpperCase();
+      if (s.includes("DH")) return "DH Level";
+      if (s.includes("CHC")) return "CHC";
+      return "AAM-SC";
+    }
+
+    // Complete verified 154 facilities dataset from NQAS 18-11-2026.xlsx
+    const RAW_FALLBACK_ROWS = [
+      ["DH / DISTRICT HOSPITAL","SRIRAM HOSPITAL","DH Level",8,"Quality Certified","21.03.2025","24-25"],
+      ["DH / DISTRICT HOSPITAL","DWH","DH Level",7,"Quality Certified","20.10.2024","24-25"],
+      ["BIKAPUR","MAJARUDDINPUR","AAM-SC",7,"Quality Certified","20.09.2024","24-25"],
+      ["BIKAPUR","CHAURE CHANDAULI","AAM-SC",7,"Quality Certified","24.09.2024","24-25"],
+      ["BIKAPUR","PUHAPI","AAM-SC",7,"Quality Certified","06.12.2024","24-25"],
+      ["BIKAPUR","KHAJURAHAT","AAM-SC",7,"Quality Certified","11.02.2025","24-25"],
+      ["BIKAPUR","DARABGANJ","AAM-SC",7,"Quality Certified","28.02.2025","24-25"],
+      ["BIKAPUR","PATUPUR","AAM-SC",12,"Conditional","01.08.2025","25-26"],
+      ["BIKAPUR","KOCHHA BAZAR","AAM-SC",12,"Conditional","02.12.2025","25-26"],
+      ["BIKAPUR","BAITIKALA","AAM-SC",7,"Quality Certified","07.04.2025","25-26"],
+      ["BIKAPUR","SULHEPUR","AAM-SC",12,"Quality Certified","18.12.2025","25-26"],
+      ["BIKAPUR","CHC BIKAPUR","CHC",9,"Quality Certified","08.10.2024","24-25"],
+      ["HARINGTANGANJ","MALETHU BUJURG","AAM-SC",7,"Conditional","11.02.2025","25-26"],
+      ["HARINGTANGANJ","JOHAN","AAM-SC",12,"Quality Certified","02.12.2025","25-26"],
+      ["HARINGTANGANJ","PALIYA LOHANI","AAM-SC",12,"Quality Certified","02.12.2025","25-26"],
+      ["KHANDASA","SIDHARI BAZAR","AAM-SC",7,"Quality Certified","24.01.2025","24-25"],
+      ["KHANDASA","BIRAULI JHAM","AAM-SC",12,"Conditional","29.07.2025","25-26"],
+      ["KHANDASA","BANWA BAZAR","AAM-SC",12,"Conditional","25.09.2025","25-26"],
+      ["KHANDASA","ADILPUR","AAM-SC",12,"Quality Certified","01.08.2025","25-26"],
+      ["KHANDASA","RASULPUR LILLAHA","AAM-SC",12,"Quality Certified","02.12.2025","25-26"],
+      ["MASODHA","SALARPUR","AAM-SC",7,"Quality Certified","20.09.2024","24-25"],
+      ["MASODHA","MUMTAZNAGAR","AAM-SC",7,"Quality Certified","25.09.2024","24-25"],
+      ["MASODHA","DARABGANJ","AAM-SC",7,"Quality Certified","01.10.2024","24-25"],
+      ["MASODHA","ANTPUR","AAM-SC",7,"Conditional","07.04.2025","25-26"],
+      ["MASODHA","ARUVAVAN","AAM-SC",7,"Conditional","17.06.2025","25-26"],
+      ["MASODHA","SARIYAWAN","AAM-SC",12,"Conditional","12.08.2025","25-26"],
+      ["MASODHA","KADIPUR","AAM-SC",7,"Quality Certified","07.04.2025","25-26"],
+      ["MASODHA","PIPRI","AAM-SC",7,"Quality Certified","07.05.2025","25-26"],
+      ["MASODHA","MAHAWAN","AAM-SC",7,"Quality Certified","11.06.2025","25-26"],
+      ["MASODHA","KAIL","AAM-SC",12,"Quality Certified","09.07.2025","25-26"],
+      ["MASODHA","GADDOPUR","AAM-SC",12,"Quality Certified","25.07.2025","25-26"],
+      ["MAWAI","BARAI KALA","AAM-SC",12,"Conditional","17.07.2025","25-26"],
+      ["MAWAI","TANDAULI","AAM-SC",12,"Conditional","22.07.2025","25-26"],
+      ["MAWAI","SANDA","AAM-SC",12,"Quality Certified","28.07.2025","25-26"],
+      ["MAWAI","BHAVANIPUR","AAM-SC",12,"Quality Certified","18.12.2025","25-26"],
+      ["MAYA BAZAR","GOSHAINGANJ","AAM-SC",7,"Conditional","24.09.2024","24-25"],
+      ["MAYA BAZAR","DILASIGANJ","AAM-SC",7,"Conditional","24.09.2024","24-25"],
+      ["MAYA BAZAR","BASUHA","AAM-SC",12,"Conditional","10.07.2025","25-26"],
+      ["MAYA BAZAR","SAMDA","AAM-SC",12,"Conditional","15.07.2025","25-26"],
+      ["MAYA BAZAR","ARVAT","AAM-SC",12,"Conditional","27.08.2025","25-26"],
+      ["MILKIPUR","PALIYA MAFI","AAM-SC",7,"Quality Certified","23.09.2024","24-25"],
+      ["MILKIPUR","HARIYATIKARA","AAM-SC",7,"Quality Certified","25.09.2024","24-25"],
+      ["MILKIPUR","SARURPUR","AAM-SC",7,"Quality Certified","19.12.2024","24-25"],
+      ["MILKIPUR","ANJANA","AAM-SC",7,"Quality Certified","17.02.2025","24-25"],
+      ["MILKIPUR","HAREESHPUR","AAM-SC",7,"Quality Certified","18.02.2025","24-25"],
+      ["MILKIPUR","DEORHI","AAM-SC",12,"Conditional","25.07.2025","25-26"],
+      ["MILKIPUR","KHAJURI MIRZAPUR","AAM-SC",12,"Quality Certified","29.07.2025","25-26"],
+      ["MILKIPUR","JHANJHA","AAM-SC",12,"Conditional","27.08.2025","25-26"],
+      ["MILKIPUR","KOTWA","AAM-SC",12,"Conditional","02.12.2025","25-26"],
+      ["POORA BAZAR","FATEHPUR SARAIYA","AAM-SC",7,"Quality Certified","21.02.2025","24-25"],
+      ["POORA BAZAR","KUSHMAHA","AAM-SC",12,"Conditional","01.07.2025","25-26"],
+      ["POORA BAZAR","MADNA","AAM-SC",7,"Quality Certified","01.05.2025","25-26"],
+      ["POORA BAZAR","SAMHAUTA","AAM-SC",7,"Quality Certified","08.05.2025","25-26"],
+      ["POORA BAZAR","RAJAURA","AAM-SC",12,"Quality Certified","27.08.2025","25-26"],
+      ["POORA BAZAR","CHC POORA BAZAR","CHC",9,"Quality Certified","13.09.2022","22-23"],
+      ["RUDAULI","JARAULI","AAM-SC",7,"Quality Certified","20.09.2024","24-25"],
+      ["RUDAULI","JAKHAULI","AAM-SC",7,"Quality Certified","02.01.2025","24-25"],
+      ["RUDAULI","KHAIRANPUR","AAM-SC",7,"Conditional","04.01.2025","24-25"],
+      ["RUDAULI","SHUKLA PUR","AAM-SC",12,"Conditional","29.07.2025","25-26"],
+      ["RUDAULI","AMRAI GAON","AAM-SC",12,"Conditional","29.07.2025","25-26"],
+      ["RUDAULI","BARAI KALA","AAM-SC",12,"Conditional","30.07.2025","25-26"],
+      ["RUDAULI","SARAI MUGHAL","AAM-SC",12,"Conditional","27.08.2025","25-26"],
+      ["RUDAULI","BHADAWAL","AAM-SC",12,"Conditional","25.09.2025","25-26"],
+      ["SOHAWAL","ARATHAR","AAM-SC",7,"Quality Certified","20.09.2024","24-25"],
+      ["SOHAWAL","KOLA","AAM-SC",7,"Quality Certified","27.09.2024","24-25"],
+      ["SOHAWAL","MANGALSI","AAM-SC",7,"Quality Certified","06.12.2024","24-25"],
+      ["SOHAWAL","PILKHAWA","AAM-SC",7,"Quality Certified","11.02.2025","24-25"],
+      ["SOHAWAL","SARAITHA","AAM-SC",7,"Quality Certified","04.04.2025","25-26"],
+      ["SOHAWAL","MUBARAKGANJ","AAM-SC",7,"Quality Certified","11.06.2025","25-26"],
+      ["SOHAWAL","JAGANPUR","AAM-SC",12,"Conditional","26.07.2025","25-26"],
+      ["TARUN","PARA GARIBSHAH","AAM-SC",7,"Quality Certified","23.09.2024","24-25"],
+      ["TARUN","TAKMIN GANJ","AAM-SC",7,"Quality Certified","12.02.2025","24-25"],
+      ["TARUN","FATEHPUR KAMASIN","AAM-SC",7,"Quality Certified","27.02.2025","24-25"],
+      ["TARUN","GAURIYA","AAM-SC",12,"Conditional","11.07.2025","25-26"],
+      ["TARUN","SINHORA","AAM-SC",12,"Conditional","16.07.2025","25-26"],
+      ["TARUN","KICHUTI","AAM-SC",12,"Quality Certified","27.08.2025","25-26"],
+      ["BIKAPUR","PACHIYANA","AAM-SC",12,"Quality Certified","21.05.2026","26-27"],
+      ["BIKAPUR","PAROMA","AAM-SC",12,"Quality Certified","21.05.2026","26-27"],
+      ["BIKAPUR","PALIYA LOHANI","AAM-SC",12,"Quality Certified","22.05.2026","26-27"],
+      ["BIKAPUR","CHAURE BAZAR","AAM-SC",12,"Quality Certified","23.05.2026","26-27"],
+      ["MASODHA","CHANDPUR HARVANSH","AAM-SC",12,"Quality Certified","11.08.2026","26-27"],
+      ["MASODHA","BHAWANAGAR","AAM-SC",12,"Quality Certified","12.08.2026","26-27"],
+      ["MASODHA","ABBU SARAI","AAM-SC",12,"Quality Certified","13.08.2026","26-27"],
+      ["MAWAI","BARAWAN","AAM-SC",12,"Quality Certified","22.07.2026","26-27"],
+      ["MAWAI","KUSHAHAREE","AAM-SC",12,"Quality Certified","23.07.2026","26-27"],
+      ["TARUN","JANA BAZAR","AAM-SC",12,"Quality Certified","10.08.2026","26-27"],
+      ["TARUN","Jaisingh Mau","AAM-SC",12,"Quality Certified","13.08.2026","26-27"],
+      ["BIKAPUR","RAMPUR BHAGAN","CHC",12,"Conditional","","26-27"],
+      ["AMANIGANJ","CHC AMANIGANJ","AAM-SC",12,"Conditional","26.07.2026","26-27"],
+      ["AMANIGANJ","RAM NAGAR","AAM-SC",12,"Conditional","29.07.2026","26-27"],
+      ["AMANIGANJ","KHANDASA","AAM-SC",12,"Conditional","03.08.2026","26-27"],
+      ["AMANIGANJ","REWARI","AAM-SC",12,"Conditional","05.08.2026","26-27"],
+      ["BIKAPUR","JANGALPUR","AAM-SC",12,"Conditional","20.07.2026","26-27"],
+      ["BIKAPUR","MAJHAGAON","AAM-SC",12,"Conditional","22.07.2026","26-27"],
+      ["BIKAPUR","SHERPUR PARA","AAM-SC",12,"Conditional","27.07.2026","26-27"],
+      ["BIKAPUR","SHAHPARA","AAM-SC",12,"Conditional","04.08.2026","26-27"],
+      ["HARINGTANGANJ","PALIYA LOHANI","AAM-SC",12,"Conditional","20.07.2026","26-27"],
+      ["HARINGTANGANJ","PARAKHAN","AAM-SC",12,"Conditional","21.07.2026","26-27"],
+      ["HARINGTANGANJ","SEMARA","AAM-SC",12,"Conditional","23.07.2026","26-27"],
+      ["HARINGTANGANJ","SHAHGANJ","AAM-SC",12,"Conditional","30.07.2026","26-27"],
+      ["HARINGTANGANJ","GAYASPUR","AAM-SC",12,"Conditional","05.08.2026","26-27"],
+      ["MAWAI","NEORA","AAM-SC",12,"Conditional","28.07.2026","26-27"],
+      ["MAWAI","SHERPUR","AAM-SC",12,"Conditional","28.07.2026","26-27"],
+      ["MAWAI","BASUDHI","AAM-SC",12,"Conditional","29.07.2026","26-27"],
+      ["MAWAI","KHAIRANPUR","AAM-SC",12,"Conditional","01.08.2026","26-27"],
+      ["MAWAI","SEHMA","AAM-SC",12,"Conditional","01.08.2026","26-27"],
+      ["MAYA BAZAR","KANIYARI PUR","AAM-SC",12,"Conditional","22.07.2026","26-27"],
+      ["MAYA BAZAR","TAJPUR","AAM-SC",12,"Conditional","27.07.2026","26-27"],
+      ["MAYA BAZAR","UMARI","AAM-SC",12,"Conditional","05.08.2026","26-27"],
+      ["MAYA BAZAR","MAYA BAZAR","AAM-SC",12,"Conditional","28.08.2026","26-27"],
+      ["POORA BAZAR","KALUPUR","AAM-SC",12,"Conditional","08.07.2026","26-27"],
+      ["POORA BAZAR","SARAIGOKUL","AAM-SC",12,"Conditional","10.07.2026","26-27"],
+      ["RUDAULI","GULCHAPA","AAM-SC",12,"Conditional","11.07.2026","26-27"],
+      ["RUDAULI","PAHARPUR","AAM-SC",12,"Conditional","16.07.2026","26-27"],
+      ["SOHAWAL","ARAHAR","AAM-SC",12,"Conditional","07.07.2026","26-27"],
+      ["SOHAWAL","KATAULI","AAM-SC",12,"Conditional","13.07.2026","26-27"],
+      ["SOHAWAL","KARERU","AAM-SC",12,"Conditional","17.07.2026","26-27"],
+      ["SOHAWAL","PIRPUR","AAM-SC",12,"Conditional","27.07.2026","26-27"],
+      ["SOHAWAL","DHANNIPUR","AAM-SC",12,"Conditional","29.07.2026","26-27"],
+      ["TARUN","DHARMPUR SAHADAT","AAM-SC",12,"Conditional","09.07.2026","26-27"],
+      ["BIKAPUR","TENDUVA MAFI","AAM-SC",12,"Deferred","","Vitrual"],
+      ["BIKAPUR","CHAKARPUR","AAM-SC",12,"Deferred","10.07.2026","Vitrual"],
+      ["HARINGTANGANJ","CHIRAULI","AAM-SC",12,"Deferred","","Vitrual"],
+      ["HARINGTANGANJ","TENDUA","AAM-SC",12,"Deferred","16.07.2026","Vitrual"],
+      ["MAYA BAZAR","PURA BAJAR","AAM-SC",12,"Deferred","","Vitrual"],
+      ["MAYA BAZAR","JANA","AAM-SC",12,"Deferred","10.07.2026","Vitrual"],
+      ["MILKIPUR","ADILPUR","AAM-SC",12,"Deferred","","Vitrual"],
+      ["MILKIPUR","KALIYABHADARSA","AAM-SC",12,"Deferred","","Vitrual"],
+      ["MILKIPUR","PALIYA","AAM-SC",12,"Deferred","","Vitrual"],
+      ["MILKIPUR","BHAWANAGAR","AAM-SC",12,"Deferred","","Vitrual"],
+      ["POORA BAZAR","BAGAHI","AAM-SC",12,"Deferred","","Vitrual"],
+      ["POORA BAZAR","MUDADIHA","AAM-SC",12,"Deferred","","Vitrual"],
+      ["POORA BAZAR","RAIPUR","AAM-SC",12,"Deferred","","Vitrual"],
+      ["RUDAULI","MANGALSI","AAM-SC",12,"Deferred","","Vitrual"],
+      ["RUDAULI","BIRAULIJHAM","AAM-SC",12,"Deferred","","Vitrual"],
+      ["RUDAULI","DILASIGANJ","AAM-SC",12,"Deferred","","Vitrual"],
+      ["SOHAWAL","IBRAHIMPUR","AAM-SC",12,"Deferred","","Vitrual"],
+      ["SOHAWAL","BAHARPUR","AAM-SC",12,"Deferred","","Vitrual"],
+      ["TARUN","ADAMPUR","AAM-SC",12,"Deferred","","Vitrual"],
+      ["POORA BAZAR","ALAWALPUR","AAM-SC",12,"Deferred","","Vitrual"],
+      ["TARUN","BELGARA","AAM-SC",12,"Deferred","","Vitrual"],
+      ["TARUN","BENI GADDOPUR","AAM-SC",12,"Deferred","19.03.2025","Vitrual"],
+      ["TARUN","BHADAR KHURD","AAM-SC",12,"Deferred","","Vitrual"],
+      ["AMANIGANJ","GHODWAL","AAM-SC",12,"Deferred","30.07.2026","Vitrual"],
+      ["AMANIGANJ","AMARGANJ","AAM-SC",12,"Deferred","20.07.2026","Vitrual"],
+      ["AMANIGANJ","SHIVDASPUR","AAM-SC",12,"Deferred","14.07.2026","Vitrual"],
+      ["HARINGTANGANJ","SARAY MAJARA","AAM-SC",12,"Deferred","27.07.2026","Vitrual"],
+      ["MASODHA","GOPALPUR","AAM-SC",12,"Deferred","15.07.2026","Vitrual"],
+      ["MILKIPUR","Mavai khurd","AAM-SC",12,"Deferred","09.07.2026","Vitrual"],
+      ["POORA BAZAR","CHARERA","AAM-SC",12,"Deferred","13.07.2026","Vitrual"],
+      ["RUDAULI","BHELSAR","AAM-SC",12,"Deferred","15.07.2026","Vitrual"],
+      ["RUDAULI","GAURIYA MAU","AAM-SC",12,"Deferred","13.07.2026","Vitrual"],
+      ["TARUN","PARA HATHIGO","AAM-SC",12,"Deferred","24.06.2026","Vitrual"],
+      ["TARUN","BAHARPUR","AAM-SC",12,"Deferred","22.07.2026","Vitrual"]
+    ].map((r, i) => ({
+      sn: i + 1,
+      block: r[0],
+      facility: r[1],
+      type: r[2],
+      packages: r[3],
+      status: r[4],
+      date: r[5],
+      fy: r[6]
+    }));
+
+    let qaRecords = RAW_FALLBACK_ROWS;
+    let stackedChart = null;
+    let donutChart = null;
+
+    function populateFilters() {
+      const blockSel = document.getElementById("blockFilter");
+      const uniqueBlocks = Array.from(new Set(qaRecords.map(r => r.block))).sort();
+      blockSel.innerHTML = `<option value="ALL">समस्त जनपद अयोध्या (${qaRecords.length} इकाइयां)</option>`;
+      uniqueBlocks.forEach(b => {
+        const count = qaRecords.filter(r => r.block === b).length;
+        const opt = document.createElement("option");
+        opt.value = b;
+        opt.textContent = `${b} (${count} इकाइयां)`;
+        blockSel.appendChild(opt);
+      });
+
+      if (officer.role !== "DISTRICT" && officer.block) {
+        const normOffBlock = normalizeBlockName(officer.block);
+        if (uniqueBlocks.includes(normOffBlock)) blockSel.value = normOffBlock;
+      }
+
+      renderAll();
+    }
+
+    async function loadQaData() {
+      populateFilters();
+
+      try {
+        const snap = await get(ref(db, "asha_portal_v2/quality_assurance"));
+        if (snap.exists() && snap.val().rows && snap.val().rows.length > 0) {
+          const remote = snap.val();
+          if (remote.fileName) {
+            document.getElementById("reportSubtitle").textContent = `NQAS Certification Status — ${remote.fileName} (अपडेट: ${remote.updatedAt || ""})`;
+          }
+          // Map either normalized records or raw Excel rows
+          qaRecords = remote.rows.map((r, idx) => {
+            if (r.block && r.facility && r.status && ["Quality Certified", "Conditional", "Deferred"].includes(r.status)) {
+              return r;
+            }
+            const norm = {};
+            for (const [k, v] of Object.entries(r)) norm[String(k).trim().toUpperCase()] = v;
+            const rawBlock = norm["BLOCK"] || "";
+            const rawType = norm["TYPE OF FACILITY (DH/CHC/PHC/ UPHC/AAM- SC)"] || norm["TYPE"] || "";
+            const rawPkg = norm["NO. OF DEPARTMENT\n/PACKAGES ASSESSED"] || norm["NO. OF DEPARTMENT/PACKAGES ASSESSED"] || norm["PACKAGES"] || 0;
+            const rawSt = norm["CERTIFCATION STATUS (FULLY CERTIFIED/CONDITIONAL)"] || norm["CERTIFICATION STATUS"] || norm["STATUS"] || "";
+            const rawDt = norm["DATE OF ASSESSMENT"] || norm["DATE"] || "";
+            const rawFy = norm["FY YEAR"] || norm["FY"] || "";
+            return {
+              sn: Number(norm["SN"]) || idx + 1,
+              block: normalizeBlockName(rawBlock),
+              facility: String(norm["FACILITY NAME"] || norm["FACILITY"] || "").trim(),
+              type: normalizeType(rawType),
+              packages: Number(rawPkg) || 0,
+              status: normalizeStatus(rawSt),
+              date: String(rawDt || "").trim(),
+              fy: String(rawFy || "").trim()
+            };
+          }).filter(x => x.facility);
+
+          populateFilters();
+        }
+      } catch (e) {
+        console.warn("Using embedded NQAS 18-11-2026 data:", e);
+      }
+    }
+
+    function renderAll() {
+      const selBlock = document.getElementById("blockFilter").value;
+      const scoped = selBlock === "ALL" ? qaRecords : qaRecords.filter(r => r.block === selBlock);
+
+      const total = scoped.length;
+      const certified = scoped.filter(r => r.status === "Quality Certified").length;
+      const conditional = scoped.filter(r => r.status === "Conditional").length;
+      const deferred = scoped.filter(r => r.status === "Deferred").length;
+      const certPct = total ? ((certified / total) * 100).toFixed(1) : "0.0";
+      const pkg12 = scoped.filter(r => r.packages >= 12).length;
+
+      // 1. KPI Cards
+      const kpis = [
+        { label: "कुल मूल्यांकित इकाइयां", val: total, sub: selBlock === "ALL" ? "समस्त जनपद अयोध्या" : selBlock, color: "border-slate-700 bg-white text-slate-900" },
+        { label: "Quality Certified", val: certified, sub: `${certPct}% पूर्ण प्रमाणित`, color: "border-emerald-600 bg-emerald-50/70 text-emerald-950" },
+        { label: "Conditional Certified", val: conditional, sub: `${total ? ((conditional / total) * 100).toFixed(1) : 0}% क्लोजर लंबित`, color: "border-amber-500 bg-amber-50/70 text-amber-950" },
+        { label: "Deferred (स्थगित)", val: deferred, sub: `${total ? ((deferred / total) * 100).toFixed(1) : 0}% पुनः मूल्यांकन`, color: "border-rose-600 bg-rose-50/70 text-rose-950" },
+        { label: "12-पैकेज मानक इकाइयां", val: pkg12, sub: `7/9 पैकेज: ${total - pkg12} इकाइयां`, color: "border-cyan-600 bg-white text-cyan-950" }
+      ];
+
+      document.getElementById("kpiCards").innerHTML = kpis.map(k => `
+        <div class="p-3.5 rounded-2xl border-l-4 ${k.color} shadow-sm border border-slate-200/80">
+          <div class="text-[11px] font-bold text-slate-500">${k.label}</div>
+          <div class="text-2xl font-extrabold mt-0.5">${k.val}</div>
+          <div class="text-[10px] font-semibold text-slate-500 mt-1">${k.sub}</div>
+        </div>
+      `).join("");
+
+      // 2. Block-wise Aggregation (always shows all blocks for comparison)
+      const blockGroups = {};
+      qaRecords.forEach(r => {
+        if (!blockGroups[r.block]) {
+          blockGroups[r.block] = { block: r.block, total: 0, cert: 0, cond: 0, def: 0, pkg7: 0, pkg12: 0 };
+        }
+        const g = blockGroups[r.block];
+        g.total++;
+        if (r.status === "Quality Certified") g.cert++;
+        else if (r.status === "Conditional") g.cond++;
+        else if (r.status === "Deferred") g.def++;
+        if (r.packages >= 12) g.pkg12++;
+        else g.pkg7++;
+      });
+
+      const blockList = Object.values(blockGroups).sort((a, b) => (b.cert / b.total) - (a.cert / a.total) || b.cert - a.cert);
+
+      // Stacked Bar Chart
+      if (stackedChart) stackedChart.destroy();
+      stackedChart = new Chart(document.getElementById("blockStackedChart"), {
+        type: "bar",
+        data: {
+          labels: blockList.map(b => b.block),
+          datasets: [
+            { label: "Quality Certified", data: blockList.map(b => b.cert), backgroundColor: "#059669", borderRadius: 3 },
+            { label: "Conditional", data: blockList.map(b => b.cond), backgroundColor: "#f59e0b", borderRadius: 3 },
+            { label: "Deferred", data: blockList.map(b => b.def), backgroundColor: "#e11d48", borderRadius: 3 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "top", labels: { font: { size: 11, weight: "bold" } } },
+            datalabels: {
+              color: "#ffffff",
+              font: { size: 9, weight: "bold" },
+              formatter: v => v > 0 ? v : ""
+            }
+          },
+          scales: {
+            x: { stacked: true, ticks: { font: { size: 10, weight: "bold" }, maxRotation: 45, minRotation: 45 } },
+            y: { stacked: true, beginAtZero: true, ticks: { font: { size: 10 } } }
+          }
+        }
+      });
+
+      // Doughnut Chart
+      document.getElementById("donutSubtitle").textContent = `इकाई: ${selBlock === "ALL" ? "समस्त जनपद" : selBlock} (कुल ${total})`;
+      if (donutChart) donutChart.destroy();
+      donutChart = new Chart(document.getElementById("statusDonutChart"), {
+        type: "doughnut",
+        data: {
+          labels: ["Quality Certified", "Conditional", "Deferred"],
+          datasets: [{
+            data: [certified, conditional, deferred],
+            backgroundColor: ["#059669", "#f59e0b", "#e11d48"],
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "60%",
+          plugins: {
+            legend: { position: "bottom", labels: { font: { size: 10, weight: "bold" } } },
+            datalabels: {
+              color: "#ffffff",
+              font: { size: 11, weight: "bold" },
+              formatter: v => v > 0 ? v : ""
+            }
+          }
+        }
+      });
+
+      // Facility Type Mini Cards
+      const aamCnt = scoped.filter(r => r.type === "AAM-SC").length;
+      const chcCnt = scoped.filter(r => r.type === "CHC").length;
+      const dhCnt = scoped.filter(r => r.type === "DH Level").length;
+      document.getElementById("facilityTypeSummary").innerHTML = `
+        <div class="bg-slate-50 rounded-xl p-2 border border-slate-200">
+          <div class="text-[10px] font-bold text-slate-500">AAM-SC</div>
+          <div class="text-sm font-extrabold text-slate-900">${aamCnt}</div>
+        </div>
+        <div class="bg-slate-50 rounded-xl p-2 border border-slate-200">
+          <div class="text-[10px] font-bold text-slate-500">CHC</div>
+          <div class="text-sm font-extrabold text-slate-900">${chcCnt}</div>
+        </div>
+        <div class="bg-slate-50 rounded-xl p-2 border border-slate-200">
+          <div class="text-[10px] font-bold text-slate-500">DH Level</div>
+          <div class="text-sm font-extrabold text-slate-900">${dhCnt}</div>
+        </div>
+      `;
+
+      // Block Summary Table
+      document.getElementById("blockSummaryBody").innerHTML = blockList.map((b, idx) => {
+        const pct = ((b.cert / b.total) * 100).toFixed(1);
+        const badge = pct >= 50 ? "bg-emerald-100 text-emerald-800" : pct >= 25 ? "bg-amber-100 text-amber-800" : "bg-rose-100 text-rose-800";
+        const hl = selBlock === b.block ? "bg-cyan-50 ring-1 ring-cyan-500" : "hover:bg-slate-50 cursor-pointer";
+        return `
+          <tr class="${hl}" onclick="document.getElementById('blockFilter').value='${b.block}'; document.getElementById('blockFilter').dispatchEvent(new Event('change'));">
+            <td class="px-3 py-2 text-center font-bold">${idx + 1}</td>
+            <td class="px-3 py-2 font-bold text-slate-900">${b.block}</td>
+            <td class="px-3 py-2 text-right font-bold">${b.total}</td>
+            <td class="px-3 py-2 text-right font-extrabold text-emerald-700 bg-emerald-50/50">${b.cert}</td>
+            <td class="px-3 py-2 text-right font-bold text-amber-700 bg-amber-50/50">${b.cond}</td>
+            <td class="px-3 py-2 text-right font-bold text-rose-700 bg-rose-50/50">${b.def}</td>
+            <td class="px-3 py-2 text-right text-slate-600">${b.pkg7}</td>
+            <td class="px-3 py-2 text-right text-slate-600">${b.pkg12}</td>
+            <td class="px-3 py-2 text-right"><span class="px-2 py-0.5 rounded-full font-extrabold ${badge}">${pct}%</span></td>
+          </tr>
+        `;
+      }).join("");
+
+      renderFacilityTable();
+    }
+
+    function renderFacilityTable() {
+      const selBlock = document.getElementById("blockFilter").value;
+      const selStatus = document.getElementById("statusFilter").value;
+      const selType = document.getElementById("typeFilter").value;
+      const selFy = document.getElementById("fyFilter").value;
+      const query = document.getElementById("searchFacility").value.trim().toLowerCase();
+
+      const filtered = qaRecords.filter(r => {
+        if (selBlock !== "ALL" && r.block !== selBlock) return false;
+        if (selStatus !== "ALL" && r.status !== selStatus) return false;
+        if (selType !== "ALL" && r.type !== selType) return false;
+        if (selFy !== "ALL" && r.fy !== selFy) return false;
+        if (query && !r.facility.toLowerCase().includes(query) && !r.block.toLowerCase().includes(query)) return false;
+        return true;
+      });
+
+      document.getElementById("facilityCountLabel").textContent = `कुल ${filtered.length} इकाइयां प्रदर्शित (कुल ${qaRecords.length} में से)`;
+
+      document.getElementById("facilityTableBody").innerHTML = filtered.map((r, i) => {
+        const badge = r.status === "Quality Certified"
+          ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+          : r.status === "Conditional"
+          ? "bg-amber-100 text-amber-800 border-amber-200"
+          : "bg-rose-100 text-rose-800 border-rose-200";
+        return `
+          <tr class="hover:bg-slate-50">
+            <td class="px-3 py-2 text-center font-semibold text-slate-500">${i + 1}</td>
+            <td class="px-3 py-2 font-bold text-slate-800">${r.block}</td>
+            <td class="px-3 py-2 font-extrabold text-slate-900">${r.facility}</td>
+            <td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-bold text-[10px]">${r.type}</span></td>
+            <td class="px-3 py-2 text-center font-bold">${r.packages}</td>
+            <td class="px-3 py-2 text-center"><span class="px-2.5 py-0.5 rounded-full border font-extrabold text-[11px] ${badge}">${r.status}</span></td>
+            <td class="px-3 py-2 text-center text-slate-600">${r.date || "—"}</td>
+            <td class="px-3 py-2 text-center font-semibold text-slate-700">${r.fy || "—"}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    document.getElementById("blockFilter").addEventListener("change", renderAll);
+    document.getElementById("statusFilter").addEventListener("change", renderFacilityTable);
+    document.getElementById("typeFilter").addEventListener("change", renderFacilityTable);
+    document.getElementById("fyFilter").addEventListener("change", renderFacilityTable);
+    document.getElementById("searchFacility").addEventListener("input", renderFacilityTable);
+
+    loadQaData();
+  </script>
+</body>
+</html>
