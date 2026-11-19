@@ -24,7 +24,7 @@
               NHM अयोध्या
             </span>
           </div>
-          <p id="reportSubtitle" class="text-[11px] text-slate-300 mt-0.5">डेटा लोड हो रहा है...</p>
+          <p id="reportSubtitle" class="text-[11px] text-slate-300 mt-0.5">Ayodhya - NCD Composite Scoring Report (18-Nov-26)</p>
         </div>
       </div>
 
@@ -32,7 +32,7 @@
         <select id="unitFilter" class="bg-slate-800/90 text-white text-xs font-semibold px-3 py-2 rounded-xl border border-slate-600 focus:border-rose-400 focus:outline-none">
           <option value="ALL">समस्त जनपद अयोध्या (11 ब्लॉक + Urban DHQ)</option>
         </select>
-        <a href="ncd-upload.html" id="uploadLink" class="hidden px-3.5 py-2 bg-rose-600 hover:bg-rose-500 text-xs font-bold rounded-xl shadow transition">
+        <a href="admin.html" class="px-3.5 py-2 bg-rose-600 hover:bg-rose-500 text-xs font-bold rounded-xl shadow transition">
           + Excel अपलोड
         </a>
       </div>
@@ -44,28 +44,45 @@
     <!-- 6 KPI SUMMARY CARDS -->
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5" id="kpiCards"></div>
 
-    <!-- NCD CARE CASCADE & STAFF ACTIVITY STRIP -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-      <!-- Care Cascade Funnel -->
-      <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-        <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-100 pb-2.5">
-          <div>
-            <h2 class="text-sm font-extrabold text-slate-900">NCD केयर कैस्केड (स्क्रीनिंग से नियंत्रण तक)</h2>
-            <p id="cascadeUnitLabel" class="text-[11px] text-slate-500">चयनित इकाई: समस्त जनपद अयोध्या</p>
-          </div>
-          <span class="text-[11px] font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg">लक्ष्य: 30+ आयु वर्ग (12.5% FY26-27)</span>
+    <!-- DEDICATED ANM, CHO & MO LOGIN STATUS SECTION -->
+    <section class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+      <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-100 pb-3">
+        <div>
+          <h2 class="text-sm sm:text-base font-extrabold text-slate-900">👩‍⚕️ ANM, CHO एवं MO का अलग-अलग लॉगिन / सक्रियता स्टेटस (10% वेटेज)</h2>
+          <p id="staffUnitSubtitle" class="text-[11px] text-slate-500">चयनित इकाई: समस्त जनपद अयोध्या — कुल बनाम सक्रिय एवं निष्क्रिय संख्या</p>
         </div>
-        <div id="cascadeBars" class="space-y-3"></div>
+        <div class="flex gap-2 text-[10px] font-bold">
+          <span class="px-2.5 py-1 rounded-lg bg-cyan-50 text-cyan-800 border border-cyan-200">ANM (2.5%)</span>
+          <span class="px-2.5 py-1 rounded-lg bg-purple-50 text-purple-800 border border-purple-200">CHO (2.5%)</span>
+          <span class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-800 border border-rose-200">MO (5.0%)</span>
+        </div>
       </div>
 
-      <!-- Staff Screening Coverage (ANM / CHO / MO) -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
-        <div class="border-b border-slate-100 pb-2.5">
-          <h2 class="text-sm font-extrabold text-slate-900">मानव संसाधन सक्रियता (10% वेटेज)</h2>
-          <p class="text-[11px] text-slate-500">ANM (2.5%), CHO (2.5%) एवं MO (5%) द्वारा जांच</p>
+      <!-- 3 Separate Login Status Cards for ANM, CHO, MO -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="staffLoginCards"></div>
+
+      <!-- Block-wise ANM / CHO / MO Comparison Chart -->
+      <div class="pt-2">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-xs font-extrabold text-slate-700 uppercase tracking-wide">ब्लॉक-वार ANM, CHO एवं MO लॉगिन सक्रियता (%) तुलना</h3>
+          <span class="text-[10px] text-slate-500 font-semibold">लक्ष्य: 100% सक्रिय लॉगिन</span>
         </div>
-        <div id="staffCards" class="space-y-3 my-auto"></div>
+        <div class="h-72">
+          <canvas id="staffComparisonChart"></canvas>
+        </div>
       </div>
+    </section>
+
+    <!-- NCD CARE CASCADE -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+      <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-100 pb-2.5">
+        <div>
+          <h2 class="text-sm font-extrabold text-slate-900">NCD केयर कैस्केड (स्क्रीनिंग से नियंत्रण तक)</h2>
+          <p id="cascadeUnitLabel" class="text-[11px] text-slate-500">चयनित इकाई: समस्त जनपद अयोध्या</p>
+        </div>
+        <span class="text-[11px] font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg">लक्ष्य: 30+ आयु वर्ग (12.5% FY26-27)</span>
+      </div>
+      <div id="cascadeBars" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3.5"></div>
     </div>
 
     <!-- CHARTS ROW -->
@@ -102,21 +119,54 @@
       </div>
     </div>
 
-    <!-- DETAILED RANKING TABLE -->
+    <!-- BLOCK-WISE STAFF LOGIN STATUS TABLE (ANM / CHO / MO) -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-4 bg-slate-50 border-b border-slate-200">
+        <h2 class="text-sm font-extrabold text-slate-900">ब्लॉक-वार ANM, CHO एवं MO लॉगिन स्टेटस विवरण</h2>
+        <p class="text-[11px] text-slate-500">प्रत्येक कैडर के कुल पद, सक्रिय लॉगिन (Done/Examined), निष्क्रिय संख्या एवं प्रतिशत</p>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left border-collapse">
+          <thead class="bg-slate-800 text-white text-[11px] uppercase">
+            <tr>
+              <th rowspan="2" class="px-3 py-2.5 border-r border-slate-700">ब्लॉक / इकाई</th>
+              <th colspan="4" class="px-3 py-2 text-center bg-cyan-950 border-r border-slate-700">ANM लॉगिन स्टेटस (2.5%)</th>
+              <th colspan="4" class="px-3 py-2 text-center bg-purple-950 border-r border-slate-700">CHO लॉगिन स्टेटस (2.5%)</th>
+              <th colspan="4" class="px-3 py-2 text-center bg-rose-950">MO लॉगिन स्टेटस (5.0%)</th>
+            </tr>
+            <tr class="text-[10px] bg-slate-900">
+              <th class="px-2 py-2 text-right">कुल</th>
+              <th class="px-2 py-2 text-right text-emerald-300">सक्रिय</th>
+              <th class="px-2 py-2 text-right text-rose-300">निष्क्रिय</th>
+              <th class="px-2 py-2 text-right border-r border-slate-700">%</th>
+              <th class="px-2 py-2 text-right">कुल</th>
+              <th class="px-2 py-2 text-right text-emerald-300">सक्रिय</th>
+              <th class="px-2 py-2 text-right text-rose-300">निष्क्रिय</th>
+              <th class="px-2 py-2 text-right border-r border-slate-700">%</th>
+              <th class="px-2 py-2 text-right">कुल</th>
+              <th class="px-2 py-2 text-right text-emerald-300">सक्रिय</th>
+              <th class="px-2 py-2 text-right text-rose-300">निष्क्रिय</th>
+              <th class="px-2 py-2 text-right">%</th>
+            </tr>
+          </thead>
+          <tbody id="staffTableBody" class="divide-y divide-slate-200"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DETAILED OVERALL RANKING TABLE -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <div class="p-4 bg-slate-50 border-b border-slate-200 flex flex-wrap justify-between items-center gap-3">
         <div>
-          <h2 class="text-sm font-extrabold text-slate-900">ब्लॉक-वार विस्तृत NCD प्रगति एवं रैंकिंग तालिका</h2>
-          <p class="text-[11px] text-slate-500">Suspected & Referred (%), Treatment (%), Follow-Up एवं स्टाफ प्रदर्शन सहित</p>
+          <h2 class="text-sm font-extrabold text-slate-900">ब्लॉक-वार समग्र NCD प्रगति एवं रैंकिंग तालिका</h2>
+          <p class="text-[11px] text-slate-500">Suspected &amp; Referred (%), Treatment (%), Follow-Up एवं कंपोजिट स्कोर</p>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <select id="sortSelect" class="text-xs font-semibold border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none">
-            <option value="score">क्रम: कंपोजिट स्कोर (उच्चतम पहले)</option>
-            <option value="referPct">क्रम: Suspected & Referred % (उच्चतम पहले)</option>
-            <option value="treatmentPct">क्रम: Under Treatment % (उच्चतम पहले)</option>
-            <option value="htnPct">क्रम: HTN स्क्रीनिंग % (उच्चतम पहले)</option>
-          </select>
-        </div>
+        <select id="sortSelect" class="text-xs font-semibold border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none">
+          <option value="score">क्रम: कंपोजिट स्कोर (उच्चतम पहले)</option>
+          <option value="referPct">क्रम: Suspected &amp; Referred % (उच्चतम पहले)</option>
+          <option value="treatmentPct">क्रम: Under Treatment % (उच्चतम पहले)</option>
+          <option value="htnPct">क्रम: HTN स्क्रीनिंग % (उच्चतम पहले)</option>
+        </select>
       </div>
 
       <div class="overflow-x-auto">
@@ -133,7 +183,6 @@
               <th class="px-3 py-3 text-right">Under Treatment (%)</th>
               <th class="px-3 py-3 text-right">Follow-Up</th>
               <th class="px-3 py-3 text-right">Control</th>
-              <th class="px-3 py-3 text-center">ANM / CHO / MO</th>
               <th class="px-3 py-3 text-right bg-rose-900">कंपोजिट स्कोर</th>
             </tr>
           </thead>
@@ -148,7 +197,9 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
     import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
-    Chart.register(ChartDataLabels);
+    if (window.ChartDataLabels) {
+      Chart.register(ChartDataLabels);
+    }
 
     const firebaseConfig = {
       apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
@@ -166,47 +217,36 @@
 
     const saved = sessionStorage.getItem("nhm_ayodhya_officer");
     const officer = saved ? JSON.parse(saved) : { role: "DISTRICT", block: "ALL" };
-    if (officer.role === "DISTRICT") {
-      document.getElementById("uploadLink").classList.remove("hidden");
-    }
 
-    // Verified data from 18-11-2026.xlsx (including Suspected & Referred %)
     const FALLBACK_DATA = {
       reportTitle: "Ayodhya - NCD Composite scoring and Ranking Report November-2026 (Data till 18-Nov-26)",
-      district: { unit: "Ayodhya", pop30: 1181764, targetFY: 147721, htn: 473376, htnPct: 40.06, dm: 473027, dmPct: 40.03, suspected: 40986, suspectedPct: 8.66, treatment: 18736, treatmentPct: 12.68, followUp: 720, control: 432, anmPct: 65.66, choPct: 59.80, moPct: 66.67, score: 26.58 },
+      district: { unit: "Ayodhya", pop30: 1181764, targetFY: 147721, htn: 473376, htnPct: 40.06, dm: 473027, dmPct: 40.03, suspected: 40986, suspectedPct: 8.66, treatment: 18736, treatmentPct: 12.68, followUp: 720, control: 432, anmTotal: 396, anmDone: 260, anmPct: 65.66, choTotal: 199, choDone: 119, choPct: 59.80, moTotal: 63, moDone: 42, moPct: 66.67, score: 26.58 },
       units: [
-        { rank: 1, unit: "Mawai", pop30: 78064, targetFY: 9758, htn: 31504, htnPct: 40.36, dm: 31499, dmPct: 40.35, suspected: 3216, suspectedPct: 10.21, treatment: 2358, treatmentPct: 24.16, followUp: 94, control: 66, anmPct: 60.00, choPct: 70.59, moPct: 50.00, score: 31.21 },
-        { rank: 2, unit: "Poora Bazar", pop30: 92660, targetFY: 11583, htn: 46114, htnPct: 49.77, dm: 46108, dmPct: 49.76, suspected: 3818, suspectedPct: 8.28, treatment: 1614, treatmentPct: 13.93, followUp: 78, control: 70, anmPct: 91.67, choPct: 56.25, moPct: 75.00, score: 30.91 },
-        { rank: 3, unit: "Rudauli", pop30: 113215, targetFY: 14152, htn: 54386, htnPct: 48.04, dm: 54235, dmPct: 47.90, suspected: 5246, suspectedPct: 9.67, treatment: 1945, treatmentPct: 13.74, followUp: 82, control: 42, anmPct: 78.95, choPct: 62.07, moPct: 80.00, score: 30.80 },
-        { rank: 4, unit: "Khandasa", pop30: 83513, targetFY: 10439, htn: 29830, htnPct: 35.72, dm: 29827, dmPct: 35.72, suspected: 4244, suspectedPct: 14.23, treatment: 1983, treatmentPct: 19.00, followUp: 47, control: 35, anmPct: 24.00, choPct: 57.14, moPct: 100.00, score: 30.21 },
-        { rank: 5, unit: "Bikapur", pop30: 96869, targetFY: 12109, htn: 40370, htnPct: 41.67, dm: 40302, dmPct: 41.60, suspected: 3773, suspectedPct: 9.36, treatment: 2879, treatmentPct: 23.78, followUp: 70, control: 41, anmPct: 16.67, choPct: 60.00, moPct: 50.00, score: 29.70 },
-        { rank: 6, unit: "Masaudha", pop30: 109504, targetFY: 13688, htn: 47247, htnPct: 43.15, dm: 47217, dmPct: 43.12, suspected: 4210, suspectedPct: 8.92, treatment: 1607, treatmentPct: 11.74, followUp: 68, control: 28, anmPct: 84.78, choPct: 66.67, moPct: 50.00, score: 27.03 },
-        { rank: 7, unit: "Maya Bazar", pop30: 100165, targetFY: 12521, htn: 45350, htnPct: 45.28, dm: 45355, dmPct: 45.28, suspected: 2723, suspectedPct: 6.00, treatment: 1036, treatmentPct: 8.27, followUp: 10, control: 3, anmPct: 70.00, choPct: 68.75, moPct: 66.67, score: 25.72 },
-        { rank: 8, unit: "Sohawal", pop30: 101564, targetFY: 12696, htn: 42187, htnPct: 41.54, dm: 42093, dmPct: 41.44, suspected: 2875, suspectedPct: 6.83, treatment: 1402, treatmentPct: 11.04, followUp: 59, control: 44, anmPct: 61.76, choPct: 60.00, moPct: 60.00, score: 25.32 },
-        { rank: 9, unit: "Haringtanganj", pop30: 86522, targetFY: 10815, htn: 32026, htnPct: 37.01, dm: 31964, dmPct: 36.94, suspected: 2113, suspectedPct: 6.61, treatment: 1127, treatmentPct: 10.42, followUp: 76, control: 28, anmPct: 78.13, choPct: 66.67, moPct: 75.00, score: 25.02 },
-        { rank: 10, unit: "Milkipur", pop30: 95276, targetFY: 11910, htn: 43018, htnPct: 45.15, dm: 42974, dmPct: 45.10, suspected: 3871, suspectedPct: 9.01, treatment: 749, treatmentPct: 6.29, followUp: 54, control: 35, anmPct: 58.82, choPct: 38.89, moPct: 60.00, score: 24.63 },
-        { rank: 11, unit: "Tarun", pop30: 116654, targetFY: 14582, htn: 43513, htnPct: 37.30, dm: 43536, dmPct: 37.32, suspected: 3679, suspectedPct: 8.45, treatment: 787, treatmentPct: 5.40, followUp: 57, control: 26, anmPct: 58.82, choPct: 52.63, moPct: 85.71, score: 23.35 },
-        { rank: 12, unit: "Urban DHQ", pop30: 107758, targetFY: 13470, htn: 17831, htnPct: 16.55, dm: 17917, dmPct: 16.63, suspected: 1218, suspectedPct: 6.80, treatment: 1249, treatmentPct: 9.27, followUp: 25, control: 14, anmPct: 81.82, choPct: 0.00, moPct: 50.00, score: 15.55 }
+        { rank: 1, unit: "Mawai", pop30: 78064, targetFY: 9758, htn: 31504, htnPct: 40.36, dm: 31499, dmPct: 40.35, suspected: 3216, suspectedPct: 10.21, treatment: 2358, treatmentPct: 24.16, followUp: 94, control: 66, anmTotal: 25, anmDone: 15, anmPct: 60.00, choTotal: 17, choDone: 12, choPct: 70.59, moTotal: 6, moDone: 3, moPct: 50.00, score: 31.21 },
+        { rank: 2, unit: "Poora Bazar", pop30: 92660, targetFY: 11583, htn: 46114, htnPct: 49.77, dm: 46108, dmPct: 49.76, suspected: 3818, suspectedPct: 8.28, treatment: 1614, treatmentPct: 13.93, followUp: 78, control: 70, anmTotal: 36, anmDone: 33, anmPct: 91.67, choTotal: 16, choDone: 9, choPct: 56.25, moTotal: 4, moDone: 3, moPct: 75.00, score: 30.91 },
+        { rank: 3, unit: "Rudauli", pop30: 113215, targetFY: 14152, htn: 54386, htnPct: 48.04, dm: 54235, dmPct: 47.90, suspected: 5246, suspectedPct: 9.67, treatment: 1945, treatmentPct: 13.74, followUp: 82, control: 42, anmTotal: 38, anmDone: 30, anmPct: 78.95, choTotal: 29, choDone: 18, choPct: 62.07, moTotal: 5, moDone: 4, moPct: 80.00, score: 30.80 },
+        { rank: 4, unit: "Khandasa", pop30: 83513, targetFY: 10439, htn: 29830, htnPct: 35.72, dm: 29827, dmPct: 35.72, suspected: 4244, suspectedPct: 14.23, treatment: 1983, treatmentPct: 19.00, followUp: 47, control: 35, anmTotal: 25, anmDone: 6, anmPct: 24.00, choTotal: 14, choDone: 8, choPct: 57.14, moTotal: 4, moDone: 4, moPct: 100.00, score: 30.21 },
+        { rank: 5, unit: "Bikapur", pop30: 96869, targetFY: 12109, htn: 40370, htnPct: 41.67, dm: 40302, dmPct: 41.60, suspected: 3773, suspectedPct: 9.36, treatment: 2879, treatmentPct: 23.78, followUp: 70, control: 41, anmTotal: 30, anmDone: 5, anmPct: 16.67, choTotal: 20, choDone: 12, choPct: 60.00, moTotal: 4, moDone: 2, moPct: 50.00, score: 29.70 },
+        { rank: 6, unit: "Masaudha", pop30: 109504, targetFY: 13688, htn: 47247, htnPct: 43.15, dm: 47217, dmPct: 43.12, suspected: 4210, suspectedPct: 8.92, treatment: 1607, treatmentPct: 11.74, followUp: 68, control: 28, anmTotal: 46, anmDone: 39, anmPct: 84.78, choTotal: 18, choDone: 12, choPct: 66.67, moTotal: 4, moDone: 2, moPct: 50.00, score: 27.03 },
+        { rank: 7, unit: "Maya Bazar", pop30: 100165, targetFY: 12521, htn: 45350, htnPct: 45.28, dm: 45355, dmPct: 45.28, suspected: 2723, suspectedPct: 6.00, treatment: 1036, treatmentPct: 8.27, followUp: 10, control: 3, anmTotal: 40, anmDone: 28, anmPct: 70.00, choTotal: 16, choDone: 11, choPct: 68.75, moTotal: 6, moDone: 4, moPct: 66.67, score: 25.72 },
+        { rank: 8, unit: "Sohawal", pop30: 101564, targetFY: 12696, htn: 42187, htnPct: 41.54, dm: 42093, dmPct: 41.44, suspected: 2875, suspectedPct: 6.83, treatment: 1402, treatmentPct: 11.04, followUp: 59, control: 44, anmTotal: 34, anmDone: 21, anmPct: 61.76, choTotal: 20, choDone: 12, choPct: 60.00, moTotal: 5, moDone: 3, moPct: 60.00, score: 25.32 },
+        { rank: 9, unit: "Haringtanganj", pop30: 86522, targetFY: 10815, htn: 32026, htnPct: 37.01, dm: 31964, dmPct: 36.94, suspected: 2113, suspectedPct: 6.61, treatment: 1127, treatmentPct: 10.42, followUp: 76, control: 28, anmTotal: 32, anmDone: 25, anmPct: 78.13, choTotal: 12, choDone: 8, choPct: 66.67, moTotal: 4, moDone: 3, moPct: 75.00, score: 25.02 },
+        { rank: 10, unit: "Milkipur", pop30: 95276, targetFY: 11910, htn: 43018, htnPct: 45.15, dm: 42974, dmPct: 45.10, suspected: 3871, suspectedPct: 9.01, treatment: 749, treatmentPct: 6.29, followUp: 54, control: 35, anmTotal: 34, anmDone: 20, anmPct: 58.82, choTotal: 18, choDone: 7, choPct: 38.89, moTotal: 5, moDone: 3, moPct: 60.00, score: 24.63 },
+        { rank: 11, unit: "Tarun", pop30: 116654, targetFY: 14582, htn: 43513, htnPct: 37.30, dm: 43536, dmPct: 37.32, suspected: 3679, suspectedPct: 8.45, treatment: 787, treatmentPct: 5.40, followUp: 57, control: 26, anmTotal: 34, anmDone: 20, anmPct: 58.82, choTotal: 19, choDone: 10, choPct: 52.63, moTotal: 7, moDone: 6, moPct: 85.71, score: 23.35 },
+        { rank: 12, unit: "Urban DHQ", pop30: 107758, targetFY: 13470, htn: 17831, htnPct: 16.55, dm: 17917, dmPct: 16.63, suspected: 1218, suspectedPct: 6.80, treatment: 1249, treatmentPct: 9.27, followUp: 25, control: 14, anmTotal: 22, anmDone: 18, anmPct: 81.82, choTotal: 0, choDone: 0, choPct: 0.00, moTotal: 8, moDone: 4, moPct: 50.00, score: 15.55 }
       ]
     };
 
     let ncdData = FALLBACK_DATA;
     let scoreChartInstance = null;
     let referTreatmentChartInstance = null;
+    let staffChartInstance = null;
 
-    async function loadNcdData() {
-      try {
-        const snap = await get(ref(db, "asha_portal_v2/ncd_screening"));
-        if (snap.exists() && snap.val().units) {
-          ncdData = snap.val();
-        }
-      } catch (e) {
-        console.warn("Using fallback NCD data:", e);
-      }
-
+    function initDropdownAndRender() {
       document.getElementById("reportSubtitle").textContent = ncdData.reportTitle;
 
       const filterSelect = document.getElementById("unitFilter");
+      filterSelect.innerHTML = `<option value="ALL">समस्त जनपद अयोध्या (11 ब्लॉक + Urban DHQ)</option>`;
       ncdData.units.forEach(u => {
         const opt = document.createElement("option");
         opt.value = u.unit;
@@ -219,10 +259,27 @@
         if (match) filterSelect.value = match.unit;
       }
 
-      filterSelect.addEventListener("change", () => renderDashboard(filterSelect.value));
-      document.getElementById("sortSelect").addEventListener("change", () => renderTable(filterSelect.value));
       renderDashboard(filterSelect.value);
     }
+
+    async function loadNcdData() {
+      // Render immediately with default dataset so screen never gets stuck
+      initDropdownAndRender();
+
+      // Then fetch latest uploaded dataset from Firebase and refresh if available
+      try {
+        const snap = await get(ref(db, "asha_portal_v2/ncd_screening"));
+        if (snap.exists() && snap.val().units && snap.val().units.length > 0) {
+          ncdData = snap.val();
+          initDropdownAndRender();
+        }
+      } catch (e) {
+        console.warn("Firebase fetch skipped/fallback used:", e);
+      }
+    }
+
+    document.getElementById("unitFilter").addEventListener("change", (e) => renderDashboard(e.target.value));
+    document.getElementById("sortSelect").addEventListener("change", () => renderTable(document.getElementById("unitFilter").value));
 
     function renderDashboard(selectedUnit) {
       const targetObj = selectedUnit === "ALL"
@@ -231,7 +288,7 @@
 
       const refPct = targetObj.suspectedPct ?? ((targetObj.suspected / (targetObj.htn || 1)) * 100);
 
-      // 1. KPI Cards (Including Suspected & Referred %)
+      // 1. KPI Cards
       const kpis = [
         { label: "कंपोजिट स्कोर", val: `${targetObj.score.toFixed(2)}%`, sub: `${targetObj.unit} (100 में से)`, color: "border-rose-600 bg-rose-50 text-rose-900" },
         { label: "HTN / DM स्क्रीनिंग", val: `${targetObj.htnPct.toFixed(1)}%`, sub: `${targetObj.htn.toLocaleString("en-IN")} जांच`, color: "border-blue-600 bg-white text-blue-900" },
@@ -249,7 +306,79 @@
         </div>
       `).join("");
 
-      // 2. Care Cascade Bars
+      // 2. Separate ANM, CHO, MO Login Status Cards
+      document.getElementById("staffUnitSubtitle").textContent = `चयनित इकाई: ${targetObj.unit} — कुल बनाम सक्रिय (Done Screening / Examined) एवं निष्क्रिय लॉगिन`;
+
+      const anmTot = targetObj.anmTotal ?? 0;
+      const anmAct = targetObj.anmDone ?? Math.round((anmTot * targetObj.anmPct) / 100);
+      const choTot = targetObj.choTotal ?? 0;
+      const choAct = targetObj.choDone ?? Math.round((choTot * targetObj.choPct) / 100);
+      const moTot = targetObj.moTotal ?? 0;
+      const moAct = targetObj.moDone ?? Math.round((moTot * targetObj.moPct) / 100);
+
+      const cadres = [
+        { title: "ANM लॉगिन स्टेटस", subtitle: "Sub-Center लेवल स्क्रीनिंग", total: anmTot, active: anmAct, inactive: Math.max(0, anmTot - anmAct), pct: targetObj.anmPct, barColor: "bg-cyan-600", badgeBg: "bg-cyan-100 text-cyan-900" },
+        { title: "CHO लॉगिन स्टेटस", subtitle: "आयुष्मान आरोग्य मंदिर (HWC)", total: choTot, active: choAct, inactive: Math.max(0, choTot - choAct), pct: targetObj.choPct, barColor: "bg-purple-600", badgeBg: "bg-purple-100 text-purple-900" },
+        { title: "MO लॉगिन स्टेटस", subtitle: "PHC / CHC चिकित्सा अधिकारी जांच", total: moTot, active: moAct, inactive: Math.max(0, moTot - moAct), pct: targetObj.moPct, barColor: "bg-rose-600", badgeBg: "bg-rose-100 text-rose-900" }
+      ];
+
+      document.getElementById("staffLoginCards").innerHTML = cadres.map(c => `
+        <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="text-sm font-extrabold text-slate-900">${c.title}</h3>
+              <p class="text-[11px] text-slate-500">${c.subtitle}</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-xs font-extrabold ${c.badgeBg}">${c.pct.toFixed(1)}%</span>
+          </div>
+          <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+            <div class="${c.barColor} h-2.5 rounded-full transition-all duration-500" style="width: ${Math.min(100, c.pct)}%"></div>
+          </div>
+          <div class="grid grid-cols-3 gap-2 pt-1 text-center">
+            <div class="bg-white rounded-xl p-2 border border-slate-200/80">
+              <div class="text-[10px] font-bold text-slate-500">कुल पद</div>
+              <div class="text-sm font-extrabold text-slate-900">${c.total}</div>
+            </div>
+            <div class="bg-emerald-50 rounded-xl p-2 border border-emerald-200">
+              <div class="text-[10px] font-bold text-emerald-700">सक्रिय लॉगिन</div>
+              <div class="text-sm font-extrabold text-emerald-800">${c.active}</div>
+            </div>
+            <div class="bg-rose-50 rounded-xl p-2 border border-rose-200">
+              <div class="text-[10px] font-bold text-rose-700">निष्क्रिय/शेष</div>
+              <div class="text-sm font-extrabold text-rose-800">${c.inactive}</div>
+            </div>
+          </div>
+        </div>
+      `).join("");
+
+      // 3. Staff Comparison Chart
+      const labels = ncdData.units.map(u => u.unit);
+      if (staffChartInstance) staffChartInstance.destroy();
+      staffChartInstance = new Chart(document.getElementById("staffComparisonChart"), {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            { label: "ANM सक्रिय (%)", data: ncdData.units.map(u => u.anmPct), backgroundColor: "#0891b2", borderRadius: 4 },
+            { label: "CHO सक्रिय (%)", data: ncdData.units.map(u => u.choPct), backgroundColor: "#7c3aed", borderRadius: 4 },
+            { label: "MO सक्रिय (%)", data: ncdData.units.map(u => u.moPct), backgroundColor: "#e11d48", borderRadius: 4 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "top", labels: { font: { size: 11, weight: "bold" } } },
+            datalabels: { anchor: "end", align: "top", color: "#1e293b", font: { size: 8, weight: "bold" }, formatter: v => Math.round(v) + "%" }
+          },
+          scales: {
+            y: { beginAtZero: true, max: 115, ticks: { font: { size: 10 } } },
+            x: { ticks: { font: { size: 10, weight: "bold" }, maxRotation: 45, minRotation: 45 } }
+          }
+        }
+      });
+
+      // 4. Care Cascade Bars
       document.getElementById("cascadeUnitLabel").textContent = `चयनित इकाई: ${targetObj.unit} (30+ जनसंख्या: ${targetObj.pop30.toLocaleString("en-IN")})`;
       const cascadeSteps = [
         { label: "1. HTN / DM स्क्रीनिंग (30+ जनसंख्या के सापेक्ष)", count: targetObj.htn, pct: targetObj.htnPct, barColor: "bg-blue-600" },
@@ -271,57 +400,20 @@
         </div>
       `).join("");
 
-      // 3. Staff Activity Cards
-      const staffList = [
-        { role: "ANM स्क्रीनिंग सक्रियता", weight: "2.5% वेटेज", pct: targetObj.anmPct, color: "bg-cyan-600" },
-        { role: "CHO स्क्रीनिंग सक्रियता", weight: "2.5% वेटेज", pct: targetObj.choPct, color: "bg-purple-600" },
-        { role: "MO (चिकित्सा अधिकारी) जांच", weight: "5.0% वेटेज", pct: targetObj.moPct, color: "bg-rose-600" }
-      ];
-
-      document.getElementById("staffCards").innerHTML = staffList.map(st => `
-        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-          <div class="flex justify-between items-center text-xs font-bold mb-1.5">
-            <span class="text-slate-800">${st.role}</span>
-            <span class="text-[10px] text-slate-500">${st.weight}</span>
-          </div>
-          <div class="flex items-center gap-3">
-            <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-              <div class="${st.color} h-2 rounded-full" style="width: ${Math.min(100, st.pct)}%"></div>
-            </div>
-            <span class="text-xs font-extrabold text-slate-900 min-w-[46px] text-right">${st.pct.toFixed(1)}%</span>
-          </div>
-        </div>
-      `).join("");
-
-      // 4. Charts
-      const labels = ncdData.units.map(u => u.unit);
+      // 5. Composite Score & Refer vs Treatment Charts
       const scores = ncdData.units.map(u => u.score);
       const barColors = scores.map(s => s >= 30 ? "#059669" : s >= 25 ? "#d97706" : "#e11d48");
 
       if (scoreChartInstance) scoreChartInstance.destroy();
       scoreChartInstance = new Chart(document.getElementById("scoreChart"), {
         type: "bar",
-        data: {
-          labels,
-          datasets: [{
-            label: "कंपोजिट स्कोर (%)",
-            data: scores,
-            backgroundColor: barColors,
-            borderRadius: 6
-          }]
-        },
+        data: { labels, datasets: [{ label: "कंपोजिट स्कोर (%)", data: scores, backgroundColor: barColors, borderRadius: 6 }] },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
             legend: { display: false },
-            datalabels: {
-              anchor: "end",
-              align: "top",
-              color: "#0f172a",
-              font: { size: 10, weight: "bold" },
-              formatter: v => v.toFixed(1) + "%"
-            }
+            datalabels: { anchor: "end", align: "top", color: "#0f172a", font: { size: 10, weight: "bold" }, formatter: v => v.toFixed(1) + "%" }
           },
           scales: {
             y: { beginAtZero: true, max: 38, ticks: { font: { size: 10 } } },
@@ -330,25 +422,14 @@
         }
       });
 
-      // Chart 2: Suspected & Referred (%) vs Under Treatment (%)
       if (referTreatmentChartInstance) referTreatmentChartInstance.destroy();
       referTreatmentChartInstance = new Chart(document.getElementById("referTreatmentChart"), {
         type: "bar",
         data: {
           labels,
           datasets: [
-            {
-              label: "संदिग्ध एवं रेफर (%)",
-              data: ncdData.units.map(u => u.suspectedPct ?? Number(((u.suspected / (u.htn || 1)) * 100).toFixed(2))),
-              backgroundColor: "#f59e0b",
-              borderRadius: 4
-            },
-            {
-              label: "Under Treatment (%)",
-              data: ncdData.units.map(u => u.treatmentPct),
-              backgroundColor: "#10b981",
-              borderRadius: 4
-            }
+            { label: "संदिग्ध एवं रेफर (%)", data: ncdData.units.map(u => u.suspectedPct ?? Number(((u.suspected / (u.htn || 1)) * 100).toFixed(2))), backgroundColor: "#f59e0b", borderRadius: 4 },
+            { label: "Under Treatment (%)", data: ncdData.units.map(u => u.treatmentPct), backgroundColor: "#10b981", borderRadius: 4 }
           ]
         },
         options: {
@@ -356,13 +437,7 @@
           maintainAspectRatio: false,
           plugins: {
             legend: { position: "top", labels: { font: { size: 11, weight: "bold" } } },
-            datalabels: {
-              anchor: "end",
-              align: "top",
-              color: "#1e293b",
-              font: { size: 8.5, weight: "bold" },
-              formatter: v => v.toFixed(1) + "%"
-            }
+            datalabels: { anchor: "end", align: "top", color: "#1e293b", font: { size: 8.5, weight: "bold" }, formatter: v => v.toFixed(1) + "%" }
           },
           scales: {
             y: { beginAtZero: true, max: 30, ticks: { font: { size: 10 } } },
@@ -371,7 +446,47 @@
         }
       });
 
+      renderStaffTable(selectedUnit);
       renderTable(selectedUnit);
+    }
+
+    function renderStaffTable(selectedUnit) {
+      const dist = ncdData.district;
+      const makeCells = (tot, done, pct, borderClass = "border-r border-slate-200") => {
+        const t = tot ?? 0;
+        const d = done ?? Math.round((t * pct) / 100);
+        const inact = Math.max(0, t - d);
+        const badge = pct >= 75 ? "bg-emerald-100 text-emerald-800" : pct >= 50 ? "bg-amber-100 text-amber-800" : "bg-rose-100 text-rose-800";
+        return `
+          <td class="px-2 py-2 text-right font-semibold">${t}</td>
+          <td class="px-2 py-2 text-right font-bold text-emerald-700">${d}</td>
+          <td class="px-2 py-2 text-right font-bold text-rose-600">${inact}</td>
+          <td class="px-2 py-2 text-right ${borderClass}"><span class="px-1.5 py-0.5 rounded font-extrabold text-[11px] ${badge}">${pct.toFixed(1)}%</span></td>
+        `;
+      };
+
+      const distRow = `
+        <tr class="bg-amber-50 font-bold text-slate-900 border-b-2 border-amber-300">
+          <td class="px-3 py-2.5 border-r border-slate-200">Ayodhya (जनपद योग)</td>
+          ${makeCells(dist.anmTotal, dist.anmDone, dist.anmPct)}
+          ${makeCells(dist.choTotal, dist.choDone, dist.choPct)}
+          ${makeCells(dist.moTotal, dist.moDone, dist.moPct, "")}
+        </tr>
+      `;
+
+      const rows = ncdData.units.map(u => {
+        const hl = selectedUnit === u.unit ? "bg-teal-50 ring-1 ring-teal-500" : "hover:bg-slate-50";
+        return `
+          <tr class="${hl}">
+            <td class="px-3 py-2 font-bold text-slate-900 border-r border-slate-200">${u.rank}. ${u.unit}</td>
+            ${makeCells(u.anmTotal, u.anmDone, u.anmPct)}
+            ${makeCells(u.choTotal, u.choDone, u.choPct)}
+            ${makeCells(u.moTotal, u.moDone, u.moPct, "")}
+          </tr>
+        `;
+      }).join("");
+
+      document.getElementById("staffTableBody").innerHTML = distRow + rows;
     }
 
     function renderTable(selectedUnit) {
@@ -391,7 +506,6 @@
           <td class="px-3 py-2.5 text-right">${dist.treatment.toLocaleString("en-IN")} (${dist.treatmentPct.toFixed(2)}%)</td>
           <td class="px-3 py-2.5 text-right">${dist.followUp}</td>
           <td class="px-3 py-2.5 text-right">${dist.control}</td>
-          <td class="px-3 py-2.5 text-center">${Math.round(dist.anmPct)}% / ${Math.round(dist.choPct)}% / ${Math.round(dist.moPct)}%</td>
           <td class="px-3 py-2.5 text-right text-rose-800">${dist.score.toFixed(2)}%</td>
         </tr>
       `;
@@ -421,7 +535,6 @@
             <td class="px-3 py-2.5 text-right font-semibold">${u.treatment.toLocaleString("en-IN")} <span class="text-emerald-700">(${u.treatmentPct.toFixed(2)}%)</span></td>
             <td class="px-3 py-2.5 text-right">${u.followUp}</td>
             <td class="px-3 py-2.5 text-right">${u.control}</td>
-            <td class="px-3 py-2.5 text-center text-[11px]">${Math.round(u.anmPct)}% / ${Math.round(u.choPct)}% / ${Math.round(u.moPct)}%</td>
             <td class="px-3 py-2.5 text-right">
               <span class="px-2 py-0.5 rounded-full font-extrabold ${badgeColor}">${u.score.toFixed(2)}%</span>
             </td>
