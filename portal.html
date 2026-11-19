@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NHM अयोध्या — एकीकृत अधिकारी समीक्षा पोर्टल</title>
+  <title>Program Review Portal — NHM अयोध्या</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen font-sans antialiased">
@@ -15,7 +15,7 @@
         <span class="inline-block bg-teal-100 text-teal-900 text-[11px] font-bold px-3 py-1 rounded-full mb-2">
           जिला स्वास्थ्य समिति (DHS), अयोध्या
         </span>
-        <h1 class="text-lg font-bold text-slate-900">NHM अधिकारी समीक्षा पोर्टल</h1>
+        <h1 class="text-lg font-bold text-slate-900">Program Review Portal</h1>
         <p class="text-xs text-slate-500 mt-1">एक लॉगिन से सभी कार्यक्रमों की प्रगति एवं भुगतान देखें</p>
       </div>
 
@@ -44,7 +44,7 @@
       <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-wrap justify-between items-center gap-3">
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="text-base font-bold">NHM अयोध्या — एकीकृत कार्यक्रम समीक्षा डैशबोर्ड</h1>
+            <h1 class="text-base font-bold">Program Review Portal — NHM अयोध्या</h1>
             <span id="roleBadge" class="text-[10px] bg-amber-400 text-slate-950 font-extrabold px-2.5 py-0.5 rounded-full">DISTRICT</span>
           </div>
           <p id="officerInfo" class="text-xs text-slate-300 mt-0.5"></p>
@@ -107,19 +107,35 @@
         color: "border-emerald-600 text-emerald-800 bg-emerald-50"
       },
       {
-        title: "Master Data Uploader (Admin)",
-        desc: "ASHA Payment, JSY Payment और ABHA Progress की मासिक Excel शीट अपलोड एवं PIN रीसेट।",
-        url: "admin.html",
-        access: "DISTRICT",
-        badge: "Admin Only",
-        color: "border-slate-700 text-slate-800 bg-slate-100"
+        title: "NCD Screening",
+        desc: "30+ आयु वर्ग की जनसंख्या में CBAC फॉर्म, हाइपरटेंशन, डायबिटीज एवं ओरल/ब्रेस्ट/सर्वाइकल कैंसर स्क्रीनिंग प्रगति।",
+        url: "ncd-dashboard.html",
+        access: "ALL",
+        badge: "NCD Control",
+        color: "border-rose-600 text-rose-800 bg-rose-50"
       },
       {
-        title: "अधिकारी एक्सेस नियंत्रण",
-        desc: "जनपद एवं सभी 11 ब्लॉकों के MOIC, BPM, BAM के मोबाइल नंबर व लॉगिन अनुमति प्रबंधन।",
-        url: "officers-admin.html",
-        access: "DISTRICT",
-        badge: "Access Control",
+        title: "RBSK",
+        desc: "राष्ट्रीय बाल स्वास्थ्य कार्यक्रम मोबाइल हेल्थ टीम विजिट, आंगनवाड़ी व विद्यालय स्क्रीनिंग एवं DEIC रेफरल प्रगति।",
+        url: "rbsk-dashboard.html",
+        access: "ALL",
+        badge: "Child Health",
+        color: "border-amber-600 text-amber-800 bg-amber-50"
+      },
+      {
+        title: "Quality Assurance",
+        desc: "NQAS, कायाकल्प (Kayakalp) एवं लक्ष्य (LaQshya) के अंतर्गत स्वास्थ्य इकाइयों का मूल्यांकन एवं गैप क्लोजर स्थिति।",
+        url: "qa-dashboard.html",
+        access: "ALL",
+        badge: "Quality Standards",
+        color: "border-cyan-600 text-cyan-800 bg-cyan-50"
+      },
+      {
+        title: "Tele Consultation",
+        desc: "आयुष्मान आरोग्य मंदिर (HWC) से eSanjeevani के माध्यम से दैनिक टेली-कंसल्टेशन लक्ष्य बनाम उपलब्धि।",
+        url: "tele-dashboard.html",
+        access: "ALL",
+        badge: "eSanjeevani",
         color: "border-purple-600 text-purple-800 bg-purple-50"
       }
     ];
