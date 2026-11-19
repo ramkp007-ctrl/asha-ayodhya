@@ -13,14 +13,14 @@
     <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
       <div>
         <h1 class="text-lg md:text-xl font-bold">NHM अयोध्या — Master Data Uploader &amp; Control</h1>
-        <p class="text-xs text-slate-300">ASHA Payment, JSY Pipeline, ABHA Progress एवं अधिकारी एक्सेस प्रबंधन</p>
+        <p class="text-xs text-slate-300">ASHA Payment, JSY, ABHA, NCD, RBSK, QA, Tele Consultation एवं अधिकारी प्रबंधन</p>
       </div>
       <div class="flex flex-wrap gap-2">
         <a href="officers-admin.html" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-xs font-bold rounded-lg">
           👮 अधिकारी प्रबंधन
         </a>
         <a href="portal.html" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-xs font-bold rounded-lg">
-          🏛️ अधिकारी पोर्टल (Command Hub) →
+          🏛️ Program Review Portal →
         </a>
       </div>
     </div>
@@ -101,10 +101,53 @@
       </section>
     </div>
 
-    <!-- SECTION 4: RESET FORGOTTEN 6-DIGIT ASHA PIN -->
+    <!-- SECTION 4: NEW PROGRAMS UPLOADER (NCD, RBSK, QUALITY ASSURANCE, TELE CONSULTATION) -->
+    <section class="bg-white p-6 rounded-xl shadow-sm border border-rose-200 space-y-4">
+      <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
+        <div>
+          <h2 class="text-base font-bold text-rose-950">4. अन्य कार्यक्रम डेटा अपलोड (NCD Screening, RBSK, Quality Assurance, Tele Consultation)</h2>
+          <p class="text-[11px] text-slate-500 mt-0.5">Program Review Portal के चारों नए मॉड्यूल के लिए मासिक/साप्ताहिक Excel (.xlsx) अपलोड करें</p>
+        </div>
+        <span class="text-[11px] bg-rose-50 text-rose-800 border border-rose-200 px-2.5 py-1 rounded-lg font-bold">
+          4 Programs Active
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">कार्यक्रम चुनें (Select Program)</label>
+          <select id="newProgramSelect" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold bg-slate-50 focus:border-rose-700 focus:outline-none">
+            <option value="ncd_screening">❤️ NCD Screening (Composite Scoring &amp; ANM/CHO/MO Status)</option>
+            <option value="rbsk">👶 RBSK (Mobile Health Team &amp; Child Screening)</option>
+            <option value="quality_assurance">✅ Quality Assurance (NQAS / Kayakalp / LaQshya)</option>
+            <option value="tele_consultation">📞 Tele Consultation (eSanjeevani HWC OPD)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Excel / CSV फ़ाइल चुनें</label>
+          <input type="file" id="newProgramFile" accept=".xlsx,.xls,.csv"
+            class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-rose-50 file:text-rose-800 hover:file:bg-rose-100" />
+        </div>
+      </div>
+
+      <div id="newProgramHint" class="p-2.5 bg-rose-50/50 border border-rose-200/80 rounded-lg text-[11px] text-slate-700">
+        💡 <strong>NCD Screening:</strong> सीधे <b>'Composite'</b> शीट वाली Excel फ़ाइल (जैसे 18-11-2026.xlsx) चुनें। यह सभी 11 ब्लॉकों + Urban DHQ, रेफर (%) और ANM/CHO/MO लॉगिन स्टेटस को स्वतः अपडेट कर देगी।
+      </div>
+
+      <button id="uploadNewProgramBtn" class="w-full py-2.5 bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold rounded-lg shadow">
+        चयनित कार्यक्रम का डेटा अपलोड करें ↑
+      </button>
+
+      <div id="newProgramStatus" class="p-3 bg-slate-50 rounded-lg text-xs text-slate-700 border border-slate-200 space-y-1">
+        नए कार्यक्रमों का डेटाबेस जाँचा जा रहा है...
+      </div>
+    </section>
+
+    <!-- SECTION 5: RESET FORGOTTEN 6-DIGIT ASHA PIN -->
     <section class="bg-white p-5 rounded-xl shadow-sm border border-amber-200 flex flex-wrap justify-between items-center gap-4">
       <div>
-        <h2 class="text-sm font-bold text-amber-900">4. भूला हुआ 6-अंकों का ASHA PIN रीसेट करें (डिफ़ॉल्ट 123456)</h2>
+        <h2 class="text-sm font-bold text-amber-900">5. भूला हुआ 6-अंकों का ASHA PIN रीसेट करें (डिफ़ॉल्ट 123456)</h2>
         <p class="text-xs text-slate-500">आशा कार्यकर्ता द्वारा अपना PIN भूल जाने पर यहाँ से रीसेट करें</p>
       </div>
       <div class="flex items-center gap-2">
@@ -331,6 +374,29 @@
         } else {
           document.getElementById("abhaStatus").textContent = "अभी कोई ABHA डेटा अपलोड नहीं है।";
         }
+
+        // Status for 4 New Programs
+        const ncdTxt = d.ncd_screening?.units
+          ? `✅ <strong>NCD Screening:</strong> ${d.ncd_screening.units.length} इकाइयां (${d.ncd_screening.reportTitle || "Updated"})`
+          : "⚪ <strong>NCD Screening:</strong> डिफ़ॉल्ट डेटा सक्रिय (अभी नई फ़ाइल अपलोड नहीं)";
+        const rbskTxt = d.rbsk?.rows
+          ? `✅ <strong>RBSK:</strong> ${d.rbsk.rows.length} रिकॉर्ड (${d.rbsk.fileName})`
+          : "⚪ <strong>RBSK:</strong> डेटा प्रतीक्षित";
+        const qaTxt = d.quality_assurance?.rows
+          ? `✅ <strong>Quality Assurance:</strong> ${d.quality_assurance.rows.length} रिकॉर्ड (${d.quality_assurance.fileName})`
+          : "⚪ <strong>Quality Assurance:</strong> डेटा प्रतीक्षित";
+        const teleTxt = d.tele_consultation?.rows
+          ? `✅ <strong>Tele Consultation:</strong> ${d.tele_consultation.rows.length} रिकॉर्ड (${d.tele_consultation.fileName})`
+          : "⚪ <strong>Tele Consultation:</strong> डेटा प्रतीक्षित";
+
+        document.getElementById("newProgramStatus").innerHTML = `
+          <div>${ncdTxt}</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 pt-1 text-[11px] text-slate-600">
+            <div>${rbskTxt}</div>
+            <div>${qaTxt}</div>
+            <div>${teleTxt}</div>
+          </div>
+        `;
       }
     }
 
@@ -454,6 +520,112 @@
       alert(`✅ अपलोड सफल!\nदिनांक: ${fileDateLabel}\nकुल क्षेत्र: ${newRecords.length}\nकुल जनसंख्या: ${sumPop.toLocaleString("en-IN")}\nनिर्मित ABHA: ${sumCreated.toLocaleString("en-IN")}`);
     });
 
+    // 4. NEW PROGRAMS UPLOADER (NCD SCREENING, RBSK, QUALITY ASSURANCE, TELE CONSULTATION)
+    const PROGRAM_HINTS = {
+      ncd_screening: "💡 <strong>NCD Screening:</strong> सीधे <b>'Composite'</b> शीट वाली Excel फ़ाइल (जैसे 18-11-2026.xlsx) चुनें। यह सभी 11 ब्लॉकों + Urban DHQ, रेफर (%) और ANM/CHO/MO लॉगिन स्टेटस को स्वतः अपडेट कर देगी।",
+      rbsk: "💡 <strong>RBSK:</strong> ब्लॉक-वार MHT विजिट, आंगनवाड़ी व स्कूल स्क्रीनिंग की Excel शीट चुनें।",
+      quality_assurance: "💡 <strong>Quality Assurance:</strong> ब्लॉक/इकाई-वार NQAS, Kayakalp व LaQshya स्कोर की Excel शीट चुनें।",
+      tele_consultation: "💡 <strong>Tele Consultation:</strong> ब्लॉक/HWC-वार eSanjeevani टेली-कंसल्टेशन लक्ष्य व उपलब्धि की Excel शीट चुनें।"
+    };
+
+    document.getElementById("newProgramSelect").addEventListener("change", (e) => {
+      document.getElementById("newProgramHint").innerHTML = PROGRAM_HINTS[e.target.value] || "";
+    });
+
+    document.getElementById("uploadNewProgramBtn").addEventListener("click", async () => {
+      const prog = document.getElementById("newProgramSelect").value;
+      const file = document.getElementById("newProgramFile").files[0];
+      const btn = document.getElementById("uploadNewProgramBtn");
+      if (!file) return alert("कृपया पहले Excel / CSV फ़ाइल चुनें।");
+
+      btn.disabled = true;
+      btn.textContent = "प्रोसेस एवं अपलोड हो रहा है...";
+
+      try {
+        const buffer = await file.arrayBuffer();
+        const wb = XLSX.read(buffer, { type: "array" });
+
+        if (prog === "ncd_screening") {
+          const sheetName = wb.SheetNames.includes("Composite") ? "Composite" : wb.SheetNames[0];
+          const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: null });
+
+          const reportTitle = rows[1]?.[1] || "Ayodhya - NCD Composite Scoring Report";
+          let district = null;
+          const units = [];
+
+          for (let i = 4; i < rows.length; i++) {
+            const r = rows[i];
+            const unitName = r[2] ? String(r[2]).trim() : "";
+            if (!unitName) continue;
+
+            const record = {
+              rank: Number(r[1]) || 0,
+              unit: unitName,
+              pop30: Math.round(Number(r[3]) || 0),
+              targetFY: Math.round(Number(r[5]) || 0),
+              htn: Math.round(Number(r[6]) || 0),
+              htnPct: Number(((Number(r[7]) || 0) * 100).toFixed(2)),
+              dm: Math.round(Number(r[9]) || 0),
+              dmPct: Number(((Number(r[10]) || 0) * 100).toFixed(2)),
+              suspected: Math.round(Number(r[12]) || 0),
+              suspectedPct: Number(((Number(r[13]) || 0) * 100).toFixed(2)),
+              treatment: Math.round(Number(r[15]) || 0),
+              treatmentPct: Number(((Number(r[16]) || 0) * 100).toFixed(2)),
+              followUp: Math.round(Number(r[18]) || 0),
+              control: Math.round(Number(r[21]) || 0),
+              anmTotal: Math.round(Number(r[24]) || 0),
+              anmDone: Math.round(Number(r[25]) || 0),
+              anmPct: Number(((Number(r[26]) || 0) * 100).toFixed(2)),
+              choTotal: Math.round(Number(r[28]) || 0),
+              choDone: Math.round(Number(r[29]) || 0),
+              choPct: Number(((Number(r[30]) || 0) * 100).toFixed(2)),
+              moTotal: Math.round(Number(r[32]) || 0),
+              moDone: Math.round(Number(r[33]) || 0),
+              moPct: Number(((Number(r[34]) || 0) * 100).toFixed(2)),
+              score: Number(((Number(r[36]) || 0) * 100).toFixed(2))
+            };
+
+            if (unitName.toLowerCase() === "ayodhya") {
+              district = record;
+            } else {
+              units.push(record);
+            }
+          }
+
+          units.sort((a, b) => b.score - a.score);
+          units.forEach((u, idx) => u.rank = idx + 1);
+
+          await set(child(rootRef, "ncd_screening"), {
+            reportTitle,
+            updatedAt: new Date().toLocaleString("hi-IN"),
+            fileName: file.name,
+            district,
+            units
+          });
+
+          refreshStatus();
+          alert(`✅ NCD Screening अपलोड सफल!\nकुल इकाइयां: ${units.length}\nजनपद कंपोजिट स्कोर: ${district?.score ?? "-"}%`);
+        } else {
+          const firstSheet = wb.Sheets[wb.SheetNames[0]];
+          const jsonRows = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+
+          await set(child(rootRef, prog), {
+            updatedAt: new Date().toLocaleString("hi-IN"),
+            fileName: file.name,
+            rows: jsonRows
+          });
+
+          refreshStatus();
+          alert(`✅ ${prog.toUpperCase()} अपलोड सफल!\nफ़ाइल: ${file.name}\nकुल पंक्तियां: ${jsonRows.length}`);
+        }
+      } catch (err) {
+        alert("❌ त्रुटि: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "चयनित कार्यक्रम का डेटा अपलोड करें ↑";
+      }
+    });
+
     // Reset ASHA PIN
     document.getElementById("resetPinBtn").addEventListener("click", async () => {
       const rawId = document.getElementById("resetPinAshaId").value.trim();
@@ -476,7 +648,7 @@
     });
 
     document.getElementById("clearDbBtn").addEventListener("click", async () => {
-      if (!confirm("केवल ASHA भुगतान डेटा साफ़ करें? (Officers, JSY और ABHA सुरक्षित रहेंगे)")) return;
+      if (!confirm("केवल ASHA भुगतान डेटा साफ़ करें? (Officers, JSY, ABHA और NCD सुरक्षित रहेंगे)")) return;
       await update(rootRef, { heads: null, months: null, workers: null });
       refreshStatus();
     });
