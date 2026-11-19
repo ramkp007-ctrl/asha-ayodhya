@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NCD Screening समीक्षा — Program Review Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen font-sans antialiased">
+
+  <!-- HEADER -->
+  <header class="bg-slate-900 text-white shadow-md sticky top-0 z-20">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+      <div class="flex items-center gap-3">
+        <a href="portal.html" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded-lg border border-slate-700">
+          ← पोर्टल होम
+        </a>
+        <div>
+          <h1 class="text-base font-bold flex items-center gap-2">
+            ❤️ NCD Screening — कंपोजिट स्कोरिंग एवं रैंकिंग डैशबोर्ड
+          </h1>
+          <p id="reportSubtitle" class="text-[11px] text-slate-300">जनपद अयोध्या • लोड हो रहा है...</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <select id="unitFilter" class="bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 focus:outline-none">
+          <option value="ALL">समस्त जनपद (11 ब्लॉक + Urban DHQ)</option>
+        </select>
+        <a href="ncd-upload.html" id="uploadLink" class="hidden px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-xs font-bold rounded-lg">
+          + Excel अपलोड
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
+    <!-- KPI SUMMARY CARDS -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3" id="kpiCards"></div>
+
+    <!-- CHARTS ROW -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <!-- Composite Score Chart -->
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex justify-between items-center mb-3">
+          <h2 class="text-sm font-bold text-slate-800">ब्लॉक-वार कंपोजिट स्कोर (%) एवं रैंकिंग</h2>
+          <span class="text-[10px] font-semibold text-slate-500">जनपद औसत रेखा सहित</span>
+        </div>
+        <div class="h-80">
+          <canvas id="scoreChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Screening vs Treatment Chart -->
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex justify-between items-center mb-3">
+          <h2 class="text-sm font-bold text-slate-800">HTN स्क्रीनिंग (%) बनाम Under Treatment (%)</h2>
+          <span class="text-[10px] font-semibold text-slate-500">लक्ष्य के सापेक्ष उपलब्धि</span>
+        </div>
+        <div class="h-80">
+          <canvas id="treatmentChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- DETAILED RANKING TABLE -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-4 border-b border-slate-200 flex flex-wrap justify-between items-center gap-2">
+        <div>
+          <h2 class="text-sm font-bold text-slate-900">ब्लॉक-वार विस्तृत NCD प्रगति तालिका</h2>
+          <p class="text-[11px] text-slate-500">रैंकिंग कुल कंपोजिट स्कोर (100 अंक) के आधार पर</p>
+        </div>
+        <div class="flex gap-2 text-[10px] font-bold">
+          <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">≥ 30% श्रेष्ठ</span>
+          <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800">25% - 29.9% मध्यम</span>
+          <span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800">&lt; 25% सुधार आवश्यक</span>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left border-collapse">
+          <thead class="bg-slate-900 text-white text-[11px] uppercase">
+            <tr>
+              <th class="px-3 py-3 text-center">रैंक</th>
+              <th class="px-3 py-3">ब्लॉक / इकाई</th>
+              <th class="px-3 py-3 text-right">30+ जनसंख्या</th>
+              <th class="px-3 py-3 text-right">FY26-27 लक्ष्य (12.5%)</th>
+              <th class="px-3 py-3 text-right">HTN स्क्रीनिंग (%)</th>
+              <th class="px-3 py-3 text-right">DM स्क्रीनिंग (%)</th>
+              <th class="px-3 py-3 text-right">संदिग्ध / रेफर</th>
+              <th class="px-3 py-3 text-right">Under Treatment (%)</th>
+              <th class="px-3 py-3 text-right">Follow-Up</th>
+              <th class="px-3 py-3 text-right">Control</th>
+              <th class="px-3 py-3 text-center">ANM / CHO / MO (%)</th>
+              <th class="px-3 py-3 text-right bg-rose-900">कंपोजिट स्कोर</th>
+            </tr>
+          </thead>
+          <tbody id="ncdTableBody" class="divide-y divide-slate-200"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+    Chart.register(ChartDataLabels);
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
+      authDomain: "asha-payment.firebaseapp.com",
+      databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "asha-payment",
+      storageBucket: "asha-payment.firebasestorage.app",
+      messagingSenderId: "117935142167",
+      appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
+      measurementId: "G-43YGRC5CKL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Check login session
+    const saved = sessionStorage.getItem("nhm_ayodhya_officer");
+    const officer = saved ? JSON.parse(saved) : { role: "DISTRICT", block: "ALL" };
+    if (officer.role === "DISTRICT") {
+      document.getElementById("uploadLink").classList.remove("hidden");
+    }
+
+    // Default fallback data from 18-11-2026.xlsx until new Excel is uploaded
+    const FALLBACK_DATA = {
+      reportTitle: "Ayodhya - NCD Composite scoring and Ranking Report November-2026 (Data till 18-Nov-26)",
+      district: { unit: "Ayodhya", pop30: 1181764, targetFY: 147721, htn: 473376, htnPct: 40.06, dm: 473027, dmPct: 40.03, suspected: 40986, treatment: 18736, treatmentPct: 12.68, followUp: 720, control: 432, anmPct: 65.66, choPct: 59.80, moPct: 66.67, score: 26.58 },
+      units: [
+        { rank: 1, unit: "Mawai", pop30: 78064, targetFY: 9758, htn: 31504, htnPct: 40.36, dm: 31499, dmPct: 40.35, suspected: 3216, treatment: 2358, treatmentPct: 24.16, followUp: 94, control: 66, anmPct: 60.00, choPct: 70.59, moPct: 50.00, score: 31.21 },
+        { rank: 2, unit: "Poora Bazar", pop30: 92660, targetFY: 11583, htn: 46114, htnPct: 49.77, dm: 46108, dmPct: 49.76, suspected: 3818, treatment: 1614, treatmentPct: 13.93, followUp: 78, control: 70, anmPct: 91.67, choPct: 56.25, moPct: 75.00, score: 30.91 },
+        { rank: 3, unit: "Rudauli", pop30: 113215, targetFY: 14152, htn: 54386, htnPct: 48.04, dm: 54235, dmPct: 47.90, suspected: 5246, treatment: 1945, treatmentPct: 13.74, followUp: 82, control: 42, anmPct: 78.95, choPct: 62.07, moPct: 80.00, score: 30.80 },
+        { rank: 4, unit: "Khandasa", pop30: 83513, targetFY: 10439, htn: 29830, htnPct: 35.72, dm: 29827, dmPct: 35.72, suspected: 4244, treatment: 1983, treatmentPct: 19.00, followUp: 47, control: 35, anmPct: 24.00, choPct: 57.14, moPct: 100.00, score: 30.21 },
+        { rank: 5, unit: "Bikapur", pop30: 96869, targetFY: 12109, htn: 40370, htnPct: 41.67, dm: 40302, dmPct: 41.60, suspected: 3773, treatment: 2879, treatmentPct: 23.78, followUp: 70, control: 41, anmPct: 16.67, choPct: 60.00, moPct: 50.00, score: 29.70 },
+        { rank: 6, unit: "Masaudha", pop30: 109504, targetFY: 13688, htn: 47247, htnPct: 43.15, dm: 47217, dmPct: 43.12, suspected: 4210, treatment: 1607, treatmentPct: 11.74, followUp: 68, control: 28, anmPct: 84.78, choPct: 66.67, moPct: 50.00, score: 27.03 },
+        { rank: 7, unit: "Maya Bazar", pop30: 100165, targetFY: 12521, htn: 45350, htnPct: 45.28, dm: 45355, dmPct: 45.28, suspected: 2723, treatment: 1036, treatmentPct: 8.27, followUp: 10, control: 3, anmPct: 70.00, choPct: 68.75, moPct: 66.67, score: 25.72 },
+        { rank: 8, unit: "Sohawal", pop30: 101564, targetFY: 12696, htn: 42187, htnPct: 41.54, dm: 42093, dmPct: 41.44, suspected: 2875, treatment: 1402, treatmentPct: 11.04, followUp: 59, control: 44, anmPct: 61.76, choPct: 60.00, moPct: 60.00, score: 25.32 },
+        { rank: 9, unit: "Haringtanganj", pop30: 86522, targetFY: 10815, htn: 32026, htnPct: 37.01, dm: 31964, dmPct: 36.94, suspected: 2113, treatment: 1127, treatmentPct: 10.42, followUp: 76, control: 28, anmPct: 78.13, choPct: 66.67, moPct: 75.00, score: 25.02 },
+        { rank: 10, unit: "Milkipur", pop30: 95276, targetFY: 11910, htn: 43018, htnPct: 45.15, dm: 42974, dmPct: 45.10, suspected: 3871, treatment: 749, treatmentPct: 6.29, followUp: 54, control: 35, anmPct: 58.82, choPct: 38.89, moPct: 60.00, score: 24.63 },
+        { rank: 11, unit: "Tarun", pop30: 116654, targetFY: 14582, htn: 43513, htnPct: 37.30, dm: 43536, dmPct: 37.32, suspected: 3679, treatment: 787, treatmentPct: 5.40, followUp: 57, control: 26, anmPct: 58.82, choPct: 52.63, moPct: 85.71, score: 23.35 },
+        { rank: 12, unit: "Urban DHQ", pop30: 107758, targetFY: 13470, htn: 17831, htnPct: 16.55, dm: 17917, dmPct: 16.63, suspected: 1218, treatment: 1249, treatmentPct: 9.27, followUp: 25, control: 14, anmPct: 81.82, choPct: 0.00, moPct: 50.00, score: 15.55 }
+      ]
+    };
+
+    let ncdData = FALLBACK_DATA;
+    let scoreChartInstance = null;
+    let treatmentChartInstance = null;
+
+    async function loadNcdData() {
+      try {
+        const snap = await get(ref(db, "asha_portal_v2/ncd_screening"));
+        if (snap.exists() && snap.val().units) {
+          ncdData = snap.val();
+        }
+      } catch (e) {
+        console.warn("Using fallback NCD data:", e);
+      }
+
+      document.getElementById("reportSubtitle").textContent = ncdData.reportTitle;
+
+      const filterSelect = document.getElementById("unitFilter");
+      ncdData.units.forEach(u => {
+        const opt = document.createElement("option");
+        opt.value = u.unit;
+        opt.textContent = `${u.rank}. ${u.unit} (${u.score.toFixed(2)}%)`;
+        filterSelect.appendChild(opt);
+      });
+
+      // Auto-select block if officer is block-level
+      if (officer.role !== "DISTRICT" && officer.block) {
+        const match = ncdData.units.find(u => u.unit.toLowerCase() === officer.block.toLowerCase());
+        if (match) filterSelect.value = match.unit;
+      }
+
+      filterSelect.addEventListener("change", () => renderDashboard(filterSelect.value));
+      renderDashboard(filterSelect.value);
+    }
+
+    function renderDashboard(selectedUnit) {
+      const targetObj = selectedUnit === "ALL"
+        ? ncdData.district
+        : ncdData.units.find(u => u.unit === selectedUnit) || ncdData.district;
+
+      // Render KPI Cards
+      const kpis = [
+        { label: "कंपोजिट स्कोर", val: `${targetObj.score.toFixed(2)}%`, sub: targetObj.unit, color: "border-rose-600 bg-rose-50 text-rose-900" },
+        { label: "30+ जनसंख्या", val: targetObj.pop30.toLocaleString("en-IN"), sub: `FY लक्ष्य: ${targetObj.targetFY.toLocaleString("en-IN")}`, color: "border-slate-600 bg-white text-slate-900" },
+        { label: "HTN स्क्रीनिंग", val: `${targetObj.htnPct.toFixed(1)}%`, sub: targetObj.htn.toLocaleString("en-IN"), color: "border-blue-600 bg-white text-blue-900" },
+        { label: "DM स्क्रीनिंग", val: `${targetObj.dmPct.toFixed(1)}%`, sub: targetObj.dm.toLocaleString("en-IN"), color: "border-indigo-600 bg-white text-indigo-900" },
+        { label: "Under Treatment", val: `${targetObj.treatmentPct.toFixed(1)}%`, sub: `${targetObj.treatment.toLocaleString("en-IN")} मरीज`, color: "border-emerald-600 bg-white text-emerald-900" },
+        { label: "Follow-Up / Control", val: `${targetObj.followUp} / ${targetObj.control}`, sub: `संदिग्ध: ${targetObj.suspected.toLocaleString("en-IN")}`, color: "border-amber-600 bg-white text-amber-900" }
+      ];
+
+      document.getElementById("kpiCards").innerHTML = kpis.map(k => `
+        <div class="p-3.5 rounded-xl border-l-4 ${k.color} shadow-sm">
+          <div class="text-[11px] font-semibold text-slate-500">${k.label}</div>
+          <div class="text-lg font-extrabold mt-0.5">${k.val}</div>
+          <div class="text-[10px] font-medium text-slate-500 mt-0.5">${k.sub}</div>
+        </div>
+      `).join("");
+
+      // Render Charts
+      const labels = ncdData.units.map(u => u.unit);
+      const scores = ncdData.units.map(u => u.score);
+      const barColors = scores.map(s => s >= 30 ? "#059669" : s >= 25 ? "#d97706" : "#e11d48");
+
+      if (scoreChartInstance) scoreChartInstance.destroy();
+      scoreChartInstance = new Chart(document.getElementById("scoreChart"), {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "कंपोजिट स्कोर (%)",
+            data: scores,
+            backgroundColor: barColors,
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              anchor: "end",
+              align: "top",
+              color: "#1e293b",
+              font: { size: 10, weight: "bold" },
+              formatter: v => v.toFixed(1) + "%"
+            }
+          },
+          scales: {
+            y: { beginAtZero: true, max: 40, ticks: { font: { size: 10 } } },
+            x: { ticks: { font: { size: 10, weight: "bold" }, maxRotation: 45, minRotation: 45 } }
+          }
+        }
+      });
+
+      if (treatmentChartInstance) treatmentChartInstance.destroy();
+      treatmentChartInstance = new Chart(document.getElementById("treatmentChart"), {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "HTN स्क्रीनिंग (%)",
+              data: ncdData.units.map(u => u.htnPct),
+              backgroundColor: "#3b82f6",
+              borderRadius: 4
+            },
+            {
+              label: "Under Treatment (%)",
+              data: ncdData.units.map(u => u.treatmentPct),
+              backgroundColor: "#10b981",
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "top", labels: { font: { size: 11 } } },
+            datalabels: {
+              anchor: "end",
+              align: "top",
+              color: "#1e293b",
+              font: { size: 8, weight: "bold" },
+              formatter: v => Math.round(v) + "%"
+            }
+          },
+          scales: {
+            y: { beginAtZero: true, max: 60, ticks: { font: { size: 10 } } },
+            x: { ticks: { font: { size: 10, weight: "bold" }, maxRotation: 45, minRotation: 45 } }
+          }
+        }
+      });
+
+      // Render Table
+      const dist = ncdData.district;
+      const districtRow = `
+        <tr class="bg-amber-50 font-bold text-slate-900 border-b-2 border-amber-300">
+          <td class="px-3 py-2.5 text-center">—</td>
+          <td class="px-3 py-2.5">Ayodhya (जनपद औसत/योग)</td>
+          <td class="px-3 py-2.5 text-right">${dist.pop30.toLocaleString("en-IN")}</td>
+          <td class="px-3 py-2.5 text-right">${dist.targetFY.toLocaleString("en-IN")}</td>
+          <td class="px-3 py-2.5 text-right">${dist.htn.toLocaleString("en-IN")} (${dist.htnPct.toFixed(1)}%)</td>
+          <td class="px-3 py-2.5 text-right">${dist.dm.toLocaleString("en-IN")} (${dist.dmPct.toFixed(1)}%)</td>
+          <td class="px-3 py-2.5 text-right">${dist.suspected.toLocaleString("en-IN")}</td>
+          <td class="px-3 py-2.5 text-right">${dist.treatment.toLocaleString("en-IN")} (${dist.treatmentPct.toFixed(1)}%)</td>
+          <td class="px-3 py-2.5 text-right">${dist.followUp}</td>
+          <td class="px-3 py-2.5 text-right">${dist.control}</td>
+          <td class="px-3 py-2.5 text-center">${Math.round(dist.anmPct)}% / ${Math.round(dist.choPct)}% / ${Math.round(dist.moPct)}%</td>
+          <td class="px-3 py-2.5 text-right text-rose-800">${dist.score.toFixed(2)}%</td>
+        </tr>
+      `;
+
+      const unitRows = ncdData.units.map(u => {
+        const badgeColor = u.score >= 30 ? "bg-emerald-100 text-emerald-800" : u.score >= 25 ? "bg-amber-100 text-amber-800" : "bg-rose-100 text-rose-800";
+        const highlight = selectedUnit === u.unit ? "bg-teal-50 ring-1 ring-teal-500" : "hover:bg-slate-50";
+        return `
+          <tr class="${highlight}">
+            <td class="px-3 py-2.5 text-center font-bold">${u.rank}</td>
+            <td class="px-3 py-2.5 font-bold text-slate-900">${u.unit}</td>
+            <td class="px-3 py-2.5 text-right">${u.pop30.toLocaleString("en-IN")}</td>
+            <td class="px-3 py-2.5 text-right">${u.targetFY.toLocaleString("en-IN")}</td>
+            <td class="px-3 py-2.5 text-right">${u.htn.toLocaleString("en-IN")} <span class="text-slate-500">(${u.htnPct.toFixed(1)}%)</span></td>
+            <td class="px-3 py-2.5 text-right">${u.dm.toLocaleString("en-IN")} <span class="text-slate-500">(${u.dmPct.toFixed(1)}%)</span></td>
+            <td class="px-3 py-2.5 text-right">${u.suspected.toLocaleString("en-IN")}</td>
+            <td class="px-3 py-2.5 text-right font-semibold">${u.treatment.toLocaleString("en-IN")} <span class="text-emerald-700">(${u.treatmentPct.toFixed(1)}%)</span></td>
+            <td class="px-3 py-2.5 text-right">${u.followUp}</td>
+            <td class="px-3 py-2.5 text-right">${u.control}</td>
+            <td class="px-3 py-2.5 text-center text-[11px]">${Math.round(u.anmPct)}% / ${Math.round(u.choPct)}% / ${Math.round(u.moPct)}%</td>
+            <td class="px-3 py-2.5 text-right">
+              <span class="px-2 py-0.5 rounded-full font-extrabold ${badgeColor}">${u.score.toFixed(2)}%</span>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      document.getElementById("ncdTableBody").innerHTML = districtRow + unitRows;
+    }
+
+    loadNcdData();
+  </script>
+</body>
+</html>
