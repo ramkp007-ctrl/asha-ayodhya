@@ -118,8 +118,8 @@
           <label class="block text-xs font-bold text-slate-700 mb-1">कार्यक्रम चुनें (Select Program)</label>
           <select id="newProgramSelect" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold bg-slate-50 focus:border-rose-700 focus:outline-none">
             <option value="ncd_screening">❤️ NCD Screening (Composite Scoring &amp; ANM/CHO/MO Status)</option>
-            <option value="rbsk">👶 RBSK (Mobile Health Team &amp; Child Screening)</option>
             <option value="quality_assurance">✅ Quality Assurance (NQAS / Kayakalp / LaQshya)</option>
+            <option value="rbsk">👶 RBSK (Mobile Health Team &amp; Child Screening)</option>
             <option value="tele_consultation">📞 Tele Consultation (eSanjeevani HWC OPD)</option>
           </select>
         </div>
@@ -377,22 +377,22 @@
 
         const ncdTxt = d.ncd_screening?.units
           ? `✅ <strong>NCD Screening:</strong> ${d.ncd_screening.units.length} इकाइयां (${d.ncd_screening.reportTitle || "Updated"})`
-          : "⚪ <strong>NCD Screening:</strong> डिफ़ॉल्ट डेटा सक्रिय (अभी नई फ़ाइल अपलोड नहीं)";
+          : "⚪ <strong>NCD Screening:</strong> डिफ़ॉल्ट डेटा सक्रिय";
+        const qaTxt = d.quality_assurance?.rows
+          ? `✅ <strong>Quality Assurance:</strong> ${d.quality_assurance.rows.length} इकाइयां (${d.quality_assurance.fileName})`
+          : "⚪ <strong>Quality Assurance:</strong> डिफ़ॉल्ट 154 इकाइयां सक्रिय";
         const rbskTxt = d.rbsk?.rows
           ? `✅ <strong>RBSK:</strong> ${d.rbsk.rows.length} रिकॉर्ड (${d.rbsk.fileName})`
           : "⚪ <strong>RBSK:</strong> डेटा प्रतीक्षित";
-        const qaTxt = d.quality_assurance?.rows
-          ? `✅ <strong>Quality Assurance:</strong> ${d.quality_assurance.rows.length} रिकॉर्ड (${d.quality_assurance.fileName})`
-          : "⚪ <strong>Quality Assurance:</strong> डेटा प्रतीक्षित";
         const teleTxt = d.tele_consultation?.rows
           ? `✅ <strong>Tele Consultation:</strong> ${d.tele_consultation.rows.length} रिकॉर्ड (${d.tele_consultation.fileName})`
           : "⚪ <strong>Tele Consultation:</strong> डेटा प्रतीक्षित";
 
         document.getElementById("newProgramStatus").innerHTML = `
-          <div>${ncdTxt}</div>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 pt-1 text-[11px] text-slate-600">
-            <div>${rbskTxt}</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[11px]">
+            <div>${ncdTxt}</div>
             <div>${qaTxt}</div>
+            <div>${rbskTxt}</div>
             <div>${teleTxt}</div>
           </div>
         `;
@@ -519,11 +519,11 @@
       alert(`✅ अपलोड सफल!\nदिनांक: ${fileDateLabel}\nकुल क्षेत्र: ${newRecords.length}\nकुल जनसंख्या: ${sumPop.toLocaleString("en-IN")}\nनिर्मित ABHA: ${sumCreated.toLocaleString("en-IN")}`);
     });
 
-    // 4. NEW PROGRAMS UPLOADER (SMART AUTO-DETECT PARSER)
+    // 4. NEW PROGRAMS UPLOADER (NCD, QUALITY ASSURANCE, RBSK, TELE CONSULTATION)
     const PROGRAM_HINTS = {
       ncd_screening: "💡 <strong>NCD Screening:</strong> सीधे <b>'Composite'</b> शीट वाली Excel फ़ाइल (जैसे 18-11-2026.xlsx) चुनें। यह सभी 11 ब्लॉकों + Urban DHQ, रेफर (%) और ANM/CHO/MO लॉगिन स्टेटस को स्वतः अपडेट कर देगी।",
+      quality_assurance: "💡 <strong>Quality Assurance:</strong> NQAS Excel फ़ाइल (जैसे NQAS 18-11-2026.xlsx) चुनें। ब्लॉक नाम व सर्टिफिकेशन स्टेटस स्वतः साफ़ होकर सेव होंगे।",
       rbsk: "💡 <strong>RBSK:</strong> ब्लॉक-वार MHT विजिट, आंगनवाड़ी व स्कूल स्क्रीनिंग की Excel शीट चुनें।",
-      quality_assurance: "💡 <strong>Quality Assurance:</strong> ब्लॉक/इकाई-वार NQAS, Kayakalp व LaQshya स्कोर की Excel शीट चुनें।",
       tele_consultation: "💡 <strong>Tele Consultation:</strong> ब्लॉक/HWC-वार eSanjeevani टेली-कंसल्टेशन लक्ष्य व उपलब्धि की Excel शीट चुनें।"
     };
 
@@ -548,7 +548,6 @@
           const sheetName = wb.SheetNames.includes("Composite") ? "Composite" : wb.SheetNames[0];
           const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: null });
 
-          // Auto-detect where 'UNIT' column is located
           let unitColIdx = 2;
           let headerRowIdx = 2;
           for (let rIdx = 0; rIdx < Math.min(8, rows.length); rIdx++) {
@@ -619,19 +618,90 @@
           });
 
           refreshStatus();
-          alert(`✅ NCD Screening अपलोड सफल!\nकुल इकाइयां: ${units.length} (${units.map(u => u.unit).slice(0, 3).join(", ")}...)\nजनपद कंपोजिट स्कोर: ${district?.score ?? "-"}%`);
-        } else {
+          alert(`✅ NCD Screening अपलोड सफल!\nकुल इकाइयां: ${units.length}\nजनपद कंपोजिट स्कोर: ${district?.score ?? "-"}%`);
+
+        } else if (prog === "quality_assurance") {
           const firstSheet = wb.Sheets[wb.SheetNames[0]];
-          const jsonRows = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+          const rawRows = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+
+          const normBlock = (b) => {
+            const s = String(b || "").trim().toUpperCase();
+            const map = {
+              "MAVAI": "MAWAI",
+              "PURA BAZAR": "POORA BAZAR",
+              "HARIYANGATANGANJ": "HARINGTANGANJ",
+              "HAIRINGTANGANJ": "HARINGTANGANJ",
+              "CHC POORA BAZAR": "POORA BAZAR",
+              "CHC BIKAPUR": "BIKAPUR",
+              "SRIRAM HOSPITAL": "DH / DISTRICT HOSPITAL",
+              "DWH": "DH / DISTRICT HOSPITAL"
+            };
+            return map[s] || s;
+          };
+
+          const normStatus = (st) => {
+            const s = String(st || "").trim().toUpperCase();
+            if (s.includes("CONDITIONAL")) return "Conditional";
+            if (s.includes("CERTIFIED")) return "Quality Certified";
+            if (s.includes("DEFFERED") || s.includes("DEFERRED")) return "Deferred";
+            return s;
+          };
+
+          const normType = (t) => {
+            const s = String(t || "").trim().toUpperCase();
+            if (s.includes("DH")) return "DH Level";
+            if (s.includes("CHC")) return "CHC";
+            return "AAM-SC";
+          };
+
+          const cleanRows = rawRows.map((r, idx) => {
+            const norm = {};
+            for (const [k, v] of Object.entries(r)) {
+              norm[String(k).replace(/\s+/g, " ").trim().toUpperCase()] = v;
+            }
+            const rawDt = norm["DATE OF ASSESSMENT"] || norm["DATE"] || "";
+            return {
+              sn: Number(norm["SN"]) || idx + 1,
+              block: normBlock(norm["BLOCK"]),
+              facility: String(norm["FACILITY NAME"] || norm["FACILITY"] || "").trim(),
+              type: normType(norm["TYPE OF FACILITY (DH/CHC/PHC/ UPHC/AAM- SC)"] || norm["TYPE"]),
+              packages: Number(norm["NO. OF DEPARTMENT /PACKAGES ASSESSED"] || norm["NO. OF DEPARTMENT/PACKAGES ASSESSED"] || norm["PACKAGES"] || 0) || 0,
+              status: normStatus(norm["CERTIFCATION STATUS (FULLY CERTIFIED/CONDITIONAL)"] || norm["CERTIFICATION STATUS"] || norm["STATUS"]),
+              date: typeof rawDt === "number" ? formatExcelDate(rawDt) : String(rawDt || "").trim(),
+              fy: String(norm["FY YEAR"] || norm["FY"] || "").trim()
+            };
+          }).filter(x => x.facility);
+
+          await set(child(rootRef, "quality_assurance"), {
+            updatedAt: new Date().toLocaleString("hi-IN"),
+            fileName: file.name,
+            rows: cleanRows
+          });
+
+          refreshStatus();
+          alert(`✅ Quality Assurance (NQAS) अपलोड सफल!\nफ़ाइल: ${file.name}\nकुल स्वास्थ्य इकाइयां: ${cleanRows.length}`);
+
+        } else {
+          // Sanitize all column keys for Firebase safety (removes ., #, $, /, [, ])
+          const firstSheet = wb.Sheets[wb.SheetNames[0]];
+          const rawJson = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+          const safeRows = rawJson.map(row => {
+            const cleanObj = {};
+            for (const [k, v] of Object.entries(row)) {
+              const cleanKey = String(k || "COL").replace(/[.#$\[\]\/\\]/g, "_").replace(/\s+/g, " ").trim() || "COL";
+              cleanObj[cleanKey] = v;
+            }
+            return cleanObj;
+          });
 
           await set(child(rootRef, prog), {
             updatedAt: new Date().toLocaleString("hi-IN"),
             fileName: file.name,
-            rows: jsonRows
+            rows: safeRows
           });
 
           refreshStatus();
-          alert(`✅ ${prog.toUpperCase()} अपलोड सफल!\nफ़ाइल: ${file.name}\nकुल पंक्तियां: ${jsonRows.length}`);
+          alert(`✅ ${prog.toUpperCase()} अपलोड सफल!\nफ़ाइल: ${file.name}\nकुल पंक्तियां: ${safeRows.length}`);
         }
       } catch (err) {
         alert("❌ त्रुटि: " + err.message);
@@ -663,7 +733,7 @@
     });
 
     document.getElementById("clearDbBtn").addEventListener("click", async () => {
-      if (!confirm("केवल ASHA भुगतान डेटा साफ़ करें? (Officers, JSY, ABHA और NCD सुरक्षित रहेंगे)")) return;
+      if (!confirm("केवल ASHA भुगतान डेटा साफ़ करें? (Officers, JSY, ABHA, NCD और QA सुरक्षित रहेंगे)")) return;
       await update(rootRef, { heads: null, months: null, workers: null });
       refreshStatus();
     });
