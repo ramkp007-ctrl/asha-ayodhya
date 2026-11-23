@@ -1,997 +1,1487 @@
 <!DOCTYPE html>
+
 <html lang="hi">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Program Review Portal — NHM अयोध्या</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-  <style>
-    body {
-      font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
-      background-color: #f1f5f9;
-    }
-    .nav-sub-btn.active {
-      background: linear-gradient(90deg, #0d9488 0%, #0f766e 100%);
-      color: #ffffff;
-      font-weight: 700;
-      box-shadow: 0 4px 12px -2px rgba(13, 148, 136, 0.4);
-    }
-    @media print {
-      .no-print { display: none !important; }
-      body { background: #fff !important; }
-      main { margin-left: 0 !important; }
-    }
-  </style>
+
+<meta charset="UTF-8" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>Master Admin - NHM अयोध्या डेटा अपलोड एवं प्रबंधन</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
 </head>
-<body class="text-slate-800 min-h-screen antialiased flex flex-col lg:flex-row">
-
-  <!-- MOBILE TOP BAR -->
-  <div class="lg:hidden sticky top-0 z-30 bg-slate-950 text-white px-4 py-3 flex items-center justify-between shadow-md no-print">
-    <div class="flex items-center gap-2.5">
-      <span class="px-2 py-1 rounded-lg bg-teal-500 text-slate-950 font-black text-xs">NHM</span>
-      <span class="font-extrabold text-sm">Program Review Portal — अयोध्या</span>
-    </div>
-    <button onclick="toggleSidebar()" class="px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-xs font-bold">
-      ☰ Programs
-    </button>
-  </div>
-
-  <!-- BACKDROP FOR MOBILE DRAWER -->
-  <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-950/60 z-30 hidden lg:hidden no-print"></div>
-
-  <!-- LEFT COLLAPSIBLE SIDEBAR -->
-  <aside id="leftSidebar" class="fixed lg:sticky top-0 left-0 z-40 h-screen w-72 bg-slate-950 text-slate-100 flex flex-col border-r border-slate-800/80 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out flex-shrink-0 no-print">
-    
-    <!-- Sidebar Brand Header -->
-    <div class="p-4 bg-gradient-to-r from-slate-950 to-teal-950 border-b border-slate-800 flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center text-slate-950 font-black text-xs shadow">
-          UP
-        </div>
-        <div>
-          <h1 class="text-sm font-extrabold tracking-tight text-white leading-tight">NHM अयोध्या</h1>
-          <p class="text-[11px] text-teal-300 font-semibold">Program Review Portal</p>
-        </div>
-      </div>
-      <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white text-xl leading-none">&times;</button>
-    </div>
-
-    <!-- Role & District Info Pill -->
-    <div class="px-4 py-2 bg-slate-900/70 border-b border-slate-800/80 flex items-center justify-between">
-      <span id="roleBadge" class="text-[10px] bg-teal-400/15 text-teal-300 border border-teal-400/30 font-extrabold px-2.5 py-0.5 rounded-full uppercase">
-        DISTRICT LEVEL
-      </span>
-      <span class="text-[10px] text-slate-400 font-semibold">11 Blocks</span>
-    </div>
-
-    <!-- 5-PROGRAM COLLAPSIBLE NAVIGATION TREE -->
-    <nav class="flex-1 overflow-y-auto p-3 space-y-1.5 text-xs">
-
-      <!-- 1. MATERNAL HEALTH -->
-      <div class="rounded-xl bg-slate-900/40 border border-slate-800/60 overflow-hidden">
-        <button onclick="toggleAccordion('grp_maternal', 'arr_maternal')"
-          class="w-full flex items-center justify-between px-3 py-2.5 font-extrabold text-amber-300 hover:bg-slate-800/60 transition">
-          <span class="flex items-center gap-2">1. Maternal Health</span>
-          <span id="arr_maternal" class="text-[10px] transition-transform duration-200">▼</span>
-        </button>
-        <div id="grp_maternal" class="px-2 pb-2 space-y-1">
-          <button onclick="selectSubProgram('jsy')" id="nav_jsy"
-            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-            <span>• JSY Payment</span>
-            <span id="cnt_jsy" class="text-[10px] text-amber-300 font-bold">—</span>
-          </button>
-          <button onclick="selectSubProgram('mh_inst_delivery')" id="nav_mh_inst_delivery"
-            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-            <span>• Institutional Delivery (HMIS)</span>
-            <span id="cnt_mh_inst_delivery" class="text-[10px] text-slate-400">—</span>
-          </button>
-          <button onclick="selectSubProgram('mh_delivery_ekavach')" id="nav_mh_delivery_ekavach"
-            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-            <span>• Delivery Updation (EKAVACH)</span>
-            <span id="cnt_mh_delivery_ekavach" class="text-[10px] text-slate-400">—</span>
-          </button>
-          <button onclick="selectSubProgram('mh_anc_ekavach')" id="nav_mh_anc_ekavach"
-            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-            <span>• ANC Coverage (EKAVACH)</span>
-            <span id="cnt_mh_anc_ekavach" class="text-[10px] text-slate-400">—</span>
-          </button>
-          <button onclick="selectSubProgram('mh_anc_hmis')" id="nav_mh_anc_hmis"
-            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-            <span>• ANC Coverage (HMIS)</span>
-            <span id="cnt_mh_anc_hmis" class="text-[10px] text-slate-400">—</span>
-          </button>
-          <button onclick="selectSubProgram('mh_maternal_death')" id="nav_mh_maternal_death"
-            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-            <span>• Maternal Death</span>
-            <span id="cnt_mh_maternal_death" class="text-[10px] text-slate-400">—</span>
-          </button>
-          <button onclick="selectSubProgram('mh_child_death')" id="nav_mh_child_death"
-            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-            <span>• Child Death</span>
-            <span id="cnt_mh_child_death" class="text-[10px] text-slate-400">—</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- 2. COMMUNITY PROCESS -->
-      <div class="rounded-xl bg-slate-900/40 border border-slate-800/60 overflow-hidden">
-        <button onclick="toggleAccordion('grp_community', 'arr_community')"
-          class="w-full flex items-center justify-between px-3 py-2.5 font-extrabold text-sky-300 hover:bg-slate-800/60 transition">
-          <span class="flex items-center gap-2">2. Community Process</span>
-          <span id="arr_community" class="text-[10px] transition-transform duration-200">▼</span>
-        </button>
-        <div id="grp_community" class="px-2 pb-2 space-y-1">
-          <a href="tele-dashboard.html?tab=tele_cho"
-            class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-indigo-300 hover:bg-slate-800 hover:text-white font-semibold transition">
-            <span>• Tele Consultation (CHO) ↗</span>
-            <span id="cnt_tele_cho" class="text-[10px] bg-indigo-500/20 text-indigo-200 px-1.5 py-0.5 rounded font-bold">LIVE</span>
-          </a>
-          <a href="tele-dashboard.html?tab=tele_mo"
-            class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-indigo-300 hover:bg-slate-800 hover:text-white font-semibold transition">
-            <span>• Tele Consultation (MO) ↗</span>
-            <span id="cnt_tele_mo" class="text-[10px] bg-indigo-500/20 text-indigo-200 px-1.5 py-0.5 rounded font-bold">LIVE</span>
-          </a>
-          <a href="index.html"
-            class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-teal-200 hover:bg-slate-800 hover:text-white font-semibold transition">
-            <span>• ASHA Payment ↗</span>
-            <span id="cnt_asha" class="text-[10px] text-teal-400 font-bold">2,232</span>
-          </a>
-          <button onclick="selectSubProgram('abha')" id="nav_abha"
-            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-            <span>• ABHA ID</span>
-            <span id="cnt_abha" class="text-[10px] text-sky-300 font-bold">—</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- 3. RBSK -->
-      <button onclick="selectSubProgram('rbsk')" id="nav_rbsk"
-        class="nav-sub-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/40 border border-slate-800/60 font-extrabold text-purple-300 hover:bg-slate-800 hover:text-white transition text-left">
-        <span>3. RBSK</span>
-        <span id="cnt_rbsk" class="text-[10px] text-slate-400">—</span>
-      </button>
-
-      <!-- 4. QUALITY ASSURANCE -->
-      <div class="rounded-xl bg-slate-900/40 border border-slate-800/60 overflow-hidden">
-        <button onclick="toggleAccordion('grp_qa', 'arr_qa')"
-          class="w-full flex items-center justify-between px-3 py-2.5 font-extrabold text-emerald-300 hover:bg-slate-800/60 transition">
-          <span class="flex items-center gap-2">4. Quality Assurance</span>
-          <span id="arr_qa" class="text-[10px] transition-transform duration-200">▼</span>
-        </button>
-        <div id="grp_qa" class="px-2 pb-2 space-y-1">
-          <button onclick="selectSubProgram('qa')" id="nav_qa"
-            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-            <span>• NQAS Certification</span>
-            <span id="cnt_qa" class="text-[10px] text-emerald-400 font-bold">—</span>
-          </button>
-          <button onclick="selectSubProgram('qa_kayakalp')" id="nav_qa_kayakalp"
-            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-            <span>• KAYAKALP</span>
-            <span id="cnt_qa_kayakalp" class="text-[10px] text-slate-400">—</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- 5. NCD -->
-      <div class="rounded-xl bg-slate-900/40 border border-slate-800/60 overflow-hidden">
-        <button onclick="toggleAccordion('grp_ncd', 'arr_ncd')"
-          class="w-full flex items-center justify-between px-3 py-2.5 font-extrabold text-rose-300 hover:bg-slate-800/60 transition">
-          <span class="flex items-center gap-2">5. NCD</span>
-          <span id="arr_ncd" class="text-[10px] transition-transform duration-200">▼</span>
-        </button>
-        <div id="grp_ncd" class="px-2 pb-2 space-y-1">
-          <button onclick="selectSubProgram('ncd')" id="nav_ncd"
-            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-            <span>• Composite Score</span>
-            <span id="cnt_ncd" class="text-[10px] text-rose-300 font-bold">—</span>
-          </button>
-          <button onclick="selectSubProgram('ncd_mo_exam')" id="nav_ncd_mo_exam"
-            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-            <span>• MO Examination</span>
-            <span id="cnt_ncd_mo_exam" class="text-[10px] text-slate-400">—</span>
-          </button>
-          <button onclick="selectSubProgram('ncd_facility_progress')" id="nav_ncd_facility_progress"
-            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-            <span>• Facilitywise Progress</span>
-            <span id="cnt_ncd_facility_progress" class="text-[10px] text-slate-400">—</span>
-          </button>
-        </div>
-      </div>
-
-    </nav>
-
-    <!-- Sidebar Bottom Quick Links -->
-    <div class="p-3 border-t border-slate-800 space-y-2">
-      <a href="admin.html" class="w-full flex items-center justify-center gap-1.5 py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-extrabold rounded-xl shadow transition">
-        ⚙️ Master Admin Upload
-      </a>
-      <button onclick="logoutPortal()" class="w-full py-1.5 bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white text-xs font-bold rounded-xl transition">
-        Logout
-      </button>
-    </div>
-  </aside>
-
-  <!-- RIGHT MAIN CONTENT AREA -->
-  <div class="flex-1 flex flex-col min-w-0">
-
-    <!-- SUB-HEADER BAR -->
-    <header class="bg-white border-b border-slate-200/90 px-4 sm:px-6 py-4 shadow-xs">
-      <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
-        <div>
-          <div class="flex flex-wrap items-center gap-2">
-            <span id="wsCategoryPill" class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">
-              1. Maternal Health
-            </span>
-            <h2 id="wsTitle" class="text-base sm:text-xl font-extrabold text-slate-900">JSY Payment — ब्लॉक एवं इकाई-वार समीक्षा</h2>
-          </div>
-          <p id="wsSubTitle" class="text-xs text-slate-500 mt-0.5">संस्थागत प्रसव सत्यापन, MOIC स्वीकृति एवं भुगतान प्रगति</p>
-        </div>
-
-        <div class="flex items-center gap-2.5">
-          <span id="wsUpdatedBadge" class="text-[11px] font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full border border-slate-200">
-            अपडेट: —
-          </span>
-          <button onclick="window.print()" class="no-print px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition">
-            🖨️ Print
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-5 space-y-5 flex-1 w-full">
-
-      <!-- FILTER & THRESHOLD LEGEND BAR -->
-      <div class="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-sm flex flex-wrap justify-between items-center gap-3 no-print">
-        <div class="flex flex-wrap items-center gap-2.5">
-          <!-- Optional Date Selector (For JSY / ABHA multi-date uploads) -->
-          <select id="wsDateFilter" onchange="renderActiveProgram()" class="hidden px-3 py-2 border border-indigo-200 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-900">
-          </select>
-
-          <select id="wsBlockFilter" onchange="renderActiveProgram()" class="px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50 text-slate-800">
-            <option value="ALL">All 11 Blocks (जनपद अयोध्या)</option>
-          </select>
-
-          <input type="text" id="wsSearchInput" oninput="renderActiveProgram()" placeholder="🔍 ब्लॉक या इकाई खोजें..."
-            class="px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 w-48" />
-
-          <button onclick="exportActiveExcel()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition">
-            ⬇️ Excel (.xlsx)
-          </button>
-        </div>
-
-        <div class="flex items-center gap-3 text-[11px] font-bold">
-          <span class="flex items-center gap-1 text-emerald-700"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> &gt;85% Best</span>
-          <span class="flex items-center gap-1 text-amber-600"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> 80–85% Moderate</span>
-          <span class="flex items-center gap-1 text-rose-600"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> &lt;80% Focus</span>
-        </div>
-      </div>
-
-      <!-- 4 DYNAMIC KPI CARDS -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
-          <div class="absolute top-0 left-0 w-1 h-full bg-teal-600"></div>
-          <div id="kpi1Label" class="text-xs font-bold text-slate-500">कुल इकाइयां / Blocks</div>
-          <div id="kpi1Val" class="text-2xl font-extrabold text-slate-900 mt-1">0</div>
-          <div id="kpi1Sub" class="text-[11px] text-slate-500 mt-0.5">—</div>
-        </div>
-
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
-          <div class="absolute top-0 left-0 w-1 h-full bg-indigo-600"></div>
-          <div id="kpi2Label" class="text-xs font-bold text-slate-500">जनपद औसत / कुल प्रगति</div>
-          <div id="kpi2Val" class="text-2xl font-extrabold text-indigo-700 mt-1">0</div>
-          <div id="kpi2Sub" class="text-[11px] text-indigo-600 mt-0.5">—</div>
-        </div>
-
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
-          <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
-          <div id="kpi3Label" class="text-xs font-bold text-slate-500">सर्वश्रेष्ठ ब्लॉक (Top)</div>
-          <div id="kpi3Val" class="text-lg font-extrabold text-emerald-700 mt-1 truncate">—</div>
-          <div id="kpi3Sub" class="text-[11px] text-emerald-600 mt-0.5">—</div>
-        </div>
-
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
-          <div class="absolute top-0 left-0 w-1 h-full bg-rose-500"></div>
-          <div id="kpi4Label" class="text-xs font-bold text-slate-500">सुधार की आवश्यकता (Lowest)</div>
-          <div id="kpi4Val" class="text-lg font-extrabold text-rose-600 mt-1 truncate">—</div>
-          <div id="kpi4Sub" class="text-[11px] text-rose-600 mt-0.5">—</div>
-        </div>
-      </div>
-
-      <!-- TOP 5 & POOR 5 COMPARISON BOXES -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-white rounded-2xl border border-emerald-200/80 shadow-sm overflow-hidden">
-          <div class="px-4 py-3 bg-gradient-to-r from-emerald-800 to-teal-700 text-white flex justify-between items-center">
-            <h3 id="wsTop5Title" class="text-xs font-extrabold tracking-wide">🏆 Top 5 Blocks (सर्वश्रेष्ठ प्रदर्शन)</h3>
-            <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold">Best Performers</span>
-          </div>
-          <div id="wsTop5List" class="divide-y divide-slate-100 p-2.5"></div>
-        </div>
-
-        <div class="bg-white rounded-2xl border border-rose-200/80 shadow-sm overflow-hidden">
-          <div class="px-4 py-3 bg-gradient-to-r from-rose-800 to-rose-700 text-white flex justify-between items-center">
-            <h3 id="wsPoor5Title" class="text-xs font-extrabold tracking-wide">⚠️ Poor 5 Blocks (न्यूनतम प्रदर्शन)</h3>
-            <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold">Needs Focus</span>
-          </div>
-          <div id="wsPoor5List" class="divide-y divide-slate-100 p-2.5"></div>
-        </div>
-      </div>
-
-      <!-- THRESHOLD COLOR-CODED DATA-LABELED CHART -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-        <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
-          <div>
-            <h3 id="wsChartTitle" class="text-sm font-extrabold text-slate-800">📊 ब्लॉक-वार तुलनात्मक चार्ट (Top से Bottom)</h3>
-            <p class="text-[11px] text-slate-500">QGIS कलर कोड: हरा (&gt;85%), पीला (80–85%), लाल (&lt;80%)</p>
-          </div>
-        </div>
-        <div class="overflow-x-auto">
-          <div id="wsChartBox" style="height: 300px; min-width: 100%;">
-            <canvas id="wsBarChart"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- DETAILED DATA TABLE -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="px-4 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-          <h3 id="wsTableTitle" class="text-sm font-extrabold text-slate-800">📋 विस्तृत ब्लॉक एवं इकाई-वार तालिका</h3>
-          <span id="wsRowCount" class="text-xs font-bold text-teal-800 bg-teal-50 px-3 py-1 rounded-full border border-teal-200">0 Rows</span>
-        </div>
-        <div id="wsTableContainer" class="overflow-x-auto max-h-[460px]"></div>
-      </div>
-
-    </main>
-
-    <footer class="bg-white border-t border-slate-200 py-4 px-6 mt-8">
-      <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2 text-xs text-slate-500">
-        <span>© 2026 <b>National Health Mission (NHM), Ayodhya</b> — District Program Management Unit</span>
-        <span>Threshold Rules: <b class="text-emerald-700">&gt;85% Green</b> • <b class="text-amber-600">80–85% Yellow</b> • <b class="text-rose-600">&lt;80% Red</b></span>
-      </div>
-    </footer>
-  </div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
-      authDomain: "asha-payment.firebaseapp.com",
-      databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "asha-payment",
-      storageBucket: "asha-payment.firebasestorage.app",
-      messagingSenderId: "117935142167",
-      appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
-      measurementId: "G-43YGRC5CKL"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    const savedOfficer = JSON.parse(sessionStorage.getItem("nhm_ayodhya_officer") || "null");
-    if (savedOfficer) {
-      document.getElementById("roleBadge").textContent =
-        savedOfficer.role === "DISTRICT" ? "DISTRICT LEVEL" : `BLOCK: ${savedOfficer.block}`;
-    }
-
-    window.logoutPortal = function() {
-      sessionStorage.removeItem("nhm_ayodhya_officer");
-      window.location.href = "index.html";
-    };
-
-    window.toggleAccordion = function(menuId, arrowId) {
-      const menu = document.getElementById(menuId);
-      const arrow = document.getElementById(arrowId);
-      menu.classList.toggle("hidden");
-      arrow.classList.toggle("-rotate-90");
-    };
-
-    window.toggleSidebar = function() {
-      const sb = document.getElementById("leftSidebar");
-      const bd = document.getElementById("sidebarBackdrop");
-      sb.classList.toggle("-translate-x-full");
-      bd.classList.toggle("hidden");
-    };
-
-    // MAPPED TO YOUR EXACT FIREBASE NODES IN admin.html
-    const PROGRAMS = {
-      jsy: {
-        category: "1. Maternal Health",
-        badgeClass: "bg-amber-100 text-amber-800",
-        title: "JSY Payment — ब्लॉक एवं इकाई-वार समीक्षा",
-        sub: "जननी सुरक्षा योजना संस्थागत प्रसव सत्यापन, MOIC स्वीकृति एवं भुगतान प्रतिशत",
-        dbNode: "jsy_portal",
-        mode: "jsy"
-      },
-      mh_inst_delivery: {
-        category: "1. Maternal Health",
-        badgeClass: "bg-amber-100 text-amber-800",
-        title: "Institutional Delivery (HMIS) — समीक्षा",
-        sub: "HMIS पोर्टल के अनुसार अनुमानित प्रसव के सापेक्ष संस्थागत प्रसव प्रतिशत",
-        dbNode: "mh_inst_delivery",
-        mode: "generic"
-      },
-      mh_delivery_ekavach: {
-        category: "1. Maternal Health",
-        badgeClass: "bg-amber-100 text-amber-800",
-        title: "Delivery Updation (EKAVACH) — समीक्षा",
-        sub: "e-Kavach पोर्टल पर आशा/ANM द्वारा प्रसव अपडेशन की ब्लॉक-वार प्रगति",
-        dbNode: "mh_delivery_ekavach",
-        mode: "generic"
-      },
-      mh_anc_ekavach: {
-        category: "1. Maternal Health",
-        badgeClass: "bg-amber-100 text-amber-800",
-        title: "ANC Coverage (EKAVACH) — समीक्षा",
-        sub: "e-Kavach पोर्टल पर ANC पंजीकरण, जांच एवं HRP ट्रैकिंग प्रगति",
-        dbNode: "mh_anc_ekavach",
-        mode: "generic"
-      },
-      mh_anc_hmis: {
-        category: "1. Maternal Health",
-        badgeClass: "bg-amber-100 text-amber-800",
-        title: "ANC Coverage (HMIS) — समीक्षा",
-        sub: "HMIS रिपोर्ट के अनुसार प्रथम तिमाही एवं 4+ ANC कवरेज प्रतिशत",
-        dbNode: "mh_anc_hmis",
-        mode: "generic"
-      },
-      mh_maternal_death: {
-        category: "1. Maternal Health",
-        badgeClass: "bg-rose-100 text-rose-800",
-        title: "Maternal Death (MDSR) — समीक्षा",
-        sub: "मातृ मृत्यु रिपोर्टिंग, CDR/MDSR समीक्षा एवं ब्लॉक-वार विवरण",
-        dbNode: "mh_maternal_death",
-        mode: "generic"
-      },
-      mh_child_death: {
-        category: "1. Maternal Health",
-        badgeClass: "bg-rose-100 text-rose-800",
-        title: "Child Death (CDR) — समीक्षा",
-        sub: "शिशु मृत्यु रिपोर्टिंग एवं ब्लॉक-वार समीक्षा विवरण",
-        dbNode: "mh_child_death",
-        mode: "generic"
-      },
-      abha: {
-        category: "2. Community Process",
-        badgeClass: "bg-sky-100 text-sky-800",
-        title: "ABHA ID — ब्लॉक एवं आशा क्षेत्र-वार समीक्षा",
-        sub: "जनसंख्या लक्ष्य के सापेक्ष निर्मित ABHA ID प्रतिशत",
-        dbNode: "abha_portal",
-        mode: "abha"
-      },
-      rbsk: {
-        category: "3. RBSK",
-        badgeClass: "bg-purple-100 text-purple-800",
-        title: "RBSK — राष्ट्रीय बाल स्वास्थ्य कार्यक्रम समीक्षा",
-        sub: "मोबाइल हेल्थ टीम विज़िट, आंगनवाड़ी व स्कूल स्क्रीनिंग एवं DEIC रेफरल प्रगति",
-        dbNode: "rbsk",
-        mode: "generic"
-      },
-      qa: {
-        category: "4. Quality Assurance",
-        badgeClass: "bg-emerald-100 text-emerald-800",
-        title: "NQAS Certification — प्रमाणीकरण समीक्षा",
-        sub: "Quality Certified, Conditional एवं Deferred स्वास्थ्य इकाइयों का ब्लॉक-वार विवरण",
-        dbNode: "quality_assurance",
-        mode: "qa"
-      },
-      qa_kayakalp: {
-        category: "4. Quality Assurance",
-        badgeClass: "bg-emerald-100 text-emerald-800",
-        title: "KAYAKALP — स्वच्छता एवं गुणवत्ता समीक्षा",
-        sub: "कायाकल्प मूल्यांकन स्कोर एवं प्रमाणित स्वास्थ्य इकाइयों की प्रगति",
-        dbNode: "qa_kayakalp",
-        mode: "generic"
-      },
-      ncd: {
-        category: "5. NCD",
-        badgeClass: "bg-rose-100 text-rose-800",
-        title: "NCD Composite Score — समग्र स्कोर समीक्षा",
-        sub: "NP-NCD कार्यक्रम के अंतर्गत ब्लॉक-वार Composite Score, HTN/DM व ANM/CHO/MO लॉगिन",
-        dbNode: "ncd_screening",
-        mode: "ncd"
-      },
-      ncd_mo_exam: {
-        category: "5. NCD",
-        badgeClass: "bg-rose-100 text-rose-800",
-        title: "NCD MO Examination — चिकित्साधिकारी परीक्षण समीक्षा",
-        sub: "रेफर किए गए उच्च-जोखिम मरीजों का MO द्वारा परीक्षण एवं उपचार प्रगति",
-        dbNode: "ncd_mo_exam",
-        mode: "generic"
-      },
-      ncd_facility_progress: {
-        category: "5. NCD",
-        badgeClass: "bg-rose-100 text-rose-800",
-        title: "NCD Facilitywise Progress — इकाई-वार प्रगति",
-        sub: "उपकेन्द्र / HWC / PHC वार 30+ स्क्रीनिंग एवं लॉगिन प्रगति",
-        dbNode: "ncd_facility_progress",
-        mode: "generic"
-      }
-    };
-
-    let portalData = {};
-    let activeProg = "jsy";
-    let currentExportRows = [];
-    let wsChart = null;
-
-    function getThresholdColor(pct) {
-      if (pct > 85) return "#059669"; // Green >85
-      if (pct >= 80) return "#d97706"; // Yellow 80-85
-      return "#e11d48"; // Red <80
-    }
-
-    function getRecordsForProgram(key) {
-      const meta = PROGRAMS[key];
-      if (!meta) return [];
-      const mod = portalData[meta.dbNode];
-      if (!mod) return [];
-      if (meta.mode === "jsy" || meta.mode === "abha") return mod.records || [];
-      if (meta.mode === "ncd") return mod.units || [];
-      return mod.rows || [];
-    }
-
-    async function initPortal() {
-      try {
-        const snap = await get(ref(db, "asha_portal_v2"));
-        if (snap.exists()) {
-          portalData = snap.val() || {};
-        }
-
-        // Update Tele Consultation CHO & MO counts
-        const choRows = portalData.tele_cho?.rows || [];
-        const moRows = portalData.tele_mo?.rows || [];
-        const choTc = choRows.reduce((s, r) => s + (Number(r.tc) || 0), 0);
-        const moTc = moRows.reduce((s, r) => s + (Number(r.tc) || 0), 0);
-        if (choTc > 0) document.getElementById("cnt_tele_cho").textContent = `${choTc.toLocaleString("en-IN")}`;
-        if (moTc > 0) document.getElementById("cnt_tele_mo").textContent = `${moTc.toLocaleString("en-IN")}`;
-
-        // Update sidebar counts for all sub-programs
-        Object.keys(PROGRAMS).forEach(k => {
-          const list = getRecordsForProgram(k);
-          const cntEl = document.getElementById(`cnt_${k}`);
-          if (cntEl && list.length) {
-            if (k === "qa") {
-              const cert = list.filter(x => x.status === "Quality Certified").length;
-              cntEl.textContent = `${cert}/${list.length}`;
-            } else {
-              cntEl.textContent = `${list.length}`;
-            }
-          }
-        });
-
-        selectSubProgram("jsy");
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    window.selectSubProgram = function(key) {
-      activeProg = key;
-
-      document.querySelectorAll(".nav-sub-btn").forEach(btn => btn.classList.remove("active"));
-      const activeBtn = document.getElementById(`nav_${key}`);
-      if (activeBtn) activeBtn.classList.add("active");
-
-      if (window.innerWidth < 1024 && !document.getElementById("leftSidebar").classList.contains("-translate-x-full")) {
-        toggleSidebar();
-      }
-
-      const meta = PROGRAMS[key];
-      const catEl = document.getElementById("wsCategoryPill");
-      catEl.textContent = meta.category;
-      catEl.className = `text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${meta.badgeClass}`;
-
-      document.getElementById("wsTitle").textContent = meta.title;
-      document.getElementById("wsSubTitle").textContent = meta.sub;
-
-      const mod = portalData[meta.dbNode] || {};
-      document.getElementById("wsUpdatedBadge").textContent = `अपडेट: ${mod.updatedAt || "N/A"}`;
-
-      const records = getRecordsForProgram(key);
-
-      // Date dropdown for JSY & ABHA
-      const dateSel = document.getElementById("wsDateFilter");
-      if ((meta.mode === "jsy" || meta.mode === "abha") && records.length) {
-        const dates = Array.from(new Set(records.map(r => r.date).filter(Boolean)));
-        dateSel.innerHTML = dates.map(d => `<option value="${d}">📅 दिनांक: ${d}</option>`).join("");
-        if (mod.latestDate && dates.includes(mod.latestDate)) dateSel.value = mod.latestDate;
-        dateSel.classList.remove("hidden");
-      } else {
-        dateSel.classList.add("hidden");
-      }
-
-      // Block dropdown
-      const blockField = meta.mode === "ncd" ? "unit" : (records[0] && "block" in records[0] ? "block" : Object.keys(records[0] || {})[0]);
-      const blocks = Array.from(new Set(records.map(r => String(r[blockField] || "").trim()).filter(Boolean))).sort();
-
-      const sel = document.getElementById("wsBlockFilter");
-      sel.innerHTML = `<option value="ALL">All ${blocks.length || 11} ${meta.mode === "ncd" ? "Units / Blocks" : "Blocks (जनपद अयोध्या)"}</option>` +
-        blocks.map(b => `<option value="${b}">${b}</option>`).join("");
-
-      if (savedOfficer && savedOfficer.role !== "DISTRICT" && savedOfficer.block) {
-        const m = blocks.find(b => b.toLowerCase() === savedOfficer.block.toLowerCase());
-        if (m) { sel.value = m; sel.disabled = true; }
-      }
-
-      renderActiveProgram();
-    };
-
-    window.renderActiveProgram = function() {
-      const meta = PROGRAMS[activeProg];
-      let records = getRecordsForProgram(activeProg);
-      const selDate = document.getElementById("wsDateFilter").value;
-      const selBlk = document.getElementById("wsBlockFilter").value;
-      const searchQ = document.getElementById("wsSearchInput").value.trim().toLowerCase();
-
-      if (!records.length) {
-        document.getElementById("kpi1Val").textContent = "0";
-        document.getElementById("kpi2Val").textContent = "—";
-        document.getElementById("kpi3Val").textContent = "—";
-        document.getElementById("kpi4Val").textContent = "—";
-        document.getElementById("wsTop5List").innerHTML = `<p class="p-4 text-xs text-slate-400">इस सब-प्रोग्राम की रिपोर्ट <b>admin.html</b> से अपलोड करें।</p>`;
-        document.getElementById("wsPoor5List").innerHTML = `<p class="p-4 text-xs text-slate-400">डेटा अपलोड होते ही Top-5 और Poor-5 स्वतः दिखने लगेंगे।</p>`;
-        document.getElementById("wsTableContainer").innerHTML = `<p class="p-8 text-center text-xs text-slate-500">अभी <b>${meta.title}</b> के लिए डेटा अपलोड नहीं किया गया है।</p>`;
-        document.getElementById("wsRowCount").textContent = "0 Rows";
-        if (wsChart) wsChart.destroy();
-        return;
-      }
-
-      // Filter by Date if JSY/ABHA
-      if ((meta.mode === "jsy" || meta.mode === "abha") && selDate) {
-        records = records.filter(r => r.date === selDate);
-      }
-
-      // Filter by Block & Search
-      const blockField = meta.mode === "ncd" ? "unit" : ("block" in records[0] ? "block" : Object.keys(records[0])[0]);
-      const filtered = records.filter(r => {
-        const b = String(r[blockField] || "").trim();
-        if (selBlk !== "ALL" && b.toLowerCase() !== selBlk.toLowerCase()) return false;
-        if (searchQ && !Object.values(r).join(" ").toLowerCase().includes(searchQ)) return false;
-        return true;
-      });
-      currentExportRows = filtered;
-
-      let ranked = [];
-      let kpi1 = { label: "कुल रिकॉर्ड", val: filtered.length, sub: "" };
-      let kpi2 = { label: "जनपद औसत", val: "0%", sub: "" };
-      let tableHtml = "";
-
-      if (meta.mode === "jsy") {
-        // JSY Payment % = (pay / del) * 100
-        const grp = new Map();
-        filtered.forEach(r => {
-          const key = selBlk === "ALL" ? r.block : r.facility;
-          if (!grp.has(key)) grp.set(key, { name: key, del: 0, moic: 0, pay: 0, count: 0 });
-          const g = grp.get(key);
-          g.del += Number(r.del) || 0;
-          g.moic += Number(r.moic) || 0;
-          g.pay += Number(r.pay) || 0;
-          g.count += 1;
-        });
-        ranked = Array.from(grp.values()).map(g => ({
-          name: g.name,
-          val: g.del > 0 ? Number(((g.pay / g.del) * 100).toFixed(1)) : 0,
-          subText: `प्रसव: ${g.del} | भुगतान: ${g.pay}`
-        })).sort((a, b) => b.val - a.val);
-
-        const totDel = filtered.reduce((s, r) => s + (Number(r.del) || 0), 0);
-        const totPay = filtered.reduce((s, r) => s + (Number(r.pay) || 0), 0);
-        const totMoic = filtered.reduce((s, r) => s + (Number(r.moic) || 0), 0);
-        const pct = totDel > 0 ? ((totPay / totDel) * 100).toFixed(1) : "0.0";
-
-        kpi1 = { label: "कुल प्रसव (Deliveries)", val: totDel.toLocaleString("en-IN"), sub: `MOIC स्वीकृत: ${totMoic.toLocaleString("en-IN")}` };
-        kpi2 = { label: "JSY भुगतान प्रतिशत", val: `${pct}%`, sub: `कुल भुगतान: ${totPay.toLocaleString("en-IN")}` };
-
-        tableHtml = `
-          <table class="w-full text-xs text-left border-collapse">
-            <thead class="bg-slate-900 text-white sticky top-0">
-              <tr>
-                <th class="p-3">#</th><th class="p-3">Block</th><th class="p-3">Facility</th>
-                <th class="p-3 text-right">Deliveries</th><th class="p-3 text-right">JSY Verified</th>
-                <th class="p-3 text-right">MOIC Approved</th><th class="p-3 text-right">Payments</th>
-                <th class="p-3 text-right">Payment %</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              ${filtered.map((r, i) => {
-                const p = r.del > 0 ? ((r.pay / r.del) * 100).toFixed(1) : "0.0";
-                const clr = p > 85 ? "text-emerald-700" : (p >= 80 ? "text-amber-600" : "text-rose-600");
-                return `<tr class="hover:bg-slate-50">
-                  <td class="p-3 text-slate-400">${i + 1}</td>
-                  <td class="p-3 font-semibold">${r.block}</td>
-                  <td class="p-3 font-bold text-slate-900">${r.facility}</td>
-                  <td class="p-3 text-right">${r.del}</td>
-                  <td class="p-3 text-right">${r.jsy}</td>
-                  <td class="p-3 text-right">${r.moic}</td>
-                  <td class="p-3 text-right font-bold">${r.pay}</td>
-                  <td class="p-3 text-right font-extrabold ${clr}">${p}%</td>
-                </tr>`;
-              }).join("")}
-            </tbody>
-          </table>`;
-
-      } else if (meta.mode === "abha") {
-        // ABHA % = (created / pop) * 100
-        const grp = new Map();
-        filtered.forEach(r => {
-          const key = selBlk === "ALL" ? r.block : (r.sc || r.ashaName);
-          if (!grp.has(key)) grp.set(key, { name: key, pop: 0, created: 0 });
-          const g = grp.get(key);
-          g.pop += Number(r.pop) || 0;
-          g.created += Number(r.created) || 0;
-        });
-        ranked = Array.from(grp.values()).map(g => ({
-          name: g.name,
-          val: g.pop > 0 ? Number(((g.created / g.pop) * 100).toFixed(1)) : 0,
-          subText: `निर्मित: ${g.created.toLocaleString("en-IN")} / ${g.pop.toLocaleString("en-IN")}`
-        })).sort((a, b) => b.val - a.val);
-
-        const totPop = filtered.reduce((s, r) => s + (Number(r.pop) || 0), 0);
-        const totCr = filtered.reduce((s, r) => s + (Number(r.created) || 0), 0);
-        const pct = totPop > 0 ? ((totCr / totPop) * 100).toFixed(1) : "0.0";
-
-        kpi1 = { label: "लक्षित जनसंख्या", val: totPop.toLocaleString("en-IN"), sub: `${filtered.length} आशा क्षेत्र` };
-        kpi2 = { label: "ABHA उपलब्धि %", val: `${pct}%`, sub: `निर्मित ABHA: ${totCr.toLocaleString("en-IN")}` };
-
-        tableHtml = `
-          <table class="w-full text-xs text-left border-collapse">
-            <thead class="bg-slate-900 text-white sticky top-0">
-              <tr>
-                <th class="p-3">#</th><th class="p-3">Block</th><th class="p-3">SC / Sub-Center</th>
-                <th class="p-3">ASHA Name</th><th class="p-3 text-right">Population</th>
-                <th class="p-3 text-right">ABHA Created</th><th class="p-3 text-right">Progress %</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              ${filtered.slice(0, 300).map((r, i) => {
-                const p = r.pop > 0 ? ((r.created / r.pop) * 100).toFixed(1) : "0.0";
-                return `<tr class="hover:bg-slate-50">
-                  <td class="p-3 text-slate-400">${i + 1}</td>
-                  <td class="p-3 font-semibold">${r.block}</td>
-                  <td class="p-3">${r.sc}</td>
-                  <td class="p-3 font-bold">${r.ashaName}</td>
-                  <td class="p-3 text-right">${r.pop}</td>
-                  <td class="p-3 text-right font-bold text-sky-800">${r.created}</td>
-                  <td class="p-3 text-right font-extrabold">${p}%</td>
-                </tr>`;
-              }).join("")}
-            </tbody>
-          </table>`;
-
-      } else if (meta.mode === "ncd") {
-        // NCD Composite Score
-        ranked = filtered.map(u => ({
-          name: u.unit,
-          val: Number(u.score) || 0,
-          subText: `HTN: ${u.htnPct}% | DM: ${u.dmPct}%`
-        })).sort((a, b) => b.val - a.val);
-
-        const distScore = portalData.ncd_screening?.district?.score ??
-          (ranked.length ? (ranked.reduce((s, x) => s + x.val, 0) / ranked.length).toFixed(1) : "0.0");
-        const totHtn = filtered.reduce((s, u) => s + (Number(u.htn) || 0), 0);
-        const totDm = filtered.reduce((s, u) => s + (Number(u.dm) || 0), 0);
-
-        kpi1 = { label: "कुल इकाइयां / Blocks", val: filtered.length, sub: `HTN: ${totHtn.toLocaleString("en-IN")} | DM: ${totDm.toLocaleString("en-IN")}` };
-        kpi2 = { label: "Composite Score", val: `${distScore}%`, sub: "जनपद समग्र स्कोर" };
-
-        tableHtml = `
-          <table class="w-full text-xs text-left border-collapse">
-            <thead class="bg-slate-900 text-white sticky top-0">
-              <tr>
-                <th class="p-3">Rank</th><th class="p-3">Block / Unit</th><th class="p-3 text-right">30+ Pop</th>
-                <th class="p-3 text-right">HTN %</th><th class="p-3 text-right">DM %</th>
-                <th class="p-3 text-right">ANM %</th><th class="p-3 text-right">CHO %</th>
-                <th class="p-3 text-right">MO %</th><th class="p-3 text-right">Composite Score</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              ${filtered.map(u => `
-                <tr class="hover:bg-slate-50">
-                  <td class="p-3 font-bold text-slate-500">${u.rank}</td>
-                  <td class="p-3 font-extrabold text-slate-900">${u.unit}</td>
-                  <td class="p-3 text-right">${(u.pop30 || 0).toLocaleString("en-IN")}</td>
-                  <td class="p-3 text-right">${u.htnPct}%</td>
-                  <td class="p-3 text-right">${u.dmPct}%</td>
-                  <td class="p-3 text-right font-semibold text-teal-700">${u.anmPct}%</td>
-                  <td class="p-3 text-right font-semibold text-indigo-700">${u.choPct}%</td>
-                  <td class="p-3 text-right font-semibold text-amber-700">${u.moPct}%</td>
-                  <td class="p-3 text-right font-extrabold text-rose-700">${u.score}%</td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>`;
-
-      } else if (meta.mode === "qa") {
-        // Quality Assurance (NQAS)
-        const grp = new Map();
-        filtered.forEach(r => {
-          const b = r.block || "Other";
-          if (!grp.has(b)) grp.set(b, { name: b, total: 0, cert: 0, cond: 0, def: 0 });
-          const g = grp.get(b);
-          g.total += 1;
-          if (r.status === "Quality Certified") g.cert += 1;
-          else if (r.status === "Conditional") g.cond += 1;
-          else g.def += 1;
-        });
-
-        ranked = Array.from(grp.values()).map(g => ({
-          name: g.name,
-          val: g.total > 0 ? Number(((g.cert / g.total) * 100).toFixed(1)) : 0,
-          subText: `Certified: ${g.cert} | Cond: ${g.cond} | Def: ${g.def}`
-        })).sort((a, b) => b.val - a.val);
-
-        const certAll = filtered.filter(r => r.status === "Quality Certified").length;
-        const condAll = filtered.filter(r => r.status === "Conditional").length;
-        const defAll = filtered.filter(r => r.status === "Deferred").length;
-
-        kpi1 = { label: "कुल मूल्यांकित इकाइयां", val: filtered.length, sub: `Cond: ${condAll} | Deferred: ${defAll}` };
-        kpi2 = { label: "Quality Certified", val: `${certAll} (${filtered.length ? ((certAll / filtered.length) * 100).toFixed(1) : 0}%)`, sub: "पूर्णतः प्रमाणित इकाइयां" };
-
-        tableHtml = `
-          <table class="w-full text-xs text-left border-collapse">
-            <thead class="bg-slate-900 text-white sticky top-0">
-              <tr>
-                <th class="p-3">SN</th><th class="p-3">Block</th><th class="p-3">Facility Name</th>
-                <th class="p-3">Type</th><th class="p-3 text-center">Packages</th>
-                <th class="p-3">Status</th><th class="p-3">Date</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              ${filtered.map((r, i) => {
-                const badge = r.status === "Quality Certified"
-                  ? "bg-emerald-100 text-emerald-800"
-                  : (r.status === "Conditional" ? "bg-amber-100 text-amber-800" : "bg-rose-100 text-rose-800");
-                return `<tr class="hover:bg-slate-50">
-                  <td class="p-3 text-slate-400">${i + 1}</td>
-                  <td class="p-3 font-semibold">${r.block}</td>
-                  <td class="p-3 font-bold text-slate-900">${r.facility}</td>
-                  <td class="p-3">${r.type}</td>
-                  <td class="p-3 text-center">${r.packages}</td>
-                  <td class="p-3"><span class="px-2.5 py-0.5 rounded-full font-bold text-[10px] ${badge}">${r.status}</span></td>
-                  <td class="p-3 text-slate-500">${r.date}</td>
-                </tr>`;
-              }).join("")}
-            </tbody>
-          </table>`;
-
-      } else {
-        // Generic Excel Table Mode (RBSK, HMIS, e-Kavach, Kayakalp, etc.)
-        const keys = Object.keys(filtered[0]);
-        const blkK = keys.find(k => /block/i.test(k)) || keys[0];
-        const numK = keys.find(k => /%|pct|percent|ach|rate|score|total|count|death/i.test(k))
-          || keys.find(k => typeof filtered[0][k] === "number" && k !== blkK)
-          || keys[keys.length - 1];
-
-        const grp = new Map();
-        filtered.forEach(r => {
-          const name = String(r[blkK] || "Other").trim();
-          const v = parseFloat(String(r[numK] ?? 0).replace(/[^0-9.-]/g, "")) || 0;
-          if (!grp.has(name)) grp.set(name, { name, sum: 0, count: 0 });
-          const g = grp.get(name);
-          g.sum += v; g.count += 1;
-        });
-
-        ranked = Array.from(grp.values()).map(g => ({
-          name: g.name,
-          val: Number((g.sum / g.count).toFixed(1)),
-          subText: `इकाइयां: ${g.count}`
-        })).sort((a, b) => b.val - a.val);
-
-        const avg = ranked.length ? (ranked.reduce((s, x) => s + x.val, 0) / ranked.length).toFixed(1) : "0.0";
-        kpi1 = { label: "कुल पंक्तियां (Rows)", val: filtered.length, sub: `${ranked.length} Blocks/Units` };
-        kpi2 = { label: `औसत (${numK})`, val: avg, sub: "ब्लॉक-वार औसत" };
-
-        tableHtml = `
-          <table class="w-full text-xs text-left border-collapse">
-            <thead class="bg-slate-900 text-white sticky top-0">
-              <tr><th class="p-3">#</th>${keys.map(k => `<th class="p-3 uppercase">${k}</th>`).join("")}</tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              ${filtered.map((r, i) => `
-                <tr class="hover:bg-slate-50">
-                  <td class="p-3 text-slate-400">${i + 1}</td>
-                  ${keys.map(k => `<td class="p-3 text-slate-700 font-medium">${r[k] ?? "-"}</td>`).join("")}
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>`;
-      }
-
-      // Render KPIs
-      document.getElementById("kpi1Label").textContent = kpi1.label;
-      document.getElementById("kpi1Val").textContent = kpi1.val;
-      document.getElementById("kpi1Sub").textContent = kpi1.sub;
-
-      document.getElementById("kpi2Label").textContent = kpi2.label;
-      document.getElementById("kpi2Val").textContent = kpi2.val;
-      document.getElementById("kpi2Sub").textContent = kpi2.sub;
-
-      document.getElementById("kpi3Val").textContent = ranked[0] ? ranked[0].name : "—";
-      document.getElementById("kpi3Sub").textContent = ranked[0] ? `${ranked[0].val}% (${ranked[0].subText})` : "—";
-      const last = ranked[ranked.length - 1];
-      document.getElementById("kpi4Val").textContent = last ? last.name : "—";
-      document.getElementById("kpi4Sub").textContent = last ? `${last.val}% (${last.subText})` : "—";
-
-      // Render Top 5 & Poor 5
-      const top5 = ranked.slice(0, 5);
-      const poor5 = [...ranked].reverse().slice(0, 5);
-      const renderBox = (list, isTop) => list.map((item, idx) => `
-        <div class="flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 rounded-xl text-xs">
-          <div class="flex items-center gap-2.5 min-w-0">
-            <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-[11px] font-extrabold ${isTop ? 'bg-emerald-700 text-white' : 'bg-rose-700 text-white'}">
-              ${idx + 1}
-            </span>
-            <div class="truncate">
-              <div class="font-bold text-slate-900 truncate">${item.name}</div>
-              <div class="text-[10px] text-slate-500 truncate">${item.subText}</div>
-            </div>
-          </div>
-          <span class="ml-2 px-3 py-1 rounded-full font-extrabold text-xs ${isTop ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}">
-            ${item.val}%
-          </span>
-        </div>
-      `).join("");
-
-      document.getElementById("wsTop5List").innerHTML = renderBox(top5, true);
-      document.getElementById("wsPoor5List").innerHTML = renderBox(poor5, false);
-
-      // Chart
-      const ctx = document.getElementById("wsBarChart").getContext("2d");
-      if (wsChart) wsChart.destroy();
-      const box = document.getElementById("wsChartBox");
-      box.style.width = ranked.length > 14 ? `${ranked.length * 52}px` : "100%";
-
-      wsChart = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: ranked.map(r => r.name),
-          datasets: [{
-            data: ranked.map(r => r.val),
-            backgroundColor: ranked.map(r => getThresholdColor(r.val)),
-            borderRadius: 6,
-            maxBarThickness: 38
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            datalabels: {
-              anchor: "end",
-              align: "top",
-              color: "#0f172a",
-              font: { weight: "bold", size: 11 },
-              formatter: v => `${v}%`
-            }
-          },
-          scales: {
-            x: { grid: { display: false }, ticks: { font: { size: 10, weight: "bold" } } },
-            y: { beginAtZero: true, grid: { color: "#f1f5f9" }, suggestedMax: Math.max(...ranked.map(r => r.val), 10) * 1.18 }
-          }
-        },
-        plugins: [ChartDataLabels]
-      });
-
-      document.getElementById("wsRowCount").textContent = `${filtered.length} Rows`;
-      document.getElementById("wsTableContainer").innerHTML = tableHtml;
-    };
-
-    window.exportActiveExcel = function() {
-      if (!currentExportRows.length) return alert("डाउनलोड करने के लिए डेटा उपलब्ध नहीं है।");
-      const ws = XLSX.utils.json_to_sheet(currentExportRows);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, activeProg.toUpperCase());
-      XLSX.writeFile(wb, `NHM_Ayodhya_${activeProg.toUpperCase()}.xlsx`);
-    };
-
-    initPortal();
-  </script>
+
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+
+
+<header class="bg-slate-900 text-white shadow-md">
+
+<div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
+
+<div>
+
+<h1 class="text-lg md:text-xl font-bold">NHM अयोध्या — Master Data Uploader &amp; Control</h1>
+
+<p class="text-xs text-slate-300">ASHA Payment, JSY, ABHA, NCD, RBSK, QA, Tele Consultation एवं अधिकारी प्रबंधन</p>
+
+</div>
+
+<div class="flex flex-wrap gap-2">
+
+<a href="officers-admin.html" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-xs font-bold rounded-lg">
+
+👮 अधिकारी प्रबंधन
+
+</a>
+
+<a href="portal.html" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-xs font-bold rounded-lg">
+
+🏛️ Program Review Portal →
+
+</a>
+
+</div>
+
+</div>
+
+</header>
+
+
+
+<main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+
+
+
+<!-- SECTION 1: ASHA PAYMENT UPLOADER -->
+
+<section class="bg-white p-6 rounded-xl shadow-sm border border-teal-200 space-y-4">
+
+<div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
+
+<h2 class="text-base font-bold text-teal-900">1. आशा प्रोत्साहन राशि (ASHA Payment) Excel / CSV अपलोड</h2>
+
+<span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded font-semibold">
+
+✅ 1 ID पर 2 ASHA अलग-अलग सुरक्षित
+
+</span>
+
+</div>
+
+
+
+<div class="flex flex-wrap items-center gap-3">
+
+<input type="file" id="csvFileInput" accept=".xlsx,.xls,.csv" multiple
+
+class="block text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-800 hover:file:bg-teal-100" />
+
+<input type="text" id="inspectAshaId" value="2404031" placeholder="ASHA ID जाँचें (उदा. 2404031)"
+
+class="px-3 py-2 border border-slate-300 rounded-lg text-xs w-48" />
+
+<button id="inspectBtn" class="px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-lg">
+
+🔍 ID योग जाँचें
+
+</button>
+
+</div>
+
+
+
+<div class="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-100">
+
+<button id="uploadCsvBtn" class="px-5 py-2 bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold rounded-lg shadow">
+
+ASHA डेटा अपलोड और सेव करें
+
+</button>
+
+<button id="clearDbBtn" class="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 ml-auto">
+
+ASHA भुगतान डेटा रीसेट करें
+
+</button>
+
+</div>
+
+
+
+<div id="uploadStatus" class="p-3 bg-slate-50 rounded-lg text-xs font-medium text-slate-700 border border-slate-200">
+
+डेटाबेस स्थिति जाँची जा रही है...
+
+</div>
+
+
+
+<div id="auditPreviewBox" class="hidden p-4 bg-emerald-50/70 border border-emerald-300 rounded-xl space-y-2 text-xs">
+
+<div id="auditSummary" class="text-slate-900 font-semibold"></div>
+
+<div id="auditTableWrap" class="bg-white p-3 rounded-lg border border-emerald-200 overflow-x-auto max-h-72"></div>
+
+</div>
+
+</section>
+
+
+
+<!-- SECTION 2 & 3: JSY PAYMENT & ABHA PROGRESS UPLOADERS -->
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+<!-- JSY Uploader (File Name = Date) -->
+
+<section class="bg-white p-6 rounded-xl shadow-sm border border-indigo-200 space-y-4">
+
+<div class="border-b pb-3">
+
+<h2 class="text-base font-bold text-indigo-950">2. JSY भुगतान पाइपलाइन डेटा अपलोड</h2>
+
+<p class="text-[11px] text-slate-500 mt-0.5">नोट: फ़ाइल का नाम ही रिपोर्ट दिनांक माना जाएगा (जैसे <b>18-11-2026.xlsx</b>)।</p>
+
+</div>
+
+<input type="file" id="jsyFileInput" accept=".xlsx,.xls,.csv"
+
+class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-800" />
+
+<button id="uploadJsyBtn" class="w-full py-2.5 bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold rounded-lg shadow">
+
+JSY डेटा अपलोड करें
+
+</button>
+
+<div id="jsyStatus" class="p-2.5 bg-slate-50 rounded-lg text-xs text-slate-700 border border-slate-200">
+
+JSY डेटाबेस जाँचा जा रहा है...
+
+</div>
+
+</section>
+
+
+
+<!-- ABHA Progress Uploader -->
+
+<section class="bg-white p-6 rounded-xl shadow-sm border border-emerald-200 space-y-4">
+
+<div class="border-b pb-3">
+
+<h2 class="text-base font-bold text-emerald-950">3. ABHA ID प्रगति डेटा अपलोड</h2>
+
+<p class="text-[11px] text-slate-500 mt-0.5">कॉलम: Block, SC, Village, Asha Area, ASHA Name, ASHA ID, Population, ABHA Created</p>
+
+</div>
+
+<input type="file" id="abhaFileInput" accept=".xlsx,.xls,.csv"
+
+class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-800" />
+
+<button id="uploadAbhaBtn" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow">
+
+ABHA डेटा अपलोड करें
+
+</button>
+
+<div id="abhaStatus" class="p-2.5 bg-slate-50 rounded-lg text-xs text-slate-700 border border-slate-200">
+
+ABHA डेटाबेस जाँचा जा रहा है...
+
+</div>
+
+</section>
+
+</div>
+
+
+
+<!-- SECTION 4: NEW PROGRAMS UPLOADER (NCD, RBSK, QUALITY ASSURANCE, TELE CONSULTATION) -->
+
+<section class="bg-white p-6 rounded-xl shadow-sm border border-rose-200 space-y-4">
+
+<div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
+
+<div>
+
+<h2 class="text-base font-bold text-rose-950">4. अन्य कार्यक्रम डेटा अपलोड (NCD Screening, RBSK, Quality Assurance, Tele Consultation)</h2>
+
+<p class="text-[11px] text-slate-500 mt-0.5">Program Review Portal के चारों नए मॉड्यूल के लिए मासिक/साप्ताहिक Excel (.xlsx) अपलोड करें</p>
+
+</div>
+
+<span class="text-[11px] bg-rose-50 text-rose-800 border border-rose-200 px-2.5 py-1 rounded-lg font-bold">
+
+4 Programs Active
+
+</span>
+
+</div>
+
+
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+<div>
+
+<label class="block text-xs font-bold text-slate-700 mb-1">कार्यक्रम चुनें (Select Program)</label>
+
+<select id="newProgramSelect" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold bg-slate-50 focus:border-rose-700 focus:outline-none">
+
+<option value="ncd_screening">❤️ NCD Screening (Composite Scoring &amp; ANM/CHO/MO Status)</option>
+
+<option value="quality_assurance">✅ Quality Assurance (NQAS / Kayakalp / LaQshya)</option>
+
+<option value="rbsk">👶 RBSK (Mobile Health Team &amp; Child Screening)</option>
+
+<option value="tele_consultation">📞 Tele Consultation (eSanjeevani HWC OPD)</option>
+
+</select>
+
+</div>
+
+
+
+<div>
+
+<label class="block text-xs font-bold text-slate-700 mb-1">Excel / CSV फ़ाइल चुनें</label>
+
+<input type="file" id="newProgramFile" accept=".xlsx,.xls,.csv"
+
+class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-rose-50 file:text-rose-800 hover:file:bg-rose-100" />
+
+</div>
+
+</div>
+
+
+
+<div id="newProgramHint" class="p-2.5 bg-rose-50/50 border border-rose-200/80 rounded-lg text-[11px] text-slate-700">
+
+💡 <strong>NCD Screening:</strong> सीधे <b>'Composite'</b> शीट वाली Excel फ़ाइल (जैसे 18-11-2026.xlsx) चुनें। यह सभी 11 ब्लॉकों + Urban DHQ, रेफर (%) और ANM/CHO/MO लॉगिन स्टेटस को स्वतः अपडेट कर देगी।
+
+</div>
+
+
+
+<button id="uploadNewProgramBtn" class="w-full py-2.5 bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold rounded-lg shadow">
+
+चयनित कार्यक्रम का डेटा अपलोड करें ↑
+
+</button>
+
+
+
+<div id="newProgramStatus" class="p-3 bg-slate-50 rounded-lg text-xs text-slate-700 border border-slate-200 space-y-1">
+
+नए कार्यक्रमों का डेटाबेस जाँचा जा रहा है...
+
+</div>
+
+</section>
+
+
+
+<!-- SECTION 5: RESET FORGOTTEN 6-DIGIT ASHA PIN -->
+
+<section class="bg-white p-5 rounded-xl shadow-sm border border-amber-200 flex flex-wrap justify-between items-center gap-4">
+
+<div>
+
+<h2 class="text-sm font-bold text-amber-900">5. भूला हुआ 6-अंकों का ASHA PIN रीसेट करें (डिफ़ॉल्ट 123456)</h2>
+
+<p class="text-xs text-slate-500">आशा कार्यकर्ता द्वारा अपना PIN भूल जाने पर यहाँ से रीसेट करें</p>
+
+</div>
+
+<div class="flex items-center gap-2">
+
+<input type="text" id="resetPinAshaId" placeholder="ASHA ID दर्ज करें"
+
+class="px-3 py-2 border border-slate-300 rounded-lg text-xs w-48" />
+
+<button id="resetPinBtn" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg">
+
+PIN रीसेट करें
+
+</button>
+
+</div>
+
+<div id="pinResetStatus" class="hidden w-full p-2.5 rounded-lg text-xs font-semibold"></div>
+
+</section>
+
+
+
+</main>
+
+
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+
+import { getDatabase, ref, update, set, get, remove, child } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
+
+authDomain: "asha-payment.firebaseapp.com",
+
+databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
+
+projectId: "asha-payment",
+
+storageBucket: "asha-payment.firebasestorage.app",
+
+messagingSenderId: "117935142167",
+
+appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
+
+measurementId: "G-43YGRC5CKL"
+
+};
+
+
+
+const app = initializeApp(firebaseConfig);
+
+const db = getDatabase(app);
+
+const rootRef = ref(db, "asha_portal_v2");
+
+const jsyRef = ref(db, "asha_portal_v2/jsy_portal");
+
+const abhaRef = ref(db, "asha_portal_v2/abha_portal");
+
+
+
+function getCol(row, candidates) {
+
+for (const key of candidates) {
+
+if (row[key] !== undefined && String(row[key]).trim() !== "") return String(row[key]).trim();
+
+}
+
+return "";
+
+}
+
+
+
+function formatExcelDate(val) {
+
+if (typeof val === "number" && val > 30000) {
+
+const d = new Date((val - 25569) * 86400 * 1000);
+
+return `${String(d.getUTCDate()).padStart(2, "0")}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCFullYear()).slice(-2)}`;
+
+}
+
+return String(val || "").trim();
+
+}
+
+
+
+function parseAmount(raw) {
+
+const num = parseFloat(String(raw || "0").replace(/,/g, "").replace(/[^\d.-]/g, "").trim());
+
+return Number.isFinite(num) ? num : 0;
+
+}
+
+
+
+function normalizeMonth(raw) {
+
+const str = String(raw || "").trim();
+
+if (!str) return "";
+
+if (/^\d{5}(\.\d+)?$/.test(str)) {
+
+const serial = Math.floor(Number(str));
+
+if (serial > 30000 && serial < 70000) {
+
+const date = new Date((serial - 25569) * 86400 * 1000);
+
+return `${String(date.getUTCMonth() + 1).padStart(2, "0")}-${date.getUTCFullYear()}`;
+
+}
+
+}
+
+const map = { jan:"01", feb:"02", mar:"03", apr:"04", may:"05", jun:"06", jul:"07", aug:"08", sep:"09", oct:"10", nov:"11", dec:"12" };
+
+const m1 = str.match(/^([A-Za-z]{3})[-/\s](\d{2,4})$/);
+
+if (m1 && map[m1[1].toLowerCase()]) {
+
+const yy = m1[2].length === 2 ? `20${m1[2]}` : m1[2];
+
+return `${map[m1[1].toLowerCase()]}-${yy}`;
+
+}
+
+const mDate = str.match(/^\d{1,2}[-/](\d{1,2})[-/](\d{4})$/);
+
+if (mDate) return `${mDate[1].padStart(2, "0")}-${mDate[2]}`;
+
+const m3 = str.match(/^(\d{1,2})[-/](\d{4})$/);
+
+if (m3) return `${m3[1].padStart(2, "0")}-${m3[2]}`;
+
+return str;
+
+}
+
+
+
+function safeKey(str) { return String(str || "").replace(/[.#$\[\]\/]/g, "_").trim().toUpperCase(); }
+
+function normalizeIdentityName(name) { return String(name || "").replace(/\s+/g, " ").trim().toUpperCase(); }
+
+function toWorkerList(entry) {
+
+if (!entry || typeof entry !== "object") return [];
+
+if (Array.isArray(entry)) return entry.filter(w => w && typeof w === "object");
+
+if ("n" in entry || "p" in entry || "id" in entry) return [entry];
+
+return Object.values(entry).filter(w => w && typeof w === "object");
+
+}
+
+
+
+async function readPrimarySheetOnly(file, statusEl) {
+
+const buffer = await file.arrayBuffer();
+
+const workbook = XLSX.read(buffer, { type: "array", raw: true });
+
+const firstSheetName = workbook.SheetNames[0];
+
+if (statusEl) statusEl.textContent = `फ़ाइल "${file.name}" की शीट "${firstSheetName}" पढ़ी जा रही है...`;
+
+await new Promise(r => setTimeout(r, 15));
+
+const jsonRows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheetName], { defval: "" });
+
+const fallbackMonth = normalizeMonth(firstSheetName);
+
+return jsonRows.map(r => {
+
+const obj = {};
+
+for (const [k, v] of Object.entries(r)) obj[String(k).trim().toUpperCase()] = v;
+
+if (!obj["MONTH"] && !obj["PAY_MONTH"] && !obj["BILL_MONTH"]) obj["MONTH"] = fallbackMonth;
+
+return obj;
+
+});
+
+}
+
+
+
+function processRowsIntoData(combinedRows, existing) {
+
+const headsList = [...(existing.heads || [])];
+
+const headIndexMap = new Map();
+
+headsList.forEach((item, idx) => headIndexMap.set(`${item.p}|||${item.h}`, idx));
+
+const monthsSet = new Set((existing.months || []).map(normalizeMonth).filter(Boolean));
+
+const workerBuckets = new Map();
+
+
+
+for (const [idKey, entry] of Object.entries(existing.workers || {})) {
+
+const list = toWorkerList(entry);
+
+const nameMap = new Map();
+
+list.forEach(w => nameMap.set(normalizeIdentityName(w.n) || "UNKNOWN", JSON.parse(JSON.stringify(w))));
+
+if (nameMap.size > 0) workerBuckets.set(idKey, nameMap);
+
+}
+
+
+
+const uploadingMonths = new Set();
+
+for (const row of combinedRows) {
+
+const m = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
+
+if (m) uploadingMonths.add(m);
+
+}
+
+
+
+for (const nameMap of workerBuckets.values()) {
+
+for (const w of nameMap.values()) {
+
+if (!w.p) continue;
+
+for (const hIdx of Object.keys(w.p)) {
+
+const cleanMonthMap = {};
+
+for (const [rawM, val] of Object.entries(w.p[hIdx])) {
+
+const normM = normalizeMonth(rawM);
+
+if (!uploadingMonths.has(normM)) cleanMonthMap[normM] = Number(val) || 0;
+
+}
+
+w.p[hIdx] = cleanMonthMap;
+
+}
+
+}
+
+}
+
+
+
+for (const row of combinedRows) {
+
+const rawId = getCol(row, ["ASHA_ID", "ASHA ID", "ASHAID", "ID"]);
+
+const idKey = safeKey(rawId);
+
+if (!idKey || idKey.includes("TOTAL")) continue;
+
+const rawName = getCol(row, ["ASHA_NAME", "ASHA NAME", "NAME"]).replace(/\s+/g, " ").trim();
+
+if (rawName.toUpperCase().includes("TOTAL")) continue;
+
+const nameKey = normalizeIdentityName(rawName) || "UNKNOWN";
+
+const month = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
+
+if (month) monthsSet.add(month);
+
+const program = getCol(row, ["PROGRAM NAME", "PROGRAM", "SCHEME", "PROG_NAME"]) || "Other";
+
+const head = getCol(row, ["HEAD", "HEAD NAME", "INCENTIVE HEAD", "ACTIVITY"]).replace(/\s+/g, " ");
+
+if (!head || head.toUpperCase() === "TOTAL") continue;
+
+
+
+const headKey = `${program}|||${head}`;
+
+let hIdx = headIndexMap.get(headKey);
+
+if (hIdx === undefined) {
+
+hIdx = headsList.length;
+
+headIndexMap.set(headKey, hIdx);
+
+headsList.push({ p: program, h: head });
+
+}
+
+
+
+if (!workerBuckets.has(idKey)) workerBuckets.set(idKey, new Map());
+
+const nameMap = workerBuckets.get(idKey);
+
+let w = nameMap.get(nameKey);
+
+if (!w) {
+
+w = {
+
+id: rawId, n: rawName,
+
+b: getCol(row, ["BLOCK", "BLOCK NAME"]),
+
+s: getCol(row, ["SC", "SUB CENTER", "SUB_CENTER", "SUBCENTER"]),
+
+v: getCol(row, ["VILLAGE", "VILLAGE NAME"]),
+
+t: 0, p: {}
+
+};
+
+nameMap.set(nameKey, w);
+
+}
+
+const amount = parseAmount(getCol(row, ["AMOUNT", "PAID_AMOUNT", "NET_AMOUNT", "TOTAL"]));
+
+if (amount > 0 && month) {
+
+if (!w.p) w.p = {};
+
+if (!w.p[hIdx]) w.p[hIdx] = {};
+
+w.p[hIdx][month] = (Number(w.p[hIdx][month]) || 0) + amount;
+
+}
+
+}
+
+
+
+const finalWorkers = {};
+
+let totalAllWorkers = 0, totalIndividualAshas = 0, duplicateIdCount = 0;
+
+for (const [idKey, nameMap] of workerBuckets.entries()) {
+
+const list = Array.from(nameMap.values());
+
+list.forEach(w => {
+
+let grandTotal = 0;
+
+if (w.p) {
+
+for (const hIdx of Object.keys(w.p)) {
+
+for (const m of Object.keys(w.p[hIdx])) grandTotal += Number(w.p[hIdx][m]) || 0;
+
+}
+
+}
+
+w.t = grandTotal;
+
+totalAllWorkers += grandTotal;
+
+totalIndividualAshas++;
+
+});
+
+if (list.length > 1) { duplicateIdCount++; finalWorkers[idKey] = list; }
+
+else if (list.length === 1) finalWorkers[idKey] = list[0];
+
+}
+
+
+
+return { payload: { heads: headsList, months: Array.from(monthsSet).sort(), workers: finalWorkers }, totalAllWorkers, totalIndividualAshas, duplicateIdCount };
+
+}
+
+
+
+async function refreshStatus() {
+
+const snap = await get(rootRef);
+
+const statusEl = document.getElementById("uploadStatus");
+
+if (snap.exists()) {
+
+const d = snap.val();
+
+let totalAshas = 0;
+
+for (const entry of Object.values(d.workers || {})) totalAshas += toWorkerList(entry).length;
+
+const offCount = Object.keys(d.officers || {}).length;
+
+statusEl.innerHTML = `📊 <strong>ASHA डेटाबेस:</strong> ${totalAshas.toLocaleString()} आशा • 👮 ${offCount} अधिकारी • माह: <strong>${(d.months || []).join(", ") || "-"}</strong>`;
+
+
+
+const jsyData = d.jsy_portal;
+
+if (jsyData && jsyData.records) {
+
+const uniqueDates = Array.from(new Set(jsyData.records.map(r => r.date))).join(", ");
+
+document.getElementById("jsyStatus").innerHTML = `✅ <strong>JSY सक्रिय दिनांक:</strong> ${uniqueDates} (कुल ${jsyData.records.length} रिकॉर्ड)`;
+
+} else {
+
+document.getElementById("jsyStatus").textContent = "अभी कोई JSY डेटा अपलोड नहीं है।";
+
+}
+
+
+
+const abhaData = d.abha_portal;
+
+if (abhaData && abhaData.records) {
+
+const uniqueAbhaDates = Array.from(new Set(abhaData.records.map(r => r.date))).join(", ");
+
+document.getElementById("abhaStatus").innerHTML = `✅ <strong>ABHA सक्रिय दिनांक:</strong> ${uniqueAbhaDates} (कुल ${abhaData.records.length} आशा क्षेत्र)`;
+
+} else {
+
+document.getElementById("abhaStatus").textContent = "अभी कोई ABHA डेटा अपलोड नहीं है।";
+
+}
+
+
+
+const ncdTxt = d.ncd_screening?.units
+
+? `✅ <strong>NCD Screening:</strong> ${d.ncd_screening.units.length} इकाइयां (${d.ncd_screening.reportTitle || "Updated"})`
+
+: "⚪ <strong>NCD Screening:</strong> डिफ़ॉल्ट डेटा सक्रिय";
+
+const qaTxt = d.quality_assurance?.rows
+
+? `✅ <strong>Quality Assurance:</strong> ${d.quality_assurance.rows.length} इकाइयां (${d.quality_assurance.fileName})`
+
+: "⚪ <strong>Quality Assurance:</strong> डिफ़ॉल्ट 154 इकाइयां सक्रिय";
+
+const rbskTxt = d.rbsk?.rows
+
+? `✅ <strong>RBSK:</strong> ${d.rbsk.rows.length} रिकॉर्ड (${d.rbsk.fileName})`
+
+: "⚪ <strong>RBSK:</strong> डेटा प्रतीक्षित";
+
+const teleTxt = d.tele_consultation?.rows
+
+? `✅ <strong>Tele Consultation:</strong> ${d.tele_consultation.rows.length} रिकॉर्ड (${d.tele_consultation.fileName})`
+
+: "⚪ <strong>Tele Consultation:</strong> डेटा प्रतीक्षित";
+
+
+
+document.getElementById("newProgramStatus").innerHTML = `
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[11px]">
+
+<div>${ncdTxt}</div>
+
+<div>${qaTxt}</div>
+
+<div>${rbskTxt}</div>
+
+<div>${teleTxt}</div>
+
+</div>
+
+`;
+
+}
+
+}
+
+
+
+// 1. ASHA Upload
+
+document.getElementById("uploadCsvBtn").addEventListener("click", async () => {
+
+const files = document.getElementById("csvFileInput").files;
+
+const statusEl = document.getElementById("uploadStatus");
+
+if (!files.length) return alert("पहले ASHA Excel/CSV फ़ाइल चुनें।");
+
+const existingSnap = await get(rootRef);
+
+const existing = existingSnap.exists() ? existingSnap.val() : { heads: [], months: [], workers: {} };
+
+let combinedRows = [];
+
+for (const file of files) combinedRows = combinedRows.concat(await readPrimarySheetOnly(file, statusEl));
+
+const { payload, totalAllWorkers, totalIndividualAshas } = processRowsIntoData(combinedRows, existing);
+
+await update(rootRef, payload);
+
+statusEl.innerHTML = `✅ <strong>ASHA अपलोड सफल!</strong> ${totalIndividualAshas.toLocaleString()} आशा • कुल राशि: ₹${Math.round(totalAllWorkers).toLocaleString("en-IN")}`;
+
+});
+
+
+
+// Inspect ASHA ID
+
+document.getElementById("inspectBtn").addEventListener("click", async () => {
+
+const files = document.getElementById("csvFileInput").files;
+
+const targetId = document.getElementById("inspectAshaId").value.trim();
+
+const statusEl = document.getElementById("uploadStatus");
+
+if (!files.length) return alert("पहले फ़ाइल चुनें।");
+
+let combinedRows = [];
+
+for (const file of files) combinedRows = combinedRows.concat(await readPrimarySheetOnly(file, statusEl));
+
+const { payload } = processRowsIntoData(combinedRows, { heads: [], months: [], workers: {} });
+
+const matchedList = toWorkerList(payload.workers[safeKey(targetId)]);
+
+document.getElementById("auditSummary").textContent = matchedList.length
+
+? matchedList.map(w => `${w.n} (${w.b}): ₹${w.t.toLocaleString("en-IN")}`).join(" | ")
+
+: `ID "${targetId}" फ़ाइल में नहीं मिली।`;
+
+document.getElementById("auditPreviewBox").classList.remove("hidden");
+
+});
+
+
+
+// 2. JSY Upload
+
+document.getElementById("uploadJsyBtn").addEventListener("click", async () => {
+
+const file = document.getElementById("jsyFileInput").files[0];
+
+if (!file) return alert("पहले JSY Excel/CSV फ़ाइल चुनें।");
+
+
+
+const fileDateLabel = file.name.replace(/\.[^.]+$/, "").trim();
+
+
+
+const buf = await file.arrayBuffer();
+
+const wb = XLSX.read(buf, { type: "array" });
+
+const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: 0 });
+
+
+
+const newRecords = raw.map(r => ({
+
+date: fileDateLabel || formatExcelDate(r.Date || r.DATE),
+
+fileName: file.name,
+
+block: String(r.Block || r.BLOCK || "").trim(),
+
+facility: String(r.facility_name_id || r.FACILITY_NAME_ID || r.Facility || "").trim(),
+
+del: Number(r.total_deliveries || 0),
+
+pin: Number(r.pin_verified || 0),
+
+jsy: Number(r.jsy_verified || 0),
+
+reg: Number(r.beneficiaries_registered || 0),
+
+moic: Number(r.moic_approvals || 0),
+
+prop: Number(r.proposals_initiated || 0),
+
+pay: Number(r.payments_made || 0)
+
+})).filter(x => x.block && x.facility);
+
+
+
+const snap = await get(jsyRef);
+
+const oldRecords = snap.exists() ? (snap.val().records || []).filter(r => r.date !== fileDateLabel) : [];
+
+const mergedRecords = [...oldRecords, ...newRecords];
+
+
+
+await set(jsyRef, {
+
+updatedAt: new Date().toLocaleString("hi-IN"),
+
+latestDate: fileDateLabel,
+
+records: mergedRecords
+
+});
+
+refreshStatus();
+
+alert(`फ़ाइल "${file.name}" (दिनांक: ${fileDateLabel}) के ${newRecords.length} केंद्रों का डेटा सेव हो गया!`);
+
+});
+
+
+
+// 3. ABHA Upload
+
+document.getElementById("uploadAbhaBtn").addEventListener("click", async () => {
+
+const file = document.getElementById("abhaFileInput").files[0];
+
+if (!file) return alert("पहले ABHA Excel/CSV फ़ाइल चुनें।");
+
+
+
+const dateMatch = file.name.match(/(\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4})/);
+
+const fileDateLabel = dateMatch ? dateMatch[1] : file.name.replace(/\.[^.]+$/, "").trim();
+
+
+
+const buf = await file.arrayBuffer();
+
+const wb = XLSX.read(buf, { type: "array" });
+
+const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "" });
+
+
+
+let sumPop = 0, sumCreated = 0;
+
+const newRecords = raw.map(r => {
+
+const norm = {};
+
+for (const [k, v] of Object.entries(r)) {
+
+norm[String(k).trim().toUpperCase()] = v;
+
+}
+
+const pop = Number(String(norm["POPULATION"] || norm["TARGET"] || 0).replace(/,/g, "")) || 0;
+
+const created = Number(String(norm["ABHA CREATED"] || norm["ABHA_CREATED"] || norm["CREATED"] || 0).replace(/,/g, "")) || 0;
+
+sumPop += pop;
+
+sumCreated += created;
+
+
+
+return {
+
+date: fileDateLabel,
+
+fileName: file.name,
+
+block: String(norm["BLOCK"] || "").trim(),
+
+sc: String(norm["SC"] || norm["SUB CENTER"] || norm["SUB_CENTER"] || "").trim(),
+
+village: String(norm["VILLAGE"] || "").trim(),
+
+area: String(norm["ASHA AREA"] || norm["AREA"] || "").trim(),
+
+ashaName: String(norm["ASHA NAME"] || norm["ASHA_NAME"] || "").trim(),
+
+ashaId: String(norm["ASHA ID"] || norm["ASHA_ID"] || "").trim(),
+
+pop,
+
+created
+
+};
+
+}).filter(x => x.block && (x.ashaName || x.sc));
+
+
+
+const snap = await get(abhaRef);
+
+const oldRecords = snap.exists()
+
+? (snap.val().records || []).filter(r => r.date !== fileDateLabel && !String(r.date).startsWith("ABHA ID_"))
+
+: [];
+
+const mergedRecords = [...oldRecords, ...newRecords];
+
+
+
+await set(abhaRef, {
+
+updatedAt: new Date().toLocaleString("hi-IN"),
+
+latestDate: fileDateLabel,
+
+records: mergedRecords
+
+});
+
+refreshStatus();
+
+alert(`✅ अपलोड सफल!\nदिनांक: ${fileDateLabel}\nकुल क्षेत्र: ${newRecords.length}\nकुल जनसंख्या: ${sumPop.toLocaleString("en-IN")}\nनिर्मित ABHA: ${sumCreated.toLocaleString("en-IN")}`);
+
+});
+
+
+
+// 4. NEW PROGRAMS UPLOADER (NCD, QUALITY ASSURANCE, RBSK, TELE CONSULTATION)
+
+const PROGRAM_HINTS = {
+
+ncd_screening: "💡 <strong>NCD Screening:</strong> सीधे <b>'Composite'</b> शीट वाली Excel फ़ाइल (जैसे 18-11-2026.xlsx) चुनें। यह सभी 11 ब्लॉकों + Urban DHQ, रेफर (%) और ANM/CHO/MO लॉगिन स्टेटस को स्वतः अपडेट कर देगी।",
+
+quality_assurance: "💡 <strong>Quality Assurance:</strong> NQAS Excel फ़ाइल (जैसे NQAS 18-11-2026.xlsx) चुनें। ब्लॉक नाम व सर्टिफिकेशन स्टेटस स्वतः साफ़ होकर सेव होंगे।",
+
+rbsk: "💡 <strong>RBSK:</strong> ब्लॉक-वार MHT विजिट, आंगनवाड़ी व स्कूल स्क्रीनिंग की Excel शीट चुनें।",
+
+tele_consultation: "💡 <strong>Tele Consultation:</strong> ब्लॉक/HWC-वार eSanjeevani टेली-कंसल्टेशन लक्ष्य व उपलब्धि की Excel शीट चुनें।"
+
+};
+
+
+
+document.getElementById("newProgramSelect").addEventListener("change", (e) => {
+
+document.getElementById("newProgramHint").innerHTML = PROGRAM_HINTS[e.target.value] || "";
+
+});
+
+
+
+document.getElementById("uploadNewProgramBtn").addEventListener("click", async () => {
+
+const prog = document.getElementById("newProgramSelect").value;
+
+const file = document.getElementById("newProgramFile").files[0];
+
+const btn = document.getElementById("uploadNewProgramBtn");
+
+if (!file) return alert("कृपया पहले Excel / CSV फ़ाइल चुनें।");
+
+
+
+btn.disabled = true;
+
+btn.textContent = "प्रोसेस एवं अपलोड हो रहा है...";
+
+
+
+try {
+
+const buffer = await file.arrayBuffer();
+
+const wb = XLSX.read(buffer, { type: "array" });
+
+
+
+if (prog === "ncd_screening") {
+
+const sheetName = wb.SheetNames.includes("Composite") ? "Composite" : wb.SheetNames[0];
+
+const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: null });
+
+
+
+let unitColIdx = 2;
+
+let headerRowIdx = 2;
+
+for (let rIdx = 0; rIdx < Math.min(8, rows.length); rIdx++) {
+
+const row = rows[rIdx] || [];
+
+const foundIdx = row.findIndex(cell => String(cell || "").trim().toUpperCase() === "UNIT");
+
+if (foundIdx !== -1) {
+
+unitColIdx = foundIdx;
+
+headerRowIdx = rIdx;
+
+break;
+
+}
+
+}
+
+
+
+const off = unitColIdx - 2;
+
+const titleCell = (rows[headerRowIdx - 1] || []).find(c => c && String(c).trim().length > 5);
+
+const reportTitle = titleCell ? String(titleCell).trim() : "Ayodhya - NCD Composite Scoring Report";
+
+
+
+let district = null;
+
+const units = [];
+
+
+
+for (let i = headerRowIdx + 2; i < rows.length; i++) {
+
+const r = rows[i] || [];
+
+const unitName = r[2 + off] ? String(r[2 + off]).trim() : "";
+
+if (!unitName || !isNaN(Number(unitName))) continue;
+
+
+
+const record = {
+
+rank: Number(r[1 + off]) || 0,
+
+unit: unitName,
+
+pop30: Math.round(Number(r[3 + off]) || 0),
+
+targetFY: Math.round(Number(r[5 + off]) || 0),
+
+htn: Math.round(Number(r[6 + off]) || 0),
+
+htnPct: Number(((Number(r[7 + off]) || 0) * 100).toFixed(2)),
+
+dm: Math.round(Number(r[9 + off]) || 0),
+
+dmPct: Number(((Number(r[10 + off]) || 0) * 100).toFixed(2)),
+
+suspected: Math.round(Number(r[12 + off]) || 0),
+
+suspectedPct: Number(((Number(r[13 + off]) || 0) * 100).toFixed(2)),
+
+treatment: Math.round(Number(r[15 + off]) || 0),
+
+treatmentPct: Number(((Number(r[16 + off]) || 0) * 100).toFixed(2)),
+
+followUp: Math.round(Number(r[18 + off]) || 0),
+
+control: Math.round(Number(r[21 + off]) || 0),
+
+anmTotal: Math.round(Number(r[24 + off]) || 0),
+
+anmDone: Math.round(Number(r[25 + off]) || 0),
+
+anmPct: Number(((Number(r[26 + off]) || 0) * 100).toFixed(2)),
+
+choTotal: Math.round(Number(r[28 + off]) || 0),
+
+choDone: Math.round(Number(r[29 + off]) || 0),
+
+choPct: Number(((Number(r[30 + off]) || 0) * 100).toFixed(2)),
+
+moTotal: Math.round(Number(r[32 + off]) || 0),
+
+moDone: Math.round(Number(r[33 + off]) || 0),
+
+moPct: Number(((Number(r[34 + off]) || 0) * 100).toFixed(2)),
+
+score: Number(((Number(r[36 + off]) || 0) * 100).toFixed(2))
+
+};
+
+
+
+if (unitName.toLowerCase() === "ayodhya") {
+
+district = record;
+
+} else {
+
+units.push(record);
+
+}
+
+}
+
+
+
+units.sort((a, b) => b.score - a.score);
+
+units.forEach((u, idx) => u.rank = idx + 1);
+
+
+
+await set(child(rootRef, "ncd_screening"), {
+
+reportTitle,
+
+updatedAt: new Date().toLocaleString("hi-IN"),
+
+fileName: file.name,
+
+district,
+
+units
+
+});
+
+
+
+refreshStatus();
+
+alert(`✅ NCD Screening अपलोड सफल!\nकुल इकाइयां: ${units.length}\nजनपद कंपोजिट स्कोर: ${district?.score ?? "-"}%`);
+
+
+
+} else if (prog === "quality_assurance") {
+
+const firstSheet = wb.Sheets[wb.SheetNames[0]];
+
+const rawRows = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+
+
+
+const normBlock = (b) => {
+
+const s = String(b || "").trim().toUpperCase();
+
+const map = {
+
+"MAVAI": "MAWAI",
+
+"PURA BAZAR": "POORA BAZAR",
+
+"HARIYANGATANGANJ": "HARINGTANGANJ",
+
+"HAIRINGTANGANJ": "HARINGTANGANJ",
+
+"CHC POORA BAZAR": "POORA BAZAR",
+
+"CHC BIKAPUR": "BIKAPUR",
+
+"SRIRAM HOSPITAL": "DH / DISTRICT HOSPITAL",
+
+"DWH": "DH / DISTRICT HOSPITAL"
+
+};
+
+return map[s] || s;
+
+};
+
+
+
+const normStatus = (st) => {
+
+const s = String(st || "").trim().toUpperCase();
+
+if (s.includes("CONDITIONAL")) return "Conditional";
+
+if (s.includes("CERTIFIED")) return "Quality Certified";
+
+if (s.includes("DEFFERED") || s.includes("DEFERRED")) return "Deferred";
+
+return s;
+
+};
+
+
+
+const normType = (t) => {
+
+const s = String(t || "").trim().toUpperCase();
+
+if (s.includes("DH")) return "DH Level";
+
+if (s.includes("CHC")) return "CHC";
+
+return "AAM-SC";
+
+};
+
+
+
+const cleanRows = rawRows.map((r, idx) => {
+
+const norm = {};
+
+for (const [k, v] of Object.entries(r)) {
+
+norm[String(k).replace(/\s+/g, " ").trim().toUpperCase()] = v;
+
+}
+
+const rawDt = norm["DATE OF ASSESSMENT"] || norm["DATE"] || "";
+
+return {
+
+sn: Number(norm["SN"]) || idx + 1,
+
+block: normBlock(norm["BLOCK"]),
+
+facility: String(norm["FACILITY NAME"] || norm["FACILITY"] || "").trim(),
+
+type: normType(norm["TYPE OF FACILITY (DH/CHC/PHC/ UPHC/AAM- SC)"] || norm["TYPE"]),
+
+packages: Number(norm["NO. OF DEPARTMENT /PACKAGES ASSESSED"] || norm["NO. OF DEPARTMENT/PACKAGES ASSESSED"] || norm["PACKAGES"] || 0) || 0,
+
+status: normStatus(norm["CERTIFCATION STATUS (FULLY CERTIFIED/CONDITIONAL)"] || norm["CERTIFICATION STATUS"] || norm["STATUS"]),
+
+date: typeof rawDt === "number" ? formatExcelDate(rawDt) : String(rawDt || "").trim(),
+
+fy: String(norm["FY YEAR"] || norm["FY"] || "").trim()
+
+};
+
+}).filter(x => x.facility);
+
+
+
+await set(child(rootRef, "quality_assurance"), {
+
+updatedAt: new Date().toLocaleString("hi-IN"),
+
+fileName: file.name,
+
+rows: cleanRows
+
+});
+
+
+
+refreshStatus();
+
+alert(`✅ Quality Assurance (NQAS) अपलोड सफल!\nफ़ाइल: ${file.name}\nकुल स्वास्थ्य इकाइयां: ${cleanRows.length}`);
+
+
+
+} else {
+
+// Sanitize all column keys for Firebase safety (removes ., #, $, /, [, ])
+
+const firstSheet = wb.Sheets[wb.SheetNames[0]];
+
+const rawJson = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+
+const safeRows = rawJson.map(row => {
+
+const cleanObj = {};
+
+for (const [k, v] of Object.entries(row)) {
+
+const cleanKey = String(k || "COL").replace(/[.#$\[\]\/\\]/g, "_").replace(/\s+/g, " ").trim() || "COL";
+
+cleanObj[cleanKey] = v;
+
+}
+
+return cleanObj;
+
+});
+
+
+
+await set(child(rootRef, prog), {
+
+updatedAt: new Date().toLocaleString("hi-IN"),
+
+fileName: file.name,
+
+rows: safeRows
+
+});
+
+
+
+refreshStatus();
+
+alert(`✅ ${prog.toUpperCase()} अपलोड सफल!\nफ़ाइल: ${file.name}\nकुल पंक्तियां: ${safeRows.length}`);
+
+}
+
+} catch (err) {
+
+alert("❌ त्रुटि: " + err.message);
+
+} finally {
+
+btn.disabled = false;
+
+btn.textContent = "चयनित कार्यक्रम का डेटा अपलोड करें ↑";
+
+}
+
+});
+
+
+
+// Reset ASHA PIN
+
+document.getElementById("resetPinBtn").addEventListener("click", async () => {
+
+const rawId = document.getElementById("resetPinAshaId").value.trim();
+
+const box = document.getElementById("pinResetStatus");
+
+box.classList.remove("hidden");
+
+if (!rawId) return;
+
+const workerRef = child(rootRef, `workers/${safeKey(rawId)}`);
+
+const snap = await get(workerRef);
+
+if (!snap.exists()) {
+
+box.className = "w-full p-2.5 rounded-lg text-xs font-semibold bg-red-50 text-red-700";
+
+box.textContent = `❌ ASHA ID "${rawId}" नहीं मिली।`;
+
+return;
+
+}
+
+const val = snap.val();
+
+if (Array.isArray(val)) {
+
+for (let i = 0; i < val.length; i++) await remove(child(workerRef, `${i}/pin`));
+
+} else await remove(child(workerRef, "pin"));
+
+box.className = "w-full p-2.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-800";
+
+box.textContent = `✅ ID ${rawId} का PIN रीसेट हो गया (डिफ़ॉल्ट 123456)।`;
+
+});
+
+
+
+document.getElementById("clearDbBtn").addEventListener("click", async () => {
+
+if (!confirm("केवल ASHA भुगतान डेटा साफ़ करें? (Officers, JSY, ABHA, NCD और QA सुरक्षित रहेंगे)")) return;
+
+await update(rootRef, { heads: null, months: null, workers: null });
+
+refreshStatus();
+
+});
+
+
+
+refreshStatus();
+
+</script>
+
 </body>
+
 </html>
