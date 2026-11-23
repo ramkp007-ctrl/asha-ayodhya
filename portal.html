@@ -3,59 +3,199 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Program Review Portal — NHM अयोध्या</title>
+  <title>Ayodhya Health — Program Review Portal (NHM)</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .brand-serif { font-family: 'Playfair Display', serif; }
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    .float-anim { animation: floatSlow 4.5s ease-in-out infinite; }
+  </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen font-sans antialiased">
+<body class="bg-[#F8FAF9] text-slate-800 min-h-screen antialiased">
 
-  <!-- LOGIN SCREEN -->
-  <div id="loginScreen" class="min-h-screen flex items-center justify-center px-4 bg-slate-900">
-    <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-7 space-y-5">
-      <div class="text-center border-b pb-4">
-        <span class="inline-block bg-teal-100 text-teal-900 text-[11px] font-bold px-3 py-1 rounded-full mb-2">
+  <!-- ===================================================================== -->
+  <!-- SPLIT-SCREEN EDITORIAL LOGIN SCREEN                                   -->
+  <!-- ===================================================================== -->
+  <div id="loginScreen" class="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-white">
+
+    <!-- LEFT PANEL: SAGE GREEN VISUAL & STORY CAROUSEL -->
+    <div class="relative overflow-hidden bg-gradient-to-br from-[#9FBDB2] via-[#8FB0A4] to-[#7C9F92] text-white flex flex-col justify-between p-8 md:p-14 select-none">
+      
+      <!-- Decorative Subtle Circles -->
+      <div class="pointer-events-none absolute -top-24 -left-24 w-80 h-80 rounded-full border border-white/25"></div>
+      <div class="pointer-events-none absolute -bottom-32 -right-20 w-96 h-96 rounded-full border border-white/20"></div>
+      <div class="pointer-events-none absolute top-1/3 right-10 w-3 h-3 rounded-full bg-amber-200/70"></div>
+      <div class="pointer-events-none absolute bottom-1/3 left-12 w-2.5 h-2.5 rounded-full bg-rose-200/70"></div>
+
+      <!-- Top District Pill -->
+      <div class="relative z-10 flex items-center justify-between">
+        <span class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md border border-white/25 text-white text-xs font-semibold px-3.5 py-1.5 rounded-full">
+          <span class="w-2 h-2 rounded-full bg-emerald-200 animate-pulse"></span>
           जिला स्वास्थ्य समिति (DHS), अयोध्या
         </span>
-        <h1 class="text-lg font-bold text-slate-900">Program Review Portal</h1>
-        <p class="text-xs text-slate-500 mt-1">एक लॉगिन से सभी कार्यक्रमों की प्रगति एवं भुगतान देखें</p>
+        <span class="text-xs font-medium text-white/80 tracking-wider uppercase">NHM UP</span>
       </div>
 
-      <form id="hubLoginForm" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">पंजीकृत मोबाइल नंबर</label>
-          <input type="tel" id="loginMobile" maxlength="10" required placeholder="10 अंकों का मोबाइल नंबर"
-            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:border-teal-700 focus:outline-none" />
+      <!-- Center Custom Vector Illustration + Dynamic Slide Content -->
+      <div class="relative z-10 my-auto py-8 flex flex-col items-center text-center max-w-md mx-auto">
+        
+        <!-- Bespoke Health & Wellness Vector Emblem -->
+        <div class="float-anim mb-7">
+          <svg width="210" height="185" viewBox="0 0 220 190" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Soft Botanical Leaves -->
+            <path d="M72 118C52 98 46 68 62 48C78 68 82 96 72 118Z" fill="#5B7D70"/>
+            <path d="M142 112C164 94 174 64 160 44C142 62 136 90 142 112Z" fill="#5B7D70"/>
+            <path d="M108 104C104 76 116 48 136 36C142 62 128 88 108 104Z" fill="#6F9385"/>
+            <!-- Floating Hearts & Dots -->
+            <path d="M126 32C126 27.5 132 25 135.5 29C139 25 145 27.5 145 32C145 38 135.5 43.5 135.5 43.5C135.5 43.5 126 38 126 32Z" fill="#C95B6B"/>
+            <path d="M174 114C174 110.5 178.5 108.5 181 111.5C183.5 108.5 188 110.5 188 114C188 118.5 181 123 181 123C181 123 174 118.5 174 114Z" fill="#E6A960"/>
+            <circle cx="52" cy="66" r="5" fill="#F4D37C"/>
+            <circle cx="172" cy="68" r="4.5" fill="#F4D37C"/>
+            <!-- Warm Coral Dove / Care Emblem -->
+            <ellipse cx="106" cy="116" rx="40" ry="33" fill="#E89B84"/>
+            <circle cx="84" cy="92" r="24" fill="#E89B84"/>
+            <!-- Crest -->
+            <path d="M70 72C74 58 92 54 102 66C90 68 80 72 70 72Z" fill="#C95B6B"/>
+            <!-- Tail Feathers -->
+            <path d="M140 105L172 86C176 96 172 108 162 114L140 116Z" fill="#E6A960"/>
+            <path d="M142 114L178 104C179 115 172 125 160 128L140 124Z" fill="#C95B6B"/>
+            <!-- Wing -->
+            <path d="M88 112C102 102 124 106 132 120C118 128 98 126 88 112Z" fill="#B5495B"/>
+            <!-- Eye & Beak -->
+            <circle cx="78" cy="89" r="7.5" fill="white"/>
+            <circle cx="76.5" cy="89" r="3.8" fill="#2D3A35"/>
+            <path d="M61 93L48 97L61 101Z" fill="#F4D37C"/>
+            <!-- Feet -->
+            <path d="M96 148V162M90 162H102M114 148V162M108 162H120" stroke="#F4D37C" stroke-width="3" stroke-linecap="round"/>
+          </svg>
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">4-अंकों का PIN</label>
-          <input type="password" id="loginPin" maxlength="4" required placeholder="••••"
-            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm tracking-widest focus:border-teal-700 focus:outline-none" />
+
+        <!-- Slide Text -->
+        <h2 id="slideTitle" class="text-2xl md:text-3xl font-bold tracking-tight text-white transition-all duration-300">
+          Better health, stronger communities
+        </h2>
+        <p id="slideDesc" class="text-sm text-white/90 mt-3 leading-relaxed max-w-sm transition-all duration-300">
+          Monitor health indicators, understand block-wise progress, and support informed decisions across Ayodhya.
+        </p>
+
+        <!-- Carousel Indicators -->
+        <div class="flex items-center gap-2 mt-7" id="slideDots">
+          <button type="button" onclick="setHeroSlide(0)" class="h-1.5 w-7 rounded-full bg-white transition-all"></button>
+          <button type="button" onclick="setHeroSlide(1)" class="h-1.5 w-2 rounded-full bg-white/45 hover:bg-white/75 transition-all"></button>
+          <button type="button" onclick="setHeroSlide(2)" class="h-1.5 w-2 rounded-full bg-white/45 hover:bg-white/75 transition-all"></button>
+          <button type="button" onclick="setHeroSlide(3)" class="h-1.5 w-2 rounded-full bg-white/45 hover:bg-white/75 transition-all"></button>
         </div>
-        <div id="loginError" class="hidden p-2.5 bg-red-50 text-red-700 border border-red-200 rounded-lg text-xs font-semibold"></div>
-        <button type="submit" id="loginBtn" class="w-full py-2.5 bg-teal-800 hover:bg-teal-900 text-white font-bold rounded-xl text-sm transition">
-          पोर्टल खोलें →
-        </button>
-      </form>
+      </div>
+
+      <!-- Bottom Subtle Footer -->
+      <div class="relative z-10 text-center lg:text-left text-[11px] text-white/75">
+        Integrated Monitoring • 11 Development Blocks &amp; District Hospitals
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: CLEAN EDITORIAL SIGN-IN FORM -->
+    <div class="flex flex-col justify-between p-8 md:p-16 bg-white">
+      <div class="flex justify-end">
+        <a href="index.html" class="text-xs font-semibold text-[#5C7269] hover:text-[#2F443C] transition">
+          👩‍⚕️ ASHA Payment Lookup →
+        </a>
+      </div>
+
+      <div class="w-full max-w-sm mx-auto my-auto space-y-8">
+        <!-- Editorial Header -->
+        <div class="text-center space-y-1.5">
+          <h1 class="brand-serif italic font-bold text-3xl md:text-4xl text-[#243630] tracking-tight">
+            Ayodhya Health
+          </h1>
+          <p class="text-[11px] font-bold tracking-[0.22em] text-[#7D9189] uppercase">
+            Program Review Portal
+          </p>
+        </div>
+
+        <div class="text-center space-y-1 pt-2">
+          <h2 class="text-xl font-bold text-slate-900">Welcome back</h2>
+          <p class="text-xs text-slate-500">Sign in with your registered mobile &amp; PIN to continue</p>
+        </div>
+
+        <!-- Underline Style Form -->
+        <form id="hubLoginForm" class="space-y-6">
+          <div>
+            <label for="loginMobile" class="block text-xs font-semibold text-slate-500 mb-1">
+              Registered Mobile Number
+            </label>
+            <input type="tel" id="loginMobile" maxlength="10" required placeholder="98XXXXXXXX"
+              class="w-full py-2.5 bg-transparent border-b-2 border-slate-200 focus:border-[#5C7269] text-base font-semibold text-slate-900 placeholder-slate-300 focus:outline-none transition" />
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label for="loginPin" class="block text-xs font-semibold text-slate-500">
+                4-Digit Security PIN
+              </label>
+              <button type="button" onclick="togglePinVisibility()" id="pinToggleText"
+                class="text-[11px] font-semibold text-[#5C7269] hover:underline">
+                Show PIN
+              </button>
+            </div>
+            <input type="password" id="loginPin" maxlength="4" required placeholder="••••"
+              class="w-full py-2.5 bg-transparent border-b-2 border-slate-200 focus:border-[#5C7269] text-base font-bold tracking-[0.35em] text-slate-900 placeholder-slate-300 focus:outline-none transition" />
+            <div class="text-right mt-2">
+              <span class="text-[11px] text-slate-400">PIN भूलने पर District Admin (NHM) से संपर्क करें</span>
+            </div>
+          </div>
+
+          <div id="loginError" class="hidden p-3 bg-rose-50 text-rose-700 border border-rose-200 rounded-xl text-xs font-semibold text-center"></div>
+
+          <button type="submit" id="loginBtn"
+            class="w-full py-3.5 bg-[#5C7269] hover:bg-[#495D55] active:scale-[0.99] text-white font-bold rounded-full text-sm shadow-md shadow-[#5C7269]/20 transition">
+            Sign in
+          </button>
+        </form>
+      </div>
+
+      <!-- Bottom Authorized Notice -->
+      <div class="text-center text-[11px] text-slate-400 pt-6">
+        Authorized users only &nbsp;·&nbsp; Ayodhya District (NHM)
+      </div>
     </div>
   </div>
 
-  <!-- MAIN COMMAND HUB -->
-  <div id="hubApp" class="hidden">
-    <header class="bg-slate-900 text-white shadow-md">
-      <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-wrap justify-between items-center gap-3">
+  <!-- ===================================================================== -->
+  <!-- MAIN COMMAND HUB (AFTER SIGN IN)                                      -->
+  <!-- ===================================================================== -->
+  <div id="hubApp" class="hidden min-h-screen flex flex-col">
+    <header class="bg-[#243630] text-white shadow-md">
+      <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
         <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-base font-bold">Program Review Portal — NHM अयोध्या</h1>
-            <span id="roleBadge" class="text-[10px] bg-amber-400 text-slate-950 font-extrabold px-2.5 py-0.5 rounded-full">DISTRICT</span>
+          <div class="flex items-center gap-2.5">
+            <span class="brand-serif italic font-bold text-lg text-[#B8D4C9]">Ayodhya Health</span>
+            <span class="text-white/30">|</span>
+            <h1 class="text-sm md:text-base font-bold">Program Review Portal</h1>
+            <span id="roleBadge" class="text-[10px] bg-amber-300 text-slate-950 font-extrabold px-2.5 py-0.5 rounded-full">DISTRICT</span>
           </div>
           <p id="officerInfo" class="text-xs text-slate-300 mt-0.5"></p>
         </div>
-        <button id="logoutBtn" class="px-3 py-1.5 bg-red-800 hover:bg-red-700 text-xs font-semibold rounded-lg">लॉगआउट</button>
+        <div class="flex items-center gap-2">
+          <a href="admin.html" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-xs font-semibold rounded-full border border-white/15">
+            ⚙️ Admin
+          </a>
+          <button id="logoutBtn" class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-xs font-bold rounded-full">
+            Sign out
+          </button>
+        </div>
       </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 py-6 space-y-5">
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap justify-between items-center gap-2">
-        <p id="scopeBanner" class="text-xs font-bold text-slate-700"></p>
+    <main class="max-w-6xl mx-auto w-full px-4 py-7 space-y-6 flex-1">
+      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-wrap justify-between items-center gap-2">
+        <p id="scopeBanner" class="text-xs font-bold text-[#243630]"></p>
         <span class="text-[11px] text-slate-500">किसी भी कार्यक्रम कार्ड पर क्लिक कर विस्तृत समीक्षा खोलें</span>
       </div>
 
@@ -63,6 +203,60 @@
     </main>
   </div>
 
+  <!-- SLIDER & UI HELPERS -->
+  <script>
+    const HERO_SLIDES = [
+      {
+        title: "Better health, stronger communities",
+        desc: "Monitor health indicators, understand block-wise progress, and support informed decisions across Ayodhya."
+      },
+      {
+        title: "Real-time Tele Consultation & NCD Care",
+        desc: "Track daily eSanjeevani OPD by CHOs & Medical Officers alongside 30+ population screening across all 11 blocks."
+      },
+      {
+        title: "Transparent ASHA & JSY Pipelines",
+        desc: "Monitor incentive disbursements, zero-payment alerts, and maternal health verification workflows in one place."
+      },
+      {
+        title: "Quality Standards & Digital ABHA",
+        desc: "Drive NQAS, Kayakalp, RBSK child screening, and ABHA ID saturation across every Ayushman Arogya Mandir."
+      }
+    ];
+
+    let currentSlideIdx = 0;
+    window.setHeroSlide = function(idx) {
+      currentSlideIdx = idx;
+      document.getElementById("slideTitle").textContent = HERO_SLIDES[idx].title;
+      document.getElementById("slideDesc").textContent = HERO_SLIDES[idx].desc;
+      const dots = document.getElementById("slideDots").children;
+      for (let i = 0; i < dots.length; i++) {
+        dots[i].className = i === idx
+          ? "h-1.5 w-7 rounded-full bg-white transition-all"
+          : "h-1.5 w-2 rounded-full bg-white/45 hover:bg-white/75 transition-all";
+      }
+    };
+
+    setInterval(() => {
+      if (!document.getElementById("loginScreen").classList.contains("hidden")) {
+        window.setHeroSlide((currentSlideIdx + 1) % HERO_SLIDES.length);
+      }
+    }, 4500);
+
+    window.togglePinVisibility = function() {
+      const inp = document.getElementById("loginPin");
+      const txt = document.getElementById("pinToggleText");
+      if (inp.type === "password") {
+        inp.type = "text";
+        txt.textContent = "Hide PIN";
+      } else {
+        inp.type = "password";
+        txt.textContent = "Show PIN";
+      }
+    };
+  </script>
+
+  <!-- FIREBASE AUTH & HUB LOGIC -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
     import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
@@ -108,7 +302,7 @@
       },
       {
         title: "NCD Screening",
-        desc: "30+ आयु वर्ग की जनसंख्या में CBAC फॉर्म, हाइपरटेंशन, डायबिटीज एवं ओरल/ब्रेस्ट/सर्वाइकल कैंसर स्क्रीनिंग प्रगति।",
+        desc: "30+ आयु वर्ग की जनसंख्या में CBAC फॉर्म, हाइपरटेंशन, डायबिटीज एवं कैंसर स्क्रीनिंग प्रगति।",
         url: "ncd-dashboard.html",
         access: "ALL",
         badge: "NCD Control",
@@ -132,10 +326,10 @@
       },
       {
         title: "Tele Consultation",
-        desc: "आयुष्मान आरोग्य मंदिर (HWC) से eSanjeevani के माध्यम से दैनिक टेली-कंसल्टेशन लक्ष्य बनाम उपलब्धि।",
+        desc: "आयुष्मान आरोग्य मंदिर (HWC) से CHO एवं Medical Officer द्वारा दैनिक eSanjeevani टेली-कंसल्टेशन समीक्षा।",
         url: "tele-dashboard.html",
         access: "ALL",
-        badge: "eSanjeevani",
+        badge: "eSanjeevani (CHO & MO)",
         color: "border-purple-600 text-purple-800 bg-purple-50"
       }
     ];
@@ -151,7 +345,7 @@
 
       errBox.classList.add("hidden");
       btn.disabled = true;
-      btn.textContent = "सत्यापन हो रहा है...";
+      btn.textContent = "Signing in...";
 
       try {
         const snap = await get(ref(db, `asha_portal_v2/officers/${mob}`));
@@ -168,7 +362,7 @@
         errBox.classList.remove("hidden");
       } finally {
         btn.disabled = false;
-        btn.textContent = "पोर्टल खोलें →";
+        btn.textContent = "Sign in";
       }
     });
 
@@ -196,13 +390,13 @@
 
       const list = MODULES.filter(m => isDistrict || m.access === "ALL");
       document.getElementById("modulesGrid").innerHTML = list.map(m => `
-        <a href="${m.url}" class="group bg-white p-5 rounded-2xl border border-slate-200 hover:border-teal-600 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4">
+        <a href="${m.url}" class="group bg-white p-5 rounded-2xl border border-slate-200/90 hover:border-[#5C7269] shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4">
           <div class="space-y-2">
             <span class="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${m.color}">${m.badge}</span>
-            <h2 class="text-base font-bold text-slate-900 group-hover:text-teal-800">${m.title}</h2>
+            <h2 class="text-base font-bold text-slate-900 group-hover:text-[#243630]">${m.title}</h2>
             <p class="text-xs text-slate-600 leading-relaxed">${m.desc}</p>
           </div>
-          <div class="pt-3 border-t text-xs font-bold text-teal-800 flex justify-between items-center">
+          <div class="pt-3 border-t border-slate-100 text-xs font-bold text-[#5C7269] flex justify-between items-center">
             <span>डैशबोर्ड खोलें</span>
             <span class="group-hover:translate-x-1 transition">→</span>
           </div>
