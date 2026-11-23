@@ -11,7 +11,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen font-sans antialiased">
 
-  <!-- HEADER (Matching portal.html Theme) -->
+  <!-- HEADER -->
   <header class="bg-slate-900 text-white shadow-md">
     <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-wrap justify-between items-center gap-3">
       <div>
@@ -73,9 +73,9 @@
         <label class="block text-[11px] font-bold text-slate-600 mb-1">⚡ प्रदर्शन फ़िल्टर:</label>
         <select id="statusFilterSelect" onchange="renderDashboard()"
           class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold bg-slate-50">
-          <option value="ALL">सभी Users (All)</option>
+          <option value="ALL">सभी इकाइयां / Users (All)</option>
           <option value="ZERO">⚠️ केवल Zero TC वाले (0)</option>
-          <option value="ACTIVE">✅ केवल Active Users (&gt;0)</option>
+          <option value="ACTIVE">✅ केवल Active (&gt;0)</option>
         </select>
       </div>
       <div>
@@ -88,7 +88,7 @@
     <!-- KPI CARDS -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="bg-white p-4 rounded-xl border border-purple-200 shadow-sm">
-        <div class="text-xs font-semibold text-purple-800">कुल Unique Users</div>
+        <div class="text-xs font-semibold text-purple-800">कुल Unique इकाइयां / Users</div>
         <div id="kpiUniqueUsers" class="text-2xl font-extrabold text-slate-900 mt-1">0</div>
         <div id="kpiActiveZero" class="text-[11px] text-slate-500 mt-0.5">Active: 0 | Zero: 0</div>
       </div>
@@ -98,12 +98,12 @@
         <div class="text-[11px] text-slate-500 mt-0.5">चयनित दिनांक रेंज का कुल योग</div>
       </div>
       <div class="bg-white p-4 rounded-xl border border-sky-200 shadow-sm">
-        <div class="text-xs font-semibold text-sky-800">औसत TC प्रति User</div>
+        <div class="text-xs font-semibold text-sky-800">औसत TC प्रति इकाई</div>
         <div id="kpiAvgTc" class="text-2xl font-extrabold text-sky-900 mt-1">0.0</div>
         <div class="text-[11px] text-slate-500 mt-0.5">Average per CHO / MO</div>
       </div>
       <div class="bg-white p-4 rounded-xl border border-rose-200 shadow-sm">
-        <div class="text-xs font-semibold text-rose-800">Zero Reporting Users</div>
+        <div class="text-xs font-semibold text-rose-800">Zero Reporting इकाइयां</div>
         <div id="kpiZeroCount" class="text-2xl font-extrabold text-rose-700 mt-1">0</div>
         <div class="text-[11px] text-rose-600 mt-0.5">0 टेली-कंसल्टेशन वाले</div>
       </div>
@@ -120,11 +120,11 @@
       </div>
     </div>
 
-    <!-- UNIQUE USER-WISE TABLE -->
+    <!-- UNIQUE FACILITY + USER TABLE -->
     <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
       <div class="px-4 py-3 border-b bg-slate-50 flex justify-between items-center">
-        <h2 class="text-sm font-bold text-slate-800">📋 Unique User-wise Tele Consultation सूची</h2>
-        <span id="tableCountBadge" class="text-xs font-bold text-purple-800 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">0 Users</span>
+        <h2 class="text-sm font-bold text-slate-800">📋 ब्लॉक व स्वास्थ्य केंद्र-वार Tele Consultation सूची</h2>
+        <span id="tableCountBadge" class="text-xs font-bold text-purple-800 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">0 इकाइयां</span>
       </div>
       <div class="overflow-x-auto max-h-[450px]">
         <table class="w-full text-xs text-left border-collapse">
@@ -132,8 +132,8 @@
             <tr>
               <th class="p-2.5">रैंक</th>
               <th class="p-2.5">Block</th>
-              <th class="p-2.5">User Name (Unique)</th>
               <th class="p-2.5">Health Facility / Sub-Center</th>
+              <th class="p-2.5">User Name (CHO / MO)</th>
               <th class="p-2.5 text-center">दिन (Days)</th>
               <th class="p-2.5 text-right">Total TC</th>
               <th class="p-2.5 text-center">स्थिति</th>
@@ -164,7 +164,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Check officer login session from portal.html
     const savedOfficer = JSON.parse(sessionStorage.getItem("nhm_ayodhya_officer") || "null");
     if (savedOfficer) {
       document.getElementById("roleBadge").textContent = savedOfficer.role === "DISTRICT" ? "DISTRICT LEVEL" : `BLOCK: ${savedOfficer.block}`;
@@ -174,6 +173,22 @@
     let renderedRows = [];
     let currentTab = "tele_cho";
     let chartInstance = null;
+
+    // Smart Normalization: SC, HWC, AYODHYA, extra spaces aur punctuation hata kar core facility naam nikalta hai
+    function normalizeFacilityKey(fac) {
+      return String(fac || "")
+        .toUpperCase()
+        .replace(/[^A-Z0-9\s]/g, " ")
+        .replace(/\b(SC|HWC|AAM|PHC|CHC|UPHC|SUB\s*CENTER|AYODHYA)\b/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function normalizeBlockKey(blk) {
+      const s = String(blk || "").toUpperCase().replace(/\s+/g, " ").trim();
+      const map = { "MAVAI": "MAWAI", "PURA BAZAR": "POORA BAZAR", "HARINGTANGANJ": "HARIYANGATANGANJ" };
+      return map[s] || s;
+    }
 
     window.switchTeleTab = async function(tabKey) {
       currentTab = tabKey;
@@ -194,9 +209,8 @@
 
       const data = snap.val();
       rawRows = data.rows || [];
-      const dates = (data.availableDates || []).sort();
+      const dates = (data.availableDates || []).filter(Boolean).sort();
 
-      // Populate Block Filter
       const blocks = Array.from(new Set(rawRows.map(r => (r.block || "").trim()).filter(Boolean))).sort();
       const blockSel = document.getElementById("blockFilterSelect");
       blockSel.innerHTML = `<option value="ALL">All ${blocks.length} Blocks (जनपद अयोध्या)</option>` +
@@ -231,56 +245,72 @@
       const perfFilter = document.getElementById("statusFilterSelect").value;
       const searchQ = document.getElementById("searchInput").value.trim().toLowerCase();
 
-      // 1. Date Range Filter
-      const dateFiltered = rawRows.filter(r => {
-        if (fromDt && r.isoDate < fromDt) return false;
-        if (toDt && r.isoDate > toDt) return false;
-        return true;
-      });
+      // 1. Date Range Filter & Sort chronologically so latest spelling is picked automatically
+      const dateFiltered = rawRows
+        .filter(r => {
+          if (fromDt && r.isoDate < fromDt) return false;
+          if (toDt && r.isoDate > toDt) return false;
+          return true;
+        })
+        .sort((a, b) => String(a.isoDate || "").localeCompare(String(b.isoDate || "")));
 
-      // 2. Group by UNIQUE User & Sum TC across date range
-      const userMap = new Map();
+      // 2. Group by Normalized (Block + Facility) so spelling changes in User/Facility still merge properly
+      const unitMap = new Map();
       dateFiltered.forEach(r => {
         const cleanUser = String(r.user || "Unknown").replace(/\s+/g, " ").trim();
-        const userKey = cleanUser.toUpperCase();
         const cleanBlock = String(r.block || "-").replace(/\s+/g, " ").trim();
         const cleanFac = String(r.facility || "-").replace(/\s+/g, " ").trim();
 
-        if (!userMap.has(userKey)) {
-          userMap.set(userKey, {
+        const normBlk = normalizeBlockKey(cleanBlock);
+        const normFac = normalizeFacilityKey(cleanFac) || cleanUser.toUpperCase();
+        const uniqueKey = `${normBlk}|||${normFac}`;
+
+        if (!unitMap.has(uniqueKey)) {
+          unitMap.set(uniqueKey, {
+            block: cleanBlock,
+            facility: cleanFac,
             user: cleanUser,
-            blocks: new Set(),
-            facilities: new Set(),
+            allNames: new Set([cleanUser]),
             days: new Set(),
             totalTc: 0
           });
         }
-        const entry = userMap.get(userKey);
-        if (cleanBlock && cleanBlock !== "-") entry.blocks.add(cleanBlock);
-        if (cleanFac && cleanFac !== "-") entry.facilities.add(cleanFac);
+
+        const entry = unitMap.get(uniqueKey);
+        // Always update to the latest date's spelling for Block, Facility & User
+        entry.block = cleanBlock;
+        entry.facility = cleanFac;
+        entry.user = cleanUser;
+        entry.allNames.add(cleanUser);
         if (r.isoDate) entry.days.add(r.isoDate);
         entry.totalTc += Number(r.tc) || 0;
       });
 
-      const allUniqueUsers = Array.from(userMap.values()).map(u => ({
-        block: Array.from(u.blocks).join(", ") || "-",
-        user: u.user,
-        facility: Array.from(u.facilities).join(", ") || "-",
-        daysCount: u.days.size,
-        totalTc: u.totalTc
-      }));
+      const allUniqueUnits = Array.from(unitMap.values()).map(u => {
+        // Agar kisi date ko spelling badli thi to bracket mein dikhayein
+        const otherNames = Array.from(u.allNames).filter(n => n.toUpperCase() !== u.user.toUpperCase());
+        const displayUser = otherNames.length > 0 ? `${u.user} (${otherNames.join(" / ")})` : u.user;
+
+        return {
+          block: u.block,
+          facility: u.facility,
+          user: displayUser,
+          daysCount: u.days.size,
+          totalTc: u.totalTc
+        };
+      });
 
       // 3. Block Chart Data
       const blockTotals = new Map();
-      allUniqueUsers.forEach(u => {
-        const b = u.block.split(",")[0].trim() || "Other";
+      allUniqueUnits.forEach(u => {
+        const b = u.block || "Other";
         blockTotals.set(b, (blockTotals.get(b) || 0) + u.totalTc);
       });
       renderChart(blockTotals, selBlock);
 
       // 4. Filter for Table & KPIs
-      const finalRows = allUniqueUsers.filter(u => {
-        if (selBlock !== "ALL" && !u.block.toLowerCase().includes(selBlock.toLowerCase())) return false;
+      const finalRows = allUniqueUnits.filter(u => {
+        if (selBlock !== "ALL" && u.block.toLowerCase() !== selBlock.toLowerCase()) return false;
         if (perfFilter === "ZERO" && u.totalTc > 0) return false;
         if (perfFilter === "ACTIVE" && u.totalTc === 0) return false;
         if (searchQ && !u.user.toLowerCase().includes(searchQ) && !u.facility.toLowerCase().includes(searchQ)) return false;
@@ -302,7 +332,7 @@
       document.getElementById("kpiTotalTc").textContent = sumTc.toLocaleString("en-IN");
       document.getElementById("kpiAvgTc").textContent = avg;
       document.getElementById("kpiZeroCount").textContent = zeroU.toLocaleString("en-IN");
-      document.getElementById("tableCountBadge").textContent = `${totalU} Users`;
+      document.getElementById("tableCountBadge").textContent = `${totalU} इकाइयां`;
 
       // 6. Table
       const tbody = document.getElementById("tcTableBody");
@@ -320,8 +350,8 @@
           <tr class="hover:bg-slate-50 ${isZero ? 'bg-rose-50/30' : ''}">
             <td class="p-2.5 text-slate-500">${i + 1}</td>
             <td class="p-2.5 font-semibold text-slate-700">${r.block}</td>
-            <td class="p-2.5 font-bold text-slate-900">${r.user}</td>
-            <td class="p-2.5 text-slate-600">${r.facility}</td>
+            <td class="p-2.5 font-bold text-slate-900">${r.facility}</td>
+            <td class="p-2.5 text-slate-700">${r.user}</td>
             <td class="p-2.5 text-center text-slate-600">${r.daysCount}</td>
             <td class="p-2.5 text-right font-extrabold ${isZero ? 'text-rose-600' : 'text-purple-900'}">${r.totalTc.toLocaleString("en-IN")}</td>
             <td class="p-2.5 text-center">${badge}</td>
@@ -371,8 +401,8 @@
       const fromDt = document.getElementById("fromDateInput").value;
       const toDt = document.getElementById("toDateInput").value;
       const rows = renderedRows.map((r, i) => ({
-        "Rank": i + 1, "Block": r.block, "User Name": r.user,
-        "Health Facility": r.facility, "Active Days": r.daysCount, "Total Tele Consultation": r.totalTc
+        "Rank": i + 1, "Block": r.block, "Health Facility": r.facility,
+        "User Name": r.user, "Active Days": r.daysCount, "Total Tele Consultation": r.totalTc
       }));
       const ws = XLSX.utils.json_to_sheet(rows);
       const wb = XLSX.utils.book_new();
