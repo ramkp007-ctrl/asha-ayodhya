@@ -65,7 +65,7 @@
         </button>
 
         <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-[11px] text-slate-500">
-          <a href="index.html" class="font-bold text-teal-700 hover:underline">← ASHA Worker Portal</a>
+          <a href="index.html" class="font-bold text-teal-700 hover:underline">← ASHA Worker Login</a>
           <a href="admin.html" class="font-bold text-slate-600 hover:underline">Master Admin</a>
         </div>
       </form>
@@ -181,11 +181,11 @@
               <span>• Tele Consultation (MO) ↗</span>
               <span id="cnt_tele_mo" class="text-[10px] bg-indigo-500/20 text-indigo-200 px-1.5 py-0.5 rounded font-bold">LIVE</span>
             </a>
-            <a href="index.html"
-              class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-teal-200 hover:bg-slate-800 hover:text-white font-semibold transition">
-              <span>• ASHA Payment ↗</span>
-              <span class="text-[10px] text-teal-400 font-bold">2,232</span>
-            </a>
+            <button onclick="selectSubProgram('asha')" id="nav_asha"
+              class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+              <span>• ASHA Payment</span>
+              <span id="cnt_asha" class="text-[10px] text-teal-300 font-bold">2,232</span>
+            </button>
             <button onclick="selectSubProgram('abha')" id="nav_abha"
               class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
               <span>• ABHA ID</span>
@@ -255,6 +255,9 @@
         <a href="admin.html" class="w-full flex items-center justify-center gap-1.5 py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-extrabold rounded-xl shadow transition">
           ⚙️ Master Admin Upload
         </a>
+        <a href="index.html" class="w-full flex items-center justify-center gap-1.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-teal-300 text-xs font-bold rounded-xl transition">
+          👩‍⚕️ ASHA Worker Portal ↗
+        </a>
         <button onclick="logoutPortal()" class="w-full py-1.5 bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white text-xs font-bold rounded-xl transition">
           Logout
         </button>
@@ -300,8 +303,8 @@
               <option value="ALL">All 11 Blocks (जनपद अयोध्या)</option>
             </select>
 
-            <input type="text" id="wsSearchInput" oninput="renderActiveProgram()" placeholder="🔍 ब्लॉक या इकाई खोजें..."
-              class="px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 w-48" />
+            <input type="text" id="wsSearchInput" oninput="renderActiveProgram()" placeholder="🔍 ब्लॉक, इकाई या आशा ID खोजें..."
+              class="px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 w-52" />
 
             <button onclick="exportActiveExcel()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition">
               ⬇️ Excel (.xlsx)
@@ -370,7 +373,7 @@
           <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
             <div>
               <h3 id="wsChartTitle" class="text-sm font-extrabold text-slate-800">📊 तुलनात्मक चार्ट (Top से Bottom)</h3>
-              <p class="text-[11px] text-slate-500">QGIS कलर कोड: हरा (&gt;85%), पीला (80–85%), लाल (&lt;80%)</p>
+              <p id="wsChartSub" class="text-[11px] text-slate-500">QGIS कलर कोड: हरा (&gt;85%), पीला (80–85%), लाल (&lt;80%)</p>
             </div>
           </div>
           <div class="overflow-x-auto">
@@ -503,6 +506,13 @@
       bd.classList.toggle("hidden");
     };
 
+    function toWorkerList(entry) {
+      if (!entry || typeof entry !== "object") return [];
+      if (Array.isArray(entry)) return entry.filter(w => w && typeof w === "object");
+      if ("n" in entry || "p" in entry || "id" in entry) return [entry];
+      return Object.values(entry).filter(w => w && typeof w === "object");
+    }
+
     const PROGRAMS = {
       jsy: {
         category: "1. Maternal Health",
@@ -559,6 +569,14 @@
         sub: "शिशु मृत्यु रिपोर्टिंग एवं ब्लॉक-वार समीक्षा विवरण",
         dbNode: "mh_child_death",
         mode: "generic"
+      },
+      asha: {
+        category: "2. Community Process",
+        badgeClass: "bg-teal-100 text-teal-800",
+        title: "ASHA Payment — ब्लॉक एवं आशा-वार प्रोत्साहन राशि समीक्षा",
+        sub: "माह-वार प्रोत्साहन भुगतान, औसत भुगतान प्रति आशा एवं शून्य भुगतान (Zero Paid) सूची",
+        dbNode: "workers",
+        mode: "asha"
       },
       abha: {
         category: "2. Community Process",
@@ -619,19 +637,21 @@
     };
 
     let portalData = {};
+    let flatAshaWorkers = [];
     let activeProg = "jsy";
     let currentExportRows = [];
     let wsChart = null;
 
     function getThresholdColor(pct) {
-      if (pct > 85) return "#059669"; // Green >85
-      if (pct >= 80) return "#d97706"; // Yellow 80-85
-      return "#e11d48"; // Red <80
+      if (pct > 85) return "#059669";
+      if (pct >= 80) return "#d97706";
+      return "#e11d48";
     }
 
     function getRecordsForProgram(key) {
       const meta = PROGRAMS[key];
       if (!meta) return [];
+      if (meta.mode === "asha") return flatAshaWorkers;
       const mod = portalData[meta.dbNode];
       if (!mod) return [];
       if (meta.mode === "jsy" || meta.mode === "abha") return mod.records || [];
@@ -646,6 +666,25 @@
           portalData = snap.val() || {};
         }
 
+        // Flatten ASHA Workers from asha_portal_v2/workers
+        flatAshaWorkers = [];
+        for (const entry of Object.values(portalData.workers || {})) {
+          toWorkerList(entry).forEach(w => {
+            flatAshaWorkers.push({
+              id: w.id || "",
+              name: w.n || "Unknown",
+              block: (w.b || "Other").trim(),
+              sc: (w.s || "-").trim(),
+              village: (w.v || "-").trim(),
+              total: Number(w.t) || 0,
+              p: w.p || {}
+            });
+          });
+        }
+        if (flatAshaWorkers.length > 0) {
+          document.getElementById("cnt_asha").textContent = flatAshaWorkers.length.toLocaleString("en-IN");
+        }
+
         const choRows = portalData.tele_cho?.rows || [];
         const moRows = portalData.tele_mo?.rows || [];
         const choTc = choRows.reduce((s, r) => s + (Number(r.tc) || 0), 0);
@@ -654,6 +693,7 @@
         if (moTc > 0) document.getElementById("cnt_tele_mo").textContent = `${moTc.toLocaleString("en-IN")}`;
 
         Object.keys(PROGRAMS).forEach(k => {
+          if (k === "asha") return;
           const list = getRecordsForProgram(k);
           const cntEl = document.getElementById(`cnt_${k}`);
           if (cntEl && list.length) {
@@ -692,15 +732,26 @@
       document.getElementById("wsSubTitle").textContent = meta.sub;
 
       const mod = portalData[meta.dbNode] || {};
-      document.getElementById("wsUpdatedBadge").textContent = `अपडेट: ${mod.updatedAt || "N/A"}`;
+      if (meta.mode === "asha") {
+        const months = (portalData.months || []).join(", ");
+        document.getElementById("wsUpdatedBadge").textContent = months ? `माह: ${months}` : "ASHA Portal Live";
+      } else {
+        document.getElementById("wsUpdatedBadge").textContent = `अपडेट: ${mod.updatedAt || "N/A"}`;
+      }
 
       const records = getRecordsForProgram(key);
 
+      // Date / Month dropdown for JSY, ABHA, or ASHA
       const dateSel = document.getElementById("wsDateFilter");
       if ((meta.mode === "jsy" || meta.mode === "abha") && records.length) {
         const dates = Array.from(new Set(records.map(r => r.date).filter(Boolean)));
         dateSel.innerHTML = dates.map(d => `<option value="${d}">📅 दिनांक: ${d}</option>`).join("");
         if (mod.latestDate && dates.includes(mod.latestDate)) dateSel.value = mod.latestDate;
+        dateSel.classList.remove("hidden");
+      } else if (meta.mode === "asha" && (portalData.months || []).length) {
+        const months = (portalData.months || []).slice().sort().reverse();
+        dateSel.innerHTML = `<option value="ALL">📅 सभी माह (All Months)</option>` +
+          months.map(m => `<option value="${m}">📅 माह: ${m}</option>`).join("");
         dateSel.classList.remove("hidden");
       } else {
         dateSel.classList.add("hidden");
@@ -756,11 +807,80 @@
       currentExportRows = filtered;
 
       let ranked = [];
+      let isCurrencyMode = false;
       let kpi1 = { label: "कुल रिकॉर्ड", val: filtered.length, sub: "" };
       let kpi2 = { label: "जनपद औसत", val: "0%", sub: "" };
       let tableHtml = "";
 
-      if (meta.mode === "jsy") {
+      if (meta.mode === "asha") {
+        isCurrencyMode = true;
+        // Compute period amount per ASHA (either selected month or all months)
+        const ashaComputed = filtered.map(w => {
+          let amt = 0;
+          if (!selDate || selDate === "ALL") {
+            amt = w.total;
+          } else {
+            for (const hMap of Object.values(w.p || {})) {
+              amt += Number(hMap[selDate]) || 0;
+            }
+          }
+          return { ...w, periodAmt: amt };
+        });
+        currentExportRows = ashaComputed.map(w => ({
+          "ASHA ID": w.id, "ASHA Name": w.name, "Block": w.block,
+          "Sub Center": w.sc, "Village": w.village, "Paid Amount (Rs)": w.periodAmt
+        }));
+
+        const grp = new Map();
+        ashaComputed.forEach(w => {
+          const key = selBlk === "ALL" ? w.block : (w.sc || w.name);
+          if (!grp.has(key)) grp.set(key, { name: key, sumAmt: 0, count: 0, paidCount: 0 });
+          const g = grp.get(key);
+          g.sumAmt += w.periodAmt;
+          g.count += 1;
+          if (w.periodAmt > 0) g.paidCount += 1;
+        });
+
+        ranked = Array.from(grp.values()).map(g => ({
+          name: g.name,
+          val: g.count > 0 ? Math.round(g.sumAmt / g.count) : 0,
+          subText: `कुल: ₹${Math.round(g.sumAmt).toLocaleString("en-IN")} (${g.paidCount}/${g.count} Paid)`
+        })).sort((a, b) => b.val - a.val);
+
+        const totalPaidRs = ashaComputed.reduce((s, w) => s + w.periodAmt, 0);
+        const paidAshas = ashaComputed.filter(w => w.periodAmt > 0).length;
+        const zeroAshas = ashaComputed.length - paidAshas;
+        const avgPerAsha = ashaComputed.length ? Math.round(totalPaidRs / ashaComputed.length) : 0;
+
+        kpi1 = { label: "कुल आशा कार्यकर्ता", val: ashaComputed.length.toLocaleString("en-IN"), sub: `Paid: ${paidAshas} | Zero: ${zeroAshas}` };
+        kpi2 = { label: "कुल भुगतान राशि", val: `₹${Math.round(totalPaidRs).toLocaleString("en-IN")}`, sub: `औसत प्रति आशा: ₹${avgPerAsha.toLocaleString("en-IN")}` };
+
+        const sortedAshas = [...ashaComputed].sort((a, b) => b.periodAmt - a.periodAmt);
+        tableHtml = `
+          <table class="w-full text-xs text-left border-collapse">
+            <thead class="bg-slate-900 text-white sticky top-0">
+              <tr>
+                <th class="p-3">#</th><th class="p-3">ASHA ID</th><th class="p-3">ASHA Name</th>
+                <th class="p-3">Block</th><th class="p-3">Sub Center</th><th class="p-3">Village</th>
+                <th class="p-3 text-right">Paid Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              ${sortedAshas.slice(0, 400).map((w, i) => `
+                <tr class="hover:bg-slate-50 ${w.periodAmt === 0 ? 'bg-rose-50/30' : ''}">
+                  <td class="p-3 text-slate-400">${i + 1}</td>
+                  <td class="p-3 font-mono font-bold text-slate-700">${w.id}</td>
+                  <td class="p-3 font-bold text-slate-900">${w.name}</td>
+                  <td class="p-3">${w.block}</td>
+                  <td class="p-3">${w.sc}</td>
+                  <td class="p-3">${w.village}</td>
+                  <td class="p-3 text-right font-extrabold ${w.periodAmt === 0 ? 'text-rose-600' : 'text-teal-700'}">₹${Math.round(w.periodAmt).toLocaleString("en-IN")}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>`;
+
+      } else if (meta.mode === "jsy") {
         const grp = new Map();
         filtered.forEach(r => {
           const key = selBlk === "ALL" ? r.block : r.facility;
@@ -996,6 +1116,8 @@
           </table>`;
       }
 
+      const fmtVal = (v) => isCurrencyMode ? `₹${Number(v).toLocaleString("en-IN")}` : `${v}%`;
+
       document.getElementById("kpi1Label").textContent = kpi1.label;
       document.getElementById("kpi1Val").textContent = kpi1.val;
       document.getElementById("kpi1Sub").textContent = kpi1.sub;
@@ -1005,14 +1127,14 @@
       document.getElementById("kpi2Sub").textContent = kpi2.sub;
 
       document.getElementById("kpi3Val").textContent = ranked[0] ? ranked[0].name : "—";
-      document.getElementById("kpi3Sub").textContent = ranked[0] ? `${ranked[0].val}% (${ranked[0].subText})` : "—";
+      document.getElementById("kpi3Sub").textContent = ranked[0] ? `${fmtVal(ranked[0].val)} (${ranked[0].subText})` : "—";
       const last = ranked[ranked.length - 1];
       document.getElementById("kpi4Val").textContent = last ? last.name : "—";
-      document.getElementById("kpi4Sub").textContent = last ? `${last.val}% (${last.subText})` : "—";
+      document.getElementById("kpi4Sub").textContent = last ? `${fmtVal(last.val)} (${last.subText})` : "—";
 
       // Dynamic Heading & Non-Overlapping Split for Top vs Poor Boxes
       const isAllBlocks = selBlk === "ALL";
-      const entityLabel = isAllBlocks ? "Blocks" : `Facilities (${selBlk})`;
+      const entityLabel = isAllBlocks ? "Blocks" : (meta.mode === "asha" ? `Sub-Centers (${selBlk})` : `Facilities (${selBlk})`);
 
       const halfCount = Math.min(5, Math.floor(ranked.length / 2));
       const topList = ranked.length === 1 ? ranked : ranked.slice(0, halfCount);
@@ -1035,7 +1157,7 @@
               </div>
             </div>
             <span class="ml-2 px-3 py-1 rounded-full font-extrabold text-xs ${isTop ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}">
-              ${item.val}%
+              ${fmtVal(item.val)}
             </span>
           </div>
         `).join("");
@@ -1055,7 +1177,7 @@
           labels: ranked.map(r => r.name),
           datasets: [{
             data: ranked.map(r => r.val),
-            backgroundColor: ranked.map(r => getThresholdColor(r.val)),
+            backgroundColor: ranked.map(r => isCurrencyMode ? "#0d9488" : getThresholdColor(r.val)),
             borderRadius: 6,
             maxBarThickness: 38
           }]
@@ -1070,7 +1192,7 @@
               align: "top",
               color: "#0f172a",
               font: { weight: "bold", size: 11 },
-              formatter: v => `${v}%`
+              formatter: v => isCurrencyMode ? `₹${Number(v).toLocaleString("en-IN")}` : `${v}%`
             }
           },
           scales: {
