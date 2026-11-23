@@ -333,7 +333,7 @@
 
           <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
-            <div id="kpi3Label" class="text-xs font-bold text-slate-500">सर्वश्रेष्ठ ब्लॉक (Top)</div>
+            <div id="kpi3Label" class="text-xs font-bold text-slate-500">सर्वश्रेष्ठ (Top)</div>
             <div id="kpi3Val" class="text-lg font-extrabold text-emerald-700 mt-1 truncate">—</div>
             <div id="kpi3Sub" class="text-[11px] text-emerald-600 mt-0.5">—</div>
           </div>
@@ -346,7 +346,7 @@
           </div>
         </div>
 
-        <!-- TOP 5 & POOR 5 COMPARISON BOXES -->
+        <!-- NON-OVERLAPPING TOP & POOR COMPARISON BOXES -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="bg-white rounded-2xl border border-emerald-200/80 shadow-sm overflow-hidden">
             <div class="px-4 py-3 bg-gradient-to-r from-emerald-800 to-teal-700 text-white flex justify-between items-center">
@@ -369,7 +369,7 @@
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
             <div>
-              <h3 id="wsChartTitle" class="text-sm font-extrabold text-slate-800">📊 ब्लॉक-वार तुलनात्मक चार्ट (Top से Bottom)</h3>
+              <h3 id="wsChartTitle" class="text-sm font-extrabold text-slate-800">📊 तुलनात्मक चार्ट (Top से Bottom)</h3>
               <p class="text-[11px] text-slate-500">QGIS कलर कोड: हरा (&gt;85%), पीला (80–85%), लाल (&lt;80%)</p>
             </div>
           </div>
@@ -420,7 +420,6 @@
 
     let savedOfficer = JSON.parse(sessionStorage.getItem("nhm_ayodhya_officer") || "null");
 
-    // AUTHENTICATION CHECK & LOGIN HANDLER
     function unlockPortal(officer) {
       savedOfficer = officer;
       sessionStorage.setItem("nhm_ayodhya_officer", JSON.stringify(officer));
@@ -446,7 +445,6 @@
       btn.textContent = "सत्यापन हो रहा है...";
 
       try {
-        // Check officers node in Firebase (asha_portal_v2/officers)
         const offSnap = await get(ref(db, "asha_portal_v2/officers"));
         let matchedOfficer = null;
 
@@ -467,7 +465,6 @@
           }
         }
 
-        // Fallback District Admin login if no officers configured yet
         if (!matchedOfficer && uid.toLowerCase() === "admin" && pwd === "nhm@2026") {
           matchedOfficer = { id: "admin", name: "District Admin", role: "DISTRICT", block: "ALL" };
         }
@@ -506,7 +503,6 @@
       bd.classList.toggle("hidden");
     };
 
-    // MAPPED TO YOUR EXACT FIREBASE NODES IN admin.html
     const PROGRAMS = {
       jsy: {
         category: "1. Maternal Health",
@@ -739,7 +735,7 @@
         document.getElementById("kpi3Val").textContent = "—";
         document.getElementById("kpi4Val").textContent = "—";
         document.getElementById("wsTop5List").innerHTML = `<p class="p-4 text-xs text-slate-400">इस सब-प्रोग्राम की रिपोर्ट <b>admin.html</b> से अपलोड करें।</p>`;
-        document.getElementById("wsPoor5List").innerHTML = `<p class="p-4 text-xs text-slate-400">डेटा अपलोड होते ही Top-5 और Poor-5 स्वतः दिखने लगेंगे।</p>`;
+        document.getElementById("wsPoor5List").innerHTML = `<p class="p-4 text-xs text-slate-400">डेटा अपलोड होते ही Top और Poor स्वतः दिखने लगेंगे।</p>`;
         document.getElementById("wsTableContainer").innerHTML = `<p class="p-8 text-center text-xs text-slate-500">अभी <b>${meta.title}</b> के लिए डेटा अपलोड नहीं किया गया है।</p>`;
         document.getElementById("wsRowCount").textContent = "0 Rows";
         if (wsChart) wsChart.destroy();
@@ -1014,27 +1010,39 @@
       document.getElementById("kpi4Val").textContent = last ? last.name : "—";
       document.getElementById("kpi4Sub").textContent = last ? `${last.val}% (${last.subText})` : "—";
 
-      const top5 = ranked.slice(0, 5);
-      const poor5 = [...ranked].reverse().slice(0, 5);
-      const renderBox = (list, isTop) => list.map((item, idx) => `
-        <div class="flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 rounded-xl text-xs">
-          <div class="flex items-center gap-2.5 min-w-0">
-            <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-[11px] font-extrabold ${isTop ? 'bg-emerald-700 text-white' : 'bg-rose-700 text-white'}">
-              ${idx + 1}
-            </span>
-            <div class="truncate">
-              <div class="font-bold text-slate-900 truncate">${item.name}</div>
-              <div class="text-[10px] text-slate-500 truncate">${item.subText}</div>
-            </div>
-          </div>
-          <span class="ml-2 px-3 py-1 rounded-full font-extrabold text-xs ${isTop ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}">
-            ${item.val}%
-          </span>
-        </div>
-      `).join("");
+      // Dynamic Heading & Non-Overlapping Split for Top vs Poor Boxes
+      const isAllBlocks = selBlk === "ALL";
+      const entityLabel = isAllBlocks ? "Blocks" : `Facilities (${selBlk})`;
 
-      document.getElementById("wsTop5List").innerHTML = renderBox(top5, true);
-      document.getElementById("wsPoor5List").innerHTML = renderBox(poor5, false);
+      const halfCount = Math.min(5, Math.floor(ranked.length / 2));
+      const topList = ranked.length === 1 ? ranked : ranked.slice(0, halfCount);
+      const poorList = ranked.length <= 1 ? [] : ranked.slice(ranked.length - halfCount).reverse();
+
+      document.getElementById("wsTop5Title").textContent = `🏆 Top ${topList.length} ${entityLabel} (सर्वश्रेष्ठ प्रदर्शन)`;
+      document.getElementById("wsPoor5Title").textContent = `⚠️ Poor ${poorList.length} ${entityLabel} (न्यूनतम प्रदर्शन)`;
+
+      const renderBox = (list, isTop) => {
+        if (!list.length) return `<p class="p-4 text-xs text-slate-400">तुलना के लिए पर्याप्त इकाइयां नहीं हैं।</p>`;
+        return list.map((item, idx) => `
+          <div class="flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 rounded-xl text-xs">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-[11px] font-extrabold ${isTop ? 'bg-emerald-700 text-white' : 'bg-rose-700 text-white'}">
+                ${idx + 1}
+              </span>
+              <div class="truncate">
+                <div class="font-bold text-slate-900 truncate">${item.name}</div>
+                <div class="text-[10px] text-slate-500 truncate">${item.subText}</div>
+              </div>
+            </div>
+            <span class="ml-2 px-3 py-1 rounded-full font-extrabold text-xs ${isTop ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}">
+              ${item.val}%
+            </span>
+          </div>
+        `).join("");
+      };
+
+      document.getElementById("wsTop5List").innerHTML = renderBox(topList, true);
+      document.getElementById("wsPoor5List").innerHTML = renderBox(poorList, false);
 
       const ctx = document.getElementById("wsBarChart").getContext("2d");
       if (wsChart) wsChart.destroy();
@@ -1085,7 +1093,6 @@
       XLSX.writeFile(wb, `NHM_Ayodhya_${activeProg.toUpperCase()}.xlsx`);
     };
 
-    // Auto-unlock if already logged in this session
     if (savedOfficer) {
       unlockPortal(savedOfficer);
     }
