@@ -16,188 +16,253 @@
       font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
       background-color: #f1f5f9;
     }
-    .prog-card {
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .prog-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 14px 28px -10px rgba(15, 23, 42, 0.14);
-    }
-    .prog-card.active-card {
-      ring: 2px;
-      border-color: #0d9488;
-      background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%);
+    .nav-sub-btn.active {
+      background: linear-gradient(90deg, #0d9488 0%, #0f766e 100%);
+      color: #ffffff;
+      font-weight: 700;
+      box-shadow: 0 4px 12px -2px rgba(13, 148, 136, 0.4);
     }
     @media print {
       .no-print { display: none !important; }
       body { background: #fff !important; }
+      main { margin-left: 0 !important; }
     }
   </style>
 </head>
-<body class="text-slate-800 min-h-screen antialiased flex flex-col">
+<body class="text-slate-800 min-h-screen antialiased flex flex-col lg:flex-row">
 
-  <!-- TOP EXECUTIVE HEADER WITH PROGRAM LOGOS -->
-  <header class="bg-gradient-to-r from-slate-950 via-slate-900 to-teal-950 text-white shadow-xl border-b border-teal-800/40">
-    <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-wrap justify-between items-center gap-4">
-      <div class="flex items-center gap-3.5">
-        <!-- Official Emblem / NHM Badge -->
-        <div class="flex items-center gap-2 bg-white/10 border border-white/15 px-3 py-2 rounded-2xl backdrop-blur-sm">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center text-slate-950 font-black text-xs shadow">
-            UP
-          </div>
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-400 to-sky-600 flex items-center justify-center text-white font-black text-xs shadow">
-            NHM
-          </div>
+  <!-- MOBILE TOP BAR -->
+  <div class="lg:hidden sticky top-0 z-30 bg-slate-950 text-white px-4 py-3 flex items-center justify-between shadow-md no-print">
+    <div class="flex items-center gap-2.5">
+      <span class="px-2 py-1 rounded-lg bg-teal-500 text-slate-950 font-black text-xs">NHM</span>
+      <span class="font-extrabold text-sm">Program Review Portal — अयोध्या</span>
+    </div>
+    <button onclick="toggleSidebar()" class="px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-xs font-bold">
+      ☰ Programs
+    </button>
+  </div>
+
+  <!-- BACKDROP FOR MOBILE DRAWER -->
+  <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-950/60 z-30 hidden lg:hidden no-print"></div>
+
+  <!-- LEFT COLLAPSIBLE SIDEBAR -->
+  <aside id="leftSidebar" class="fixed lg:sticky top-0 left-0 z-40 h-screen w-72 bg-slate-950 text-slate-100 flex flex-col border-r border-slate-800/80 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out flex-shrink-0 no-print">
+    
+    <!-- Sidebar Brand Header -->
+    <div class="p-4 bg-gradient-to-r from-slate-950 to-teal-950 border-b border-slate-800 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center text-slate-950 font-black text-xs shadow">
+          UP
         </div>
+        <div>
+          <h1 class="text-sm font-extrabold tracking-tight text-white leading-tight">NHM अयोध्या</h1>
+          <p class="text-[11px] text-teal-300 font-semibold">Program Review Portal</p>
+        </div>
+      </div>
+      <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+    </div>
+
+    <!-- Role & District Info Pill -->
+    <div class="px-4 py-2 bg-slate-900/70 border-b border-slate-800/80 flex items-center justify-between">
+      <span id="roleBadge" class="text-[10px] bg-teal-400/15 text-teal-300 border border-teal-400/30 font-extrabold px-2.5 py-0.5 rounded-full uppercase">
+        DISTRICT LEVEL
+      </span>
+      <span class="text-[10px] text-slate-400 font-semibold">11 Blocks</span>
+    </div>
+
+    <!-- 5-PROGRAM COLLAPSIBLE NAVIGATION TREE -->
+    <nav class="flex-1 overflow-y-auto p-3 space-y-1.5 text-xs">
+
+      <!-- 1. MATERNAL HEALTH -->
+      <div class="rounded-xl bg-slate-900/40 border border-slate-800/60 overflow-hidden">
+        <button onclick="toggleAccordion('grp_maternal', 'arr_maternal')"
+          class="w-full flex items-center justify-between px-3 py-2.5 font-extrabold text-amber-300 hover:bg-slate-800/60 transition">
+          <span class="flex items-center gap-2">1. Maternal Health</span>
+          <span id="arr_maternal" class="text-[10px] transition-transform duration-200">▼</span>
+        </button>
+        <div id="grp_maternal" class="px-2 pb-2 space-y-1">
+          <button onclick="selectSubProgram('jsy')" id="nav_jsy"
+            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+            <span>• JSY Payment</span>
+            <span id="cnt_jsy" class="text-[10px] text-slate-400">—</span>
+          </button>
+          <button onclick="selectSubProgram('mh_inst_delivery')" id="nav_mh_inst_delivery"
+            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+            <span>• Institutional Delivery (HMIS)</span>
+            <span id="cnt_mh_inst_delivery" class="text-[10px] text-slate-400">—</span>
+          </button>
+          <button onclick="selectSubProgram('mh_delivery_ekavach')" id="nav_mh_delivery_ekavach"
+            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+            <span>• Delivery Updation (EKAVACH)</span>
+            <span id="cnt_mh_delivery_ekavach" class="text-[10px] text-slate-400">—</span>
+          </button>
+          <button onclick="selectSubProgram('mh_anc_ekavach')" id="nav_mh_anc_ekavach"
+            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+            <span>• ANC Coverage (EKAVACH)</span>
+            <span id="cnt_mh_anc_ekavach" class="text-[10px] text-slate-400">—</span>
+          </button>
+          <button onclick="selectSubProgram('mh_anc_hmis')" id="nav_mh_anc_hmis"
+            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+            <span>• ANC Coverage (HMIS)</span>
+            <span id="cnt_mh_anc_hmis" class="text-[10px] text-slate-400">—</span>
+          </button>
+          <button onclick="selectSubProgram('mh_maternal_death')" id="nav_mh_maternal_death"
+            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+            <span>• Maternal Death</span>
+            <span id="cnt_mh_maternal_death" class="text-[10px] text-slate-400">—</span>
+          </button>
+          <button onclick="selectSubProgram('mh_child_death')" id="nav_mh_child_death"
+            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+            <span>• Child Death</span>
+            <span id="cnt_mh_child_death" class="text-[10px] text-slate-400">—</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. COMMUNITY PROCESS -->
+      <div class="rounded-xl bg-slate-900/40 border border-slate-800/60 overflow-hidden">
+        <button onclick="toggleAccordion('grp_community', 'arr_community')"
+          class="w-full flex items-center justify-between px-3 py-2.5 font-extrabold text-sky-300 hover:bg-slate-800/60 transition">
+          <span class="flex items-center gap-2">2. Community Process</span>
+          <span id="arr_community" class="text-[10px] transition-transform duration-200">▼</span>
+        </button>
+        <div id="grp_community" class="px-2 pb-2 space-y-1">
+          <a href="teleconsultation-dashboard.html?tab=tele_cho"
+            class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-indigo-300 hover:bg-slate-800 hover:text-white font-semibold transition">
+            <span>• Tele Consultation (CHO) ↗</span>
+            <span id="cnt_tele_cho" class="text-[10px] bg-indigo-500/20 text-indigo-200 px-1.5 py-0.5 rounded font-bold">LIVE</span>
+          </a>
+          <a href="teleconsultation-dashboard.html?tab=tele_mo"
+            class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-indigo-300 hover:bg-slate-800 hover:text-white font-semibold transition">
+            <span>• Tele Consultation (MO) ↗</span>
+            <span id="cnt_tele_mo" class="text-[10px] bg-indigo-500/20 text-indigo-200 px-1.5 py-0.5 rounded font-bold">LIVE</span>
+          </a>
+          <a href="index.html"
+            class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-teal-200 hover:bg-slate-800 hover:text-white font-semibold transition">
+            <span>• ASHA Payment ↗</span>
+            <span class="text-[10px] text-teal-400 font-bold">2,232</span>
+          </a>
+          <button onclick="selectSubProgram('abha')" id="nav_abha"
+            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+            <span>• ABHA ID</span>
+            <span id="cnt_abha" class="text-[10px] text-slate-400">—</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. RBSK (Direct Module) -->
+      <button onclick="selectSubProgram('rbsk')" id="nav_rbsk"
+        class="nav-sub-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/40 border border-slate-800/60 font-extrabold text-purple-300 hover:bg-slate-800 hover:text-white transition text-left">
+        <span>3. RBSK</span>
+        <span id="cnt_rbsk" class="text-[10px] text-slate-400">—</span>
+      </button>
+
+      <!-- 4. QUALITY ASSURANCE -->
+      <div class="rounded-xl bg-slate-900/40 border border-slate-800/60 overflow-hidden">
+        <button onclick="toggleAccordion('grp_qa', 'arr_qa')"
+          class="w-full flex items-center justify-between px-3 py-2.5 font-extrabold text-emerald-300 hover:bg-slate-800/60 transition">
+          <span class="flex items-center gap-2">4. Quality Assurance</span>
+          <span id="arr_qa" class="text-[10px] transition-transform duration-200">▼</span>
+        </button>
+        <div id="grp_qa" class="px-2 pb-2 space-y-1">
+          <button onclick="selectSubProgram('qa')" id="nav_qa"
+            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+            <span>• NQAS Certification</span>
+            <span id="cnt_qa" class="text-[10px] text-emerald-400 font-bold">59/154</span>
+          </button>
+          <button onclick="selectSubProgram('qa_kayakalp')" id="nav_qa_kayakalp"
+            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+            <span>• KAYAKALP</span>
+            <span id="cnt_qa_kayakalp" class="text-[10px] text-slate-400">—</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 5. NCD -->
+      <div class="rounded-xl bg-slate-900/40 border border-slate-800/60 overflow-hidden">
+        <button onclick="toggleAccordion('grp_ncd', 'arr_ncd')"
+          class="w-full flex items-center justify-between px-3 py-2.5 font-extrabold text-rose-300 hover:bg-slate-800/60 transition">
+          <span class="flex items-center gap-2">5. NCD</span>
+          <span id="arr_ncd" class="text-[10px] transition-transform duration-200">▼</span>
+        </button>
+        <div id="grp_ncd" class="px-2 pb-2 space-y-1">
+          <button onclick="selectSubProgram('ncd')" id="nav_ncd"
+            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+            <span>• Composite Score</span>
+            <span id="cnt_ncd" class="text-[10px] text-slate-400">—</span>
+          </button>
+          <button onclick="selectSubProgram('ncd_mo_exam')" id="nav_ncd_mo_exam"
+            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+            <span>• MO Examination</span>
+            <span id="cnt_ncd_mo_exam" class="text-[10px] text-slate-400">—</span>
+          </button>
+          <button onclick="selectSubProgram('ncd_facility_progress')" id="nav_ncd_facility_progress"
+            class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
+            <span>• Facilitywise Progress</span>
+            <span id="cnt_ncd_facility_progress" class="text-[10px] text-slate-400">—</span>
+          </button>
+        </div>
+      </div>
+
+    </nav>
+
+    <!-- Sidebar Bottom Quick Links -->
+    <div class="p-3 border-t border-slate-800 space-y-2">
+      <a href="admin.html" class="w-full flex items-center justify-center gap-1.5 py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-extrabold rounded-xl shadow transition">
+        ⚙️ Master Admin Upload
+      </a>
+      <button onclick="logoutPortal()" class="w-full py-1.5 bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white text-xs font-bold rounded-xl transition">
+        Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- RIGHT MAIN CONTENT AREA -->
+  <div class="flex-1 flex flex-col min-w-0">
+
+    <!-- SUB-HEADER BAR -->
+    <header class="bg-white border-b border-slate-200/90 px-4 sm:px-6 py-4 shadow-xs">
+      <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
         <div>
           <div class="flex flex-wrap items-center gap-2">
-            <h1 class="text-base sm:text-xl font-extrabold tracking-tight text-white">Program Review Portal — NHM अयोध्या</h1>
-            <span id="roleBadge" class="text-[10px] bg-teal-400/20 text-teal-200 border border-teal-400/40 font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-              DISTRICT LEVEL
+            <span id="wsCategoryPill" class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">
+              1. Maternal Health
             </span>
+            <h2 id="wsTitle" class="text-base sm:text-xl font-extrabold text-slate-900">JSY Payment — ब्लॉक एवं इकाई-वार समीक्षा</h2>
           </div>
-          <p id="headerMeta" class="text-xs text-slate-300 mt-0.5">जनपद स्तरीय स्वास्थ्य कार्यक्रम समीक्षा डैशबोर्ड • 11 विकास खंड (अयोध्या)</p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2 no-print">
-        <button onclick="window.print()" class="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white border border-white/15 text-xs font-bold rounded-xl transition">
-          🖨️ Print Review
-        </button>
-        <a href="admin.html" class="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-extrabold rounded-xl shadow-sm transition">
-          ⚙️ Master Admin
-        </a>
-        <button onclick="logoutPortal()" class="px-3.5 py-2 bg-rose-600/90 hover:bg-rose-600 text-white text-xs font-bold rounded-xl transition">
-          Logout
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <main class="max-w-7xl mx-auto px-4 py-6 space-y-6 flex-1 w-full">
-
-    <!-- 7 PROGRAM MODULE SELECTOR CARDS (WITH LOGOS & LIVE STATUS) -->
-    <section>
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-        <div>
-          <h2 class="text-xs font-extrabold text-slate-500 uppercase tracking-wider">स्वास्थ्य कार्यक्रम चुनें (Select Program to Review)</h2>
-        </div>
-        <div class="flex items-center gap-3 text-[11px] font-bold">
-          <span class="flex items-center gap-1 text-emerald-700"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> &gt;85% Best</span>
-          <span class="flex items-center gap-1 text-amber-600"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> 80–85% Moderate</span>
-          <span class="flex items-center gap-1 text-rose-600"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> &lt;80% Focus</span>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
-        <!-- 1. TELE CONSULTATION -->
-        <a href="teleconsultation-dashboard.html" class="prog-card bg-white rounded-2xl border border-slate-200 p-3.5 flex flex-col justify-between group">
-          <div class="flex items-center justify-between">
-            <span class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-lg font-bold">🩺</span>
-            <span class="text-[10px] font-extrabold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">LIVE ↗</span>
-          </div>
-          <div class="mt-3">
-            <div class="text-xs font-extrabold text-slate-900 group-hover:text-indigo-700">Tele Consultation</div>
-            <div id="badge_tele" class="text-[11px] font-bold text-indigo-600 mt-0.5">लोड हो रहा है...</div>
-          </div>
-        </a>
-
-        <!-- 2. ASHA PAYMENT -->
-        <a href="index.html" class="prog-card bg-white rounded-2xl border border-slate-200 p-3.5 flex flex-col justify-between group">
-          <div class="flex items-center justify-between">
-            <span class="w-9 h-9 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center text-lg font-bold">👩‍⚕️</span>
-            <span class="text-[10px] font-extrabold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full">PORTAL ↗</span>
-          </div>
-          <div class="mt-3">
-            <div class="text-xs font-extrabold text-slate-900 group-hover:text-teal-700">ASHA Payment</div>
-            <div class="text-[11px] font-bold text-teal-700 mt-0.5">2,232 ASHA</div>
-          </div>
-        </a>
-
-        <!-- 3. JSY PAYMENT -->
-        <button onclick="selectProgram('jsy')" id="card_jsy" class="prog-card text-left bg-white rounded-2xl border border-slate-200 p-3.5 flex flex-col justify-between">
-          <div class="flex items-center justify-between w-full">
-            <span class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg font-bold">🤰</span>
-            <span class="text-[10px] font-extrabold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">JSY</span>
-          </div>
-          <div class="mt-3">
-            <div class="text-xs font-extrabold text-slate-900">JSY Payment</div>
-            <div id="badge_jsy" class="text-[11px] font-bold text-slate-500 mt-0.5">क्लिक करें</div>
-          </div>
-        </button>
-
-        <!-- 4. ABHA ID -->
-        <button onclick="selectProgram('abha')" id="card_abha" class="prog-card text-left bg-white rounded-2xl border border-slate-200 p-3.5 flex flex-col justify-between">
-          <div class="flex items-center justify-between w-full">
-            <span class="w-9 h-9 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center text-lg font-bold">🪪</span>
-            <span class="text-[10px] font-extrabold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full">ABHA</span>
-          </div>
-          <div class="mt-3">
-            <div class="text-xs font-extrabold text-slate-900">ABHA ID Progress</div>
-            <div id="badge_abha" class="text-[11px] font-bold text-slate-500 mt-0.5">क्लिक करें</div>
-          </div>
-        </button>
-
-        <!-- 5. NCD SCREENING -->
-        <button onclick="selectProgram('ncd')" id="card_ncd" class="prog-card text-left bg-white rounded-2xl border border-slate-200 p-3.5 flex flex-col justify-between">
-          <div class="flex items-center justify-between w-full">
-            <span class="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-lg font-bold">❤️‍🩹</span>
-            <span class="text-[10px] font-extrabold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full">NCD</span>
-          </div>
-          <div class="mt-3">
-            <div class="text-xs font-extrabold text-slate-900">NCD Screening</div>
-            <div id="badge_ncd" class="text-[11px] font-bold text-slate-500 mt-0.5">क्लिक करें</div>
-          </div>
-        </button>
-
-        <!-- 6. QUALITY ASSURANCE (NQAS) -->
-        <button onclick="selectProgram('qa')" id="card_qa" class="prog-card text-left bg-white rounded-2xl border border-slate-200 p-3.5 flex flex-col justify-between">
-          <div class="flex items-center justify-between w-full">
-            <span class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg font-bold">🏅</span>
-            <span class="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">NQAS</span>
-          </div>
-          <div class="mt-3">
-            <div class="text-xs font-extrabold text-slate-900">Quality Assurance</div>
-            <div id="badge_qa" class="text-[11px] font-bold text-emerald-700 mt-0.5">59 / 154 Cert.</div>
-          </div>
-        </button>
-
-        <!-- 7. RBSK -->
-        <button onclick="selectProgram('rbsk')" id="card_rbsk" class="prog-card text-left bg-white rounded-2xl border border-slate-200 p-3.5 flex flex-col justify-between">
-          <div class="flex items-center justify-between w-full">
-            <span class="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-lg font-bold">🧒</span>
-            <span class="text-[10px] font-extrabold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">RBSK</span>
-          </div>
-          <div class="mt-3">
-            <div class="text-xs font-extrabold text-slate-900">RBSK Screening</div>
-            <div id="badge_rbsk" class="text-[11px] font-bold text-slate-500 mt-0.5">क्लिक करें</div>
-          </div>
-        </button>
-      </div>
-    </section>
-
-    <!-- ACTIVE PROGRAM ANALYTICAL WORKSPACE -->
-    <section id="workspaceSection" class="space-y-5">
-
-      <!-- WORKSPACE HEADER & FILTER BAR -->
-      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap justify-between items-center gap-3">
-        <div>
-          <div class="flex items-center gap-2">
-            <h2 id="wsTitle" class="text-base sm:text-lg font-extrabold text-slate-900">🤰 JSY Payment — ब्लॉक-वार समीक्षा</h2>
-            <span id="wsUpdatedBadge" class="text-[11px] font-bold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full">अपडेट: —</span>
-          </div>
-          <p id="wsSubTitle" class="text-xs text-slate-500 mt-0.5">ब्लॉक-वार प्रगति, Top-5 व Poor-5 तुलनात्मक विश्लेषण</p>
+          <p id="wsSubTitle" class="text-xs text-slate-500 mt-0.5">संस्थागत प्रसव सत्यापन, MOIC स्वीकृति एवं भुगतान प्रगति</p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2 no-print">
+        <div class="flex items-center gap-2.5">
+          <span id="wsUpdatedBadge" class="text-[11px] font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full border border-slate-200">
+            अपडेट: —
+          </span>
+          <button onclick="window.print()" class="no-print px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition">
+            🖨️ Print
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-5 space-y-5 flex-1 w-full">
+
+      <!-- FILTER & THRESHOLD LEGEND BAR -->
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-sm flex flex-wrap justify-between items-center gap-3 no-print">
+        <div class="flex flex-wrap items-center gap-2.5">
           <select id="wsBlockFilter" onchange="renderActiveProgram()" class="px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50 text-slate-800">
             <option value="ALL">All 11 Blocks (जनपद अयोध्या)</option>
           </select>
           <input type="text" id="wsSearchInput" oninput="renderActiveProgram()" placeholder="🔍 ब्लॉक या इकाई खोजें..."
-            class="px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 w-44" />
+            class="px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 w-48" />
           <button onclick="exportActiveExcel()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition">
             ⬇️ Excel (.xlsx)
           </button>
+        </div>
+
+        <div class="flex items-center gap-3 text-[11px] font-bold">
+          <span class="flex items-center gap-1 text-emerald-700"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> &gt;85% Best</span>
+          <span class="flex items-center gap-1 text-amber-600"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> 80–85% Moderate</span>
+          <span class="flex items-center gap-1 text-rose-600"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> &lt;80% Focus</span>
         </div>
       </div>
 
@@ -275,15 +340,15 @@
         <div id="wsTableContainer" class="overflow-x-auto max-h-[460px]"></div>
       </div>
 
-    </section>
-  </main>
+    </main>
 
-  <footer class="bg-white border-t border-slate-200 py-4 mt-8">
-    <div class="max-w-7xl mx-auto px-4 flex flex-wrap justify-between items-center gap-2 text-xs text-slate-500">
-      <span>© 2026 <b>National Health Mission (NHM), Ayodhya</b> — District Program Management Unit</span>
-      <span>Threshold Rules: <b class="text-emerald-700">&gt;85% Green</b> • <b class="text-amber-600">80–85% Yellow</b> • <b class="text-rose-600">&lt;80% Red</b></span>
-    </div>
-  </footer>
+    <footer class="bg-white border-t border-slate-200 py-4 px-6 mt-8">
+      <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2 text-xs text-slate-500">
+        <span>© 2026 <b>National Health Mission (NHM), Ayodhya</b> — District Program Management Unit</span>
+        <span>Threshold Rules: <b class="text-emerald-700">&gt;85% Green</b> • <b class="text-amber-600">80–85% Yellow</b> • <b class="text-rose-600">&lt;80% Red</b></span>
+      </div>
+    </footer>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
@@ -314,18 +379,135 @@
       window.location.href = "index.html";
     };
 
+    window.toggleAccordion = function(menuId, arrowId) {
+      const menu = document.getElementById(menuId);
+      const arrow = document.getElementById(arrowId);
+      menu.classList.toggle("hidden");
+      arrow.classList.toggle("-rotate-90");
+    };
+
+    window.toggleSidebar = function() {
+      const sb = document.getElementById("leftSidebar");
+      const bd = document.getElementById("sidebarBackdrop");
+      sb.classList.toggle("-translate-x-full");
+      bd.classList.toggle("hidden");
+    };
+
+    // COMPLETE 5-PROGRAM & SUB-PROGRAM REGISTRY
+    const PROGRAMS = {
+      // 1. MATERNAL HEALTH
+      jsy: {
+        category: "1. Maternal Health",
+        badgeClass: "bg-amber-100 text-amber-800",
+        title: "JSY Payment — ब्लॉक एवं इकाई-वार समीक्षा",
+        sub: "जननी सुरक्षा योजना संस्थागत प्रसव सत्यापन, MOIC स्वीकृति एवं भुगतान प्रगति",
+        dbNode: "jsy"
+      },
+      mh_inst_delivery: {
+        category: "1. Maternal Health",
+        badgeClass: "bg-amber-100 text-amber-800",
+        title: "Institutional Delivery (HMIS) — समीक्षा",
+        sub: "HMIS पोर्टल के अनुसार अनुमानित प्रसव के सापेक्ष संस्थागत प्रसव प्रतिशत",
+        dbNode: "mh_inst_delivery"
+      },
+      mh_delivery_ekavach: {
+        category: "1. Maternal Health",
+        badgeClass: "bg-amber-100 text-amber-800",
+        title: "Delivery Updation (EKAVACH) — समीक्षा",
+        sub: "e-Kavach पोर्टल पर आशा/ANM द्वारा प्रसव अपडेशन की ब्लॉक-वार प्रगति",
+        dbNode: "mh_delivery_ekavach"
+      },
+      mh_anc_ekavach: {
+        category: "1. Maternal Health",
+        badgeClass: "bg-amber-100 text-amber-800",
+        title: "ANC Coverage (EKAVACH) — समीक्षा",
+        sub: "e-Kavach पोर्टल पर ANC पंजीकरण, जांच एवं HRP ट्रैकिंग प्रगति",
+        dbNode: "mh_anc_ekavach"
+      },
+      mh_anc_hmis: {
+        category: "1. Maternal Health",
+        badgeClass: "bg-amber-100 text-amber-800",
+        title: "ANC Coverage (HMIS) — समीक्षा",
+        sub: "HMIS रिपोर्ट के अनुसार प्रथम तिमाही एवं 4+ ANC कवरेज प्रतिशत",
+        dbNode: "mh_anc_hmis"
+      },
+      mh_maternal_death: {
+        category: "1. Maternal Health",
+        badgeClass: "bg-rose-100 text-rose-800",
+        title: "Maternal Death (MDSR) — समीक्षा",
+        sub: "मातृ मृत्यु रिपोर्टिंग, CDR/MDSR समीक्षा एवं ब्लॉक-वार विवरण",
+        dbNode: "mh_maternal_death"
+      },
+      mh_child_death: {
+        category: "1. Maternal Health",
+        badgeClass: "bg-rose-100 text-rose-800",
+        title: "Child Death (CDR) — समीक्षा",
+        sub: "शिशु मृत्यु रिपोर्टिंग एवं ब्लॉक-वार समीक्षा विवरण",
+        dbNode: "mh_child_death"
+      },
+
+      // 2. COMMUNITY PROCESS (ABHA ID inline; Tele CHO/MO & ASHA open dedicated dashboards)
+      abha: {
+        category: "2. Community Process",
+        badgeClass: "bg-sky-100 text-sky-800",
+        title: "ABHA ID — ब्लॉक-वार समीक्षा",
+        sub: "आयुष्मान भारत हेल्थ अकाउंट (ABHA) जनरेशन एवं लक्ष्य प्राप्ति",
+        dbNode: "abha"
+      },
+
+      // 3. RBSK
+      rbsk: {
+        category: "3. RBSK",
+        badgeClass: "bg-purple-100 text-purple-800",
+        title: "RBSK — राष्ट्रीय बाल स्वास्थ्य कार्यक्रम समीक्षा",
+        sub: "मोबाइल हेल्थ टीम विज़िट, आंगनवाड़ी व स्कूल स्क्रीनिंग एवं DEIC रेफरल प्रगति",
+        dbNode: "rbsk"
+      },
+
+      // 4. QUALITY ASSURANCE
+      qa: {
+        category: "4. Quality Assurance",
+        badgeClass: "bg-emerald-100 text-emerald-800",
+        title: "NQAS Certification — प्रमाणीकरण समीक्षा",
+        sub: "Certified, Conditional एवं Deferred इकाइयों का ब्लॉक-वार विवरण",
+        dbNode: "qa"
+      },
+      qa_kayakalp: {
+        category: "4. Quality Assurance",
+        badgeClass: "bg-emerald-100 text-emerald-800",
+        title: "KAYAKALP — स्वच्छता एवं गुणवत्ता समीक्षा",
+        sub: "कायाकल्प मूल्यांकन स्कोर एवं प्रमाणित स्वास्थ्य इकाइयों की प्रगति",
+        dbNode: "qa_kayakalp"
+      },
+
+      // 5. NCD
+      ncd: {
+        category: "5. NCD",
+        badgeClass: "bg-rose-100 text-rose-800",
+        title: "NCD Composite Score — समग्र स्कोर समीक्षा",
+        sub: "NP-NCD कार्यक्रम के अंतर्गत ब्लॉक-वार समग्र (Composite) प्रदर्शन स्कोर",
+        dbNode: "ncd"
+      },
+      ncd_mo_exam: {
+        category: "5. NCD",
+        badgeClass: "bg-rose-100 text-rose-800",
+        title: "NCD MO Examination — चिकित्साधिकारी परीक्षण समीक्षा",
+        sub: "रेफर किए गए उच्च-जोखिम मरीजों का MO द्वारा परीक्षण एवं उपचार प्रगति",
+        dbNode: "ncd_mo_exam"
+      },
+      ncd_facility_progress: {
+        category: "5. NCD",
+        badgeClass: "bg-rose-100 text-rose-800",
+        title: "NCD Facilitywise Progress — इकाई-वार प्रगति",
+        sub: "उपकेन्द्र / HWC / PHC वार 30+ स्क्रीनिंग एवं लॉगिन प्रगति",
+        dbNode: "ncd_facility_progress"
+      }
+    };
+
     let portalData = {};
     let activeProg = "jsy";
     let currentExportRows = [];
     let wsChart = null;
-
-    const progMeta = {
-      jsy: { title: "🤰 JSY Payment — ब्लॉक एवं इकाई-वार समीक्षा", sub: "संस्थागत प्रसव सत्यापन, MOIC स्वीकृति एवं भुगतान प्रगति" },
-      abha: { title: "🪪 ABHA ID Progress — ब्लॉक-वार समीक्षा", sub: "ABHA जनरेशन एवं डिजिटल हेल्थ लक्ष्य प्रगति" },
-      ncd: { title: "❤️‍🩹 NCD Screening — स्क्रीनिंग एवं रेफरल समीक्षा", sub: "30+ स्क्रीनिंग, हाइपरटेंशन/डायबिटीज रेफरल एवं लॉगिन स्थिति" },
-      qa: { title: "🏅 Quality Assurance (NQAS) — प्रमाणीकरण समीक्षा", sub: "Certified, Conditional एवं Deferred इकाइयों का ब्लॉक-वार विवरण" },
-      rbsk: { title: "🧒 RBSK Screening — टीम विज़िट एवं रेफरल समीक्षा", sub: "राष्ट्रीय बाल स्वास्थ्य कार्यक्रम प्रगति" }
-    };
 
     function getThresholdColor(pct) {
       if (pct > 85) return "#059669"; // Green >85
@@ -338,8 +520,7 @@
       const keys = Object.keys(rows[0]);
       const blockKey = keys.find(k => /block/i.test(k)) || keys[0];
       const facKey = keys.find(k => /facility|unit|center|sc|hwc|name/i.test(k) && k !== blockKey) || null;
-      // Find numeric/percentage score column
-      const pctKey = keys.find(k => /%|pct|percent|ach|rate|score|cert/i.test(k))
+      const pctKey = keys.find(k => /%|pct|percent|ach|rate|score|cert|total|count|death/i.test(k))
         || keys.find(k => typeof rows[0][k] === "number" && k !== blockKey)
         || keys[keys.length - 1];
       return { keys, blockKey, facKey, pctKey };
@@ -352,41 +533,48 @@
           portalData = snap.val() || {};
         }
 
-        // Update Tele Consultation live badge
+        // Update Tele Consultation CHO & MO counts in sidebar
         const choRows = portalData.tele_cho?.rows || [];
         const moRows = portalData.tele_mo?.rows || [];
-        const totalTc = [...choRows, ...moRows].reduce((s, r) => s + (Number(r.tc) || 0), 0);
-        document.getElementById("badge_tele").textContent = `${totalTc.toLocaleString("en-IN")} Total TC`;
+        const choTc = choRows.reduce((s, r) => s + (Number(r.tc) || 0), 0);
+        const moTc = moRows.reduce((s, r) => s + (Number(r.tc) || 0), 0);
+        if (choTc > 0) document.getElementById("cnt_tele_cho").textContent = `${choTc.toLocaleString("en-IN")}`;
+        if (moTc > 0) document.getElementById("cnt_tele_mo").textContent = `${moTc.toLocaleString("en-IN")}`;
 
-        // Update module card row counts
-        ["jsy", "abha", "ncd", "qa", "rbsk"].forEach(k => {
-          const rows = portalData[k]?.rows || [];
-          const el = document.getElementById(`badge_${k}`);
-          if (el && rows.length) el.textContent = `${rows.length} इकाइयां`;
+        // Update row counts for all inline sub-programs
+        Object.keys(PROGRAMS).forEach(k => {
+          const node = PROGRAMS[k].dbNode;
+          const rows = portalData[node]?.rows || [];
+          const cntEl = document.getElementById(`cnt_${k}`);
+          if (cntEl && rows.length) cntEl.textContent = `${rows.length}`;
         });
 
-        selectProgram("jsy");
+        selectSubProgram("jsy");
       } catch (e) {
         console.error(e);
       }
     }
 
-    window.selectProgram = function(key) {
+    window.selectSubProgram = function(key) {
       activeProg = key;
-      ["jsy", "abha", "ncd", "qa", "rbsk"].forEach(k => {
-        const card = document.getElementById(`card_${k}`);
-        if (card) {
-          card.classList.toggle("active-card", k === key);
-          card.classList.toggle("border-teal-600", k === key);
-          card.classList.toggle("border-2", k === key);
-        }
-      });
 
-      const meta = progMeta[key] || { title: key.toUpperCase(), sub: "" };
+      document.querySelectorAll(".nav-sub-btn").forEach(btn => btn.classList.remove("active"));
+      const activeBtn = document.getElementById(`nav_${key}`);
+      if (activeBtn) activeBtn.classList.add("active");
+
+      if (window.innerWidth < 1024 && !document.getElementById("leftSidebar").classList.contains("-translate-x-full")) {
+        toggleSidebar();
+      }
+
+      const meta = PROGRAMS[key] || { category: "Program", badgeClass: "bg-slate-100 text-slate-700", title: key.toUpperCase(), sub: "", dbNode: key };
+      const catEl = document.getElementById("wsCategoryPill");
+      catEl.textContent = meta.category;
+      catEl.className = `text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${meta.badgeClass}`;
+
       document.getElementById("wsTitle").textContent = meta.title;
       document.getElementById("wsSubTitle").textContent = meta.sub;
 
-      const mod = portalData[key] || {};
+      const mod = portalData[meta.dbNode] || {};
       document.getElementById("wsUpdatedBadge").textContent = `अपडेट: ${mod.updatedAt || "N/A"}`;
 
       const rows = mod.rows || [];
@@ -406,7 +594,8 @@
     };
 
     window.renderActiveProgram = function() {
-      const mod = portalData[activeProg] || {};
+      const meta = PROGRAMS[activeProg] || { dbNode: activeProg };
+      const mod = portalData[meta.dbNode] || {};
       const rawRows = mod.rows || [];
       const selBlk = document.getElementById("wsBlockFilter").value;
       const searchQ = document.getElementById("wsSearchInput").value.trim().toLowerCase();
@@ -416,9 +605,9 @@
         document.getElementById("kpi2Val").textContent = "—";
         document.getElementById("kpi3Val").textContent = "—";
         document.getElementById("kpi4Val").textContent = "—";
-        document.getElementById("wsTop5List").innerHTML = `<p class="p-4 text-xs text-slate-400">इस मॉड्यूल का डेटा admin.html से अपलोड करें।</p>`;
-        document.getElementById("wsPoor5List").innerHTML = `<p class="p-4 text-xs text-slate-400">इस मॉड्यूल का डेटा admin.html से अपलोड करें।</p>`;
-        document.getElementById("wsTableContainer").innerHTML = `<p class="p-6 text-center text-xs text-slate-500">डेटा उपलब्ध नहीं है।</p>`;
+        document.getElementById("wsTop5List").innerHTML = `<p class="p-4 text-xs text-slate-400">इस सब-प्रोग्राम की रिपोर्ट <b>admin.html</b> से अपलोड करें।</p>`;
+        document.getElementById("wsPoor5List").innerHTML = `<p class="p-4 text-xs text-slate-400">डेटा अपलोड होते ही Top-5 और Poor-5 स्वतः दिखने लगेंगे।</p>`;
+        document.getElementById("wsTableContainer").innerHTML = `<p class="p-8 text-center text-xs text-slate-500">अभी <b>${meta.title}</b> के लिए डेटा अपलोड नहीं किया गया है।</p>`;
         document.getElementById("wsRowCount").textContent = "0 Rows";
         if (wsChart) wsChart.destroy();
         return;
@@ -437,7 +626,6 @@
       });
       currentExportRows = filtered;
 
-      // Aggregate by Block for Top 5 / Poor 5 & Chart
       const grpMap = new Map();
       filtered.forEach(r => {
         const label = selBlk === "ALL"
@@ -456,7 +644,6 @@
         count: g.count
       })).sort((a, b) => b.avgVal - a.avgVal);
 
-      // KPIs
       const overallAvg = ranked.length
         ? (ranked.reduce((s, x) => s + x.avgVal, 0) / ranked.length).toFixed(1)
         : "0.0";
@@ -470,7 +657,6 @@
       document.getElementById("kpi4Val").textContent = lastItem ? lastItem.name : "—";
       document.getElementById("kpi4Sub").textContent = lastItem ? `स्कोर: ${lastItem.avgVal}` : "—";
 
-      // Top 5 & Poor 5 Boxes
       const top5 = ranked.slice(0, 5);
       const poor5 = [...ranked].reverse().slice(0, 5);
 
@@ -494,7 +680,6 @@
       document.getElementById("wsTop5List").innerHTML = renderBox(top5, true);
       document.getElementById("wsPoor5List").innerHTML = renderBox(poor5, false);
 
-      // Bar Chart with QGIS Threshold Colors
       const ctx = document.getElementById("wsBarChart").getContext("2d");
       if (wsChart) wsChart.destroy();
       const box = document.getElementById("wsChartBox");
@@ -532,7 +717,6 @@
         plugins: [ChartDataLabels]
       });
 
-      // Detailed Table
       document.getElementById("wsRowCount").textContent = `${filtered.length} Rows`;
       document.getElementById("wsTableContainer").innerHTML = `
         <table class="w-full text-xs text-left border-collapse">
