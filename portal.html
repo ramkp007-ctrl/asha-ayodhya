@@ -22,6 +22,19 @@
       font-weight: 700;
       box-shadow: 0 4px 12px -2px rgba(13, 148, 136, 0.4);
     }
+    /* Smooth Desktop Sidebar Collapse */
+    #leftSidebar {
+      transition: width 0.25s ease, transform 0.25s ease, opacity 0.2s ease;
+    }
+    @media (min-width: 1024px) {
+      #leftSidebar.sidebar-collapsed {
+        width: 0 !important;
+        overflow: hidden !important;
+        border-right-width: 0 !important;
+        opacity: 0;
+        pointer-events: none;
+      }
+    }
     @media print {
       .no-print { display: none !important; }
       body { background: #fff !important; }
@@ -82,7 +95,7 @@
         <span class="font-extrabold text-sm">Program Review Portal — अयोध्या</span>
       </div>
       <button onclick="toggleSidebar()" class="px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-xs font-bold">
-        ☰ Programs
+        ▶ Programs
       </button>
     </div>
 
@@ -90,20 +103,24 @@
     <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-950/60 z-30 hidden lg:hidden no-print"></div>
 
     <!-- LEFT COLLAPSIBLE SIDEBAR -->
-    <aside id="leftSidebar" class="fixed lg:sticky top-0 left-0 z-40 h-screen w-72 bg-slate-950 text-slate-100 flex flex-col border-r border-slate-800/80 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out flex-shrink-0 no-print">
+    <aside id="leftSidebar" class="fixed lg:sticky top-0 left-0 z-40 h-screen w-72 bg-slate-950 text-slate-100 flex flex-col border-r border-slate-800/80 transform -translate-x-full lg:translate-x-0 flex-shrink-0 no-print">
       
-      <!-- Sidebar Brand Header -->
-      <div class="p-4 bg-gradient-to-r from-slate-950 to-teal-950 border-b border-slate-800 flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center text-slate-950 font-black text-xs shadow">
+      <!-- Sidebar Brand Header WITH COLLAPSE ARROW BUTTON -->
+      <div class="p-4 bg-gradient-to-r from-slate-950 to-teal-950 border-b border-slate-800 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-9 h-9 flex-shrink-0 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center text-slate-950 font-black text-xs shadow">
             UP
           </div>
-          <div>
-            <h1 class="text-sm font-extrabold tracking-tight text-white leading-tight">NHM अयोध्या</h1>
-            <p class="text-[11px] text-teal-300 font-semibold">Program Review Portal</p>
+          <div class="truncate">
+            <h1 class="text-sm font-extrabold tracking-tight text-white leading-tight truncate">NHM अयोध्या</h1>
+            <p class="text-[11px] text-teal-300 font-semibold truncate">Program Review Portal</p>
           </div>
         </div>
-        <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+        <!-- ARROW BUTTON TO HIDE SIDEBAR -->
+        <button onclick="toggleSidebar()" title="साइडबार छिपाएं (Hide Sidebar)"
+          class="w-8 h-8 flex-shrink-0 rounded-xl bg-white/10 hover:bg-teal-500 hover:text-slate-950 border border-white/15 flex items-center justify-center text-sm font-black text-teal-200 transition">
+          ◀
+        </button>
       </div>
 
       <!-- Role & Officer Info Pill -->
@@ -270,14 +287,23 @@
       <!-- SUB-HEADER BAR -->
       <header class="bg-white border-b border-slate-200/90 px-4 sm:px-6 py-4 shadow-xs">
         <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
-          <div>
-            <div class="flex flex-wrap items-center gap-2">
-              <span id="wsCategoryPill" class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">
-                1. Maternal Health
-              </span>
-              <h2 id="wsTitle" class="text-base sm:text-xl font-extrabold text-slate-900">JSY Payment — ब्लॉक एवं इकाई-वार समीक्षा</h2>
+          <div class="flex items-center gap-3">
+            <!-- EXPAND ARROW BUTTON (VISIBLE WHEN SIDEBAR IS COLLAPSED ON DESKTOP) -->
+            <button id="expandSidebarBtn" onclick="toggleSidebar()" title="साइडबार खोलें (Show Sidebar)"
+              class="hidden no-print px-3 py-2 rounded-xl bg-slate-900 hover:bg-teal-700 text-white text-xs font-extrabold shadow-sm flex items-center gap-1.5 transition">
+              <span>▶</span>
+              <span>Programs</span>
+            </button>
+
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <span id="wsCategoryPill" class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                  1. Maternal Health
+                </span>
+                <h2 id="wsTitle" class="text-base sm:text-xl font-extrabold text-slate-900">JSY Payment — ब्लॉक एवं इकाई-वार समीक्षा</h2>
+              </div>
+              <p id="wsSubTitle" class="text-xs text-slate-500 mt-0.5">संस्थागत प्रसव सत्यापन, MOIC स्वीकृति एवं भुगतान प्रगति</p>
             </div>
-            <p id="wsSubTitle" class="text-xs text-slate-500 mt-0.5">संस्थागत प्रसव सत्यापन, MOIC स्वीकृति एवं भुगतान प्रगति</p>
           </div>
 
           <div class="flex items-center gap-2.5">
@@ -499,11 +525,23 @@
       arrow.classList.toggle("-rotate-90");
     };
 
+    // DESKTOP & MOBILE SIDEBAR COLLAPSE/EXPAND TOGGLE
     window.toggleSidebar = function() {
       const sb = document.getElementById("leftSidebar");
       const bd = document.getElementById("sidebarBackdrop");
-      sb.classList.toggle("-translate-x-full");
-      bd.classList.toggle("hidden");
+      const expandBtn = document.getElementById("expandSidebarBtn");
+
+      if (window.innerWidth >= 1024) {
+        // Desktop: collapse/expand smoothly & toggle top expand arrow button
+        const isCollapsed = sb.classList.toggle("sidebar-collapsed");
+        if (expandBtn) {
+          expandBtn.classList.toggle("hidden", !isCollapsed);
+        }
+      } else {
+        // Mobile: slide drawer in/out
+        sb.classList.toggle("-translate-x-full");
+        bd.classList.toggle("hidden");
+      }
     };
 
     function toWorkerList(entry) {
@@ -666,7 +704,6 @@
           portalData = snap.val() || {};
         }
 
-        // Flatten ASHA Workers from asha_portal_v2/workers
         flatAshaWorkers = [];
         for (const entry of Object.values(portalData.workers || {})) {
           toWorkerList(entry).forEach(w => {
@@ -741,7 +778,6 @@
 
       const records = getRecordsForProgram(key);
 
-      // Date / Month dropdown for JSY, ABHA, or ASHA
       const dateSel = document.getElementById("wsDateFilter");
       if ((meta.mode === "jsy" || meta.mode === "abha") && records.length) {
         const dates = Array.from(new Set(records.map(r => r.date).filter(Boolean)));
@@ -814,7 +850,6 @@
 
       if (meta.mode === "asha") {
         isCurrencyMode = true;
-        // Compute period amount per ASHA (either selected month or all months)
         const ashaComputed = filtered.map(w => {
           let amt = 0;
           if (!selDate || selDate === "ALL") {
