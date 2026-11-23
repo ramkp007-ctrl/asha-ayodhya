@@ -1,212 +1,804 @@
-<!-- Chart.js & DataLabels CDN (Agar pehle se portal.html mein nahi hai to <head> mein jodein) -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Program Review Portal (PAID) - NHM अयोध्या</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
 
-<!-- Portal: Teleconsultation 2-Tab Section -->
-<div class="bg-white p-5 rounded-xl shadow-md border border-gray-200 my-6">
-  
-  <!-- Header + 2 Tabs -->
-  <div class="flex flex-wrap items-center justify-between gap-4 border-b pb-4 mb-4">
-    <div>
-      <h2 class="text-xl font-bold text-gray-800">📞 Teleconsultation Progress Dashboard</h2>
-      <p id="teleLastUpdated" class="text-xs text-gray-500 mt-1">Last Updated: --</p>
+  <!-- TOP HEADER -->
+  <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
+      <div>
+        <h1 class="text-lg md:text-2xl font-extrabold tracking-tight">
+          🏛️ Program Analysis &amp; Integrated Dashboard (PAID) — NHM अयोध्या
+        </h1>
+        <p class="text-xs text-slate-300 mt-0.5">
+          जनपद एवं 11 विकास खंडों की वास्तविक समय प्रगति समीक्षा (ASHA, JSY, ABHA, NCD, Tele Consultation, QA, RBSK)
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <a href="index.html" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-500 text-xs font-bold rounded-lg shadow">
+          👩‍⚕️ ASHA भुगतान खोजें
+        </a>
+        <a href="admin.html" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-xs font-bold rounded-lg border border-slate-500">
+          ⚙️ Admin Upload
+        </a>
+      </div>
     </div>
+  </header>
 
-    <!-- 2 Tabs: CHO Teleconsultation & MO Tele Consultation -->
-    <div class="flex bg-gray-100 p-1 rounded-xl border border-gray-200">
-      <button id="tabCHO" onclick="switchTeleTab('cho')" 
-        class="px-4 py-2 rounded-lg text-sm font-bold bg-indigo-600 text-white shadow transition">
-        👩‍⚕️ CHO Teleconsultation
+  <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
+    <!-- PROGRAM NAVIGATION CARDS -->
+    <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <button onclick="showSection('ncdSection')" id="nav_ncdSection"
+        class="nav-card p-3.5 rounded-xl bg-rose-700 text-white shadow-md text-left border-2 border-rose-800 transition">
+        <div class="text-xl mb-1">❤️</div>
+        <div class="text-xs font-extrabold">NCD Screening</div>
+        <div class="text-[10px] opacity-90">Block + Facility Report</div>
       </button>
-      <button id="tabMO" onclick="switchTeleTab('mo')" 
-        class="px-4 py-2 rounded-lg text-sm font-bold text-gray-700 hover:text-indigo-700 transition">
-        👨‍⚕️ MO Tele Consultation
+
+      <button onclick="showSection('teleSection')" id="nav_teleSection"
+        class="nav-card p-3.5 rounded-xl bg-white hover:bg-indigo-50 text-slate-800 shadow-sm text-left border border-slate-200 transition">
+        <div class="text-xl mb-1">📞</div>
+        <div class="text-xs font-extrabold text-indigo-950">Tele Consultation</div>
+        <div class="text-[10px] text-slate-500">CHO &amp; MO (Date Range)</div>
       </button>
-    </div>
-  </div>
 
-  <!-- Block Filter & Summary Cards -->
-  <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
-    <select id="teleBlockDropdown" onchange="renderTeleView()" class="p-2.5 border border-gray-300 rounded-lg font-semibold text-sm bg-gray-50">
-      <option value="ALL">All 11 Blocks (Ayodhya District)</option>
-      <option value="Amaniganj">Amaniganj</option>
-      <option value="Bikapur">Bikapur</option>
-      <option value="Harringtonganj">Harringtonganj</option>
-      <option value="Masodha">Masodha</option>
-      <option value="Mavai">Mavai</option>
-      <option value="Milkipur">Milkipur</option>
-      <option value="Pura Bazar">Pura Bazar</option>
-      <option value="Rudauli">Rudauli</option>
-      <option value="Sohawal">Sohawal</option>
-      <option value="Tarun">Tarun</option>
-      <option value="Maya Bazar">Maya Bazar</option>
-    </select>
+      <button onclick="showSection('jsySection')" id="nav_jsySection"
+        class="nav-card p-3.5 rounded-xl bg-white hover:bg-blue-50 text-slate-800 shadow-sm text-left border border-slate-200 transition">
+        <div class="text-xl mb-1">🤰</div>
+        <div class="text-xs font-extrabold text-blue-950">JSY Payment</div>
+        <div class="text-[10px] text-slate-500">पाइपलाइन प्रगति</div>
+      </button>
 
-    <!-- KPI Badges -->
-    <div class="flex gap-3 text-sm font-bold">
-      <span id="teleTotalTarget" class="px-3 py-1.5 bg-blue-50 text-blue-800 rounded-lg border border-blue-200">Target: 0</span>
-      <span id="teleTotalDone" class="px-3 py-1.5 bg-emerald-50 text-emerald-800 rounded-lg border border-emerald-200">Done: 0</span>
-      <span id="teleOverallPct" class="px-3 py-1.5 bg-indigo-50 text-indigo-800 rounded-lg border border-indigo-200">Ach: 0%</span>
-    </div>
-  </div>
+      <button onclick="showSection('abhaSection')" id="nav_abhaSection"
+        class="nav-card p-3.5 rounded-xl bg-white hover:bg-emerald-50 text-slate-800 shadow-sm text-left border border-slate-200 transition">
+        <div class="text-xl mb-1">🆔</div>
+        <div class="text-xs font-extrabold text-emerald-950">ABHA ID</div>
+        <div class="text-[10px] text-slate-500">आशा-वार प्रगति</div>
+      </button>
 
-  <!-- Data-Labeled Bar Chart -->
-  <div class="mb-6" style="height: 300px;">
-    <canvas id="teleBarChart"></canvas>
-  </div>
+      <button onclick="showSection('qaSection')" id="nav_qaSection"
+        class="nav-card p-3.5 rounded-xl bg-white hover:bg-amber-50 text-slate-800 shadow-sm text-left border border-slate-200 transition">
+        <div class="text-xl mb-1">✅</div>
+        <div class="text-xs font-extrabold text-amber-950">Quality Assurance</div>
+        <div class="text-[10px] text-slate-500">NQAS / Kayakalp</div>
+      </button>
 
-  <!-- Detailed Table -->
-  <div id="teleTableContainer" class="overflow-x-auto"></div>
-</div>
+      <button onclick="showSection('rbskSection')" id="nav_rbskSection"
+        class="nav-card p-3.5 rounded-xl bg-white hover:bg-purple-50 text-slate-800 shadow-sm text-left border border-slate-200 transition">
+        <div class="text-xl mb-1">👶</div>
+        <div class="text-xs font-extrabold text-purple-950">RBSK</div>
+        <div class="text-[10px] text-slate-500">MHT &amp; स्क्रीनिंग</div>
+      </button>
+    </section>
 
-<script>
-  let activeTeleTab = 'cho';
-  let teleRecords = [];
-  let teleChartInstance = null;
+    <!-- ===================================================================== -->
+    <!-- 1. NCD SCREENING SECTION (BLOCK SUMMARY + FACILITY-WISE REPORT LINK)  -->
+    <!-- ===================================================================== -->
+    <section id="ncdSection" class="prog-section bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-rose-200 space-y-5">
+      <div class="flex flex-wrap justify-between items-center gap-3 border-b border-slate-200 pb-4">
+        <div>
+          <h2 id="ncdTitle" class="text-lg md:text-xl font-extrabold text-rose-950">❤️ NCD Screening Progress Dashboard</h2>
+          <p id="ncdSubTitle" class="text-xs text-slate-500 mt-0.5">डेटा लोड हो रहा है...</p>
+        </div>
 
-  function switchTeleTab(tab) {
-    activeTeleTab = tab;
-    
-    // Tab Button Styling Update
-    const btnCHO = document.getElementById('tabCHO');
-    const btnMO = document.getElementById('tabMO');
-    if (tab === 'cho') {
-      btnCHO.className = 'px-4 py-2 rounded-lg text-sm font-bold bg-indigo-600 text-white shadow transition';
-      btnMO.className = 'px-4 py-2 rounded-lg text-sm font-bold text-gray-700 hover:text-indigo-700 transition';
-    } else {
-      btnMO.className = 'px-4 py-2 rounded-lg text-sm font-bold bg-indigo-600 text-white shadow transition';
-      btnCHO.className = 'px-4 py-2 rounded-lg text-sm font-bold text-gray-700 hover:text-indigo-700 transition';
-    }
+        <!-- View Switcher: Block Summary vs Facility-wise Report -->
+        <div class="flex flex-wrap gap-2">
+          <button id="btnNcdBlockView" onclick="switchNcdView('block')"
+            class="px-4 py-2 rounded-lg text-xs font-bold bg-rose-700 text-white shadow">
+            📊 Block Composite Summary
+          </button>
+          <button id="btnNcdFacilityView" onclick="switchNcdView('facility')"
+            class="px-4 py-2 rounded-lg text-xs font-bold bg-teal-700 hover:bg-teal-800 text-white shadow">
+            🏥 Facility-wise NCD Report →
+          </button>
+        </div>
+      </div>
 
-    // Fetch Data from Firebase
-    firebase.database().ref('teleconsultation/' + tab).once('value').then(snap => {
-      const val = snap.val();
-      if (!val || !val.records) {
-        teleRecords = [];
-        document.getElementById('teleLastUpdated').innerText = 'Last Updated: No data uploaded yet';
-      } else {
-        teleRecords = val.records;
-        document.getElementById('teleLastUpdated').innerText = 'Last Updated: ' + (val.updatedAt || '--');
+      <!-- SUB-VIEW A: NCD BLOCK COMPOSITE SUMMARY -->
+      <div id="ncdBlockContainer" class="space-y-5">
+        <div id="ncdDistrictKpis" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3"></div>
+
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <h3 class="text-sm font-bold text-slate-800 mb-2">📊 ब्लॉक-वार Composite Score (%)</h3>
+          <div style="height: 280px;">
+            <canvas id="ncdBlockChart"></canvas>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto border border-slate-200 rounded-xl">
+          <table class="w-full text-xs text-left border-collapse">
+            <thead class="bg-slate-800 text-white">
+              <tr>
+                <th class="p-2.5">रैंक</th>
+                <th class="p-2.5">Block / Unit</th>
+                <th class="p-2.5 text-right">Target FY</th>
+                <th class="p-2.5 text-right">HTN (%)</th>
+                <th class="p-2.5 text-right">DM (%)</th>
+                <th class="p-2.5 text-right">Suspected (%)</th>
+                <th class="p-2.5 text-right">ANM %</th>
+                <th class="p-2.5 text-right">CHO %</th>
+                <th class="p-2.5 text-right">MO %</th>
+                <th class="p-2.5 text-center">Composite Score</th>
+              </tr>
+            </thead>
+            <tbody id="ncdBlockTableBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SUB-VIEW B: NCD FACILITY-WISE REPORT -->
+      <div id="ncdFacilityContainer" class="hidden space-y-4">
+        <div class="flex flex-wrap justify-between items-center gap-3 bg-teal-50 p-3.5 rounded-xl border border-teal-200">
+          <div class="flex flex-wrap items-center gap-3">
+            <select id="ncdFacBlockFilter" onchange="renderNcdFacilityTable()"
+              class="px-3 py-2 border border-teal-300 rounded-lg text-xs font-bold bg-white text-slate-800">
+              <option value="ALL">All Blocks (सभी ब्लॉक)</option>
+            </select>
+            <input type="text" id="ncdFacSearch" oninput="renderNcdFacilityTable()" placeholder="Facility या Sub-Center खोजें..."
+              class="px-3 py-2 border border-teal-300 rounded-lg text-xs bg-white w-56" />
+          </div>
+          <button onclick="exportNcdFacilityExcel()"
+            class="px-3.5 py-2 bg-teal-800 hover:bg-teal-900 text-white text-xs font-bold rounded-lg shadow">
+            ⬇️ Facility Report Excel डाउनलोड
+          </button>
+        </div>
+
+        <div id="ncdFacilityTableWrap" class="overflow-x-auto max-h-[460px] border border-slate-200 rounded-xl"></div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 2. TELE CONSULTATION SECTION (CHO & MO TABS + DATE RANGE + UNIQUE TC) -->
+    <!-- ===================================================================== -->
+    <section id="teleSection" class="prog-section hidden bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-indigo-200 space-y-5">
+      <div class="flex flex-wrap justify-between items-center gap-4 border-b border-slate-200 pb-4">
+        <div>
+          <h2 class="text-lg md:text-xl font-extrabold text-indigo-950">📞 Tele Consultation Dashboard (CHO &amp; MO)</h2>
+          <p id="teleMetaText" class="text-xs text-slate-500 mt-0.5">डेटा लोड हो रहा है...</p>
+        </div>
+
+        <!-- 2 Tabs: CHO Teleconsultation & MO Tele Consultation -->
+        <div class="flex bg-slate-100 p-1.5 rounded-xl border border-slate-200">
+          <button id="tabBtnTeleCHO" onclick="switchTeleModuleTab('tele_cho')"
+            class="px-4 py-2 rounded-lg text-xs md:text-sm font-bold bg-indigo-700 text-white shadow transition">
+            👩‍⚕️ CHO Teleconsultation
+          </button>
+          <button id="tabBtnTeleMO" onclick="switchTeleModuleTab('tele_mo')"
+            class="px-4 py-2 rounded-lg text-xs md:text-sm font-bold text-slate-700 hover:text-indigo-700 transition">
+            👨‍⚕️ MO Tele Consultation
+          </button>
+        </div>
+      </div>
+
+      <!-- Date Range + Block + Performance + Search -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">📅 From Date (दिनांक से):</label>
+          <input type="date" id="tcFromDate" onchange="updateTeleDashboard()"
+            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold bg-white" />
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">📅 To Date (दिनांक तक):</label>
+          <input type="date" id="tcToDate" onchange="updateTeleDashboard()"
+            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold bg-white" />
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">🏛️ Block (ब्लॉक चुनें):</label>
+          <select id="tcBlockFilter" onchange="updateTeleDashboard()"
+            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold bg-white">
+            <option value="ALL">All Blocks (जनपद अयोध्या)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">⚡ प्रदर्शन फ़िल्टर:</label>
+          <select id="tcPerfFilter" onchange="updateTeleDashboard()"
+            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold bg-white">
+            <option value="ALL">सभी Users (All)</option>
+            <option value="ZERO">⚠️ केवल Zero TC वाले (0)</option>
+            <option value="ACTIVE">✅ केवल Active Users (&gt;0)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">🔍 User या Facility खोजें:</label>
+          <input type="text" id="tcSearchInput" oninput="updateTeleDashboard()" placeholder="नाम या SC/HWC लिखें..."
+            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white" />
+        </div>
+      </div>
+
+      <!-- 4 KPI Summary Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="p-4 rounded-xl bg-indigo-50/70 border border-indigo-200">
+          <div class="text-xs font-semibold text-indigo-700">कुल Unique Users</div>
+          <div id="kpiTcUsers" class="text-2xl font-extrabold text-indigo-950 mt-1">0</div>
+          <div id="kpiTcSubUsers" class="text-[11px] text-slate-500 mt-0.5">Active: 0 | Zero: 0</div>
+        </div>
+        <div class="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200">
+          <div class="text-xs font-semibold text-emerald-700">कुल Tele Consultations</div>
+          <div id="kpiTcSum" class="text-2xl font-extrabold text-emerald-900 mt-1">0</div>
+          <div class="text-[11px] text-emerald-700 mt-0.5">चयनित दिनांक रेंज का योग</div>
+        </div>
+        <div class="p-4 rounded-xl bg-sky-50/70 border border-sky-200">
+          <div class="text-xs font-semibold text-sky-700">औसत TC प्रति User</div>
+          <div id="kpiTcAvg" class="text-2xl font-extrabold text-sky-900 mt-1">0.0</div>
+          <div class="text-[11px] text-slate-500 mt-0.5">Average per CHO/MO</div>
+        </div>
+        <div class="p-4 rounded-xl bg-rose-50/70 border border-rose-200">
+          <div class="text-xs font-semibold text-rose-700">Zero Reporting Users</div>
+          <div id="kpiTcZero" class="text-2xl font-extrabold text-rose-700 mt-1">0</div>
+          <div class="text-[11px] text-rose-600 mt-0.5">0 टेली-कंसल्टेशन वाले</div>
+        </div>
+      </div>
+
+      <!-- Block-wise Data-Labeled Bar Chart -->
+      <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-sm font-bold text-slate-800">📊 ब्लॉक-वार कुल Tele Consultation (Date Range Sum)</h3>
+          <span class="text-[11px] text-slate-500">ब्लॉक बार पर क्लिक करके फ़िल्टर करें</span>
+        </div>
+        <div style="height: 280px;">
+          <canvas id="tcBlockBarChart"></canvas>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap justify-between items-center gap-2">
+        <h3 class="text-sm font-bold text-slate-800">📋 Unique User-wise Tele Consultation रिपोर्ट</h3>
+        <button onclick="exportTeleTableToExcel()"
+          class="px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow">
+          ⬇️ Excel डाउनलोड करें (.xlsx)
+        </button>
+      </div>
+
+      <div class="overflow-x-auto max-h-[430px] border border-slate-200 rounded-xl">
+        <table class="w-full text-xs text-left border-collapse">
+          <thead class="bg-slate-800 text-white sticky top-0 z-10">
+            <tr>
+              <th class="p-2.5">रैंक</th>
+              <th class="p-2.5">Block</th>
+              <th class="p-2.5">User Name (Unique)</th>
+              <th class="p-2.5">Health Facility / Sub-Center</th>
+              <th class="p-2.5 text-center">दिन (Days)</th>
+              <th class="p-2.5 text-right">Total TC</th>
+              <th class="p-2.5 text-center">स्थिति</th>
+            </tr>
+          </thead>
+          <tbody id="tcUniqueTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 3. JSY PAYMENT SECTION                                                -->
+    <!-- ===================================================================== -->
+    <section id="jsySection" class="prog-section hidden bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-blue-200 space-y-4">
+      <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
+        <h2 class="text-lg font-extrabold text-blue-950">🤰 JSY भुगतान पाइपलाइन प्रगति</h2>
+        <select id="jsyDateFilter" onchange="renderJsyTable()" class="px-3 py-1.5 border rounded-lg text-xs font-bold bg-slate-50"></select>
+      </div>
+      <div id="jsyTableWrap" class="overflow-x-auto max-h-[450px] border rounded-xl"></div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 4. ABHA ID SECTION                                                    -->
+    <!-- ===================================================================== -->
+    <section id="abhaSection" class="prog-section hidden bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-emerald-200 space-y-4">
+      <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
+        <h2 class="text-lg font-extrabold text-emerald-950">🆔 ABHA ID निर्माण प्रगति</h2>
+        <select id="abhaBlockFilter" onchange="renderAbhaTable()" class="px-3 py-1.5 border rounded-lg text-xs font-bold bg-slate-50">
+          <option value="ALL">All Blocks</option>
+        </select>
+      </div>
+      <div id="abhaSummaryCards" class="grid grid-cols-3 gap-3"></div>
+      <div id="abhaTableWrap" class="overflow-x-auto max-h-[450px] border rounded-xl"></div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 5. QUALITY ASSURANCE SECTION                                          -->
+    <!-- ===================================================================== -->
+    <section id="qaSection" class="prog-section hidden bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-amber-200 space-y-4">
+      <h2 class="text-lg font-extrabold text-amber-950 border-b pb-3">✅ Quality Assurance (NQAS / Kayakalp)</h2>
+      <div id="qaTableWrap" class="overflow-x-auto max-h-[450px] border rounded-xl"></div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 6. RBSK SECTION                                                       -->
+    <!-- ===================================================================== -->
+    <section id="rbskSection" class="prog-section hidden bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-purple-200 space-y-4">
+      <h2 class="text-lg font-extrabold text-purple-950 border-b pb-3">👶 RBSK प्रगति रिपोर्ट</h2>
+      <div id="rbskTableWrap" class="overflow-x-auto max-h-[450px] border rounded-xl"></div>
+    </section>
+
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
+      authDomain: "asha-payment.firebaseapp.com",
+      databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "asha-payment",
+      storageBucket: "asha-payment.firebasestorage.app",
+      messagingSenderId: "117935142167",
+      appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
+      measurementId: "G-43YGRC5CKL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const rootRef = ref(db, "asha_portal_v2");
+
+    // Global State
+    let portalData = {};
+    let ncdFacilityRows = [];
+    let tcRawDatabaseRows = [];
+    let tcCurrentRenderedList = [];
+    let tcCurrentTabKey = "tele_cho";
+    let ncdChartObj = null;
+    let tcChartObj = null;
+
+    // Navigation Switcher
+    window.showSection = function(secId) {
+      document.querySelectorAll(".prog-section").forEach(el => el.classList.add("hidden"));
+      document.getElementById(secId).classList.remove("hidden");
+
+      document.querySelectorAll(".nav-card").forEach(btn => {
+        btn.className = "nav-card p-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 shadow-sm text-left border border-slate-200 transition";
+      });
+      const activeBtn = document.getElementById("nav_" + secId);
+      if (activeBtn) {
+        activeBtn.className = "nav-card p-3.5 rounded-xl bg-indigo-900 text-white shadow-md text-left border-2 border-indigo-950 transition";
       }
-      renderTeleView();
-    });
-  }
 
-  function renderTeleView() {
-    const selectedBlock = document.getElementById('teleBlockDropdown').value;
-    const filtered = selectedBlock === 'ALL'
-      ? teleRecords
-      : teleRecords.filter(r => (r.Block || '').trim().toLowerCase() === selectedBlock.toLowerCase());
+      if (secId === "teleSection" && tcRawDatabaseRows.length === 0) {
+        window.switchTeleModuleTab("tele_cho");
+      }
+    };
 
-    let sumTarget = 0, sumDone = 0;
-    filtered.forEach(r => {
-      sumTarget += parseFloat(r.Target) || 0;
-      sumDone += parseFloat(r.Total_Consultation || r.Consultation || r.Done) || 0;
-    });
-    const totalPct = sumTarget > 0 ? ((sumDone / sumTarget) * 100).toFixed(1) : 0;
+    // Initial Load from Firebase
+    async function initPortal() {
+      const snap = await get(rootRef);
+      if (!snap.exists()) return;
+      portalData = snap.val();
 
-    document.getElementById('teleTotalTarget').innerText = `Target: ${sumTarget}`;
-    document.getElementById('teleTotalDone').innerText = `Done: ${sumDone}`;
-    document.getElementById('teleOverallPct').innerText = `Ach: ${totalPct}%`;
-
-    renderTeleChart(filtered);
-    renderTeleTable(filtered);
-  }
-
-  function renderTeleChart(rows) {
-    const ctx = document.getElementById('teleBarChart').getContext('2d');
-    if (teleChartInstance) teleChartInstance.destroy();
-
-    // Group by Block if ALL blocks selected, else show Facility/Officer wise
-    const selectedBlock = document.getElementById('teleBlockDropdown').value;
-    const labels = [];
-    const percentages = [];
-    const bgColors = [];
-
-    if (selectedBlock === 'ALL') {
-      const blockMap = {};
-      rows.forEach(r => {
-        const b = (r.Block || 'Unknown').trim();
-        if (!blockMap[b]) blockMap[b] = { t: 0, d: 0 };
-        blockMap[b].t += parseFloat(r.Target) || 0;
-        blockMap[b].d += parseFloat(r.Total_Consultation || r.Consultation || r.Done) || 0;
-      });
-      Object.keys(blockMap).forEach(b => {
-        const pct = blockMap[b].t > 0 ? parseFloat(((blockMap[b].d / blockMap[b].t) * 100).toFixed(1)) : 0;
-        labels.push(b);
-        percentages.push(pct);
-        bgColors.push(pct > 85 ? '#16a34a' : (pct >= 80 ? '#eab308' : '#dc2626'));
-      });
-    } else {
-      rows.forEach(r => {
-        const name = r.CHO_Name || r.MO_Name || r.Facility_Name || r.HWC_Name || 'Unit';
-        const t = parseFloat(r.Target) || 0;
-        const d = parseFloat(r.Total_Consultation || r.Consultation || r.Done) || 0;
-        const pct = t > 0 ? parseFloat(((d / t) * 100).toFixed(1)) : 0;
-        labels.push(name);
-        percentages.push(pct);
-        bgColors.push(pct > 85 ? '#16a34a' : (pct >= 80 ? '#eab308' : '#dc2626'));
-      });
+      renderNcdBlockSection();
+      prepareNcdFacilityData();
+      renderJsySection();
+      renderAbhaSection();
+      renderGenericTable("qaTableWrap", portalData.quality_assurance?.rows || []);
+      renderGenericTable("rbskTableWrap", portalData.rbsk?.rows || []);
     }
 
-    teleChartInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Achievement %',
-          data: percentages,
-          backgroundColor: bgColors,
-          borderRadius: 6
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          datalabels: {
-            anchor: 'end',
-            align: 'top',
-            formatter: val => val + '%',
-            font: { weight: 'bold', size: 11 },
-            color: '#1e293b'
-          }
+    // =========================================================================
+    // 1. NCD BLOCK SUMMARY + FACILITY-WISE REPORT
+    // =========================================================================
+    window.switchNcdView = function(view) {
+      const blockDiv = document.getElementById("ncdBlockContainer");
+      const facDiv = document.getElementById("ncdFacilityContainer");
+      const btnBlock = document.getElementById("btnNcdBlockView");
+      const btnFac = document.getElementById("btnNcdFacilityView");
+
+      if (view === "facility") {
+        blockDiv.classList.add("hidden");
+        facDiv.classList.remove("hidden");
+        btnFac.className = "px-4 py-2 rounded-lg text-xs font-bold bg-teal-800 text-white shadow ring-2 ring-teal-400";
+        btnBlock.className = "px-4 py-2 rounded-lg text-xs font-bold bg-slate-200 text-slate-800 hover:bg-slate-300";
+        renderNcdFacilityTable();
+      } else {
+        facDiv.classList.add("hidden");
+        blockDiv.classList.remove("hidden");
+        btnBlock.className = "px-4 py-2 rounded-lg text-xs font-bold bg-rose-700 text-white shadow";
+        btnFac.className = "px-4 py-2 rounded-lg text-xs font-bold bg-teal-700 hover:bg-teal-800 text-white shadow";
+      }
+    };
+
+    function renderNcdBlockSection() {
+      const ncd = portalData.ncd_screening;
+      if (!ncd || !ncd.units) {
+        document.getElementById("ncdSubTitle").textContent = "NCD डेटा उपलब्ध नहीं है।";
+        return;
+      }
+      document.getElementById("ncdTitle").textContent = `❤️ ${ncd.reportTitle || "NCD Screening Dashboard"}`;
+      document.getElementById("ncdSubTitle").textContent = `अंतिम अपडेट: ${ncd.updatedAt || "-"} | कुल इकाइयां: ${ncd.units.length}`;
+
+      const d = ncd.district || {};
+      document.getElementById("ncdDistrictKpis").innerHTML = `
+        <div class="p-3 bg-rose-50 rounded-xl border border-rose-200"><div class="text-[11px] text-rose-700 font-semibold">Composite Score</div><div class="text-xl font-extrabold text-rose-950">${d.score ?? "-"}%</div></div>
+        <div class="p-3 bg-blue-50 rounded-xl border border-blue-200"><div class="text-[11px] text-blue-700 font-semibold">HTN Screened</div><div class="text-xl font-extrabold text-blue-950">${d.htnPct ?? "-"}%</div></div>
+        <div class="p-3 bg-indigo-50 rounded-xl border border-indigo-200"><div class="text-[11px] text-indigo-700 font-semibold">DM Screened</div><div class="text-xl font-extrabold text-indigo-950">${d.dmPct ?? "-"}%</div></div>
+        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200"><div class="text-[11px] text-emerald-700 font-semibold">ANM Login %</div><div class="text-xl font-extrabold text-emerald-950">${d.anmPct ?? "-"}%</div></div>
+        <div class="p-3 bg-teal-50 rounded-xl border border-teal-200"><div class="text-[11px] text-teal-700 font-semibold">CHO Login %</div><div class="text-xl font-extrabold text-teal-950">${d.choPct ?? "-"}%</div></div>
+        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200"><div class="text-[11px] text-amber-700 font-semibold">MO Login %</div><div class="text-xl font-extrabold text-amber-950">${d.moPct ?? "-"}%</div></div>
+      `;
+
+      // Table
+      document.getElementById("ncdBlockTableBody").innerHTML = ncd.units.map(u => {
+        const badge = u.score > 85 ? "bg-emerald-600 text-white" : (u.score >= 80 ? "bg-amber-500 text-white" : "bg-rose-600 text-white");
+        return `
+          <tr class="hover:bg-slate-50">
+            <td class="p-2.5 font-bold">${u.rank}</td>
+            <td class="p-2.5 font-bold text-slate-900">${u.unit}</td>
+            <td class="p-2.5 text-right">${(u.targetFY || 0).toLocaleString("en-IN")}</td>
+            <td class="p-2.5 text-right">${u.htnPct}%</td>
+            <td class="p-2.5 text-right">${u.dmPct}%</td>
+            <td class="p-2.5 text-right">${u.suspectedPct}%</td>
+            <td class="p-2.5 text-right">${u.anmPct}%</td>
+            <td class="p-2.5 text-right">${u.choPct}%</td>
+            <td class="p-2.5 text-right">${u.moPct}%</td>
+            <td class="p-2.5 text-center"><span class="px-2.5 py-0.5 rounded font-bold text-[11px] ${badge}">${u.score}%</span></td>
+          </tr>
+        `;
+      }).join("");
+
+      // Chart
+      const ctx = document.getElementById("ncdBlockChart").getContext("2d");
+      if (ncdChartObj) ncdChartObj.destroy();
+      ncdChartObj = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ncd.units.map(u => u.unit),
+          datasets: [{
+            label: "Composite Score %",
+            data: ncd.units.map(u => u.score),
+            backgroundColor: ncd.units.map(u => u.score > 85 ? "#16a34a" : (u.score >= 80 ? "#eab308" : "#dc2626")),
+            borderRadius: 6
+          }]
         },
-        scales: {
-          y: { beginAtZero: true, max: 115 }
-        }
-      },
-      plugins: [ChartDataLabels]
-    });
-  }
-
-  function renderTeleTable(rows) {
-    const container = document.getElementById('teleTableContainer');
-    if (rows.length === 0) {
-      container.innerHTML = '<p class="text-sm text-gray-500 py-4">Is selection ke liye koi record nahi mila.</p>';
-      return;
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            datalabels: { anchor: "end", align: "top", font: { weight: "bold", size: 11 }, formatter: v => v + "%" }
+          },
+          scales: { y: { beginAtZero: true, max: 115 } }
+        },
+        plugins: [ChartDataLabels]
+      });
     }
 
-    const keys = Object.keys(rows[0]);
-    let html = '<table class="w-full text-sm text-left border-collapse border border-gray-200"><thead><tr class="bg-gray-100">';
-    keys.forEach(k => html += `<th class="p-2.5 border border-gray-200 font-bold text-gray-700">${k}</th>`);
-    html += '<th class="p-2.5 border border-gray-200 font-bold text-center">Ach %</th></tr></thead><tbody>';
+    function prepareNcdFacilityData() {
+      ncdFacilityRows = portalData.ncd_facility?.rows || [];
+      const blockSel = document.getElementById("ncdFacBlockFilter");
+      const blocks = new Set();
+      ncdFacilityRows.forEach(r => {
+        const b = r.Block || r.BLOCK || r.Unit || r.UNIT || "";
+        if (b) blocks.add(String(b).trim());
+      });
+      blockSel.innerHTML = `<option value="ALL">All Blocks (${ncdFacilityRows.length} Facilities)</option>`;
+      Array.from(blocks).sort().forEach(b => {
+        const opt = document.createElement("option");
+        opt.value = b;
+        opt.textContent = b;
+        blockSel.appendChild(opt);
+      });
+    }
 
-    rows.forEach(r => {
-      const t = parseFloat(r.Target) || 0;
-      const d = parseFloat(r.Total_Consultation || r.Consultation || r.Done) || 0;
-      const pct = t > 0 ? ((d / t) * 100).toFixed(1) : 0;
-      const badgeClass = pct > 85 ? 'bg-green-600' : (pct >= 80 ? 'bg-yellow-500' : 'bg-red-600');
+    window.renderNcdFacilityTable = function() {
+      const wrap = document.getElementById("ncdFacilityTableWrap");
+      if (!ncdFacilityRows.length) {
+        wrap.innerHTML = `<p class="p-6 text-center text-xs text-slate-500">Admin Panel से अभी "NCD Screening - Facility-wise Report" अपलोड नहीं की गई है।</p>`;
+        return;
+      }
+      const blk = document.getElementById("ncdFacBlockFilter").value;
+      const q = document.getElementById("ncdFacSearch").value.trim().toLowerCase();
 
-      html += '<tr class="hover:bg-gray-50">';
-      keys.forEach(k => html += `<td class="p-2.5 border border-gray-200">${r[k] ?? '-'}</td>`);
-      html += `<td class="p-2.5 border border-gray-200 text-center font-bold text-white ${badgeClass}">${pct}%</td></tr>`;
-    });
-    html += '</tbody></table>';
-    container.innerHTML = html;
-  }
+      const filtered = ncdFacilityRows.filter(r => {
+        const rowBlk = String(r.Block || r.BLOCK || r.Unit || r.UNIT || "").trim();
+        if (blk !== "ALL" && rowBlk.toLowerCase() !== blk.toLowerCase()) return false;
+        if (q && !JSON.stringify(r).toLowerCase().includes(q)) return false;
+        return true;
+      });
 
-  // Page load hote hi default 'CHO Teleconsultation' tab load karein
-  window.addEventListener('DOMContentLoaded', () => switchTeleTab('cho'));
-</script>
+      renderGenericTable("ncdFacilityTableWrap", filtered);
+    };
+
+    window.exportNcdFacilityExcel = function() {
+      if (!ncdFacilityRows.length) return alert("डाउनलोड करने के लिए कोई डेटा नहीं है।");
+      const ws = XLSX.utils.json_to_sheet(ncdFacilityRows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "NCD_Facility_Report");
+      XLSX.writeFile(wb, "NCD_Facility_Wise_Report_Ayodhya.xlsx");
+    };
+
+    // =========================================================================
+    // 2. TELE CONSULTATION (CHO & MO TABS + DATE RANGE + UNIQUE USER TC SUM)
+    // =========================================================================
+    window.switchTeleModuleTab = async function(tabKey) {
+      tcCurrentTabKey = tabKey;
+
+      const btnCHO = document.getElementById("tabBtnTeleCHO");
+      const btnMO = document.getElementById("tabBtnTeleMO");
+
+      btnCHO.className = tabKey === "tele_cho"
+        ? "px-4 py-2 rounded-lg text-xs md:text-sm font-bold bg-indigo-700 text-white shadow transition"
+        : "px-4 py-2 rounded-lg text-xs md:text-sm font-bold text-slate-700 hover:text-indigo-700 transition";
+
+      btnMO.className = tabKey === "tele_mo"
+        ? "px-4 py-2 rounded-lg text-xs md:text-sm font-bold bg-indigo-700 text-white shadow transition"
+        : "px-4 py-2 rounded-lg text-xs md:text-sm font-bold text-slate-700 hover:text-indigo-700 transition";
+
+      const snap = await get(child(rootRef, tabKey));
+      if (!snap.exists() || !snap.val().rows) {
+        tcRawDatabaseRows = [];
+        document.getElementById("teleMetaText").textContent = "अभी इस टैब का डेटा अपलोड नहीं हुआ है।";
+        updateTeleDashboard();
+        return;
+      }
+
+      const payload = snap.val();
+      tcRawDatabaseRows = payload.rows || [];
+      const dates = (payload.availableDates || []).sort();
+
+      // Block Dropdown
+      const blockSet = new Set(tcRawDatabaseRows.map(r => (r.block || "").trim()).filter(Boolean));
+      const blockSelect = document.getElementById("tcBlockFilter");
+      blockSelect.innerHTML = `<option value="ALL">All ${blockSet.size} Blocks (जनपद अयोध्या)</option>`;
+      Array.from(blockSet).sort().forEach(b => {
+        const opt = document.createElement("option");
+        opt.value = b;
+        opt.textContent = b;
+        blockSelect.appendChild(opt);
+      });
+
+      // Date Range
+      if (dates.length > 0) {
+        const fromInput = document.getElementById("tcFromDate");
+        const toInput = document.getElementById("tcToDate");
+        fromInput.min = dates[0];
+        fromInput.max = dates[dates.length - 1];
+        toInput.min = dates[0];
+        toInput.max = dates[dates.length - 1];
+        fromInput.value = dates[0];
+        toInput.value = dates[dates.length - 1];
+
+        document.getElementById("teleMetaText").textContent =
+          `उपलब्ध दिनांक: ${dates[0]} से ${dates[dates.length - 1]} (${dates.length} दिन) • अंतिम अपडेट: ${payload.updatedAt || ""}`;
+      }
+
+      updateTeleDashboard();
+    };
+
+    window.updateTeleDashboard = function() {
+      const fromDt = document.getElementById("tcFromDate").value;
+      const toDt = document.getElementById("tcToDate").value;
+      const selectedBlock = document.getElementById("tcBlockFilter").value;
+      const perfMode = document.getElementById("tcPerfFilter").value;
+      const searchText = document.getElementById("tcSearchInput").value.trim().toLowerCase();
+
+      // 1. Date Range Filter
+      const dateFiltered = tcRawDatabaseRows.filter(r => {
+        if (fromDt && r.isoDate < fromDt) return false;
+        if (toDt && r.isoDate > toDt) return false;
+        return true;
+      });
+
+      // 2. UNIQUE User Aggregation + Sum of TC
+      const userMap = new Map();
+      dateFiltered.forEach(r => {
+        const cleanUser = String(r.user || "Unknown").replace(/\s+/g, " ").trim();
+        const userKey = cleanUser.toUpperCase();
+        const cleanBlock = String(r.block || "-").replace(/\s+/g, " ").trim();
+        const cleanFac = String(r.facility || "-").replace(/\s+/g, " ").trim();
+
+        if (!userMap.has(userKey)) {
+          userMap.set(userKey, {
+            user: cleanUser,
+            blocks: new Set(),
+            facilities: new Set(),
+            datesSet: new Set(),
+            totalTc: 0
+          });
+        }
+        const uObj = userMap.get(userKey);
+        if (cleanBlock && cleanBlock !== "-") uObj.blocks.add(cleanBlock);
+        if (cleanFac && cleanFac !== "-") uObj.facilities.add(cleanFac);
+        if (r.isoDate) uObj.datesSet.add(r.isoDate);
+        uObj.totalTc += Number(r.tc) || 0;
+      });
+
+      const allUniqueUsers = Array.from(userMap.values()).map(u => ({
+        block: Array.from(u.blocks).join(", ") || "-",
+        user: u.user,
+        facility: Array.from(u.facilities).join(", ") || "-",
+        daysCount: u.datesSet.size,
+        totalTc: u.totalTc
+      }));
+
+      // 3. Block-wise Chart
+      const blockTotalsMap = new Map();
+      allUniqueUsers.forEach(u => {
+        const bName = u.block.split(",")[0].trim() || "Other";
+        blockTotalsMap.set(bName, (blockTotalsMap.get(bName) || 0) + u.totalTc);
+      });
+      renderTeleBlockChart(blockTotalsMap, selectedBlock);
+
+      // 4. Filter for Table & KPIs
+      const filteredUsers = allUniqueUsers.filter(u => {
+        if (selectedBlock !== "ALL" && !u.block.toLowerCase().includes(selectedBlock.toLowerCase())) return false;
+        if (perfMode === "ZERO" && u.totalTc > 0) return false;
+        if (perfMode === "ACTIVE" && u.totalTc === 0) return false;
+        if (searchText && !u.user.toLowerCase().includes(searchText) && !u.facility.toLowerCase().includes(searchText)) return false;
+        return true;
+      });
+
+      filteredUsers.sort((a, b) => b.totalTc - a.totalTc);
+      tcCurrentRenderedList = filteredUsers;
+
+      // 5. KPIs
+      const totalUsers = filteredUsers.length;
+      const sumTc = filteredUsers.reduce((acc, x) => acc + x.totalTc, 0);
+      const zeroUsers = filteredUsers.filter(x => x.totalTc === 0).length;
+      const activeUsers = totalUsers - zeroUsers;
+      const avgTc = totalUsers > 0 ? (sumTc / totalUsers).toFixed(1) : "0.0";
+
+      document.getElementById("kpiTcUsers").textContent = totalUsers.toLocaleString("en-IN");
+      document.getElementById("kpiTcSubUsers").textContent = `Active: ${activeUsers} | Zero: ${zeroUsers}`;
+      document.getElementById("kpiTcSum").textContent = sumTc.toLocaleString("en-IN");
+      document.getElementById("kpiTcAvg").textContent = avgTc;
+      document.getElementById("kpiTcZero").textContent = zeroUsers.toLocaleString("en-IN");
+
+      // 6. Table
+      const tbody = document.getElementById("tcUniqueTableBody");
+      if (filteredUsers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-5 text-center text-slate-500">चयनित फ़िल्टर के लिए कोई डेटा उपलब्ध नहीं है।</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filteredUsers.map((row, idx) => {
+        const isZero = row.totalTc === 0;
+        const badgeHtml = isZero
+          ? `<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-bold text-[10px]">Zero TC</span>`
+          : (row.totalTc >= 10
+              ? `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">Good</span>`
+              : `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]">Active</span>`);
+
+        return `
+          <tr class="hover:bg-indigo-50/40 ${isZero ? 'bg-rose-50/30' : ''}">
+            <td class="p-2.5 text-slate-500 font-medium">${idx + 1}</td>
+            <td class="p-2.5 font-semibold text-slate-700">${row.block}</td>
+            <td class="p-2.5 font-bold text-slate-900">${row.user}</td>
+            <td class="p-2.5 text-slate-600">${row.facility}</td>
+            <td class="p-2.5 text-center text-slate-600">${row.daysCount}</td>
+            <td class="p-2.5 text-right font-extrabold ${isZero ? 'text-rose-600' : 'text-indigo-900'}">${row.totalTc.toLocaleString("en-IN")}</td>
+            <td class="p-2.5 text-center">${badgeHtml}</td>
+          </tr>
+        `;
+      }).join("");
+    };
+
+    function renderTeleBlockChart(blockTotalsMap, activeBlock) {
+      const ctx = document.getElementById("tcBlockBarChart").getContext("2d");
+      if (tcChartObj) tcChartObj.destroy();
+
+      const sortedBlocks = Array.from(blockTotalsMap.entries()).sort((a, b) => b[1] - a[1]);
+      const labels = sortedBlocks.map(x => x[0]);
+      const values = sortedBlocks.map(x => x[1]);
+      const colors = labels.map(b => (activeBlock !== "ALL" && b === activeBlock) ? "#4338ca" : "#0ea5e9");
+
+      tcChartObj = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [{ label: "Total Tele Consultations", data: values, backgroundColor: colors, borderRadius: 6 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: (evt, elements) => {
+            if (elements.length > 0) {
+              const clickedBlock = labels[elements[0].index];
+              const sel = document.getElementById("tcBlockFilter");
+              sel.value = (sel.value === clickedBlock) ? "ALL" : clickedBlock;
+              updateTeleDashboard();
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              anchor: "end", align: "top", color: "#0f172a",
+              font: { weight: "bold", size: 11 },
+              formatter: v => v.toLocaleString("en-IN")
+            }
+          },
+          scales: { y: { beginAtZero: true, suggestedMax: Math.max(...values, 10) * 1.15 } }
+        },
+        plugins: [ChartDataLabels]
+      });
+    }
+
+    window.exportTeleTableToExcel = function() {
+      if (!tcCurrentRenderedList.length) return alert("डाउनलोड करने के लिए कोई डेटा नहीं है।");
+      const fromDt = document.getElementById("tcFromDate").value;
+      const toDt = document.getElementById("tcToDate").value;
+      const exportRows = tcCurrentRenderedList.map((r, i) => ({
+        "Rank": i + 1, "Block": r.block, "User Name": r.user,
+        "Health Facility": r.facility, "Active Days": r.daysCount, "Total Tele Consultation": r.totalTc
+      }));
+      const ws = XLSX.utils.json_to_sheet(exportRows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "TeleConsultation");
+      XLSX.writeFile(wb, `${tcCurrentTabKey}_${fromDt}_to_${toDt}.xlsx`);
+    };
+
+    // =========================================================================
+    // 3, 4, 5, 6. JSY, ABHA, QA & RBSK HELPERS
+    // =========================================================================
+    function renderJsySection() {
+      const records = portalData.jsy_portal?.records || [];
+      const dates = Array.from(new Set(records.map(r => r.date)));
+      const sel = document.getElementById("jsyDateFilter");
+      sel.innerHTML = dates.map(d => `<option value="${d}">${d}</option>`).join("");
+      if (dates.length) sel.value = dates[dates.length - 1];
+      window.renderJsyTable();
+    }
+
+    window.renderJsyTable = function() {
+      const records = portalData.jsy_portal?.records || [];
+      const dt = document.getElementById("jsyDateFilter").value;
+      const rows = records.filter(r => r.date === dt).map(r => ({
+        "Block": r.block, "Facility": r.facility, "Deliveries": r.del,
+        "PIN Verified": r.pin, "JSY Verified": r.jsy, "MOIC Approved": r.moic, "Payments Made": r.pay
+      }));
+      renderGenericTable("jsyTableWrap", rows);
+    };
+
+    function renderAbhaSection() {
+      const records = portalData.abha_portal?.records || [];
+      const blocks = Array.from(new Set(records.map(r => r.block))).sort();
+      const sel = document.getElementById("abhaBlockFilter");
+      sel.innerHTML = `<option value="ALL">All Blocks</option>` + blocks.map(b => `<option value="${b}">${b}</option>`).join("");
+      window.renderAbhaTable();
+    }
+
+    window.renderAbhaTable = function() {
+      const records = portalData.abha_portal?.records || [];
+      const blk = document.getElementById("abhaBlockFilter").value;
+      const filtered = blk === "ALL" ? records : records.filter(r => r.block === blk);
+      const pop = filtered.reduce((s, r) => s + (Number(r.pop) || 0), 0);
+      const created = filtered.reduce((s, r) => s + (Number(r.created) || 0), 0);
+      const pct = pop > 0 ? ((created / pop) * 100).toFixed(1) : "0.0";
+
+      document.getElementById("abhaSummaryCards").innerHTML = `
+        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200"><div class="text-[11px]">Population</div><div class="text-lg font-bold">${pop.toLocaleString("en-IN")}</div></div>
+        <div class="p-3 bg-teal-50 rounded-xl border border-teal-200"><div class="text-[11px]">ABHA Created</div><div class="text-lg font-bold">${created.toLocaleString("en-IN")}</div></div>
+        <div class="p-3 bg-indigo-50 rounded-xl border border-indigo-200"><div class="text-[11px]">Achievement %</div><div class="text-lg font-bold">${pct}%</div></div>
+      `;
+      const rows = filtered.slice(0, 300).map(r => ({
+        "Block": r.block, "SC": r.sc, "ASHA Name": r.ashaName, "Population": r.pop, "ABHA Created": r.created
+      }));
+      renderGenericTable("abhaTableWrap", rows);
+    };
+
+    function renderGenericTable(containerId, rows) {
+      const wrap = document.getElementById(containerId);
+      if (!rows || rows.length === 0) {
+        wrap.innerHTML = `<p class="p-5 text-center text-xs text-slate-500">डेटा उपलब्ध नहीं है।</p>`;
+        return;
+      }
+      const cols = Object.keys(rows[0]);
+      let html = `<table class="w-full text-xs text-left border-collapse"><thead class="bg-slate-800 text-white sticky top-0"><tr>`;
+      cols.forEach(c => html += `<th class="p-2.5 border-b border-slate-700">${c}</th>`);
+      html += `</tr></thead><tbody class="divide-y divide-slate-100 bg-white">`;
+      rows.forEach(r => {
+        html += `<tr class="hover:bg-slate-50">`;
+        cols.forEach(c => html += `<td class="p-2.5">${r[c] ?? "-"}</td>`);
+        html += `</tr>`;
+      });
+      html += `</tbody></table>`;
+      wrap.innerHTML = html;
+    }
+
+    initPortal();
+  </script>
+</body>
+</html>
