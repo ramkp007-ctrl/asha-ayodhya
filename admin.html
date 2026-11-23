@@ -68,7 +68,6 @@
 
     <!-- SECTION 2 & 3: JSY PAYMENT & ABHA PROGRESS UPLOADERS -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- JSY Uploader (File Name = Date) -->
       <section class="bg-white p-6 rounded-xl shadow-sm border border-indigo-200 space-y-4">
         <div class="border-b pb-3">
           <h2 class="text-base font-bold text-indigo-950">2. JSY भुगतान पाइपलाइन डेटा अपलोड</h2>
@@ -84,7 +83,6 @@
         </div>
       </section>
 
-      <!-- ABHA Progress Uploader -->
       <section class="bg-white p-6 rounded-xl shadow-sm border border-emerald-200 space-y-4">
         <div class="border-b pb-3">
           <h2 class="text-base font-bold text-emerald-950">3. ABHA ID प्रगति डेटा अपलोड</h2>
@@ -105,11 +103,11 @@
     <section class="bg-white p-6 rounded-xl shadow-sm border border-rose-200 space-y-4">
       <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
         <div>
-          <h2 class="text-base font-bold text-rose-950">4. अन्य कार्यक्रम डेटा अपलोड (Multi-Sheet Excel Support)</h2>
-          <p class="text-[11px] text-slate-500 mt-0.5">एक ही Excel फ़ाइल से किसी भी विशेष शीट (Sheet Tab) को चुनकर संबंधित मॉड्यूल में अपलोड करें</p>
+          <h2 class="text-base font-bold text-rose-950">4. अन्य कार्यक्रम डेटा अपलोड (Multi-Sheet &amp; Daily Date-wise Support)</h2>
+          <p class="text-[11px] text-slate-500 mt-0.5">एक ही Excel फ़ाइल से किसी भी विशेष शीट को चुनकर अपलोड करें। Tele Consultation फ़ाइल के नाम में दिनांक (जैसे <b>TC_19-11-2026.xlsx</b>) रखें।</p>
         </div>
         <span class="text-[11px] bg-rose-50 text-rose-800 border border-rose-200 px-2.5 py-1 rounded-lg font-bold">
-          Multi-Sheet Enabled
+          Multi-Sheet + Date Range
         </span>
       </div>
 
@@ -119,8 +117,8 @@
           <select id="newProgramSelect" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold bg-slate-50 focus:border-rose-700 focus:outline-none">
             <option value="ncd_screening">❤️ NCD Screening - Block Composite Summary</option>
             <option value="ncd_facility">🏥 NCD Screening - Facility-wise Report</option>
-            <option value="tele_cho">👩‍⚕️ Tele Consultation - CHO Teleconsultation</option>
-            <option value="tele_mo">👨‍⚕️ Tele Consultation - MO Tele Consultation</option>
+            <option value="tele_cho">👩‍⚕️ Tele Consultation - CHO Teleconsultation (Daily Date-wise)</option>
+            <option value="tele_mo">👨‍⚕️ Tele Consultation - MO Tele Consultation (Daily Date-wise)</option>
             <option value="quality_assurance">✅ Quality Assurance (NQAS / Kayakalp / LaQshya)</option>
             <option value="rbsk">👶 RBSK (Mobile Health Team &amp; Child Screening)</option>
           </select>
@@ -395,10 +393,10 @@
           ? `✅ <strong>NCD Facility-wise:</strong> ${d.ncd_facility.rows.length} इकाइयां (शीट: ${d.ncd_facility.sheetName || "-"})`
           : "⚪ <strong>NCD Facility-wise:</strong> डेटा प्रतीक्षित";
         const teleChoTxt = d.tele_cho?.rows
-          ? `✅ <strong>CHO Teleconsultation:</strong> ${d.tele_cho.rows.length} रिकॉर्ड (शीट: ${d.tele_cho.sheetName || "-"})`
+          ? `✅ <strong>CHO Teleconsultation:</strong> ${d.tele_cho.rows.length} रिकॉर्ड (${(d.tele_cho.availableDates || []).length} दिन)`
           : "⚪ <strong>CHO Teleconsultation:</strong> डेटा प्रतीक्षित";
         const teleMoTxt = d.tele_mo?.rows
-          ? `✅ <strong>MO Tele Consultation:</strong> ${d.tele_mo.rows.length} रिकॉर्ड (शीट: ${d.tele_mo.sheetName || "-"})`
+          ? `✅ <strong>MO Tele Consultation:</strong> ${d.tele_mo.rows.length} रिकॉर्ड (${(d.tele_mo.availableDates || []).length} दिन)`
           : "⚪ <strong>MO Tele Consultation:</strong> डेटा प्रतीक्षित";
         const qaTxt = d.quality_assurance?.rows
           ? `✅ <strong>Quality Assurance:</strong> ${d.quality_assurance.rows.length} इकाइयां (${d.quality_assurance.fileName})`
@@ -456,7 +454,6 @@
       if (!file) return alert("पहले JSY Excel/CSV फ़ाइल चुनें।");
 
       const fileDateLabel = file.name.replace(/\.[^.]+$/, "").trim();
-
       const buf = await file.arrayBuffer();
       const wb = XLSX.read(buf, { type: "array" });
       const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: 0 });
@@ -540,14 +537,14 @@
       alert(`✅ अपलोड सफल!\nदिनांक: ${fileDateLabel}\nकुल क्षेत्र: ${newRecords.length}\nकुल जनसंख्या: ${sumPop.toLocaleString("en-IN")}\nनिर्मित ABHA: ${sumCreated.toLocaleString("en-IN")}`);
     });
 
-    // 4. MULTI-SHEET PROGRAMS UPLOADER (NCD BLOCK, NCD FACILITY, TELE CHO, TELE MO, QA, RBSK)
+    // 4. MULTI-SHEET PROGRAMS UPLOADER
     let activeProgramWorkbook = null;
 
     const PROGRAM_HINTS = {
       ncd_screening: "💡 <strong>NCD Block Summary:</strong> Excel फ़ाइल चुनें और ड्रॉपडाउन से <b>'Composite'</b> शीट सेलेक्ट करें। यह सभी 11 ब्लॉकों + Urban DHQ, रेफर (%) और ANM/CHO/MO लॉगिन स्टेटस को स्वतः अपडेट कर देगी।",
       ncd_facility: "💡 <strong>NCD Facility-wise Report:</strong> अपनी Excel फ़ाइल में से Facility-wise वाली शीट चुनें। इसमें Block, Facility Name, Target, Screening आदि कॉलम होने चाहिए।",
-      tele_cho: "💡 <strong>CHO Teleconsultation:</strong> Excel फ़ाइल चुनें और ड्रॉपडाउन से <b>CHO Teleconsultation</b> वाली शीट सेलेक्ट करके अपलोड करें।",
-      tele_mo: "💡 <strong>MO Tele Consultation:</strong> Excel फ़ाइल चुनें और ड्रॉपडाउन से <b>MO Tele Consultation</b> वाली शीट सेलेक्ट करके अपलोड करें।",
+      tele_cho: "💡 <strong>CHO Teleconsultation:</strong> फ़ाइल के नाम में दिनांक रखें (जैसे <b>TC_19-11-2026.xlsx</b>)। कॉलम: Block, Facility Name, User Name, Tele Consultation।",
+      tele_mo: "💡 <strong>MO Tele Consultation:</strong> फ़ाइल के नाम में दिनांक रखें (जैसे <b>MO_TC_19-11-2026.xlsx</b>)। कॉलम: Block, Facility Name, User Name, Tele Consultation।",
       quality_assurance: "💡 <strong>Quality Assurance:</strong> NQAS Excel फ़ाइल (जैसे NQAS 18-11-2026.xlsx) चुनें। ब्लॉक नाम व सर्टिफिकेशन स्टेटस स्वतः साफ़ होकर सेव होंगे।",
       rbsk: "💡 <strong>RBSK:</strong> ब्लॉक-वार MHT विजिट, आंगनवाड़ी व स्कूल स्क्रीनिंग की Excel शीट चुनें।"
     };
@@ -625,31 +622,22 @@
       try {
         if (prog === "ncd_screening") {
           const rows = XLSX.utils.sheet_to_json(targetWorksheet, { header: 1, defval: null });
-
-          let unitColIdx = 2;
-          let headerRowIdx = 2;
+          let unitColIdx = 2, headerRowIdx = 2;
           for (let rIdx = 0; rIdx < Math.min(8, rows.length); rIdx++) {
             const row = rows[rIdx] || [];
             const foundIdx = row.findIndex(cell => String(cell || "").trim().toUpperCase() === "UNIT");
-            if (foundIdx !== -1) {
-              unitColIdx = foundIdx;
-              headerRowIdx = rIdx;
-              break;
-            }
+            if (foundIdx !== -1) { unitColIdx = foundIdx; headerRowIdx = rIdx; break; }
           }
-
           const off = unitColIdx - 2;
           const titleCell = (rows[headerRowIdx - 1] || []).find(c => c && String(c).trim().length > 5);
           const reportTitle = titleCell ? String(titleCell).trim() : "Ayodhya - NCD Composite Scoring Report";
 
           let district = null;
           const units = [];
-
           for (let i = headerRowIdx + 2; i < rows.length; i++) {
             const r = rows[i] || [];
             const unitName = r[2 + off] ? String(r[2 + off]).trim() : "";
             if (!unitName || !isNaN(Number(unitName))) continue;
-
             const record = {
               rank: Number(r[1 + off]) || 0,
               unit: unitName,
@@ -676,47 +664,26 @@
               moPct: Number(((Number(r[34 + off]) || 0) * 100).toFixed(2)),
               score: Number(((Number(r[36 + off]) || 0) * 100).toFixed(2))
             };
-
-            if (unitName.toLowerCase() === "ayodhya") {
-              district = record;
-            } else {
-              units.push(record);
-            }
+            if (unitName.toLowerCase() === "ayodhya") district = record;
+            else units.push(record);
           }
-
           units.sort((a, b) => b.score - a.score);
           units.forEach((u, idx) => u.rank = idx + 1);
 
           await set(child(rootRef, "ncd_screening"), {
-            reportTitle,
-            updatedAt: new Date().toLocaleString("hi-IN"),
-            fileName: file.name,
-            sheetName: selectedSheetName,
-            district,
-            units
+            reportTitle, updatedAt: new Date().toLocaleString("hi-IN"),
+            fileName: file.name, sheetName: selectedSheetName, district, units
           });
-
           refreshStatus();
-          alert(`✅ NCD Block Summary अपलोड सफल!\nशीट: ${selectedSheetName}\nकुल इकाइयां: ${units.length}\nजनपद कंपोजिट स्कोर: ${district?.score ?? "-"}%`);
+          alert(`✅ NCD Block Summary अपलोड सफल!\nशीट: ${selectedSheetName}\nकुल इकाइयां: ${units.length}`);
 
         } else if (prog === "quality_assurance") {
           const rawRows = XLSX.utils.sheet_to_json(targetWorksheet, { defval: "" });
-
           const normBlock = (b) => {
             const s = String(b || "").trim().toUpperCase();
-            const map = {
-              "MAVAI": "MAWAI",
-              "PURA BAZAR": "POORA BAZAR",
-              "HARIYANGATANGANJ": "HARINGTANGANJ",
-              "HAIRINGTANGANJ": "HARINGTANGANJ",
-              "CHC POORA BAZAR": "POORA BAZAR",
-              "CHC BIKAPUR": "BIKAPUR",
-              "SRIRAM HOSPITAL": "DH / DISTRICT HOSPITAL",
-              "DWH": "DH / DISTRICT HOSPITAL"
-            };
+            const map = { "MAVAI": "MAWAI", "PURA BAZAR": "POORA BAZAR", "HARIYANGATANGANJ": "HARINGTANGANJ", "HAIRINGTANGANJ": "HARINGTANGANJ", "CHC POORA BAZAR": "POORA BAZAR", "CHC BIKAPUR": "BIKAPUR", "SRIRAM HOSPITAL": "DH / DISTRICT HOSPITAL", "DWH": "DH / DISTRICT HOSPITAL" };
             return map[s] || s;
           };
-
           const normStatus = (st) => {
             const s = String(st || "").trim().toUpperCase();
             if (s.includes("CONDITIONAL")) return "Conditional";
@@ -724,7 +691,6 @@
             if (s.includes("DEFFERED") || s.includes("DEFERRED")) return "Deferred";
             return s;
           };
-
           const normType = (t) => {
             const s = String(t || "").trim().toUpperCase();
             if (s.includes("DH")) return "DH Level";
@@ -734,9 +700,7 @@
 
           const cleanRows = rawRows.map((r, idx) => {
             const norm = {};
-            for (const [k, v] of Object.entries(r)) {
-              norm[String(k).replace(/\s+/g, " ").trim().toUpperCase()] = v;
-            }
+            for (const [k, v] of Object.entries(r)) norm[String(k).replace(/\s+/g, " ").trim().toUpperCase()] = v;
             const rawDt = norm["DATE OF ASSESSMENT"] || norm["DATE"] || "";
             return {
               sn: Number(norm["SN"]) || idx + 1,
@@ -751,17 +715,58 @@
           }).filter(x => x.facility);
 
           await set(child(rootRef, "quality_assurance"), {
+            updatedAt: new Date().toLocaleString("hi-IN"), fileName: file.name, sheetName: selectedSheetName, rows: cleanRows
+          });
+          refreshStatus();
+          alert(`✅ Quality Assurance अपलोड सफल! कुल स्वास्थ्य इकाइयां: ${cleanRows.length}`);
+
+        } else if (prog === "tele_cho" || prog === "tele_mo") {
+          const dateMatch = file.name.match(/(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
+          if (!dateMatch) {
+            alert("⚠️ फ़ाइल के नाम में दिनांक होना ज़रूरी है (जैसे: TC_19-11-2026.xlsx या 21-11-2026.csv)");
+            btn.disabled = false;
+            btn.textContent = "चयनित शीट का डेटा अपलोड करें ↑";
+            return;
+          }
+          const dd = dateMatch[1].padStart(2, "0");
+          const mm = dateMatch[2].padStart(2, "0");
+          const yyyy = dateMatch[3];
+          const displayDate = `${dd}-${mm}-${yyyy}`;
+          const isoDate = `${yyyy}-${mm}-${dd}`;
+
+          const rawJson = XLSX.utils.sheet_to_json(targetWorksheet, { defval: "" });
+          const newDailyRows = rawJson.map(r => {
+            const norm = {};
+            for (const [k, v] of Object.entries(r)) norm[String(k).replace(/\s+/g, " ").trim().toUpperCase()] = v;
+            return {
+              date: displayDate,
+              isoDate: isoDate,
+              block: String(norm["BLOCK"] || "").replace(/\s+/g, " ").trim(),
+              facility: String(norm["FACILITY NAME"] || norm["HEALTH FACILITY"] || norm["FACILITY"] || "").replace(/\s+/g, " ").trim(),
+              user: String(norm["USER NAME"] || norm["USER"] || norm["CHO NAME"] || norm["MO NAME"] || "").replace(/\s+/g, " ").trim(),
+              tc: Number(norm["TELE CONSULTATION"] || norm["TOTAL"] || norm["TC"] || 0) || 0
+            };
+          }).filter(x => x.user || x.facility);
+
+          const targetRef = child(rootRef, prog);
+          const snap = await get(targetRef);
+          const existingRows = snap.exists() ? (snap.val().rows || []).filter(r => r.isoDate !== isoDate) : [];
+          const mergedRows = [...existingRows, ...newDailyRows];
+          const allDates = Array.from(new Set(mergedRows.map(r => r.isoDate))).sort();
+
+          await set(targetRef, {
             updatedAt: new Date().toLocaleString("hi-IN"),
-            fileName: file.name,
-            sheetName: selectedSheetName,
-            rows: cleanRows
+            latestDate: displayDate,
+            availableDates: allDates,
+            rows: mergedRows
           });
 
+          const label = prog === "tele_cho" ? "CHO Teleconsultation" : "MO Tele Consultation";
           refreshStatus();
-          alert(`✅ Quality Assurance (NQAS) अपलोड सफल!\nफ़ाइल: ${file.name} (शीट: ${selectedSheetName})\nकुल स्वास्थ्य इकाइयां: ${cleanRows.length}`);
+          alert(`✅ ${label} (${displayDate}) अपलोड सफल!\nआज की पंक्तियां: ${newDailyRows.length}\nकुल संचित दिन: ${allDates.length}`);
 
         } else {
-          // Handles ncd_facility, tele_cho, tele_mo, rbsk using the selected sheet tab
+          // ncd_facility & rbsk
           const rawJson = XLSX.utils.sheet_to_json(targetWorksheet, { defval: "" });
           const safeRows = rawJson.map(row => {
             const cleanObj = {};
@@ -779,15 +784,8 @@
             rows: safeRows
           });
 
-          const progNames = {
-            ncd_facility: "NCD Facility-wise Report",
-            tele_cho: "CHO Teleconsultation",
-            tele_mo: "MO Tele Consultation",
-            rbsk: "RBSK"
-          };
-
           refreshStatus();
-          alert(`✅ ${progNames[prog] || prog.toUpperCase()} अपलोड सफल!\nफ़ाइल: ${file.name}\nशीट: ${selectedSheetName}\nकुल पंक्तियां: ${safeRows.length}`);
+          alert(`✅ ${prog === "ncd_facility" ? "NCD Facility-wise Report" : "RBSK"} अपलोड सफल!\nशीट: ${selectedSheetName} • कुल पंक्तियां: ${safeRows.length}`);
         }
       } catch (err) {
         alert("❌ त्रुटि: " + err.message);
