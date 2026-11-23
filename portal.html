@@ -8,17 +8,25 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <style>
     body {
       font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
-      background-color: #f4f6f9;
+      background-color: #f1f5f9;
     }
-    .module-card {
-      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    .prog-card {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .module-card:hover {
+    .prog-card:hover {
       transform: translateY(-3px);
-      box-shadow: 0 12px 24px -8px rgba(15, 23, 42, 0.12);
+      box-shadow: 0 14px 28px -10px rgba(15, 23, 42, 0.14);
+    }
+    .prog-card.active-card {
+      ring: 2px;
+      border-color: #0d9488;
+      background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%);
     }
     @media print {
       .no-print { display: none !important; }
@@ -28,29 +36,35 @@
 </head>
 <body class="text-slate-800 min-h-screen antialiased flex flex-col">
 
-  <!-- EXECUTIVE HEADER -->
-  <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-lg border-b border-indigo-900/50">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-4">
+  <!-- TOP EXECUTIVE HEADER WITH PROGRAM LOGOS -->
+  <header class="bg-gradient-to-r from-slate-950 via-slate-900 to-teal-950 text-white shadow-xl border-b border-teal-800/40">
+    <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-wrap justify-between items-center gap-4">
       <div class="flex items-center gap-3.5">
-        <div class="w-11 h-11 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-xl font-extrabold text-teal-300 shadow-inner">
-          NHM
+        <!-- Official Emblem / NHM Badge -->
+        <div class="flex items-center gap-2 bg-white/10 border border-white/15 px-3 py-2 rounded-2xl backdrop-blur-sm">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center text-slate-950 font-black text-xs shadow">
+            UP
+          </div>
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-400 to-sky-600 flex items-center justify-center text-white font-black text-xs shadow">
+            NHM
+          </div>
         </div>
         <div>
           <div class="flex flex-wrap items-center gap-2">
-            <h1 class="text-base sm:text-xl font-extrabold tracking-tight">Program Review Portal — NHM अयोध्या</h1>
-            <span id="roleBadge" class="text-[10px] bg-teal-400/20 text-teal-200 border border-teal-400/40 font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+            <h1 class="text-base sm:text-xl font-extrabold tracking-tight text-white">Program Review Portal — NHM अयोध्या</h1>
+            <span id="roleBadge" class="text-[10px] bg-teal-400/20 text-teal-200 border border-teal-400/40 font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
               DISTRICT LEVEL
             </span>
           </div>
-          <p class="text-xs text-slate-300 mt-0.5">जनपद स्तरीय स्वास्थ्य कार्यक्रम समीक्षा एवं प्रगति डैशबोर्ड (11 Blocks • जनपद अयोध्या)</p>
+          <p id="headerMeta" class="text-xs text-slate-300 mt-0.5">जनपद स्तरीय स्वास्थ्य कार्यक्रम समीक्षा डैशबोर्ड • 11 विकास खंड (अयोध्या)</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-2.5 no-print">
-        <button onclick="window.print()" class="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white border border-white/15 text-xs font-semibold rounded-xl transition">
-          🖨️ Print Summary
+      <div class="flex items-center gap-2 no-print">
+        <button onclick="window.print()" class="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white border border-white/15 text-xs font-bold rounded-xl transition">
+          🖨️ Print Review
         </button>
-        <a href="admin.html" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-sm transition">
+        <a href="admin.html" class="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-extrabold rounded-xl shadow-sm transition">
           ⚙️ Master Admin
         </a>
         <button onclick="logoutPortal()" class="px-3.5 py-2 bg-rose-600/90 hover:bg-rose-600 text-white text-xs font-bold rounded-xl transition">
@@ -62,279 +76,212 @@
 
   <main class="max-w-7xl mx-auto px-4 py-6 space-y-6 flex-1 w-full">
 
-    <!-- DISTRICT EXECUTIVE SUMMARY BAR (LIVE SNAPSHOT FROM FIREBASE) -->
+    <!-- 7 PROGRAM MODULE SELECTOR CARDS (WITH LOGOS & LIVE STATUS) -->
     <section>
-      <div class="flex items-center justify-between mb-3">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
         <div>
-          <h2 class="text-sm font-extrabold text-slate-800 uppercase tracking-wide">📊 Executive Overview (जनपद प्रगति सारांश)</h2>
-          <p id="portalSyncStatus" class="text-[11px] text-slate-500">Firebase डेटा से सिंक हो रहा है...</p>
+          <h2 class="text-xs font-extrabold text-slate-500 uppercase tracking-wider">स्वास्थ्य कार्यक्रम चुनें (Select Program to Review)</h2>
         </div>
-        <span class="text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200/80 px-3 py-1 rounded-full">
-          7 Active Modules
-        </span>
-      </div>
-
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
-        <!-- Summary 1: ASHA -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden">
-          <div class="absolute top-0 left-0 w-1 h-full bg-teal-500"></div>
-          <div class="text-[11px] font-bold text-slate-500">ASHA Incentive</div>
-          <div id="execAshaVal" class="text-xl font-extrabold text-slate-900 mt-1">—</div>
-          <div id="execAshaSub" class="text-[10px] font-medium text-teal-700 mt-0.5">Loading...</div>
-        </div>
-
-        <!-- Summary 2: JSY -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden">
-          <div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
-          <div class="text-[11px] font-bold text-slate-500">JSY Payment</div>
-          <div id="execJsyVal" class="text-xl font-extrabold text-slate-900 mt-1">—</div>
-          <div id="execJsySub" class="text-[10px] font-medium text-amber-700 mt-0.5">Loading...</div>
-        </div>
-
-        <!-- Summary 3: ABHA -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden">
-          <div class="absolute top-0 left-0 w-1 h-full bg-sky-500"></div>
-          <div class="text-[11px] font-bold text-slate-500">ABHA ID Progress</div>
-          <div id="execAbhaVal" class="text-xl font-extrabold text-slate-900 mt-1">—</div>
-          <div id="execAbhaSub" class="text-[10px] font-medium text-sky-700 mt-0.5">Loading...</div>
-        </div>
-
-        <!-- Summary 4: NCD -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden">
-          <div class="absolute top-0 left-0 w-1 h-full bg-rose-500"></div>
-          <div class="text-[11px] font-bold text-slate-500">NCD Screening</div>
-          <div id="execNcdVal" class="text-xl font-extrabold text-slate-900 mt-1">—</div>
-          <div id="execNcdSub" class="text-[10px] font-medium text-rose-700 mt-0.5">Loading...</div>
-        </div>
-
-        <!-- Summary 5: QA NQAS -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden">
-          <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
-          <div class="text-[11px] font-bold text-slate-500">Quality (NQAS)</div>
-          <div id="execQaVal" class="text-xl font-extrabold text-slate-900 mt-1">59 / 154</div>
-          <div id="execQaSub" class="text-[10px] font-medium text-emerald-700 mt-0.5">Certified Units</div>
-        </div>
-
-        <!-- Summary 6: Tele Consultation -->
-        <div class="bg-gradient-to-br from-indigo-50/90 via-white to-white p-4 rounded-2xl border border-indigo-200 shadow-sm relative overflow-hidden">
-          <div class="absolute top-0 left-0 w-1 h-full bg-indigo-600"></div>
-          <div class="text-[11px] font-extrabold text-indigo-900">Tele Consultation</div>
-          <div id="execTeleVal" class="text-xl font-extrabold text-indigo-700 mt-1">—</div>
-          <div id="execTeleSub" class="text-[10px] font-medium text-indigo-600 mt-0.5">CHO + MO Total TC</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- PROGRAM MODULES GRID (7 CORE MODULES) -->
-    <section>
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-3.5">
-        <div>
-          <h2 class="text-sm font-extrabold text-slate-800 uppercase tracking-wide">🗂️ Program Review Dashboards (कार्यक्रम-वार समीक्षा)</h2>
-          <p class="text-[11px] text-slate-500">विस्तृत ब्लॉक व स्वास्थ्य केंद्र-वार विश्लेषण देखने के लिए किसी भी कार्यक्रम कार्ड पर क्लिक करें</p>
+        <div class="flex items-center gap-3 text-[11px] font-bold">
+          <span class="flex items-center gap-1 text-emerald-700"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> &gt;85% Best</span>
+          <span class="flex items-center gap-1 text-amber-600"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> 80–85% Moderate</span>
+          <span class="flex items-center gap-1 text-rose-600"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> &lt;80% Focus</span>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
         <!-- 1. TELE CONSULTATION -->
-        <a href="teleconsultation-dashboard.html" class="module-card bg-white rounded-2xl border border-slate-200/90 p-5 flex flex-col justify-between group">
-          <div>
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-xl">
-                  🩺
-                </div>
-                <div>
-                  <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">eSanjeevani</span>
-                  <h3 class="text-base font-extrabold text-slate-900 mt-1 group-hover:text-indigo-700 transition">Tele Consultation</h3>
-                </div>
-              </div>
-              <span class="text-xs font-bold text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-0.5 transition">→</span>
-            </div>
-            <p class="text-xs text-slate-500 mt-3 leading-relaxed">
-              CHO एवं MO टेली-कंसल्टेशन की तिथि-वार समीक्षा, <b>Avg TC/User/Day</b>, Top-5 व Poor-5 ब्लॉक तथा Zero-TC इकाइयों की सूची।
-            </p>
+        <a href="teleconsultation-dashboard.html" class="prog-card bg-white rounded-2xl border border-slate-200 p-3.5 flex flex-col justify-between group">
+          <div class="flex items-center justify-between">
+            <span class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-lg font-bold">🩺</span>
+            <span class="text-[10px] font-extrabold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">LIVE ↗</span>
           </div>
-          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
-            <span id="cardTeleMeta" class="font-semibold text-slate-500">अपडेट: लोड हो रहा है...</span>
-            <span class="font-bold text-indigo-700">डैशबोर्ड खोलें →</span>
+          <div class="mt-3">
+            <div class="text-xs font-extrabold text-slate-900 group-hover:text-indigo-700">Tele Consultation</div>
+            <div id="badge_tele" class="text-[11px] font-bold text-indigo-600 mt-0.5">लोड हो रहा है...</div>
           </div>
         </a>
 
-        <!-- 2. ASHA INCENTIVE PAYMENT -->
-        <a href="index.html" class="module-card bg-white rounded-2xl border border-slate-200/90 p-5 flex flex-col justify-between group">
-          <div>
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-xl">
-                  👩‍⚕️
-                </div>
-                <div>
-                  <span class="text-[10px] font-extrabold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full">Community</span>
-                  <h3 class="text-base font-extrabold text-slate-900 mt-1 group-hover:text-teal-700 transition">ASHA Payment</h3>
-                </div>
-              </div>
-              <span class="text-xs font-bold text-slate-400 group-hover:text-teal-600 group-hover:translate-x-0.5 transition">→</span>
-            </div>
-            <p class="text-xs text-slate-500 mt-3 leading-relaxed">
-              2,232 आशा कार्यकर्ताओं का मद-वार (Head-wise) प्रोत्साहन राशि भुगतान, Zero-Incentive मद एवं ब्लॉक-वार प्रगति।
-            </p>
+        <!-- 2. ASHA PAYMENT -->
+        <a href="index.html" class="prog-card bg-white rounded-2xl border border-slate-200 p-3.5 flex flex-col justify-between group">
+          <div class="flex items-center justify-between">
+            <span class="w-9 h-9 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center text-lg font-bold">👩‍⚕️</span>
+            <span class="text-[10px] font-extrabold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full">PORTAL ↗</span>
           </div>
-          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
-            <span id="cardAshaMeta" class="font-semibold text-slate-500">11 Blocks • 2,232 ASHA</span>
-            <span class="font-bold text-teal-700">डैशबोर्ड खोलें →</span>
+          <div class="mt-3">
+            <div class="text-xs font-extrabold text-slate-900 group-hover:text-teal-700">ASHA Payment</div>
+            <div class="text-[11px] font-bold text-teal-700 mt-0.5">2,232 ASHA</div>
           </div>
         </a>
 
         <!-- 3. JSY PAYMENT -->
-        <div onclick="openInlineModule('jsy')" class="cursor-pointer module-card bg-white rounded-2xl border border-slate-200/90 p-5 flex flex-col justify-between group">
-          <div>
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-xl">
-                  🤰
-                </div>
-                <div>
-                  <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">Maternal Health</span>
-                  <h3 class="text-base font-extrabold text-slate-900 mt-1 group-hover:text-amber-700 transition">JSY Payment</h3>
-                </div>
-              </div>
-              <span class="text-xs font-bold text-slate-400 group-hover:text-amber-600 group-hover:translate-x-0.5 transition">→</span>
-            </div>
-            <p class="text-xs text-slate-500 mt-3 leading-relaxed">
-              जननी सुरक्षा योजना के अंतर्गत संस्थागत प्रसव, सत्यापन, MOIC स्वीकृति एवं लाभार्थी भुगतान प्रतिशत की समीक्षा।
-            </p>
+        <button onclick="selectProgram('jsy')" id="card_jsy" class="prog-card text-left bg-white rounded-2xl border border-slate-200 p-3.5 flex flex-col justify-between">
+          <div class="flex items-center justify-between w-full">
+            <span class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg font-bold">🤰</span>
+            <span class="text-[10px] font-extrabold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">JSY</span>
           </div>
-          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
-            <span id="cardJsyMeta" class="font-semibold text-slate-500">ब्लॉक व इकाई-वार रिपोर्ट</span>
-            <span class="font-bold text-amber-700">समीक्षा देखें →</span>
+          <div class="mt-3">
+            <div class="text-xs font-extrabold text-slate-900">JSY Payment</div>
+            <div id="badge_jsy" class="text-[11px] font-bold text-slate-500 mt-0.5">क्लिक करें</div>
           </div>
-        </div>
+        </button>
 
-        <!-- 4. ABHA ID PROGRESS -->
-        <div onclick="openInlineModule('abha')" class="cursor-pointer module-card bg-white rounded-2xl border border-slate-200/90 p-5 flex flex-col justify-between group">
-          <div>
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-xl">
-                  🪪
-                </div>
-                <div>
-                  <span class="text-[10px] font-extrabold uppercase tracking-wider text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full">Digital Health</span>
-                  <h3 class="text-base font-extrabold text-slate-900 mt-1 group-hover:text-sky-700 transition">ABHA ID Progress</h3>
-                </div>
-              </div>
-              <span class="text-xs font-bold text-slate-400 group-hover:text-sky-600 group-hover:translate-x-0.5 transition">→</span>
-            </div>
-            <p class="text-xs text-slate-500 mt-3 leading-relaxed">
-              आयुष्मान भारत हेल्थ अकाउंट (ABHA) जनरेशन, Scan &amp; Share OPD टोकन एवं ब्लॉक-वार लक्ष्य प्राप्ति।
-            </p>
+        <!-- 4. ABHA ID -->
+        <button onclick="selectProgram('abha')" id="card_abha" class="prog-card text-left bg-white rounded-2xl border border-slate-200 p-3.5 flex flex-col justify-between">
+          <div class="flex items-center justify-between w-full">
+            <span class="w-9 h-9 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center text-lg font-bold">🪪</span>
+            <span class="text-[10px] font-extrabold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full">ABHA</span>
           </div>
-          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
-            <span id="cardAbhaMeta" class="font-semibold text-slate-500">ब्लॉक-वार प्रगति</span>
-            <span class="font-bold text-sky-700">समीक्षा देखें →</span>
+          <div class="mt-3">
+            <div class="text-xs font-extrabold text-slate-900">ABHA ID Progress</div>
+            <div id="badge_abha" class="text-[11px] font-bold text-slate-500 mt-0.5">क्लिक करें</div>
           </div>
-        </div>
+        </button>
 
         <!-- 5. NCD SCREENING -->
-        <div onclick="openInlineModule('ncd')" class="cursor-pointer module-card bg-white rounded-2xl border border-slate-200/90 p-5 flex flex-col justify-between group">
-          <div>
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center text-xl">
-                  ❤️‍🩹
-                </div>
-                <div>
-                  <span class="text-[10px] font-extrabold uppercase tracking-wider text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full">NP-NCD</span>
-                  <h3 class="text-base font-extrabold text-slate-900 mt-1 group-hover:text-rose-700 transition">NCD Screening</h3>
-                </div>
-              </div>
-              <span class="text-xs font-bold text-slate-400 group-hover:text-rose-600 group-hover:translate-x-0.5 transition">→</span>
-            </div>
-            <p class="text-xs text-slate-500 mt-3 leading-relaxed">
-              30+ आयु वर्ग CBAC, हाइपरटेंशन, डायबिटीज स्क्रीनिंग, रेफरल प्रतिशत एवं ANM/CHO/MO लॉगिन स्थिति।
-            </p>
+        <button onclick="selectProgram('ncd')" id="card_ncd" class="prog-card text-left bg-white rounded-2xl border border-slate-200 p-3.5 flex flex-col justify-between">
+          <div class="flex items-center justify-between w-full">
+            <span class="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-lg font-bold">❤️‍🩹</span>
+            <span class="text-[10px] font-extrabold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full">NCD</span>
           </div>
-          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
-            <span id="cardNcdMeta" class="font-semibold text-slate-500">स्क्रीनिंग एवं रेफरल</span>
-            <span class="font-bold text-rose-700">समीक्षा देखें →</span>
+          <div class="mt-3">
+            <div class="text-xs font-extrabold text-slate-900">NCD Screening</div>
+            <div id="badge_ncd" class="text-[11px] font-bold text-slate-500 mt-0.5">क्लिक करें</div>
           </div>
-        </div>
+        </button>
 
         <!-- 6. QUALITY ASSURANCE (NQAS) -->
-        <div onclick="openInlineModule('qa')" class="cursor-pointer module-card bg-white rounded-2xl border border-slate-200/90 p-5 flex flex-col justify-between group">
-          <div>
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-xl">
-                  🏅
-                </div>
-                <div>
-                  <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Quality</span>
-                  <h3 class="text-base font-extrabold text-slate-900 mt-1 group-hover:text-emerald-700 transition">Quality Assurance (NQAS)</h3>
-                </div>
-              </div>
-              <span class="text-xs font-bold text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition">→</span>
-            </div>
-            <p class="text-xs text-slate-500 mt-3 leading-relaxed">
-              154 मूल्यांकित इकाइयों में Certified (59), Conditional (61) व Deferred (34) इकाइयों की ब्लॉक-वार स्थिति।
-            </p>
+        <button onclick="selectProgram('qa')" id="card_qa" class="prog-card text-left bg-white rounded-2xl border border-slate-200 p-3.5 flex flex-col justify-between">
+          <div class="flex items-center justify-between w-full">
+            <span class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg font-bold">🏅</span>
+            <span class="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">NQAS</span>
           </div>
-          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
-            <span id="cardQaMeta" class="font-semibold text-slate-500">154 इकाइयां मूल्यांकित</span>
-            <span class="font-bold text-emerald-700">समीक्षा देखें →</span>
+          <div class="mt-3">
+            <div class="text-xs font-extrabold text-slate-900">Quality Assurance</div>
+            <div id="badge_qa" class="text-[11px] font-bold text-emerald-700 mt-0.5">59 / 154 Cert.</div>
           </div>
-        </div>
+        </button>
 
         <!-- 7. RBSK -->
-        <div onclick="openInlineModule('rbsk')" class="cursor-pointer module-card bg-white rounded-2xl border border-slate-200/90 p-5 flex flex-col justify-between group">
-          <div>
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center text-xl">
-                  🧒
-                </div>
-                <div>
-                  <span class="text-[10px] font-extrabold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">Child Health</span>
-                  <h3 class="text-base font-extrabold text-slate-900 mt-1 group-hover:text-purple-700 transition">RBSK Screening</h3>
-                </div>
-              </div>
-              <span class="text-xs font-bold text-slate-400 group-hover:text-purple-600 group-hover:translate-x-0.5 transition">→</span>
-            </div>
-            <p class="text-xs text-slate-500 mt-3 leading-relaxed">
-              राष्ट्रीय बाल स्वास्थ्य कार्यक्रम मोबाइल हेल्थ टीम विज़िट, आंगनवाड़ी व स्कूल स्क्रीनिंग तथा DEIC रेफरल प्रगति।
-            </p>
+        <button onclick="selectProgram('rbsk')" id="card_rbsk" class="prog-card text-left bg-white rounded-2xl border border-slate-200 p-3.5 flex flex-col justify-between">
+          <div class="flex items-center justify-between w-full">
+            <span class="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-lg font-bold">🧒</span>
+            <span class="text-[10px] font-extrabold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">RBSK</span>
           </div>
-          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
-            <span id="cardRbskMeta" class="font-semibold text-slate-500">ब्लॉक-वार टीम प्रगति</span>
-            <span class="font-bold text-purple-700">समीक्षा देखें →</span>
+          <div class="mt-3">
+            <div class="text-xs font-extrabold text-slate-900">RBSK Screening</div>
+            <div id="badge_rbsk" class="text-[11px] font-bold text-slate-500 mt-0.5">क्लिक करें</div>
           </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- DYNAMIC INLINE MODULE VIEWER (WHEN JSY / ABHA / NCD / QA / RBSK IS CLICKED) -->
-    <section id="inlineModuleSection" class="hidden bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 space-y-4">
-      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3.5">
-        <div>
-          <h3 id="inlineModuleTitle" class="text-base font-extrabold text-slate-900">Module Details</h3>
-          <p id="inlineModuleSub" class="text-xs text-slate-500">ब्लॉक-वार एवं इकाई-वार विवरण</p>
-        </div>
-        <button onclick="closeInlineModule()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition">
-          ✕ बंद करें
         </button>
       </div>
-      <div id="inlineModuleContent" class="overflow-x-auto"></div>
     </section>
 
+    <!-- ACTIVE PROGRAM ANALYTICAL WORKSPACE -->
+    <section id="workspaceSection" class="space-y-5">
+
+      <!-- WORKSPACE HEADER & FILTER BAR -->
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap justify-between items-center gap-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 id="wsTitle" class="text-base sm:text-lg font-extrabold text-slate-900">🤰 JSY Payment — ब्लॉक-वार समीक्षा</h2>
+            <span id="wsUpdatedBadge" class="text-[11px] font-bold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full">अपडेट: —</span>
+          </div>
+          <p id="wsSubTitle" class="text-xs text-slate-500 mt-0.5">ब्लॉक-वार प्रगति, Top-5 व Poor-5 तुलनात्मक विश्लेषण</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 no-print">
+          <select id="wsBlockFilter" onchange="renderActiveProgram()" class="px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50 text-slate-800">
+            <option value="ALL">All 11 Blocks (जनपद अयोध्या)</option>
+          </select>
+          <input type="text" id="wsSearchInput" oninput="renderActiveProgram()" placeholder="🔍 ब्लॉक या इकाई खोजें..."
+            class="px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 w-44" />
+          <button onclick="exportActiveExcel()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition">
+            ⬇️ Excel (.xlsx)
+          </button>
+        </div>
+      </div>
+
+      <!-- 4 DYNAMIC KPI CARDS -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-1 h-full bg-teal-600"></div>
+          <div id="kpi1Label" class="text-xs font-bold text-slate-500">कुल इकाइयां / Blocks</div>
+          <div id="kpi1Val" class="text-2xl font-extrabold text-slate-900 mt-1">0</div>
+          <div id="kpi1Sub" class="text-[11px] text-slate-500 mt-0.5">—</div>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-1 h-full bg-indigo-600"></div>
+          <div id="kpi2Label" class="text-xs font-bold text-slate-500">जनपद औसत / कुल प्रगति</div>
+          <div id="kpi2Val" class="text-2xl font-extrabold text-indigo-700 mt-1">0</div>
+          <div id="kpi2Sub" class="text-[11px] text-indigo-600 mt-0.5">—</div>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
+          <div id="kpi3Label" class="text-xs font-bold text-slate-500">सर्वश्रेष्ठ ब्लॉक (Top)</div>
+          <div id="kpi3Val" class="text-lg font-extrabold text-emerald-700 mt-1 truncate">—</div>
+          <div id="kpi3Sub" class="text-[11px] text-emerald-600 mt-0.5">—</div>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-1 h-full bg-rose-500"></div>
+          <div id="kpi4Label" class="text-xs font-bold text-slate-500">सुधार की आवश्यकता (Lowest)</div>
+          <div id="kpi4Val" class="text-lg font-extrabold text-rose-600 mt-1 truncate">—</div>
+          <div id="kpi4Sub" class="text-[11px] text-rose-600 mt-0.5">—</div>
+        </div>
+      </div>
+
+      <!-- TOP 5 & POOR 5 COMPARISON BOXES -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white rounded-2xl border border-emerald-200/80 shadow-sm overflow-hidden">
+          <div class="px-4 py-3 bg-gradient-to-r from-emerald-800 to-teal-700 text-white flex justify-between items-center">
+            <h3 id="wsTop5Title" class="text-xs font-extrabold tracking-wide">🏆 Top 5 Blocks (सर्वश्रेष्ठ प्रदर्शन)</h3>
+            <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold">Best Performers</span>
+          </div>
+          <div id="wsTop5List" class="divide-y divide-slate-100 p-2.5"></div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-rose-200/80 shadow-sm overflow-hidden">
+          <div class="px-4 py-3 bg-gradient-to-r from-rose-800 to-rose-700 text-white flex justify-between items-center">
+            <h3 id="wsPoor5Title" class="text-xs font-extrabold tracking-wide">⚠️ Poor 5 Blocks (न्यूनतम प्रदर्शन)</h3>
+            <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold">Needs Focus</span>
+          </div>
+          <div id="wsPoor5List" class="divide-y divide-slate-100 p-2.5"></div>
+        </div>
+      </div>
+
+      <!-- THRESHOLD COLOR-CODED DATA-LABELED CHART -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+          <div>
+            <h3 id="wsChartTitle" class="text-sm font-extrabold text-slate-800">📊 ब्लॉक-वार तुलनात्मक चार्ट (Top से Bottom)</h3>
+            <p class="text-[11px] text-slate-500">QGIS कलर कोड: हरा (&gt;85%), पीला (80–85%), लाल (&lt;80%)</p>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <div id="wsChartBox" style="height: 300px; min-width: 100%;">
+            <canvas id="wsBarChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- DETAILED DATA TABLE -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-4 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+          <h3 id="wsTableTitle" class="text-sm font-extrabold text-slate-800">📋 विस्तृत ब्लॉक एवं इकाई-वार तालिका</h3>
+          <span id="wsRowCount" class="text-xs font-bold text-teal-800 bg-teal-50 px-3 py-1 rounded-full border border-teal-200">0 Rows</span>
+        </div>
+        <div id="wsTableContainer" class="overflow-x-auto max-h-[460px]"></div>
+      </div>
+
+    </section>
   </main>
 
-  <!-- FOOTER -->
-  <footer class="bg-white border-t border-slate-200/80 py-4 mt-8">
+  <footer class="bg-white border-t border-slate-200 py-4 mt-8">
     <div class="max-w-7xl mx-auto px-4 flex flex-wrap justify-between items-center gap-2 text-xs text-slate-500">
       <span>© 2026 <b>National Health Mission (NHM), Ayodhya</b> — District Program Management Unit</span>
-      <span>Threshold Legend: <b class="text-emerald-700">&gt;85% Best</b> • <b class="text-amber-600">80–85% Moderate</b> • <b class="text-rose-600">&lt;80% Needs Focus</b></span>
+      <span>Threshold Rules: <b class="text-emerald-700">&gt;85% Green</b> • <b class="text-amber-600">80–85% Yellow</b> • <b class="text-rose-600">&lt;80% Red</b></span>
     </div>
   </footer>
 
@@ -367,83 +314,239 @@
       window.location.href = "index.html";
     };
 
-    let portalCache = {};
+    let portalData = {};
+    let activeProg = "jsy";
+    let currentExportRows = [];
+    let wsChart = null;
 
-    async function loadPortalSummary() {
+    const progMeta = {
+      jsy: { title: "🤰 JSY Payment — ब्लॉक एवं इकाई-वार समीक्षा", sub: "संस्थागत प्रसव सत्यापन, MOIC स्वीकृति एवं भुगतान प्रगति" },
+      abha: { title: "🪪 ABHA ID Progress — ब्लॉक-वार समीक्षा", sub: "ABHA जनरेशन एवं डिजिटल हेल्थ लक्ष्य प्रगति" },
+      ncd: { title: "❤️‍🩹 NCD Screening — स्क्रीनिंग एवं रेफरल समीक्षा", sub: "30+ स्क्रीनिंग, हाइपरटेंशन/डायबिटीज रेफरल एवं लॉगिन स्थिति" },
+      qa: { title: "🏅 Quality Assurance (NQAS) — प्रमाणीकरण समीक्षा", sub: "Certified, Conditional एवं Deferred इकाइयों का ब्लॉक-वार विवरण" },
+      rbsk: { title: "🧒 RBSK Screening — टीम विज़िट एवं रेफरल समीक्षा", sub: "राष्ट्रीय बाल स्वास्थ्य कार्यक्रम प्रगति" }
+    };
+
+    function getThresholdColor(pct) {
+      if (pct > 85) return "#059669"; // Green >85
+      if (pct >= 80) return "#d97706"; // Yellow 80-85
+      return "#e11d48"; // Red <80
+    }
+
+    function detectColumns(rows) {
+      if (!rows || !rows.length) return {};
+      const keys = Object.keys(rows[0]);
+      const blockKey = keys.find(k => /block/i.test(k)) || keys[0];
+      const facKey = keys.find(k => /facility|unit|center|sc|hwc|name/i.test(k) && k !== blockKey) || null;
+      // Find numeric/percentage score column
+      const pctKey = keys.find(k => /%|pct|percent|ach|rate|score|cert/i.test(k))
+        || keys.find(k => typeof rows[0][k] === "number" && k !== blockKey)
+        || keys[keys.length - 1];
+      return { keys, blockKey, facKey, pctKey };
+    }
+
+    async function initPortal() {
       try {
         const snap = await get(ref(db, "asha_portal_v2"));
-        if (!snap.exists()) {
-          document.getElementById("portalSyncStatus").textContent = "डेटाबेस से कनेक्टेड — कृपया Admin से डेटा अपलोड करें।";
-          return;
+        if (snap.exists()) {
+          portalData = snap.val() || {};
         }
-        portalCache = snap.val() || {};
-        document.getElementById("portalSyncStatus").textContent = "लाइव डेटा सिंक पूर्ण • जनपद अयोध्या (11 Blocks)";
 
-        // Tele Consultation Summary (CHO + MO)
-        const choRows = portalCache.tele_cho?.rows || [];
-        const moRows = portalCache.tele_mo?.rows || [];
+        // Update Tele Consultation live badge
+        const choRows = portalData.tele_cho?.rows || [];
+        const moRows = portalData.tele_mo?.rows || [];
         const totalTc = [...choRows, ...moRows].reduce((s, r) => s + (Number(r.tc) || 0), 0);
-        document.getElementById("execTeleVal").textContent = totalTc.toLocaleString("en-IN");
-        document.getElementById("execTeleSub").textContent = `CHO: ${choRows.length} | MO: ${moRows.length} entries`;
-        if (portalCache.tele_cho?.updatedAt) {
-          document.getElementById("cardTeleMeta").textContent = `अपडेट: ${portalCache.tele_cho.updatedAt}`;
-        }
+        document.getElementById("badge_tele").textContent = `${totalTc.toLocaleString("en-IN")} Total TC`;
 
-        // Populate other module badges if present in Firebase
-        if (portalCache.jsy?.updatedAt) document.getElementById("cardJsyMeta").textContent = `अपडेट: ${portalCache.jsy.updatedAt}`;
-        if (portalCache.abha?.updatedAt) document.getElementById("cardAbhaMeta").textContent = `अपडेट: ${portalCache.abha.updatedAt}`;
-        if (portalCache.ncd?.updatedAt) document.getElementById("cardNcdMeta").textContent = `अपडेट: ${portalCache.ncd.updatedAt}`;
-        if (portalCache.qa?.updatedAt) document.getElementById("cardQaMeta").textContent = `अपडेट: ${portalCache.qa.updatedAt}`;
-        if (portalCache.rbsk?.updatedAt) document.getElementById("cardRbskMeta").textContent = `अपडेट: ${portalCache.rbsk.updatedAt}`;
+        // Update module card row counts
+        ["jsy", "abha", "ncd", "qa", "rbsk"].forEach(k => {
+          const rows = portalData[k]?.rows || [];
+          const el = document.getElementById(`badge_${k}`);
+          if (el && rows.length) el.textContent = `${rows.length} इकाइयां`;
+        });
 
-        // Set Executive Strip defaults or live counts
-        document.getElementById("execAshaVal").textContent = "2,232";
-        document.getElementById("execAshaSub").textContent = "11 Blocks Active";
-        document.getElementById("execJsyVal").textContent = portalCache.jsy?.rows ? `${portalCache.jsy.rows.length} Rows` : "Active";
-        document.getElementById("execJsySub").textContent = "JSY Monitoring";
-        document.getElementById("execAbhaVal").textContent = portalCache.abha?.rows ? `${portalCache.abha.rows.length} Units` : "Active";
-        document.getElementById("execAbhaSub").textContent = "ABHA Generation";
-        document.getElementById("execNcdVal").textContent = portalCache.ncd?.rows ? `${portalCache.ncd.rows.length} Units` : "Active";
-        document.getElementById("execNcdSub").textContent = "30+ Screening";
-      } catch (err) {
-        console.error(err);
-        document.getElementById("portalSyncStatus").textContent = "डेटा लोड करने में त्रुटि हुई।";
+        selectProgram("jsy");
+      } catch (e) {
+        console.error(e);
       }
     }
 
-    window.openInlineModule = function(modKey) {
-      const titles = {
-        jsy: "🤰 JSY Payment — ब्लॉक एवं इकाई-वार प्रगति",
-        abha: "🪪 ABHA ID Progress — ब्लॉक-वार समीक्षा",
-        ncd: "❤️‍🩹 NCD Screening — स्क्रीनिंग, रेफरल एवं लॉगिन स्थिति",
-        qa: "🏅 Quality Assurance (NQAS) — प्रमाणीकरण स्थिति",
-        rbsk: "🧒 RBSK Screening — टीम विज़िट एवं रेफरल प्रगति"
-      };
-      const section = document.getElementById("inlineModuleSection");
-      const titleEl = document.getElementById("inlineModuleTitle");
-      const contentEl = document.getElementById("inlineModuleContent");
+    window.selectProgram = function(key) {
+      activeProg = key;
+      ["jsy", "abha", "ncd", "qa", "rbsk"].forEach(k => {
+        const card = document.getElementById(`card_${k}`);
+        if (card) {
+          card.classList.toggle("active-card", k === key);
+          card.classList.toggle("border-teal-600", k === key);
+          card.classList.toggle("border-2", k === key);
+        }
+      });
 
-      titleEl.textContent = titles[modKey] || modKey.toUpperCase();
-      section.classList.remove("hidden");
-      section.scrollIntoView({ behavior: "smooth", block: "start" });
+      const meta = progMeta[key] || { title: key.toUpperCase(), sub: "" };
+      document.getElementById("wsTitle").textContent = meta.title;
+      document.getElementById("wsSubTitle").textContent = meta.sub;
 
-      const modData = portalCache[modKey];
-      if (!modData || !modData.rows || !modData.rows.length) {
-        contentEl.innerHTML = `<p class="text-xs text-slate-500 py-6 text-center">इस मॉड्यूल का नवीनतम डेटा <b>admin.html</b> से अपलोड करें या इसके समर्पित पेज पर देखें।</p>`;
+      const mod = portalData[key] || {};
+      document.getElementById("wsUpdatedBadge").textContent = `अपडेट: ${mod.updatedAt || "N/A"}`;
+
+      const rows = mod.rows || [];
+      const { blockKey } = detectColumns(rows);
+      const blocks = Array.from(new Set(rows.map(r => String(r[blockKey] || "").trim()).filter(Boolean))).sort();
+
+      const sel = document.getElementById("wsBlockFilter");
+      sel.innerHTML = `<option value="ALL">All ${blocks.length || 11} Blocks (जनपद अयोध्या)</option>` +
+        blocks.map(b => `<option value="${b}">${b}</option>`).join("");
+
+      if (savedOfficer && savedOfficer.role !== "DISTRICT" && savedOfficer.block) {
+        const m = blocks.find(b => b.toLowerCase() === savedOfficer.block.toLowerCase());
+        if (m) { sel.value = m; sel.disabled = true; }
+      }
+
+      renderActiveProgram();
+    };
+
+    window.renderActiveProgram = function() {
+      const mod = portalData[activeProg] || {};
+      const rawRows = mod.rows || [];
+      const selBlk = document.getElementById("wsBlockFilter").value;
+      const searchQ = document.getElementById("wsSearchInput").value.trim().toLowerCase();
+
+      if (!rawRows.length) {
+        document.getElementById("kpi1Val").textContent = "0";
+        document.getElementById("kpi2Val").textContent = "—";
+        document.getElementById("kpi3Val").textContent = "—";
+        document.getElementById("kpi4Val").textContent = "—";
+        document.getElementById("wsTop5List").innerHTML = `<p class="p-4 text-xs text-slate-400">इस मॉड्यूल का डेटा admin.html से अपलोड करें।</p>`;
+        document.getElementById("wsPoor5List").innerHTML = `<p class="p-4 text-xs text-slate-400">इस मॉड्यूल का डेटा admin.html से अपलोड करें।</p>`;
+        document.getElementById("wsTableContainer").innerHTML = `<p class="p-6 text-center text-xs text-slate-500">डेटा उपलब्ध नहीं है।</p>`;
+        document.getElementById("wsRowCount").textContent = "0 Rows";
+        if (wsChart) wsChart.destroy();
         return;
       }
 
-      const rows = modData.rows;
-      const cols = Object.keys(rows[0]);
-      contentEl.innerHTML = `
+      const { keys, blockKey, facKey, pctKey } = detectColumns(rawRows);
+
+      const filtered = rawRows.filter(r => {
+        const b = String(r[blockKey] || "").trim();
+        if (selBlk !== "ALL" && b.toLowerCase() !== selBlk.toLowerCase()) return false;
+        if (searchQ) {
+          const hay = Object.values(r).join(" ").toLowerCase();
+          if (!hay.includes(searchQ)) return false;
+        }
+        return true;
+      });
+      currentExportRows = filtered;
+
+      // Aggregate by Block for Top 5 / Poor 5 & Chart
+      const grpMap = new Map();
+      filtered.forEach(r => {
+        const label = selBlk === "ALL"
+          ? (String(r[blockKey] || "Other").trim())
+          : (facKey ? String(r[facKey] || r[blockKey]).trim() : String(r[blockKey]).trim());
+        const rawVal = parseFloat(String(r[pctKey] ?? 0).replace(/[^0-9.-]/g, "")) || 0;
+        if (!grpMap.has(label)) grpMap.set(label, { name: label, sum: 0, count: 0 });
+        const g = grpMap.get(label);
+        g.sum += rawVal;
+        g.count += 1;
+      });
+
+      const ranked = Array.from(grpMap.values()).map(g => ({
+        name: g.name,
+        avgVal: Number((g.sum / g.count).toFixed(1)),
+        count: g.count
+      })).sort((a, b) => b.avgVal - a.avgVal);
+
+      // KPIs
+      const overallAvg = ranked.length
+        ? (ranked.reduce((s, x) => s + x.avgVal, 0) / ranked.length).toFixed(1)
+        : "0.0";
+      document.getElementById("kpi1Val").textContent = filtered.length.toLocaleString("en-IN");
+      document.getElementById("kpi1Sub").textContent = `${ranked.length} ${selBlk === "ALL" ? "Blocks" : "Units"}`;
+      document.getElementById("kpi2Val").textContent = `${overallAvg}`;
+      document.getElementById("kpi2Sub").textContent = `सूचक: ${pctKey}`;
+      document.getElementById("kpi3Val").textContent = ranked[0] ? ranked[0].name : "—";
+      document.getElementById("kpi3Sub").textContent = ranked[0] ? `स्कोर: ${ranked[0].avgVal}` : "—";
+      const lastItem = ranked[ranked.length - 1];
+      document.getElementById("kpi4Val").textContent = lastItem ? lastItem.name : "—";
+      document.getElementById("kpi4Sub").textContent = lastItem ? `स्कोर: ${lastItem.avgVal}` : "—";
+
+      // Top 5 & Poor 5 Boxes
+      const top5 = ranked.slice(0, 5);
+      const poor5 = [...ranked].reverse().slice(0, 5);
+
+      const renderBox = (list, isTop) => list.map((item, idx) => `
+        <div class="flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 rounded-xl text-xs">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-[11px] font-extrabold ${isTop ? 'bg-emerald-700 text-white' : 'bg-rose-700 text-white'}">
+              ${idx + 1}
+            </span>
+            <div class="truncate">
+              <div class="font-bold text-slate-900 truncate">${item.name}</div>
+              <div class="text-[10px] text-slate-500">इकाइयां: ${item.count}</div>
+            </div>
+          </div>
+          <span class="ml-2 px-3 py-1 rounded-full font-extrabold text-xs ${isTop ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}">
+            ${item.avgVal}
+          </span>
+        </div>
+      `).join("");
+
+      document.getElementById("wsTop5List").innerHTML = renderBox(top5, true);
+      document.getElementById("wsPoor5List").innerHTML = renderBox(poor5, false);
+
+      // Bar Chart with QGIS Threshold Colors
+      const ctx = document.getElementById("wsBarChart").getContext("2d");
+      if (wsChart) wsChart.destroy();
+      const box = document.getElementById("wsChartBox");
+      box.style.width = ranked.length > 14 ? `${ranked.length * 52}px` : "100%";
+
+      wsChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ranked.map(r => r.name),
+          datasets: [{
+            data: ranked.map(r => r.avgVal),
+            backgroundColor: ranked.map(r => getThresholdColor(r.avgVal)),
+            borderRadius: 6,
+            maxBarThickness: 38
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              anchor: "end",
+              align: "top",
+              color: "#0f172a",
+              font: { weight: "bold", size: 11 },
+              formatter: v => v
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 10, weight: "bold" } } },
+            y: { beginAtZero: true, grid: { color: "#f1f5f9" }, suggestedMax: Math.max(...ranked.map(r => r.avgVal), 10) * 1.18 }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
+
+      // Detailed Table
+      document.getElementById("wsRowCount").textContent = `${filtered.length} Rows`;
+      document.getElementById("wsTableContainer").innerHTML = `
         <table class="w-full text-xs text-left border-collapse">
-          <thead class="bg-slate-900 text-white">
-            <tr>${cols.map(c => `<th class="p-2.5 font-bold uppercase">${c}</th>`).join("")}</tr>
+          <thead class="bg-slate-900 text-white sticky top-0">
+            <tr>
+              <th class="p-3">#</th>
+              ${keys.map(k => `<th class="p-3 font-bold uppercase">${k}</th>`).join("")}
+            </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            ${rows.slice(0, 100).map(r => `
+            ${filtered.map((r, i) => `
               <tr class="hover:bg-slate-50">
-                ${cols.map(c => `<td class="p-2.5 text-slate-700 font-medium">${r[c] ?? "-"}</td>`).join("")}
+                <td class="p-3 text-slate-400 font-semibold">${i + 1}</td>
+                ${keys.map(k => `<td class="p-3 text-slate-700 font-medium">${r[k] ?? "-"}</td>`).join("")}
               </tr>
             `).join("")}
           </tbody>
@@ -451,11 +554,15 @@
       `;
     };
 
-    window.closeInlineModule = function() {
-      document.getElementById("inlineModuleSection").classList.add("hidden");
+    window.exportActiveExcel = function() {
+      if (!currentExportRows.length) return alert("डाउनलोड करने के लिए डेटा उपलब्ध नहीं है।");
+      const ws = XLSX.utils.json_to_sheet(currentExportRows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, activeProg.toUpperCase());
+      XLSX.writeFile(wb, `NHM_Ayodhya_${activeProg.toUpperCase()}.xlsx`);
     };
 
-    loadPortalSummary();
+    initPortal();
   </script>
 </body>
 </html>
