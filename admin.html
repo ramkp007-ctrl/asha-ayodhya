@@ -13,7 +13,7 @@
     <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
       <div>
         <h1 class="text-lg md:text-xl font-bold">NHM अयोध्या — Master Data Uploader &amp; Control</h1>
-        <p class="text-xs text-slate-300">ASHA Payment, JSY, ABHA, NCD, RBSK, QA, Tele Consultation एवं अधिकारी प्रबंधन</p>
+        <p class="text-xs text-slate-300">ASHA Payment, JSY, ABHA, NCD (Block &amp; Facility), RBSK, QA, Tele Consultation (CHO &amp; MO)</p>
       </div>
       <div class="flex flex-wrap gap-2">
         <a href="officers-admin.html" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-xs font-bold rounded-lg">
@@ -101,42 +101,55 @@
       </section>
     </div>
 
-    <!-- SECTION 4: NEW PROGRAMS UPLOADER (NCD, RBSK, QUALITY ASSURANCE, TELE CONSULTATION) -->
+    <!-- SECTION 4: MULTI-SHEET PROGRAMS UPLOADER (NCD BLOCK & FACILITY, TELE CHO & MO, QA, RBSK) -->
     <section class="bg-white p-6 rounded-xl shadow-sm border border-rose-200 space-y-4">
       <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
         <div>
-          <h2 class="text-base font-bold text-rose-950">4. अन्य कार्यक्रम डेटा अपलोड (NCD Screening, RBSK, Quality Assurance, Tele Consultation)</h2>
-          <p class="text-[11px] text-slate-500 mt-0.5">Program Review Portal के चारों नए मॉड्यूल के लिए मासिक/साप्ताहिक Excel (.xlsx) अपलोड करें</p>
+          <h2 class="text-base font-bold text-rose-950">4. अन्य कार्यक्रम डेटा अपलोड (Multi-Sheet Excel Support)</h2>
+          <p class="text-[11px] text-slate-500 mt-0.5">एक ही Excel फ़ाइल से किसी भी विशेष शीट (Sheet Tab) को चुनकर संबंधित मॉड्यूल में अपलोड करें</p>
         </div>
         <span class="text-[11px] bg-rose-50 text-rose-800 border border-rose-200 px-2.5 py-1 rounded-lg font-bold">
-          4 Programs Active
+          Multi-Sheet Enabled
         </span>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">कार्यक्रम चुनें (Select Program)</label>
+          <label class="block text-xs font-bold text-slate-700 mb-1">1. कार्यक्रम / मॉड्यूल चुनें (Select Program)</label>
           <select id="newProgramSelect" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold bg-slate-50 focus:border-rose-700 focus:outline-none">
-            <option value="ncd_screening">❤️ NCD Screening (Composite Scoring &amp; ANM/CHO/MO Status)</option>
+            <option value="ncd_screening">❤️ NCD Screening - Block Composite Summary</option>
+            <option value="ncd_facility">🏥 NCD Screening - Facility-wise Report</option>
+            <option value="tele_cho">👩‍⚕️ Tele Consultation - CHO Teleconsultation</option>
+            <option value="tele_mo">👨‍⚕️ Tele Consultation - MO Tele Consultation</option>
             <option value="quality_assurance">✅ Quality Assurance (NQAS / Kayakalp / LaQshya)</option>
             <option value="rbsk">👶 RBSK (Mobile Health Team &amp; Child Screening)</option>
-            <option value="tele_consultation">📞 Tele Consultation (eSanjeevani HWC OPD)</option>
           </select>
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Excel / CSV फ़ाइल चुनें</label>
+          <label class="block text-xs font-bold text-slate-700 mb-1">2. Excel / CSV फ़ाइल चुनें</label>
           <input type="file" id="newProgramFile" accept=".xlsx,.xls,.csv"
             class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-rose-50 file:text-rose-800 hover:file:bg-rose-100" />
         </div>
       </div>
 
+      <!-- AUTO-DETECTED SHEET SELECTOR -->
+      <div id="progSheetWrapper" class="hidden p-3 bg-amber-50 border border-amber-300 rounded-lg space-y-1.5">
+        <div class="flex flex-wrap justify-between items-center gap-2">
+          <label for="progSheetSelect" class="text-xs font-bold text-amber-950">
+            3. Excel फ़ाइल की कौन-सी शीट (Sheet Tab) अपलोड करनी है?
+          </label>
+          <span id="progSheetRowCount" class="text-[11px] font-semibold text-amber-800 bg-amber-100 px-2 py-0.5 rounded"></span>
+        </div>
+        <select id="progSheetSelect" class="w-full px-3 py-2 border border-amber-400 rounded-lg text-xs font-bold bg-white text-slate-900 focus:outline-none"></select>
+      </div>
+
       <div id="newProgramHint" class="p-2.5 bg-rose-50/50 border border-rose-200/80 rounded-lg text-[11px] text-slate-700">
-        💡 <strong>NCD Screening:</strong> सीधे <b>'Composite'</b> शीट वाली Excel फ़ाइल (जैसे 18-11-2026.xlsx) चुनें। यह सभी 11 ब्लॉकों + Urban DHQ, रेफर (%) और ANM/CHO/MO लॉगिन स्टेटस को स्वतः अपडेट कर देगी।
+        💡 <strong>NCD Block Summary:</strong> Excel फ़ाइल चुनें और ड्रॉपडाउन से <b>'Composite'</b> शीट सेलेक्ट करें। यह सभी 11 ब्लॉकों + Urban DHQ, रेफर (%) और ANM/CHO/MO लॉगिन स्टेटस को स्वतः अपडेट कर देगी।
       </div>
 
       <button id="uploadNewProgramBtn" class="w-full py-2.5 bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold rounded-lg shadow">
-        चयनित कार्यक्रम का डेटा अपलोड करें ↑
+        चयनित शीट का डेटा अपलोड करें ↑
       </button>
 
       <div id="newProgramStatus" class="p-3 bg-slate-50 rounded-lg text-xs text-slate-700 border border-slate-200 space-y-1">
@@ -376,24 +389,32 @@
         }
 
         const ncdTxt = d.ncd_screening?.units
-          ? `✅ <strong>NCD Screening:</strong> ${d.ncd_screening.units.length} इकाइयां (${d.ncd_screening.reportTitle || "Updated"})`
-          : "⚪ <strong>NCD Screening:</strong> डिफ़ॉल्ट डेटा सक्रिय";
+          ? `✅ <strong>NCD Block Summary:</strong> ${d.ncd_screening.units.length} इकाइयां (${d.ncd_screening.reportTitle || "Updated"})`
+          : "⚪ <strong>NCD Block Summary:</strong> डिफ़ॉल्ट डेटा सक्रिय";
+        const ncdFacTxt = d.ncd_facility?.rows
+          ? `✅ <strong>NCD Facility-wise:</strong> ${d.ncd_facility.rows.length} इकाइयां (शीट: ${d.ncd_facility.sheetName || "-"})`
+          : "⚪ <strong>NCD Facility-wise:</strong> डेटा प्रतीक्षित";
+        const teleChoTxt = d.tele_cho?.rows
+          ? `✅ <strong>CHO Teleconsultation:</strong> ${d.tele_cho.rows.length} रिकॉर्ड (शीट: ${d.tele_cho.sheetName || "-"})`
+          : "⚪ <strong>CHO Teleconsultation:</strong> डेटा प्रतीक्षित";
+        const teleMoTxt = d.tele_mo?.rows
+          ? `✅ <strong>MO Tele Consultation:</strong> ${d.tele_mo.rows.length} रिकॉर्ड (शीट: ${d.tele_mo.sheetName || "-"})`
+          : "⚪ <strong>MO Tele Consultation:</strong> डेटा प्रतीक्षित";
         const qaTxt = d.quality_assurance?.rows
           ? `✅ <strong>Quality Assurance:</strong> ${d.quality_assurance.rows.length} इकाइयां (${d.quality_assurance.fileName})`
           : "⚪ <strong>Quality Assurance:</strong> डिफ़ॉल्ट 154 इकाइयां सक्रिय";
         const rbskTxt = d.rbsk?.rows
           ? `✅ <strong>RBSK:</strong> ${d.rbsk.rows.length} रिकॉर्ड (${d.rbsk.fileName})`
           : "⚪ <strong>RBSK:</strong> डेटा प्रतीक्षित";
-        const teleTxt = d.tele_consultation?.rows
-          ? `✅ <strong>Tele Consultation:</strong> ${d.tele_consultation.rows.length} रिकॉर्ड (${d.tele_consultation.fileName})`
-          : "⚪ <strong>Tele Consultation:</strong> डेटा प्रतीक्षित";
 
         document.getElementById("newProgramStatus").innerHTML = `
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[11px]">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 text-[11px]">
             <div>${ncdTxt}</div>
+            <div>${ncdFacTxt}</div>
+            <div>${teleChoTxt}</div>
+            <div>${teleMoTxt}</div>
             <div>${qaTxt}</div>
             <div>${rbskTxt}</div>
-            <div>${teleTxt}</div>
           </div>
         `;
       }
@@ -519,34 +540,91 @@
       alert(`✅ अपलोड सफल!\nदिनांक: ${fileDateLabel}\nकुल क्षेत्र: ${newRecords.length}\nकुल जनसंख्या: ${sumPop.toLocaleString("en-IN")}\nनिर्मित ABHA: ${sumCreated.toLocaleString("en-IN")}`);
     });
 
-    // 4. NEW PROGRAMS UPLOADER (NCD, QUALITY ASSURANCE, RBSK, TELE CONSULTATION)
+    // 4. MULTI-SHEET PROGRAMS UPLOADER (NCD BLOCK, NCD FACILITY, TELE CHO, TELE MO, QA, RBSK)
+    let activeProgramWorkbook = null;
+
     const PROGRAM_HINTS = {
-      ncd_screening: "💡 <strong>NCD Screening:</strong> सीधे <b>'Composite'</b> शीट वाली Excel फ़ाइल (जैसे 18-11-2026.xlsx) चुनें। यह सभी 11 ब्लॉकों + Urban DHQ, रेफर (%) और ANM/CHO/MO लॉगिन स्टेटस को स्वतः अपडेट कर देगी।",
+      ncd_screening: "💡 <strong>NCD Block Summary:</strong> Excel फ़ाइल चुनें और ड्रॉपडाउन से <b>'Composite'</b> शीट सेलेक्ट करें। यह सभी 11 ब्लॉकों + Urban DHQ, रेफर (%) और ANM/CHO/MO लॉगिन स्टेटस को स्वतः अपडेट कर देगी।",
+      ncd_facility: "💡 <strong>NCD Facility-wise Report:</strong> अपनी Excel फ़ाइल में से Facility-wise वाली शीट चुनें। इसमें Block, Facility Name, Target, Screening आदि कॉलम होने चाहिए।",
+      tele_cho: "💡 <strong>CHO Teleconsultation:</strong> Excel फ़ाइल चुनें और ड्रॉपडाउन से <b>CHO Teleconsultation</b> वाली शीट सेलेक्ट करके अपलोड करें।",
+      tele_mo: "💡 <strong>MO Tele Consultation:</strong> Excel फ़ाइल चुनें और ड्रॉपडाउन से <b>MO Tele Consultation</b> वाली शीट सेलेक्ट करके अपलोड करें।",
       quality_assurance: "💡 <strong>Quality Assurance:</strong> NQAS Excel फ़ाइल (जैसे NQAS 18-11-2026.xlsx) चुनें। ब्लॉक नाम व सर्टिफिकेशन स्टेटस स्वतः साफ़ होकर सेव होंगे।",
-      rbsk: "💡 <strong>RBSK:</strong> ब्लॉक-वार MHT विजिट, आंगनवाड़ी व स्कूल स्क्रीनिंग की Excel शीट चुनें।",
-      tele_consultation: "💡 <strong>Tele Consultation:</strong> ब्लॉक/HWC-वार eSanjeevani टेली-कंसल्टेशन लक्ष्य व उपलब्धि की Excel शीट चुनें।"
+      rbsk: "💡 <strong>RBSK:</strong> ब्लॉक-वार MHT विजिट, आंगनवाड़ी व स्कूल स्क्रीनिंग की Excel शीट चुनें।"
     };
 
+    function autoSelectMatchingSheet(prog, sheetNames) {
+      if (!sheetNames || !sheetNames.length) return "";
+      if (prog === "ncd_screening" && sheetNames.includes("Composite")) return "Composite";
+      const match = sheetNames.find(s => {
+        const up = s.toUpperCase();
+        if (prog === "ncd_facility") return up.includes("FACIL") || up.includes("HWC") || up.includes("SC");
+        if (prog === "tele_cho") return up.includes("CHO");
+        if (prog === "tele_mo") return up.includes("MO");
+        return false;
+      });
+      return match || sheetNames[0];
+    }
+
+    function updateProgSheetPreview() {
+      if (!activeProgramWorkbook) return;
+      const sheetName = document.getElementById("progSheetSelect").value;
+      const rows = XLSX.utils.sheet_to_json(activeProgramWorkbook.Sheets[sheetName], { defval: "" });
+      document.getElementById("progSheetRowCount").textContent = `${rows.length} पंक्तियां (Rows)`;
+    }
+
     document.getElementById("newProgramSelect").addEventListener("change", (e) => {
-      document.getElementById("newProgramHint").innerHTML = PROGRAM_HINTS[e.target.value] || "";
+      const prog = e.target.value;
+      document.getElementById("newProgramHint").innerHTML = PROGRAM_HINTS[prog] || "";
+      if (activeProgramWorkbook) {
+        const bestSheet = autoSelectMatchingSheet(prog, activeProgramWorkbook.SheetNames);
+        document.getElementById("progSheetSelect").value = bestSheet;
+        updateProgSheetPreview();
+      }
     });
+
+    document.getElementById("newProgramFile").addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      const wrapper = document.getElementById("progSheetWrapper");
+      if (!file) {
+        activeProgramWorkbook = null;
+        wrapper.classList.add("hidden");
+        return;
+      }
+      const buffer = await file.arrayBuffer();
+      activeProgramWorkbook = XLSX.read(buffer, { type: "array" });
+
+      const sheetSelect = document.getElementById("progSheetSelect");
+      sheetSelect.innerHTML = "";
+      activeProgramWorkbook.SheetNames.forEach(name => {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        sheetSelect.appendChild(opt);
+      });
+
+      const currentProg = document.getElementById("newProgramSelect").value;
+      sheetSelect.value = autoSelectMatchingSheet(currentProg, activeProgramWorkbook.SheetNames);
+      wrapper.classList.remove("hidden");
+      updateProgSheetPreview();
+    });
+
+    document.getElementById("progSheetSelect").addEventListener("change", updateProgSheetPreview);
 
     document.getElementById("uploadNewProgramBtn").addEventListener("click", async () => {
       const prog = document.getElementById("newProgramSelect").value;
       const file = document.getElementById("newProgramFile").files[0];
       const btn = document.getElementById("uploadNewProgramBtn");
-      if (!file) return alert("कृपया पहले Excel / CSV फ़ाइल चुनें।");
+      if (!file || !activeProgramWorkbook) return alert("कृपया पहले Excel / CSV फ़ाइल चुनें।");
+
+      const selectedSheetName = document.getElementById("progSheetSelect").value || activeProgramWorkbook.SheetNames[0];
+      const targetWorksheet = activeProgramWorkbook.Sheets[selectedSheetName];
 
       btn.disabled = true;
       btn.textContent = "प्रोसेस एवं अपलोड हो रहा है...";
 
       try {
-        const buffer = await file.arrayBuffer();
-        const wb = XLSX.read(buffer, { type: "array" });
-
         if (prog === "ncd_screening") {
-          const sheetName = wb.SheetNames.includes("Composite") ? "Composite" : wb.SheetNames[0];
-          const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: null });
+          const rows = XLSX.utils.sheet_to_json(targetWorksheet, { header: 1, defval: null });
 
           let unitColIdx = 2;
           let headerRowIdx = 2;
@@ -613,16 +691,16 @@
             reportTitle,
             updatedAt: new Date().toLocaleString("hi-IN"),
             fileName: file.name,
+            sheetName: selectedSheetName,
             district,
             units
           });
 
           refreshStatus();
-          alert(`✅ NCD Screening अपलोड सफल!\nकुल इकाइयां: ${units.length}\nजनपद कंपोजिट स्कोर: ${district?.score ?? "-"}%`);
+          alert(`✅ NCD Block Summary अपलोड सफल!\nशीट: ${selectedSheetName}\nकुल इकाइयां: ${units.length}\nजनपद कंपोजिट स्कोर: ${district?.score ?? "-"}%`);
 
         } else if (prog === "quality_assurance") {
-          const firstSheet = wb.Sheets[wb.SheetNames[0]];
-          const rawRows = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+          const rawRows = XLSX.utils.sheet_to_json(targetWorksheet, { defval: "" });
 
           const normBlock = (b) => {
             const s = String(b || "").trim().toUpperCase();
@@ -675,21 +753,21 @@
           await set(child(rootRef, "quality_assurance"), {
             updatedAt: new Date().toLocaleString("hi-IN"),
             fileName: file.name,
+            sheetName: selectedSheetName,
             rows: cleanRows
           });
 
           refreshStatus();
-          alert(`✅ Quality Assurance (NQAS) अपलोड सफल!\nफ़ाइल: ${file.name}\nकुल स्वास्थ्य इकाइयां: ${cleanRows.length}`);
+          alert(`✅ Quality Assurance (NQAS) अपलोड सफल!\nफ़ाइल: ${file.name} (शीट: ${selectedSheetName})\nकुल स्वास्थ्य इकाइयां: ${cleanRows.length}`);
 
         } else {
-          // Sanitize all column keys for Firebase safety (removes ., #, $, /, [, ])
-          const firstSheet = wb.Sheets[wb.SheetNames[0]];
-          const rawJson = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+          // Handles ncd_facility, tele_cho, tele_mo, rbsk using the selected sheet tab
+          const rawJson = XLSX.utils.sheet_to_json(targetWorksheet, { defval: "" });
           const safeRows = rawJson.map(row => {
             const cleanObj = {};
             for (const [k, v] of Object.entries(row)) {
               const cleanKey = String(k || "COL").replace(/[.#$\[\]\/\\]/g, "_").replace(/\s+/g, " ").trim() || "COL";
-              cleanObj[cleanKey] = v;
+              cleanObj[cleanKey] = typeof v === "string" ? v.trim() : v;
             }
             return cleanObj;
           });
@@ -697,17 +775,25 @@
           await set(child(rootRef, prog), {
             updatedAt: new Date().toLocaleString("hi-IN"),
             fileName: file.name,
+            sheetName: selectedSheetName,
             rows: safeRows
           });
 
+          const progNames = {
+            ncd_facility: "NCD Facility-wise Report",
+            tele_cho: "CHO Teleconsultation",
+            tele_mo: "MO Tele Consultation",
+            rbsk: "RBSK"
+          };
+
           refreshStatus();
-          alert(`✅ ${prog.toUpperCase()} अपलोड सफल!\nफ़ाइल: ${file.name}\nकुल पंक्तियां: ${safeRows.length}`);
+          alert(`✅ ${progNames[prog] || prog.toUpperCase()} अपलोड सफल!\nफ़ाइल: ${file.name}\nशीट: ${selectedSheetName}\nकुल पंक्तियां: ${safeRows.length}`);
         }
       } catch (err) {
         alert("❌ त्रुटि: " + err.message);
       } finally {
         btn.disabled = false;
-        btn.textContent = "चयनित कार्यक्रम का डेटा अपलोड करें ↑";
+        btn.textContent = "चयनित शीट का डेटा अपलोड करें ↑";
       }
     });
 
@@ -733,7 +819,7 @@
     });
 
     document.getElementById("clearDbBtn").addEventListener("click", async () => {
-      if (!confirm("केवल ASHA भुगतान डेटा साफ़ करें? (Officers, JSY, ABHA, NCD और QA सुरक्षित रहेंगे)")) return;
+      if (!confirm("केवल ASHA भुगतान डेटा साफ़ करें? (Officers, JSY, ABHA, NCD, Tele Consultation और QA सुरक्षित रहेंगे)")) return;
       await update(rootRef, { heads: null, months: null, workers: null });
       refreshStatus();
     });
