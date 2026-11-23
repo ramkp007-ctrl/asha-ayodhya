@@ -372,7 +372,7 @@
 
         const jsyData = d.jsy_portal;
         if (jsyData && jsyData.records) {
-          const uniqueDates = Array.from(new Set(jsyData.records.map(r => r.date))).join(", ");
+          const uniqueDates = Array.from(new Set(jsyData.records.map(r => r.date).filter(Boolean))).join(", ");
           document.getElementById("jsyStatus").innerHTML = `✅ <strong>JSY सक्रिय दिनांक:</strong> ${uniqueDates} (कुल ${jsyData.records.length} रिकॉर्ड)`;
         } else {
           document.getElementById("jsyStatus").textContent = "अभी कोई JSY डेटा अपलोड नहीं है।";
@@ -380,7 +380,7 @@
 
         const abhaData = d.abha_portal;
         if (abhaData && abhaData.records) {
-          const uniqueAbhaDates = Array.from(new Set(abhaData.records.map(r => r.date))).join(", ");
+          const uniqueAbhaDates = Array.from(new Set(abhaData.records.map(r => r.date).filter(Boolean))).join(", ");
           document.getElementById("abhaStatus").innerHTML = `✅ <strong>ABHA सक्रिय दिनांक:</strong> ${uniqueAbhaDates} (कुल ${abhaData.records.length} आशा क्षेत्र)`;
         } else {
           document.getElementById("abhaStatus").textContent = "अभी कोई ABHA डेटा अपलोड नहीं है।";
@@ -392,11 +392,13 @@
         const ncdFacTxt = d.ncd_facility?.rows
           ? `✅ <strong>NCD Facility-wise:</strong> ${d.ncd_facility.rows.length} इकाइयां (${d.ncd_facility.fileName})`
           : "⚪ <strong>NCD Facility-wise:</strong> डेटा प्रतीक्षित";
+        const choDates = (d.tele_cho?.availableDates || []).filter(Boolean);
         const choTxt = d.tele_cho?.rows
-          ? `✅ <strong>CHO Teleconsultation:</strong> ${d.tele_cho.rows.length} रिकॉर्ड (${(d.tele_cho.availableDates || []).length} दिन)`
+          ? `✅ <strong>CHO Teleconsultation:</strong> ${d.tele_cho.rows.length} रिकॉर्ड (${choDates.length} दिन)`
           : "⚪ <strong>CHO Teleconsultation:</strong> डेटा प्रतीक्षित";
+        const moDates = (d.tele_mo?.availableDates || []).filter(Boolean);
         const moTxt = d.tele_mo?.rows
-          ? `✅ <strong>MO Tele Consultation:</strong> ${d.tele_mo.rows.length} रिकॉर्ड (${(d.tele_mo.availableDates || []).length} दिन)`
+          ? `✅ <strong>MO Tele Consultation:</strong> ${d.tele_mo.rows.length} रिकॉर्ड (${moDates.length} दिन)`
           : "⚪ <strong>MO Tele Consultation:</strong> डेटा प्रतीक्षित";
         const qaTxt = d.quality_assurance?.rows
           ? `✅ <strong>Quality Assurance:</strong> ${d.quality_assurance.rows.length} इकाइयां (${d.quality_assurance.fileName})`
@@ -472,7 +474,7 @@
       })).filter(x => x.block && x.facility);
 
       const snap = await get(jsyRef);
-      const oldRecords = snap.exists() ? (snap.val().records || []).filter(r => r.date !== fileDateLabel) : [];
+      const oldRecords = snap.exists() ? (snap.val().records || []).filter(r => r && r.date !== fileDateLabel) : [];
       const mergedRecords = [...oldRecords, ...newRecords];
 
       await set(jsyRef, { updatedAt: new Date().toLocaleString("hi-IN"), latestDate: fileDateLabel, records: mergedRecords });
@@ -510,7 +512,7 @@
       }).filter(x => x.block && (x.ashaName || x.sc));
 
       const snap = await get(abhaRef);
-      const oldRecords = snap.exists() ? (snap.val().records || []).filter(r => r.date !== fileDateLabel && !String(r.date).startsWith("ABHA ID_")) : [];
+      const oldRecords = snap.exists() ? (snap.val().records || []).filter(r => r && r.date !== fileDateLabel && !String(r.date).startsWith("ABHA ID_")) : [];
       const mergedRecords = [...oldRecords, ...newRecords];
 
       await set(abhaRef, { updatedAt: new Date().toLocaleString("hi-IN"), latestDate: fileDateLabel, records: mergedRecords });
@@ -706,13 +708,16 @@
               user: String(norm["USER NAME"] || norm["USER"] || norm["CHO NAME"] || norm["MO NAME"] || "").replace(/\s+/g, " ").trim(),
               tc: Number(norm["TELE CONSULTATION"] || norm["TOTAL"] || norm["TC"] || 0) || 0
             };
-          }).filter(x => x.user || x.facility);
+          }).filter(x => x.isoDate && (x.user || x.facility));
 
+          // Filter out any old records missing isoDate (prevents Firebase undefined property error)
           const targetRef = child(rootRef, prog);
           const snap = await get(targetRef);
-          const existingRows = snap.exists() ? (snap.val().rows || []).filter(r => r.isoDate !== isoDate) : [];
+          const existingRows = snap.exists()
+            ? (snap.val().rows || []).filter(r => r && typeof r.isoDate === "string" && r.isoDate.trim() !== "" && r.isoDate !== isoDate)
+            : [];
           const mergedRows = [...existingRows, ...newDailyRows];
-          const allDates = Array.from(new Set(mergedRows.map(r => r.isoDate))).sort();
+          const allDates = Array.from(new Set(mergedRows.map(r => r.isoDate).filter(d => typeof d === "string" && d.trim() !== ""))).sort();
 
           await set(targetRef, {
             updatedAt: new Date().toLocaleString("hi-IN"),
