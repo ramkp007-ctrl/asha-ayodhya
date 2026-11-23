@@ -8,12 +8,18 @@
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #fff !important; }
+    }
+  </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen font-sans antialiased">
 
   <!-- HEADER -->
   <header class="bg-slate-900 text-white shadow-md">
-    <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-wrap justify-between items-center gap-3">
+    <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-wrap justify-between items-center gap-3">
       <div>
         <div class="flex items-center gap-2">
           <h1 class="text-base font-bold">Tele Consultation समीक्षा (eSanjeevani) — NHM अयोध्या</h1>
@@ -21,7 +27,10 @@
         </div>
         <p id="metaSubTitle" class="text-xs text-slate-300 mt-0.5">डेटा लोड हो रहा है...</p>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 no-print">
+        <button onclick="window.print()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-xs font-bold rounded-lg">
+          🖨️ Print
+        </button>
         <a href="portal.html" class="px-3.5 py-1.5 bg-teal-700 hover:bg-teal-600 text-xs font-bold rounded-lg">
           ← वापस Program Portal
         </a>
@@ -29,10 +38,10 @@
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto px-4 py-6 space-y-5">
+  <main class="max-w-7xl mx-auto px-4 py-6 space-y-5">
 
     <!-- 2 TABS: CHO TELECONSULTATION & MO TELE CONSULTATION -->
-    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap justify-between items-center gap-3">
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap justify-between items-center gap-3 no-print">
       <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
         <button id="tabCHO" onclick="switchTeleTab('tele_cho')"
           class="px-4 py-2 rounded-lg text-xs font-bold bg-purple-700 text-white shadow transition">
@@ -44,14 +53,19 @@
         </button>
       </div>
 
-      <button onclick="downloadTeleExcel()"
-        class="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow-sm">
-        ⬇️ Excel डाउनलोड करें (.xlsx)
-      </button>
+      <div class="flex items-center gap-2">
+        <span id="selectedDaysPill" class="px-3 py-1.5 bg-indigo-50 text-indigo-800 border border-indigo-200 rounded-lg text-xs font-bold">
+          📅 अवधि: 0 दिन
+        </span>
+        <button onclick="downloadTeleExcel()"
+          class="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow-sm">
+          ⬇️ Excel डाउनलोड करें (.xlsx)
+        </button>
+      </div>
     </div>
 
     <!-- FILTERS: DATE RANGE + BLOCK + STATUS + SEARCH -->
-    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 no-print">
       <div>
         <label class="block text-[11px] font-bold text-slate-600 mb-1">📅 From Date (दिनांक से):</label>
         <input type="date" id="fromDateInput" onchange="renderDashboard()"
@@ -85,59 +99,90 @@
       </div>
     </div>
 
-    <!-- KPI CARDS -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- 5 KPI CARDS (INCLUDING AVG TC / USER / DAY) -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
       <div class="bg-white p-4 rounded-xl border border-purple-200 shadow-sm">
         <div class="text-xs font-semibold text-purple-800">कुल Unique इकाइयां / Users</div>
         <div id="kpiUniqueUsers" class="text-2xl font-extrabold text-slate-900 mt-1">0</div>
         <div id="kpiActiveZero" class="text-[11px] text-slate-500 mt-0.5">Active: 0 | Zero: 0</div>
       </div>
+
       <div class="bg-white p-4 rounded-xl border border-emerald-200 shadow-sm">
         <div class="text-xs font-semibold text-emerald-800">कुल Tele Consultations</div>
         <div id="kpiTotalTc" class="text-2xl font-extrabold text-emerald-700 mt-1">0</div>
-        <div class="text-[11px] text-slate-500 mt-0.5">चयनित दिनांक रेंज का कुल योग</div>
+        <div class="text-[11px] text-slate-500 mt-0.5">चयनित दिनांक रेंज का योग</div>
       </div>
+
       <div class="bg-white p-4 rounded-xl border border-sky-200 shadow-sm">
         <div class="text-xs font-semibold text-sky-800">औसत TC प्रति इकाई</div>
         <div id="kpiAvgTc" class="text-2xl font-extrabold text-sky-900 mt-1">0.0</div>
-        <div class="text-[11px] text-slate-500 mt-0.5">Average per CHO / MO</div>
+        <div class="text-[11px] text-slate-500 mt-0.5">Total period avg / User</div>
       </div>
-      <div class="bg-white p-4 rounded-xl border border-rose-200 shadow-sm">
+
+      <!-- NEW KPI: AVG TC PER USER PER DAY -->
+      <div class="bg-gradient-to-br from-indigo-50 to-white p-4 rounded-xl border-2 border-indigo-300 shadow-sm">
+        <div class="text-xs font-extrabold text-indigo-900">औसत TC / User / Day</div>
+        <div id="kpiAvgTcPerDay" class="text-2xl font-extrabold text-indigo-700 mt-1">0.0</div>
+        <div id="kpiAvgDaySub" class="text-[11px] text-indigo-600 mt-0.5">प्रतिदिन प्रति CHO/MO औसत</div>
+      </div>
+
+      <div class="bg-white p-4 rounded-xl border border-rose-200 shadow-sm col-span-2 sm:col-span-1">
         <div class="text-xs font-semibold text-rose-800">Zero Reporting इकाइयां</div>
         <div id="kpiZeroCount" class="text-2xl font-extrabold text-rose-700 mt-1">0</div>
         <div class="text-[11px] text-rose-600 mt-0.5">0 टेली-कंसल्टेशन वाले</div>
       </div>
     </div>
 
-    <!-- 2 BOXES: TOP 5 & POOR 5 -->
+    <!-- ROW 1: TOP 5 & POOR 5 BLOCKS (OR FACILITIES WHEN BLOCK SELECTED) -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- TOP 5 BOX -->
+      <!-- TOP 5 BLOCKS/FACILITIES BOX -->
       <div class="bg-white rounded-xl border border-emerald-200 shadow-sm overflow-hidden">
         <div class="px-4 py-2.5 bg-emerald-700 text-white flex justify-between items-center">
           <h3 id="top5Title" class="text-xs font-extrabold tracking-wide">🏆 Top 5 Blocks (सर्वश्रेष्ठ प्रदर्शन)</h3>
-          <span class="text-[10px] bg-emerald-900/60 px-2 py-0.5 rounded font-semibold">Highest TC</span>
+          <span class="text-[10px] bg-emerald-900/60 px-2 py-0.5 rounded font-semibold">Total &amp; Avg/User/Day</span>
         </div>
         <div id="top5List" class="divide-y divide-slate-100 p-2"></div>
       </div>
 
-      <!-- POOR 5 BOX -->
+      <!-- POOR 5 BLOCKS/FACILITIES BOX -->
       <div class="bg-white rounded-xl border border-rose-200 shadow-sm overflow-hidden">
         <div class="px-4 py-2.5 bg-rose-700 text-white flex justify-between items-center">
           <h3 id="poor5Title" class="text-xs font-extrabold tracking-wide">⚠️ Poor 5 Blocks (न्यूनतम प्रदर्शन)</h3>
-          <span class="text-[10px] bg-rose-900/60 px-2 py-0.5 rounded font-semibold">Lowest TC</span>
+          <span class="text-[10px] bg-rose-900/60 px-2 py-0.5 rounded font-semibold">Total &amp; Avg/User/Day</span>
         </div>
         <div id="poor5List" class="divide-y divide-slate-100 p-2"></div>
       </div>
     </div>
 
-    <!-- DYNAMIC DATA-LABELED CHART (ALL BLOCKS OR ALL FACILITIES OF SELECTED BLOCK TOP-TO-BOTTOM) -->
+    <!-- ROW 2: TOP 5 & POOR 5 INDIVIDUAL CHO / MO USERS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- TOP 5 USERS BOX -->
+      <div class="bg-white rounded-xl border border-teal-200 shadow-sm overflow-hidden">
+        <div class="px-4 py-2.5 bg-teal-800 text-white flex justify-between items-center">
+          <h3 id="top5UserTitle" class="text-xs font-extrabold tracking-wide">🌟 Top 5 CHO / MO Users (व्यक्तिगत सर्वश्रेष्ठ)</h3>
+          <span class="text-[10px] bg-teal-950/60 px-2 py-0.5 rounded font-semibold">Highest TC &amp; Avg/Day</span>
+        </div>
+        <div id="top5UserList" class="divide-y divide-slate-100 p-2"></div>
+      </div>
+
+      <!-- POOR 5 USERS BOX -->
+      <div class="bg-white rounded-xl border border-amber-200 shadow-sm overflow-hidden">
+        <div class="px-4 py-2.5 bg-amber-700 text-white flex justify-between items-center">
+          <h3 id="poor5UserTitle" class="text-xs font-extrabold tracking-wide">🔻 Poor 5 CHO / MO Users (न्यूनतम व्यक्तिगत प्रदर्शन)</h3>
+          <span class="text-[10px] bg-amber-950/60 px-2 py-0.5 rounded font-semibold">Lowest TC &amp; Avg/Day</span>
+        </div>
+        <div id="poor5UserList" class="divide-y divide-slate-100 p-2"></div>
+      </div>
+    </div>
+
+    <!-- DYNAMIC DATA-LABELED CHART -->
     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
       <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
         <div>
           <h2 id="chartMainTitle" class="text-sm font-bold text-slate-800">📊 ब्लॉक-वार कुल Tele Consultation (Top से Bottom)</h2>
           <p id="chartSubHint" class="text-[11px] text-slate-500">किसी ब्लॉक के बार पर क्लिक करें या ऊपर ड्रॉपडाउन से ब्लॉक चुनें — उस ब्लॉक की सभी Facilities का चार्ट खुल जाएगा</p>
         </div>
-        <button id="btnResetBlockChart" onclick="resetToAllBlocks()" class="hidden px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-[11px] font-bold rounded-lg">
+        <button id="btnResetBlockChart" onclick="resetToAllBlocks()" class="hidden px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-[11px] font-bold rounded-lg no-print">
           ← सभी 11 Blocks देखें
         </button>
       </div>
@@ -154,7 +199,7 @@
         <h2 id="tableHeading" class="text-sm font-bold text-slate-800">📋 ब्लॉक व स्वास्थ्य केंद्र-वार Tele Consultation सूची</h2>
         <span id="tableCountBadge" class="text-xs font-bold text-purple-800 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">0 इकाइयां</span>
       </div>
-      <div class="overflow-x-auto max-h-[450px]">
+      <div class="overflow-x-auto max-h-[480px]">
         <table class="w-full text-xs text-left border-collapse">
           <thead class="bg-slate-900 text-white sticky top-0">
             <tr>
@@ -162,8 +207,9 @@
               <th class="p-2.5">Block</th>
               <th class="p-2.5">Health Facility / Sub-Center</th>
               <th class="p-2.5">User Name (CHO / MO)</th>
-              <th class="p-2.5 text-center">दिन (Days)</th>
+              <th class="p-2.5 text-center">Active Days</th>
               <th class="p-2.5 text-right">Total TC</th>
+              <th class="p-2.5 text-right">Avg TC / Day</th>
               <th class="p-2.5 text-center">स्थिति</th>
             </tr>
           </thead>
@@ -198,6 +244,7 @@
     }
 
     let rawRows = [];
+    let allAvailableDates = [];
     let renderedRows = [];
     let currentTab = "tele_cho";
     let chartInstance = null;
@@ -237,6 +284,7 @@
       const snap = await get(ref(db, `asha_portal_v2/${tabKey}`));
       if (!snap.exists() || !snap.val().rows) {
         rawRows = [];
+        allAvailableDates = [];
         document.getElementById("metaSubTitle").textContent = "अभी इस टैब का डेटा अपलोड नहीं किया गया है।";
         window.renderDashboard();
         return;
@@ -244,7 +292,7 @@
 
       const data = snap.val();
       rawRows = data.rows || [];
-      const dates = (data.availableDates || []).filter(Boolean).sort();
+      allAvailableDates = (data.availableDates || []).filter(Boolean).sort();
 
       const blocks = Array.from(new Set(rawRows.map(r => (r.block || "").trim()).filter(Boolean))).sort();
       const blockSel = document.getElementById("blockFilterSelect");
@@ -259,15 +307,15 @@
         }
       }
 
-      if (dates.length > 0) {
+      if (allAvailableDates.length > 0) {
         const fEl = document.getElementById("fromDateInput");
         const tEl = document.getElementById("toDateInput");
-        fEl.min = dates[0]; fEl.max = dates[dates.length - 1];
-        tEl.min = dates[0]; tEl.max = dates[dates.length - 1];
-        fEl.value = dates[0];
-        tEl.value = dates[dates.length - 1];
+        fEl.min = allAvailableDates[0]; fEl.max = allAvailableDates[allAvailableDates.length - 1];
+        tEl.min = allAvailableDates[0]; tEl.max = allAvailableDates[allAvailableDates.length - 1];
+        fEl.value = allAvailableDates[0];
+        tEl.value = allAvailableDates[allAvailableDates.length - 1];
         document.getElementById("metaSubTitle").textContent =
-          `उपलब्ध दिनांक: ${dates[0]} से ${dates[dates.length - 1]} (${dates.length} दिन) • अंतिम अपडेट: ${data.updatedAt || ""}`;
+          `उपलब्ध दिनांक: ${allAvailableDates[0]} से ${allAvailableDates[allAvailableDates.length - 1]} (${allAvailableDates.length} दिन) • अंतिम अपडेट: ${data.updatedAt || ""}`;
       }
 
       window.renderDashboard();
@@ -279,6 +327,15 @@
       const selBlock = document.getElementById("blockFilterSelect").value;
       const perfFilter = document.getElementById("statusFilterSelect").value;
       const searchQ = document.getElementById("searchInput").value.trim().toLowerCase();
+
+      // Calculate total reporting days in selected date range
+      const selectedRangeDates = allAvailableDates.filter(d => {
+        if (fromDt && d < fromDt) return false;
+        if (toDt && d > toDt) return false;
+        return true;
+      });
+      const periodDays = Math.max(1, selectedRangeDates.length || 1);
+      document.getElementById("selectedDaysPill").textContent = `📅 अवधि: ${periodDays} दिन`;
 
       // 1. Date Range Filter & Chronological Sort
       const dateFiltered = rawRows
@@ -316,19 +373,21 @@
         entry.facility = cleanFac;
         entry.user = cleanUser;
         entry.allNames.add(cleanUser);
-        if (r.isoDate) entry.days.add(r.isoDate);
+        if (r.isoDate && (Number(r.tc) || 0) > 0) entry.days.add(r.isoDate);
         entry.totalTc += Number(r.tc) || 0;
       });
 
       const allUniqueUnits = Array.from(unitMap.values()).map(u => {
         const otherNames = Array.from(u.allNames).filter(n => n.toUpperCase() !== u.user.toUpperCase());
         const displayUser = otherNames.length > 0 ? `${u.user} (${otherNames.join(" / ")})` : u.user;
+        const avgPerDay = u.totalTc / periodDays;
         return {
           block: u.block,
           facility: u.facility,
           user: displayUser,
           daysCount: u.days.size,
-          totalTc: u.totalTc
+          totalTc: u.totalTc,
+          avgPerDay: avgPerDay
         };
       });
 
@@ -345,9 +404,10 @@
       });
       renderedRows = finalRows;
 
-      // 4. Update Top 5 & Poor 5 Boxes AND Chart based on ALL vs Single Block
+      // 4. Update Top 5 & Poor 5 Boxes (Blocks/Facilities + Individual Users) AND Chart
       const resetBtn = document.getElementById("btnResetBlockChart");
       const blockSelEl = document.getElementById("blockFilterSelect");
+      const roleLabel = currentTab === "tele_cho" ? "CHO" : "MO";
 
       if (selBlock === "ALL") {
         // Aggregate Block-wise totals
@@ -362,10 +422,15 @@
 
         const sortedBlocks = Array.from(blockStatsMap.values()).sort((a, b) => b.totalTc - a.totalTc);
 
-        // Top 5 & Poor 5 Blocks
+        // Row 1: Top 5 & Poor 5 Blocks
         document.getElementById("top5Title").textContent = "🏆 Top 5 Blocks (सर्वश्रेष्ठ प्रदर्शन)";
         document.getElementById("poor5Title").textContent = "⚠️ Poor 5 Blocks (न्यूनतम प्रदर्शन)";
-        renderTopPoorBoxes(sortedBlocks, true);
+        renderTopPoorBoxes(sortedBlocks, true, periodDays);
+
+        // Row 2: Top 5 & Poor 5 Individual Users across District
+        document.getElementById("top5UserTitle").textContent = `🌟 Top 5 ${roleLabel} Users — जनपद अयोध्या`;
+        document.getElementById("poor5UserTitle").textContent = `🔻 Poor 5 ${roleLabel} Users — जनपद अयोध्या`;
+        renderUserTopPoorBoxes(allUniqueUnits, periodDays);
 
         // Chart: All Blocks Top-to-Bottom
         document.getElementById("chartMainTitle").textContent = "📊 सभी 11 Blocks का कुल Tele Consultation (Top से Bottom)";
@@ -379,12 +444,17 @@
           true
         );
       } else {
-        // Single Block Selected -> Top 5 & Poor 5 Facilities of that Block
+        // Row 1: Top 5 & Poor 5 Facilities of selected Block
         document.getElementById("top5Title").textContent = `🏆 Top 5 Facilities — ${selBlock}`;
         document.getElementById("poor5Title").textContent = `⚠️ Poor 5 Facilities — ${selBlock}`;
-        renderTopPoorBoxes(blockOnlyUnits, false);
+        renderTopPoorBoxes(blockOnlyUnits, false, periodDays);
 
-        // Chart: ALL Facilities of selected block from Top to Bottom with Data Labels
+        // Row 2: Top 5 & Poor 5 Individual Users of selected Block
+        document.getElementById("top5UserTitle").textContent = `🌟 Top 5 ${roleLabel} Users — ${selBlock}`;
+        document.getElementById("poor5UserTitle").textContent = `🔻 Poor 5 ${roleLabel} Users — ${selBlock}`;
+        renderUserTopPoorBoxes(blockOnlyUnits, periodDays);
+
+        // Chart: ALL Facilities of selected block from Top to Bottom
         document.getElementById("chartMainTitle").textContent = `📊 ${selBlock} ब्लॉक की सभी ${blockOnlyUnits.length} Facilities (Top से Bottom तक)`;
         document.getElementById("chartSubHint").textContent = "हर बार के ऊपर कुल Tele Consultation संख्या (Data Label) प्रदर्शित है";
         if (!blockSelEl.disabled) resetBtn.classList.remove("hidden");
@@ -396,24 +466,27 @@
         renderDataLabeledChart(facLabels, facValues, facColors, false);
       }
 
-      // 5. KPIs
+      // 5. KPIs (Including Avg TC / User / Day)
       const totalU = finalRows.length;
       const sumTc = finalRows.reduce((s, r) => s + r.totalTc, 0);
       const zeroU = finalRows.filter(r => r.totalTc === 0).length;
       const activeU = totalU - zeroU;
       const avg = totalU > 0 ? (sumTc / totalU).toFixed(1) : "0.0";
+      const avgPerUserPerDay = (totalU > 0 && periodDays > 0) ? (sumTc / (totalU * periodDays)).toFixed(2) : "0.00";
 
       document.getElementById("kpiUniqueUsers").textContent = totalU.toLocaleString("en-IN");
       document.getElementById("kpiActiveZero").textContent = `Active: ${activeU} | Zero: ${zeroU}`;
       document.getElementById("kpiTotalTc").textContent = sumTc.toLocaleString("en-IN");
       document.getElementById("kpiAvgTc").textContent = avg;
+      document.getElementById("kpiAvgTcPerDay").textContent = avgPerUserPerDay;
+      document.getElementById("kpiAvgDaySub").textContent = `${periodDays} दिनों के आधार पर औसत`;
       document.getElementById("kpiZeroCount").textContent = zeroU.toLocaleString("en-IN");
       document.getElementById("tableCountBadge").textContent = `${totalU} इकाइयां`;
 
       // 6. Table
       const tbody = document.getElementById("tcTableBody");
       if (!finalRows.length) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">चयनित फ़िल्टर के लिए कोई डेटा उपलब्ध नहीं है।</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500">चयनित फ़िल्टर के लिए कोई डेटा उपलब्ध नहीं है।</td></tr>`;
         return;
       }
 
@@ -428,15 +501,17 @@
             <td class="p-2.5 font-semibold text-slate-700">${r.block}</td>
             <td class="p-2.5 font-bold text-slate-900">${r.facility}</td>
             <td class="p-2.5 text-slate-700">${r.user}</td>
-            <td class="p-2.5 text-center text-slate-600">${r.daysCount}</td>
+            <td class="p-2.5 text-center text-slate-600">${r.daysCount} / ${periodDays}</td>
             <td class="p-2.5 text-right font-extrabold ${isZero ? 'text-rose-600' : 'text-purple-900'}">${r.totalTc.toLocaleString("en-IN")}</td>
+            <td class="p-2.5 text-right font-bold text-indigo-800">${r.avgPerDay.toFixed(2)}</td>
             <td class="p-2.5 text-center">${badge}</td>
           </tr>
         `;
       }).join("");
     };
 
-    function renderTopPoorBoxes(sortedDescList, isBlockMode) {
+    // Row 1 Renderer: Top 5 & Poor 5 Blocks or Facilities (with Avg TC / User / Day)
+    function renderTopPoorBoxes(sortedDescList, isBlockMode, periodDays) {
       const top5El = document.getElementById("top5List");
       const poor5El = document.getElementById("poor5List");
 
@@ -447,14 +522,16 @@
       }
 
       const top5 = sortedDescList.slice(0, 5);
-      // Bottom 5 sorted lowest first
       const poor5 = [...sortedDescList].reverse().slice(0, 5);
 
       const buildRow = (item, idx, isTop) => {
         const title = isBlockMode ? item.name : item.facility;
+        const avgUserDay = isBlockMode
+          ? (item.count ? (item.totalTc / (item.count * periodDays)).toFixed(2) : "0.00")
+          : (item.totalTc / periodDays).toFixed(2);
         const sub = isBlockMode
-          ? `${item.count} इकाइयां • औसत: ${(item.count ? (item.totalTc / item.count).toFixed(1) : 0)}`
-          : `${item.user}`;
+          ? `${item.count} इकाइयां • Avg/User/Day: <b>${avgUserDay}</b>`
+          : `${item.user} • Avg/Day: <b>${avgUserDay}</b>`;
         const pillClass = isTop
           ? "bg-emerald-100 text-emerald-900 border border-emerald-300"
           : (item.totalTc === 0 ? "bg-rose-100 text-rose-800 border border-rose-300" : "bg-amber-100 text-amber-900 border border-amber-300");
@@ -470,9 +547,11 @@
                 <div class="text-[10px] text-slate-500 truncate">${sub}</div>
               </div>
             </div>
-            <span class="ml-2 flex-shrink-0 px-2.5 py-0.5 rounded-full font-extrabold text-xs ${pillClass}">
-              ${item.totalTc.toLocaleString("en-IN")}
-            </span>
+            <div class="ml-2 flex-shrink-0 text-right">
+              <span class="px-2.5 py-0.5 rounded-full font-extrabold text-xs ${pillClass}">
+                ${item.totalTc.toLocaleString("en-IN")} TC
+              </span>
+            </div>
           </div>
         `;
       };
@@ -481,11 +560,54 @@
       poor5El.innerHTML = poor5.map((item, idx) => buildRow(item, idx, false)).join("");
     }
 
+    // Row 2 Renderer: Top 5 & Poor 5 Individual CHO / MO Users
+    function renderUserTopPoorBoxes(unitsList, periodDays) {
+      const top5UserEl = document.getElementById("top5UserList");
+      const poor5UserEl = document.getElementById("poor5UserList");
+
+      if (!unitsList.length) {
+        top5UserEl.innerHTML = `<p class="p-3 text-xs text-slate-400">डेटा उपलब्ध नहीं</p>`;
+        poor5UserEl.innerHTML = `<p class="p-3 text-xs text-slate-400">डेटा उपलब्ध नहीं</p>`;
+        return;
+      }
+
+      const sortedDesc = [...unitsList].sort((a, b) => b.totalTc - a.totalTc);
+      const top5 = sortedDesc.slice(0, 5);
+      const poor5 = [...sortedDesc].reverse().slice(0, 5);
+
+      const buildUserRow = (u, idx, isTop) => {
+        const cleanName = u.user.split("(")[0].trim();
+        const avgDay = (u.totalTc / periodDays).toFixed(2);
+        const pillClass = isTop
+          ? "bg-teal-100 text-teal-900 border border-teal-300"
+          : (u.totalTc === 0 ? "bg-rose-100 text-rose-800 border border-rose-300" : "bg-amber-100 text-amber-900 border border-amber-300");
+
+        return `
+          <div class="flex items-center justify-between px-2.5 py-2 hover:bg-slate-50 rounded-lg text-xs">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="w-5 h-5 flex-shrink-0 rounded-full flex items-center justify-center text-[10px] font-extrabold ${isTop ? 'bg-teal-700 text-white' : 'bg-amber-700 text-white'}">
+                ${idx + 1}
+              </span>
+              <div class="truncate">
+                <div class="font-bold text-slate-900 truncate">${cleanName}</div>
+                <div class="text-[10px] text-slate-500 truncate">${u.facility} (${u.block}) • Avg/Day: <b>${avgDay}</b></div>
+              </div>
+            </div>
+            <span class="ml-2 flex-shrink-0 px-2.5 py-0.5 rounded-full font-extrabold text-xs ${pillClass}">
+              ${u.totalTc.toLocaleString("en-IN")} TC
+            </span>
+          </div>
+        `;
+      };
+
+      top5UserEl.innerHTML = top5.map((u, idx) => buildUserRow(u, idx, true)).join("");
+      poor5UserEl.innerHTML = poor5.map((u, idx) => buildUserRow(u, idx, false)).join("");
+    }
+
     function renderDataLabeledChart(labels, values, colors, isBlockLevel) {
       const ctx = document.getElementById("blockTcChart").getContext("2d");
       if (chartInstance) chartInstance.destroy();
 
-      // Adjust width dynamically if a block has 25-35 facilities so every label & bar stays readable
       const innerBox = document.getElementById("chartInnerBox");
       if (!isBlockLevel && labels.length > 14) {
         innerBox.style.width = `${labels.length * 52}px`;
@@ -552,8 +674,13 @@
       const fromDt = document.getElementById("fromDateInput").value;
       const toDt = document.getElementById("toDateInput").value;
       const rows = renderedRows.map((r, i) => ({
-        "Rank": i + 1, "Block": r.block, "Health Facility": r.facility,
-        "User Name": r.user, "Active Days": r.daysCount, "Total Tele Consultation": r.totalTc
+        "Rank": i + 1,
+        "Block": r.block,
+        "Health Facility": r.facility,
+        "User Name": r.user,
+        "Active Days": r.daysCount,
+        "Total Tele Consultation": r.totalTc,
+        "Avg TC Per Day": Number(r.avgPerDay.toFixed(2))
       }));
       const ws = XLSX.utils.json_to_sheet(rows);
       const wb = XLSX.utils.book_new();
