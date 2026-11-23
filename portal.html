@@ -22,12 +22,12 @@
       box-shadow: 0 10px 30px -10px rgba(26, 38, 34, 0.06);
     }
     .card-hover {
-      transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .card-hover:hover {
       transform: translateY(-3px);
-      box-shadow: 0 20px 35px -12px rgba(19, 60, 51, 0.10);
-      border-color: #9BB5AC;
+      box-shadow: 0 20px 35px -12px rgba(19, 60, 51, 0.12);
+      border-color: #8BA89E;
     }
   </style>
 </head>
@@ -38,27 +38,22 @@
   <!-- ===================================================================== -->
   <div id="loginScreen" class="min-h-screen grid grid-cols-1 lg:grid-cols-12 bg-[#FAF8F5]">
 
-    <!-- LEFT 6 COLUMNS: WARM BOTANICAL / ARCHITECTURAL CANVAS -->
     <div class="lg:col-span-6 relative overflow-hidden bg-[#133C33] text-[#F6F4EF] flex flex-col justify-between p-10 md:p-16">
-      
-      <!-- Subtle Organic Curves -->
       <svg class="pointer-events-none absolute inset-0 w-full h-full opacity-15" viewBox="0 0 800 800" fill="none">
         <circle cx="700" cy="120" r="340" stroke="#D8C3A5" stroke-width="1.5"/>
         <circle cx="100" cy="720" r="380" stroke="#9BB5AC" stroke-width="1.5"/>
         <path d="M-50 450 Q 350 250 850 520" stroke="#E5B887" stroke-width="1.2"/>
       </svg>
 
-      <!-- Top Tag -->
       <div class="relative z-10 flex items-center justify-between">
         <span class="text-xs font-medium tracking-[0.2em] uppercase text-[#C7B299]">
           District Health Society · Ayodhya
         </span>
-        <span class="px-3 py-1 rounded-full text-[11px] bg-white/10 text-[#DCE7E2] backdrop-blur-xs">
+        <span class="px-3 py-1 rounded-full text-[11px] bg-white/10 text-[#DCE7E2]">
           NHM Uttar Pradesh
         </span>
       </div>
 
-      <!-- Center Editorial Statement -->
       <div class="relative z-10 my-auto py-12 max-w-md space-y-6">
         <div class="w-12 h-12 rounded-2xl bg-[#E5B887]/20 border border-[#E5B887]/40 flex items-center justify-center text-[#E5B887]">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -71,8 +66,8 @@
           Clarity in every <span class="italic text-[#E5B887]">health indicator.</span>
         </h1>
 
-        <p class="text-sm text-[#C4D3CD] leading-relaxed font-normal">
-          जनपद अयोध्या के 11 विकास खंडों एवं स्वास्थ्य इकाइयों की प्रगति, टेली-कंसल्टेशन, मातृ-शिशु स्वास्थ्य एवं आशा प्रोत्साहन भुगतान का शांत और सटीक समीक्षा मंच।
+        <p class="text-sm text-[#C4D3CD] leading-relaxed">
+          जनपद अयोध्या के 11 विकास खंडों एवं स्वास्थ्य इकाइयों की प्रगति, टेली-कंसल्टेशन, मातृ-शिशु स्वास्थ्य एवं आशा प्रोत्साहन भुगतान का एकीकृत समीक्षा मंच।
         </p>
 
         <div class="pt-4 flex items-center gap-6 border-t border-white/10 text-xs text-[#A8BDB5]">
@@ -88,13 +83,11 @@
         </div>
       </div>
 
-      <!-- Bottom Caption -->
       <div class="relative z-10 text-[11px] text-[#8FA89F]">
         Program Analysis &amp; Integrated Dashboard (PAID)
       </div>
     </div>
 
-    <!-- RIGHT 6 COLUMNS: SERENE IVORY SIGN-IN -->
     <div class="lg:col-span-6 flex flex-col justify-between p-8 md:p-16 bg-[#FAF8F5]">
       <div class="flex justify-end">
         <a href="index.html" class="text-xs font-semibold text-[#133C33] hover:text-[#B87333] transition flex items-center gap-1.5">
@@ -135,7 +128,7 @@
               class="w-full px-4 py-3.5 bg-white border border-[#E5DFD7] focus:border-[#133C33] rounded-2xl text-base font-bold tracking-[0.4em] text-[#1A2622] placeholder-slate-300 focus:outline-none soft-shadow transition" />
           </div>
 
-          <div id="loginError" class="hidden p-3 bg-rose-50/90 text-rose-800 border border-rose-200 rounded-2xl text-xs font-medium text-center"></div>
+          <div id="loginError" class="hidden p-3 bg-rose-50 text-rose-800 border border-rose-200 rounded-2xl text-xs font-medium text-center"></div>
 
           <button type="submit" id="loginBtn"
             class="w-full py-3.5 bg-[#133C33] hover:bg-[#1C5246] text-[#FAF8F5] font-semibold rounded-full text-sm soft-shadow transition cursor-pointer">
@@ -155,11 +148,10 @@
   <!-- ===================================================================== -->
   <div id="hubApp" class="hidden min-h-screen flex flex-col">
 
-    <!-- MINIMAL STICKY HEADER -->
-    <header class="bg-[#FAF8F5]/90 backdrop-blur-md border-b border-[#EAE4DC] sticky top-0 z-30">
+    <!-- STICKY HEADER -->
+    <header class="bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#EAE4DC] sticky top-0 z-30">
       <div class="max-w-6xl mx-auto px-5 md:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
         
-        <!-- Brand -->
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 rounded-full bg-[#133C33] text-[#E5B887] flex items-center justify-center font-semibold text-sm">
             ✦
@@ -174,7 +166,6 @@
           </div>
         </div>
 
-        <!-- Subtle Search Pill -->
         <div class="order-3 md:order-2 w-full md:w-72 lg:w-80 relative">
           <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8C9B95] text-xs">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -186,7 +177,6 @@
             class="w-full pl-9 pr-4 py-2 bg-white border border-[#E5DFD7] focus:border-[#133C33] rounded-full text-xs text-[#1A2622] placeholder-[#9AA8A2] focus:outline-none transition" />
         </div>
 
-        <!-- Officer Pill + Upload + Sign Out -->
         <div class="order-2 md:order-3 flex items-center gap-2.5">
           <a href="admin.html"
             class="px-3.5 py-2 bg-white hover:bg-[#F2EDE6] text-[#1A2622] text-xs font-semibold rounded-full border border-[#E5DFD7] transition">
@@ -207,13 +197,13 @@
     </header>
 
     <!-- MAIN WORKSPACE -->
-    <main class="max-w-6xl mx-auto w-full px-5 md:px-8 py-8 md:py-10 space-y-8 flex-1">
+    <main class="max-w-6xl mx-auto w-full px-5 md:px-8 py-8 space-y-8 flex-1">
 
-      <!-- TOP HERO GREETING & SCOPE -->
-      <div class="flex flex-wrap justify-between items-end gap-4 pb-2 border-b border-[#EAE4DC]">
+      <!-- TOP HERO GREETING & FILTER PILLS -->
+      <div class="flex flex-wrap justify-between items-end gap-4 pb-3 border-b border-[#EAE4DC]">
         <div>
           <span id="roleBadge" class="inline-block text-[10px] font-bold tracking-[0.16em] uppercase text-[#8C7A6B] bg-[#F1ECE4] px-3 py-1 rounded-full mb-2">
-            DISTRICT LEVEL
+            AYODHYA DISTRICT · ALL 11 BLOCKS
           </span>
           <h2 class="serif-title text-3xl md:text-4xl text-[#1A2622]">
             Health Indicators
@@ -229,7 +219,7 @@
         </div>
       </div>
 
-      <!-- QUIET LUXURY KPI STRIP (4 WARM CARDS) -->
+      <!-- TOP 4 KPI STRIP -->
       <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <a href="ncd-dashboard.html" class="bg-white p-5 rounded-3xl border border-[#EAE4DC] soft-shadow card-hover">
           <div class="flex justify-between items-center text-xs font-medium text-[#7D6E60]">
@@ -237,7 +227,7 @@
             <span class="w-2 h-2 rounded-full bg-[#B87333]"></span>
           </div>
           <div id="pulseNcdScore" class="serif-title text-3xl text-[#1A2622] mt-2">--%</div>
-          <div id="pulseNcdSub" class="text-[11px] text-[#7D8C86] mt-1">Ayodhya District Score</div>
+          <div class="text-[11px] text-[#7D8C86] mt-1">Ayodhya District Score</div>
         </a>
 
         <a href="tele-dashboard.html" class="bg-white p-5 rounded-3xl border border-[#EAE4DC] soft-shadow card-hover">
@@ -246,7 +236,7 @@
             <span class="w-2 h-2 rounded-full bg-[#133C33]"></span>
           </div>
           <div id="pulseTeleTotal" class="serif-title text-3xl text-[#1A2622] mt-2">--</div>
-          <div id="pulseTeleSub" class="text-[11px] text-[#7D8C86] mt-1">CHO + MO Total OPD</div>
+          <div class="text-[11px] text-[#7D8C86] mt-1">CHO + MO Total OPD</div>
         </a>
 
         <a href="abha-dashboard.html" class="bg-white p-5 rounded-3xl border border-[#EAE4DC] soft-shadow card-hover">
@@ -255,7 +245,7 @@
             <span class="w-2 h-2 rounded-full bg-[#4E7A6B]"></span>
           </div>
           <div id="pulseAbhaPct" class="serif-title text-3xl text-[#1A2622] mt-2">--%</div>
-          <div id="pulseAbhaSub" class="text-[11px] text-[#7D8C86] mt-1">Digital Health IDs</div>
+          <div class="text-[11px] text-[#7D8C86] mt-1">Digital Health IDs</div>
         </a>
 
         <a href="qa-dashboard.html" class="bg-white p-5 rounded-3xl border border-[#EAE4DC] soft-shadow card-hover">
@@ -264,15 +254,15 @@
             <span class="w-2 h-2 rounded-full bg-[#C89B6E]"></span>
           </div>
           <div id="pulseQaCount" class="serif-title text-3xl text-[#1A2622] mt-2">--</div>
-          <div id="pulseQaSub" class="text-[11px] text-[#7D8C86] mt-1">NQAS &amp; Kayakalp Units</div>
+          <div class="text-[11px] text-[#7D8C86] mt-1">NQAS &amp; Kayakalp Units</div>
         </a>
       </section>
 
-      <!-- BENTO MODULE CARDS GRID -->
+      <!-- ALL 7 PROGRAMME WORKSPACES GRID -->
       <section class="space-y-4">
         <div class="flex justify-between items-center">
           <h3 class="text-sm font-bold tracking-wide text-[#4A5B55]">Programme Workspaces</h3>
-          <span id="moduleCountBadge" class="text-xs text-[#8C9B95]">7 modules</span>
+          <span id="moduleCountBadge" class="text-xs font-semibold text-[#8C9B95]">7 modules</span>
         </div>
 
         <div id="modulesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
@@ -280,13 +270,90 @@
 
     </main>
 
-    <!-- MINIMAL FOOTER -->
     <footer class="py-6 text-center text-[11px] text-[#8C9B95]">
       Ayodhya Health · District Health Society, Ayodhya (NHM)
     </footer>
   </div>
 
+  <!-- ===================================================================== -->
+  <!-- 3. GUARANTEED RENDERING SCRIPT + FIREBASE LIVE SYNC                   -->
+  <!-- ===================================================================== -->
   <script>
+    const PORTAL_MODULES = [
+      {
+        id: "ncd",
+        category: "CLINICAL",
+        tag: "NCD Control",
+        title: "NCD Screening",
+        desc: "30+ आयु वर्ग में HTN, DM, कैंसर स्क्रीनिंग, ANM/CHO/MO लॉगिन एवं Facility-wise प्रगति।",
+        url: "ncd-dashboard.html",
+        liveMetric: "Open Dashboard",
+        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`
+      },
+      {
+        id: "tele",
+        category: "CLINICAL",
+        tag: "eSanjeevani OPD",
+        title: "Tele Consultation",
+        desc: "आयुष्मान आरोग्य मंदिर पर CHO एवं Medical Officer द्वारा दैनिक टेली-OPD रैंकिंग।",
+        url: "tele-dashboard.html",
+        liveMetric: "CHO & MO Tabs",
+        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`
+      },
+      {
+        id: "asha",
+        category: "COMMUNITY",
+        tag: "Community Process",
+        title: "ASHA Payment",
+        desc: "आशा प्रोत्साहन राशि, शून्य भुगतान (₹0), PFMS Break एवं एक्टिविटी विश्लेषण।",
+        url: "dashboard.html",
+        liveMetric: "Incentive Tracker",
+        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M2 12h3M19 12h3"/></svg>`
+      },
+      {
+        id: "jsy",
+        category: "MATERNAL",
+        tag: "Maternal Health",
+        title: "JSY Payment",
+        desc: "संस्थागत प्रसव, PIN Verification, MOIC स्वीकृति एवं भुगतान पेंडेंसी।",
+        url: "jsy-dashboard.html",
+        liveMetric: "Payment Pipeline",
+        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`
+      },
+      {
+        id: "abha",
+        category: "COMMUNITY",
+        tag: "Digital Health",
+        title: "ABHA & Scan-Share",
+        desc: "ब्लॉक एवं स्वास्थ्य केंद्रवार ABHA ID निर्माण लक्ष्य बनाम उपलब्धि।",
+        url: "abha-dashboard.html",
+        liveMetric: "ABHA Progress",
+        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 10h4M7 14h10"/></svg>`
+      },
+      {
+        id: "rbsk",
+        category: "MATERNAL",
+        tag: "Child Health",
+        title: "RBSK Screening",
+        desc: "मोबाइल हेल्थ टीम विजिट, आंगनवाड़ी व विद्यालय स्क्रीनिंग एवं DEIC रेफरल।",
+        url: "rbsk-dashboard.html",
+        liveMetric: "MHT & Screening",
+        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>`
+      },
+      {
+        id: "qa",
+        category: "COMMUNITY",
+        tag: "Quality Standards",
+        title: "Quality Assurance",
+        desc: "NQAS, कायाकल्प (Kayakalp) एवं लक्ष्य (LaQshya) सर्टिफिकेशन स्थिति।",
+        url: "qa-dashboard.html",
+        liveMetric: "NQAS & Kayakalp",
+        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`
+      }
+    ];
+
+    let activeCategory = "ALL";
+
     window.togglePinVisibility = function() {
       const inp = document.getElementById("loginPin");
       const txt = document.getElementById("pinToggleText");
@@ -296,6 +363,93 @@
         inp.type = "password"; txt.textContent = "Show PIN";
       }
     };
+
+    window.setCategoryFilter = function(cat) {
+      activeCategory = cat;
+      document.querySelectorAll(".cat-btn").forEach(btn => {
+        btn.className = btn.dataset.cat === cat
+          ? "cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#133C33] text-white"
+          : "cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-[#5A6B65] border border-[#E5DFD7] hover:border-[#133C33]";
+      });
+      window.filterPortalModules();
+    };
+
+    window.filterPortalModules = function() {
+      const grid = document.getElementById("modulesGrid");
+      const badge = document.getElementById("moduleCountBadge");
+      if (!grid) return;
+
+      const q = (document.getElementById("moduleSearchInput")?.value || "").trim().toLowerCase();
+      const filtered = PORTAL_MODULES.filter(m => {
+        if (activeCategory !== "ALL" && m.category !== activeCategory) return false;
+        if (q && !m.title.toLowerCase().includes(q) && !m.desc.toLowerCase().includes(q) && !m.tag.toLowerCase().includes(q)) return false;
+        return true;
+      });
+
+      if (badge) badge.textContent = `${filtered.length} ${filtered.length === 1 ? 'module' : 'modules'}`;
+
+      grid.innerHTML = filtered.map(m => `
+        <a href="${m.url}"
+          class="group bg-white p-6 rounded-3xl border border-[#EAE4DC] soft-shadow card-hover flex flex-col justify-between space-y-6">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="w-11 h-11 rounded-2xl bg-[#F3EFEA] group-hover:bg-[#133C33] text-[#133C33] group-hover:text-[#E5B887] flex items-center justify-center transition">
+                ${m.icon}
+              </div>
+              <span class="text-[11px] font-semibold text-[#7D6E60] bg-[#FAF8F5] border border-[#EAE4DC] px-3 py-1 rounded-full">
+                ${m.tag}
+              </span>
+            </div>
+            <div>
+              <h4 class="serif-title text-xl text-[#1A2622] group-hover:text-[#133C33] transition">
+                ${m.title}
+              </h4>
+              <p class="text-xs text-[#64756F] leading-relaxed mt-1.5">
+                ${m.desc}
+              </p>
+            </div>
+          </div>
+          <div class="pt-4 border-t border-[#F2EDE6] flex items-center justify-between text-xs">
+            <span class="font-semibold text-[#133C33] bg-[#EBF2EE] px-2.5 py-1 rounded-full">
+              ${m.liveMetric}
+            </span>
+            <span class="font-semibold text-[#64756F] group-hover:text-[#133C33] group-hover:translate-x-1 transition">
+              Explore →
+            </span>
+          </div>
+        </a>
+      `).join("");
+    };
+
+    window.showHubView = function(officer) {
+      document.getElementById("loginScreen").classList.add("hidden");
+      document.getElementById("hubApp").classList.remove("hidden");
+
+      const isDistrict = officer.role === "DISTRICT";
+      const nameStr = officer.name || "Officer";
+      document.getElementById("userAvatarInitial").textContent = nameStr.charAt(0).toUpperCase();
+      document.getElementById("headerOfficerName").textContent = nameStr;
+      document.getElementById("roleBadge").textContent = isDistrict ? "AYODHYA DISTRICT · ALL 11 BLOCKS" : `BLOCK · ${officer.block}`;
+      document.getElementById("officerInfo").textContent = `${nameStr} (${officer.designation}) · ${officer.mobile}`;
+
+      // Render all 7 cards immediately!
+      window.filterPortalModules();
+    };
+
+    // Check existing session immediately on load
+    try {
+      const saved = sessionStorage.getItem("nhm_ayodhya_officer");
+      if (saved) {
+        window.showHubView(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      sessionStorage.removeItem("nhm_ayodhya_officer");
+      location.reload();
+    });
   </script>
 
   <script type="module">
@@ -316,89 +470,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    const MODULES = [
-      {
-        id: "ncd",
-        category: "CLINICAL",
-        featured: true,
-        tag: "NCD Control",
-        title: "NCD Screening",
-        desc: "30+ आयु वर्ग में HTN, DM, कैंसर स्क्रीनिंग, ANM/CHO/MO लॉगिन एवं Facility-wise प्रगति।",
-        url: "ncd-dashboard.html",
-        liveMetric: "Syncing...",
-        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`
-      },
-      {
-        id: "tele",
-        category: "CLINICAL",
-        featured: true,
-        tag: "eSanjeevani",
-        title: "Tele Consultation",
-        desc: "आयुष्मान आरोग्य मंदिर पर CHO एवं Medical Officer द्वारा दैनिक टेली-OPD रैंकिंग।",
-        url: "tele-dashboard.html",
-        liveMetric: "Syncing...",
-        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`
-      },
-      {
-        id: "asha",
-        category: "COMMUNITY",
-        featured: false,
-        tag: "Community Process",
-        title: "ASHA Payment",
-        desc: "आशा प्रोत्साहन राशि, शून्य भुगतान (₹0), PFMS Break एवं एक्टिविटी विश्लेषण।",
-        url: "dashboard.html",
-        liveMetric: "Active",
-        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M2 12h3M19 12h3"/></svg>`
-      },
-      {
-        id: "jsy",
-        category: "MATERNAL",
-        featured: false,
-        tag: "Maternal Health",
-        title: "JSY Payment",
-        desc: "संस्थागत प्रसव, PIN Verification, MOIC स्वीकृति एवं भुगतान पेंडेंसी।",
-        url: "jsy-dashboard.html",
-        liveMetric: "Active",
-        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`
-      },
-      {
-        id: "abha",
-        category: "COMMUNITY",
-        featured: false,
-        tag: "Digital Health",
-        title: "ABHA & Scan-Share",
-        desc: "ब्लॉक एवं स्वास्थ्य केंद्रवार ABHA ID निर्माण लक्ष्य बनाम उपलब्धि।",
-        url: "abha-dashboard.html",
-        liveMetric: "Active",
-        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 10h4M7 14h10"/></svg>`
-      },
-      {
-        id: "rbsk",
-        category: "MATERNAL",
-        featured: false,
-        tag: "Child Health",
-        title: "RBSK Screening",
-        desc: "मोबाइल हेल्थ टीम विजिट, आंगनवाड़ी व विद्यालय स्क्रीनिंग एवं DEIC रेफरल।",
-        url: "rbsk-dashboard.html",
-        liveMetric: "Active",
-        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>`
-      },
-      {
-        id: "qa",
-        category: "COMMUNITY",
-        featured: false,
-        tag: "Quality Standards",
-        title: "Quality Assurance",
-        desc: "NQAS, कायाकल्प (Kayakalp) एवं लक्ष्य (LaQshya) सर्टिफिकेशन स्थिति।",
-        url: "qa-dashboard.html",
-        liveMetric: "Active",
-        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`
-      }
-    ];
-
-    let currentOfficer = null;
-    let activeCategory = "ALL";
-
     document.getElementById("hubLoginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const mob = document.getElementById("loginMobile").value.replace(/\D/g, "").slice(-10);
@@ -417,9 +488,10 @@
         if (off.active === false) throw new Error("आपका एक्सेस निष्क्रिय है।");
         if (String(off.pin) !== pin) throw new Error("गलत PIN दर्ज किया गया है।");
 
-        currentOfficer = { mobile: mob, ...off };
-        sessionStorage.setItem("nhm_ayodhya_officer", JSON.stringify(currentOfficer));
-        renderHub();
+        const officerObj = { mobile: mob, ...off };
+        sessionStorage.setItem("nhm_ayodhya_officer", JSON.stringify(officerObj));
+        window.showHubView(officerObj);
+        loadLivePulseData();
       } catch (err) {
         errBox.textContent = err.message;
         errBox.classList.remove("hidden");
@@ -428,72 +500,6 @@
         btn.textContent = "Sign in to Workspace";
       }
     });
-
-    const saved = sessionStorage.getItem("nhm_ayodhya_officer");
-    if (saved) {
-      currentOfficer = JSON.parse(saved);
-      renderHub();
-    }
-
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      sessionStorage.removeItem("nhm_ayodhya_officer");
-      location.reload();
-    });
-
-    window.setCategoryFilter = function(cat) {
-      activeCategory = cat;
-      document.querySelectorAll(".cat-btn").forEach(btn => {
-        btn.className = btn.dataset.cat === cat
-          ? "cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#133C33] text-white"
-          : "cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-[#5A6B65] border border-[#E5DFD7] hover:border-[#133C33]";
-      });
-      window.filterPortalModules();
-    };
-
-    window.filterPortalModules = function() {
-      const q = (document.getElementById("moduleSearchInput").value || "").trim().toLowerCase();
-      const filtered = MODULES.filter(m => {
-        if (activeCategory !== "ALL" && m.category !== activeCategory) return false;
-        if (q && !m.title.toLowerCase().includes(q) && !m.desc.toLowerCase().includes(q) && !m.tag.toLowerCase().includes(q)) return false;
-        return true;
-      });
-
-      document.getElementById("moduleCountBadge").textContent = `${filtered.length} ${filtered.length === 1 ? 'module' : 'modules'}`;
-      document.getElementById("modulesGrid").innerHTML = filtered.map(m => `
-        <a href="${m.url}"
-          class="group bg-white p-6 rounded-3xl border border-[#EAE4DC] soft-shadow card-hover flex flex-col justify-between space-y-6">
-          
-          <div class="space-y-4">
-            <div class="flex items-center justify-between">
-              <div class="w-11 h-11 rounded-2xl bg-[#F3EFEA] group-hover:bg-[#133C33] text-[#133C33] group-hover:text-[#E5B887] flex items-center justify-center transition">
-                ${m.icon}
-              </div>
-              <span class="text-[11px] font-semibold text-[#7D6E60] bg-[#FAF8F5] border border-[#EAE4DC] px-3 py-1 rounded-full">
-                ${m.tag}
-              </span>
-            </div>
-
-            <div>
-              <h4 class="serif-title text-xl text-[#1A2622] group-hover:text-[#133C33] transition">
-                ${m.title}
-              </h4>
-              <p class="text-xs text-[#64756F] leading-relaxed mt-1.5">
-                ${m.desc}
-              </p>
-            </div>
-          </div>
-
-          <div class="pt-4 border-t border-[#F2EDE6] flex items-center justify-between text-xs">
-            <span class="font-semibold text-[#133C33] bg-[#EBF2EE] px-2.5 py-1 rounded-full">
-              ${m.liveMetric}
-            </span>
-            <span class="font-semibold text-[#64756F] group-hover:text-[#133C33] group-hover:translate-x-1 transition">
-              Explore →
-            </span>
-          </div>
-        </a>
-      `).join("");
-    };
 
     async function loadLivePulseData() {
       try {
@@ -504,14 +510,16 @@
         const ncdScore = d.ncd_screening?.district?.score;
         if (ncdScore !== undefined) {
           document.getElementById("pulseNcdScore").textContent = `${ncdScore}%`;
-          MODULES.find(x => x.id === "ncd").liveMetric = `Score ${ncdScore}%`;
+          const m = PORTAL_MODULES.find(x => x.id === "ncd");
+          if (m) m.liveMetric = `Score ${ncdScore}%`;
         }
 
         const choRows = d.tele_cho?.rows || [];
         const moRows = d.tele_mo?.rows || [];
         const totalTc = [...choRows, ...moRows].reduce((s, r) => s + (Number(r.tc) || 0), 0);
         document.getElementById("pulseTeleTotal").textContent = totalTc.toLocaleString("en-IN");
-        MODULES.find(x => x.id === "tele").liveMetric = `${totalTc.toLocaleString("en-IN")} TC`;
+        const tMod = PORTAL_MODULES.find(x => x.id === "tele");
+        if (tMod) tMod.liveMetric = `${totalTc.toLocaleString("en-IN")} TC`;
 
         const abhaRecs = d.abha_portal?.records || [];
         if (abhaRecs.length) {
@@ -519,37 +527,34 @@
           const cr = abhaRecs.reduce((s, r) => s + (Number(r.created) || 0), 0);
           const pct = pop > 0 ? ((cr / pop) * 100).toFixed(1) : "0.0";
           document.getElementById("pulseAbhaPct").textContent = `${pct}%`;
-          MODULES.find(x => x.id === "abha").liveMetric = `${pct}% Done`;
+          const aMod = PORTAL_MODULES.find(x => x.id === "abha");
+          if (aMod) aMod.liveMetric = `${pct}% Done`;
         }
 
         const qaRows = d.quality_assurance?.rows || [];
         if (qaRows.length) {
           const cert = qaRows.filter(r => String(r.status).includes("Certified")).length;
           document.getElementById("pulseQaCount").textContent = `${cert} / ${qaRows.length}`;
-          MODULES.find(x => x.id === "qa").liveMetric = `${cert} Certified`;
+          const qMod = PORTAL_MODULES.find(x => x.id === "qa");
+          if (qMod) qMod.liveMetric = `${cert} Certified`;
         }
 
-        if (d.jsy_portal?.latestDate) MODULES.find(x => x.id === "jsy").liveMetric = d.jsy_portal.latestDate;
-        if (d.months?.length) MODULES.find(x => x.id === "asha").liveMetric = `${d.months.length} Months`;
+        if (d.jsy_portal?.latestDate) {
+          const jMod = PORTAL_MODULES.find(x => x.id === "jsy");
+          if (jMod) jMod.liveMetric = d.jsy_portal.latestDate;
+        }
+        if (d.months?.length) {
+          const ashaMod = PORTAL_MODULES.find(x => x.id === "asha");
+          if (ashaMod) ashaMod.liveMetric = `${d.months.length} Months`;
+        }
 
         window.filterPortalModules();
       } catch (err) {
-        console.warn(err);
+        console.warn("Pulse update:", err);
       }
     }
 
-    function renderHub() {
-      document.getElementById("loginScreen").classList.add("hidden");
-      document.getElementById("hubApp").classList.remove("hidden");
-
-      const isDistrict = currentOfficer.role === "DISTRICT";
-      const nameStr = currentOfficer.name || "Officer";
-      document.getElementById("userAvatarInitial").textContent = nameStr.charAt(0).toUpperCase();
-      document.getElementById("headerOfficerName").textContent = nameStr;
-      document.getElementById("roleBadge").textContent = isDistrict ? "AYODHYA DISTRICT · ALL 11 BLOCKS" : `BLOCK · ${currentOfficer.block}`;
-      document.getElementById("officerInfo").textContent = `${nameStr} (${currentOfficer.designation}) · ${currentOfficer.mobile}`;
-
-      window.filterPortalModules();
+    if (sessionStorage.getItem("nhm_ayodhya_officer")) {
       loadLivePulseData();
     }
   </script>
