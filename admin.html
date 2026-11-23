@@ -13,7 +13,7 @@
     <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
       <div>
         <h1 class="text-lg md:text-xl font-bold">NHM अयोध्या — Master Data Uploader &amp; Control</h1>
-        <p class="text-xs text-slate-300">ASHA Payment, JSY, ABHA, NCD (Block &amp; Facility), RBSK, QA, Tele Consultation (CHO &amp; MO)</p>
+        <p class="text-xs text-slate-300">ASHA Payment, JSY, ABHA, NCD, RBSK, QA, Tele Consultation एवं अधिकारी प्रबंधन</p>
       </div>
       <div class="flex flex-wrap gap-2">
         <a href="officers-admin.html" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-xs font-bold rounded-lg">
@@ -99,26 +99,26 @@
       </section>
     </div>
 
-    <!-- SECTION 4: MULTI-SHEET PROGRAMS UPLOADER (NCD BLOCK & FACILITY, TELE CHO & MO, QA, RBSK) -->
+    <!-- SECTION 4: NEW PROGRAMS UPLOADER (MULTI-SHEET + NCD FACILITY + CHO/MO TELE CONSULTATION) -->
     <section class="bg-white p-6 rounded-xl shadow-sm border border-rose-200 space-y-4">
       <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
         <div>
-          <h2 class="text-base font-bold text-rose-950">4. अन्य कार्यक्रम डेटा अपलोड (Multi-Sheet &amp; Daily Date-wise Support)</h2>
-          <p class="text-[11px] text-slate-500 mt-0.5">एक ही Excel फ़ाइल से किसी भी विशेष शीट को चुनकर अपलोड करें। Tele Consultation फ़ाइल के नाम में दिनांक (जैसे <b>TC_19-11-2026.xlsx</b>) रखें।</p>
+          <h2 class="text-base font-bold text-rose-950">4. अन्य कार्यक्रम डेटा अपलोड (NCD Block &amp; Facility, RBSK, QA, CHO &amp; MO Tele Consultation)</h2>
+          <p class="text-[11px] text-slate-500 mt-0.5">Multi-Sheet Excel से विशेष शीट चुनकर अपलोड करें (Tele Consultation फ़ाइल के नाम में दिनांक जैसे <b>TC_19-11-2026.xlsx</b> रखें)</p>
         </div>
         <span class="text-[11px] bg-rose-50 text-rose-800 border border-rose-200 px-2.5 py-1 rounded-lg font-bold">
-          Multi-Sheet + Date Range
+          Multi-Sheet Enabled
         </span>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">1. कार्यक्रम / मॉड्यूल चुनें (Select Program)</label>
+          <label class="block text-xs font-bold text-slate-700 mb-1">1. कार्यक्रम चुनें (Select Program)</label>
           <select id="newProgramSelect" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold bg-slate-50 focus:border-rose-700 focus:outline-none">
-            <option value="ncd_screening">❤️ NCD Screening - Block Composite Summary</option>
-            <option value="ncd_facility">🏥 NCD Screening - Facility-wise Report</option>
-            <option value="tele_cho">👩‍⚕️ Tele Consultation - CHO Teleconsultation (Daily Date-wise)</option>
-            <option value="tele_mo">👨‍⚕️ Tele Consultation - MO Tele Consultation (Daily Date-wise)</option>
+            <option value="ncd_screening">❤️ NCD Screening (Block Composite Summary)</option>
+            <option value="ncd_facility">🏥 NCD Screening (Facility-wise Report)</option>
+            <option value="tele_cho">👩‍⚕️ Tele Consultation — CHO Teleconsultation</option>
+            <option value="tele_mo">👨‍⚕️ Tele Consultation — MO Tele Consultation</option>
             <option value="quality_assurance">✅ Quality Assurance (NQAS / Kayakalp / LaQshya)</option>
             <option value="rbsk">👶 RBSK (Mobile Health Team &amp; Child Screening)</option>
           </select>
@@ -131,7 +131,7 @@
         </div>
       </div>
 
-      <!-- AUTO-DETECTED SHEET SELECTOR -->
+      <!-- AUTO-DETECTED SHEET DROPDOWN -->
       <div id="progSheetWrapper" class="hidden p-3 bg-amber-50 border border-amber-300 rounded-lg space-y-1.5">
         <div class="flex flex-wrap justify-between items-center gap-2">
           <label for="progSheetSelect" class="text-xs font-bold text-amber-950">
@@ -143,7 +143,7 @@
       </div>
 
       <div id="newProgramHint" class="p-2.5 bg-rose-50/50 border border-rose-200/80 rounded-lg text-[11px] text-slate-700">
-        💡 <strong>NCD Block Summary:</strong> Excel फ़ाइल चुनें और ड्रॉपडाउन से <b>'Composite'</b> शीट सेलेक्ट करें। यह सभी 11 ब्लॉकों + Urban DHQ, रेफर (%) और ANM/CHO/MO लॉगिन स्टेटस को स्वतः अपडेट कर देगी।
+        💡 <strong>NCD Screening:</strong> सीधे <b>'Composite'</b> शीट वाली Excel फ़ाइल (जैसे 18-11-2026.xlsx) चुनें। यह सभी 11 ब्लॉकों + Urban DHQ, रेफर (%) और ANM/CHO/MO लॉगिन स्टेटस को स्वतः अपडेट कर देगी।
       </div>
 
       <button id="uploadNewProgramBtn" class="w-full py-2.5 bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold rounded-lg shadow">
@@ -390,12 +390,12 @@
           ? `✅ <strong>NCD Block Summary:</strong> ${d.ncd_screening.units.length} इकाइयां (${d.ncd_screening.reportTitle || "Updated"})`
           : "⚪ <strong>NCD Block Summary:</strong> डिफ़ॉल्ट डेटा सक्रिय";
         const ncdFacTxt = d.ncd_facility?.rows
-          ? `✅ <strong>NCD Facility-wise:</strong> ${d.ncd_facility.rows.length} इकाइयां (शीट: ${d.ncd_facility.sheetName || "-"})`
+          ? `✅ <strong>NCD Facility-wise:</strong> ${d.ncd_facility.rows.length} इकाइयां (${d.ncd_facility.fileName})`
           : "⚪ <strong>NCD Facility-wise:</strong> डेटा प्रतीक्षित";
-        const teleChoTxt = d.tele_cho?.rows
+        const choTxt = d.tele_cho?.rows
           ? `✅ <strong>CHO Teleconsultation:</strong> ${d.tele_cho.rows.length} रिकॉर्ड (${(d.tele_cho.availableDates || []).length} दिन)`
           : "⚪ <strong>CHO Teleconsultation:</strong> डेटा प्रतीक्षित";
-        const teleMoTxt = d.tele_mo?.rows
+        const moTxt = d.tele_mo?.rows
           ? `✅ <strong>MO Tele Consultation:</strong> ${d.tele_mo.rows.length} रिकॉर्ड (${(d.tele_mo.availableDates || []).length} दिन)`
           : "⚪ <strong>MO Tele Consultation:</strong> डेटा प्रतीक्षित";
         const qaTxt = d.quality_assurance?.rows
@@ -409,8 +409,8 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 text-[11px]">
             <div>${ncdTxt}</div>
             <div>${ncdFacTxt}</div>
-            <div>${teleChoTxt}</div>
-            <div>${teleMoTxt}</div>
+            <div>${choTxt}</div>
+            <div>${moTxt}</div>
             <div>${qaTxt}</div>
             <div>${rbskTxt}</div>
           </div>
@@ -452,7 +452,6 @@
     document.getElementById("uploadJsyBtn").addEventListener("click", async () => {
       const file = document.getElementById("jsyFileInput").files[0];
       if (!file) return alert("पहले JSY Excel/CSV फ़ाइल चुनें।");
-
       const fileDateLabel = file.name.replace(/\.[^.]+$/, "").trim();
       const buf = await file.arrayBuffer();
       const wb = XLSX.read(buf, { type: "array" });
@@ -476,11 +475,7 @@
       const oldRecords = snap.exists() ? (snap.val().records || []).filter(r => r.date !== fileDateLabel) : [];
       const mergedRecords = [...oldRecords, ...newRecords];
 
-      await set(jsyRef, {
-        updatedAt: new Date().toLocaleString("hi-IN"),
-        latestDate: fileDateLabel,
-        records: mergedRecords
-      });
+      await set(jsyRef, { updatedAt: new Date().toLocaleString("hi-IN"), latestDate: fileDateLabel, records: mergedRecords });
       refreshStatus();
       alert(`फ़ाइल "${file.name}" (दिनांक: ${fileDateLabel}) के ${newRecords.length} केंद्रों का डेटा सेव हो गया!`);
     });
@@ -489,10 +484,8 @@
     document.getElementById("uploadAbhaBtn").addEventListener("click", async () => {
       const file = document.getElementById("abhaFileInput").files[0];
       if (!file) return alert("पहले ABHA Excel/CSV फ़ाइल चुनें।");
-
       const dateMatch = file.name.match(/(\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4})/);
       const fileDateLabel = dateMatch ? dateMatch[1] : file.name.replace(/\.[^.]+$/, "").trim();
-
       const buf = await file.arrayBuffer();
       const wb = XLSX.read(buf, { type: "array" });
       const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "" });
@@ -500,39 +493,27 @@
       let sumPop = 0, sumCreated = 0;
       const newRecords = raw.map(r => {
         const norm = {};
-        for (const [k, v] of Object.entries(r)) {
-          norm[String(k).trim().toUpperCase()] = v;
-        }
+        for (const [k, v] of Object.entries(r)) norm[String(k).trim().toUpperCase()] = v;
         const pop = Number(String(norm["POPULATION"] || norm["TARGET"] || 0).replace(/,/g, "")) || 0;
         const created = Number(String(norm["ABHA CREATED"] || norm["ABHA_CREATED"] || norm["CREATED"] || 0).replace(/,/g, "")) || 0;
-        sumPop += pop;
-        sumCreated += created;
-
+        sumPop += pop; sumCreated += created;
         return {
-          date: fileDateLabel,
-          fileName: file.name,
+          date: fileDateLabel, fileName: file.name,
           block: String(norm["BLOCK"] || "").trim(),
           sc: String(norm["SC"] || norm["SUB CENTER"] || norm["SUB_CENTER"] || "").trim(),
           village: String(norm["VILLAGE"] || "").trim(),
           area: String(norm["ASHA AREA"] || norm["AREA"] || "").trim(),
           ashaName: String(norm["ASHA NAME"] || norm["ASHA_NAME"] || "").trim(),
           ashaId: String(norm["ASHA ID"] || norm["ASHA_ID"] || "").trim(),
-          pop,
-          created
+          pop, created
         };
       }).filter(x => x.block && (x.ashaName || x.sc));
 
       const snap = await get(abhaRef);
-      const oldRecords = snap.exists()
-        ? (snap.val().records || []).filter(r => r.date !== fileDateLabel && !String(r.date).startsWith("ABHA ID_"))
-        : [];
+      const oldRecords = snap.exists() ? (snap.val().records || []).filter(r => r.date !== fileDateLabel && !String(r.date).startsWith("ABHA ID_")) : [];
       const mergedRecords = [...oldRecords, ...newRecords];
 
-      await set(abhaRef, {
-        updatedAt: new Date().toLocaleString("hi-IN"),
-        latestDate: fileDateLabel,
-        records: mergedRecords
-      });
+      await set(abhaRef, { updatedAt: new Date().toLocaleString("hi-IN"), latestDate: fileDateLabel, records: mergedRecords });
       refreshStatus();
       alert(`✅ अपलोड सफल!\nदिनांक: ${fileDateLabel}\nकुल क्षेत्र: ${newRecords.length}\nकुल जनसंख्या: ${sumPop.toLocaleString("en-IN")}\nनिर्मित ABHA: ${sumCreated.toLocaleString("en-IN")}`);
     });
@@ -541,11 +522,11 @@
     let activeProgramWorkbook = null;
 
     const PROGRAM_HINTS = {
-      ncd_screening: "💡 <strong>NCD Block Summary:</strong> Excel फ़ाइल चुनें और ड्रॉपडाउन से <b>'Composite'</b> शीट सेलेक्ट करें। यह सभी 11 ब्लॉकों + Urban DHQ, रेफर (%) और ANM/CHO/MO लॉगिन स्टेटस को स्वतः अपडेट कर देगी।",
-      ncd_facility: "💡 <strong>NCD Facility-wise Report:</strong> अपनी Excel फ़ाइल में से Facility-wise वाली शीट चुनें। इसमें Block, Facility Name, Target, Screening आदि कॉलम होने चाहिए।",
-      tele_cho: "💡 <strong>CHO Teleconsultation:</strong> फ़ाइल के नाम में दिनांक रखें (जैसे <b>TC_19-11-2026.xlsx</b>)। कॉलम: Block, Facility Name, User Name, Tele Consultation।",
-      tele_mo: "💡 <strong>MO Tele Consultation:</strong> फ़ाइल के नाम में दिनांक रखें (जैसे <b>MO_TC_19-11-2026.xlsx</b>)। कॉलम: Block, Facility Name, User Name, Tele Consultation।",
-      quality_assurance: "💡 <strong>Quality Assurance:</strong> NQAS Excel फ़ाइल (जैसे NQAS 18-11-2026.xlsx) चुनें। ब्लॉक नाम व सर्टिफिकेशन स्टेटस स्वतः साफ़ होकर सेव होंगे।",
+      ncd_screening: "💡 <strong>NCD Block Summary:</strong> Excel फ़ाइल चुनें और ड्रॉपडाउन से <b>'Composite'</b> शीट सेलेक्ट करें।",
+      ncd_facility: "💡 <strong>NCD Facility-wise Report:</strong> Excel फ़ाइल में से Facility-wise वाली शीट चुनकर अपलोड करें।",
+      tele_cho: "💡 <strong>CHO Teleconsultation:</strong> फ़ाइल के नाम में दिनांक होना ज़रूरी है (जैसे <b>TC_19-11-2026.xlsx</b>)। कॉलम: Block, Facility Name, User Name, Tele Consultation।",
+      tele_mo: "💡 <strong>MO Tele Consultation:</strong> फ़ाइल के नाम में दिनांक होना ज़रूरी है (जैसे <b>MO_TC_19-11-2026.xlsx</b>)। कॉलम: Block, Facility Name, User Name, Tele Consultation।",
+      quality_assurance: "💡 <strong>Quality Assurance:</strong> NQAS Excel फ़ाइल (जैसे NQAS 18-11-2026.xlsx) चुनें।",
       rbsk: "💡 <strong>RBSK:</strong> ब्लॉक-वार MHT विजिट, आंगनवाड़ी व स्कूल स्क्रीनिंग की Excel शीट चुनें।"
     };
 
@@ -573,8 +554,7 @@
       const prog = e.target.value;
       document.getElementById("newProgramHint").innerHTML = PROGRAM_HINTS[prog] || "";
       if (activeProgramWorkbook) {
-        const bestSheet = autoSelectMatchingSheet(prog, activeProgramWorkbook.SheetNames);
-        document.getElementById("progSheetSelect").value = bestSheet;
+        document.getElementById("progSheetSelect").value = autoSelectMatchingSheet(prog, activeProgramWorkbook.SheetNames);
         updateProgSheetPreview();
       }
     });
@@ -582,11 +562,7 @@
     document.getElementById("newProgramFile").addEventListener("change", async (e) => {
       const file = e.target.files[0];
       const wrapper = document.getElementById("progSheetWrapper");
-      if (!file) {
-        activeProgramWorkbook = null;
-        wrapper.classList.add("hidden");
-        return;
-      }
+      if (!file) { activeProgramWorkbook = null; wrapper.classList.add("hidden"); return; }
       const buffer = await file.arrayBuffer();
       activeProgramWorkbook = XLSX.read(buffer, { type: "array" });
 
@@ -594,13 +570,11 @@
       sheetSelect.innerHTML = "";
       activeProgramWorkbook.SheetNames.forEach(name => {
         const opt = document.createElement("option");
-        opt.value = name;
-        opt.textContent = name;
+        opt.value = name; opt.textContent = name;
         sheetSelect.appendChild(opt);
       });
 
-      const currentProg = document.getElementById("newProgramSelect").value;
-      sheetSelect.value = autoSelectMatchingSheet(currentProg, activeProgramWorkbook.SheetNames);
+      sheetSelect.value = autoSelectMatchingSheet(document.getElementById("newProgramSelect").value, activeProgramWorkbook.SheetNames);
       wrapper.classList.remove("hidden");
       updateProgSheetPreview();
     });
@@ -639,29 +613,16 @@
             const unitName = r[2 + off] ? String(r[2 + off]).trim() : "";
             if (!unitName || !isNaN(Number(unitName))) continue;
             const record = {
-              rank: Number(r[1 + off]) || 0,
-              unit: unitName,
-              pop30: Math.round(Number(r[3 + off]) || 0),
-              targetFY: Math.round(Number(r[5 + off]) || 0),
-              htn: Math.round(Number(r[6 + off]) || 0),
-              htnPct: Number(((Number(r[7 + off]) || 0) * 100).toFixed(2)),
-              dm: Math.round(Number(r[9 + off]) || 0),
-              dmPct: Number(((Number(r[10 + off]) || 0) * 100).toFixed(2)),
-              suspected: Math.round(Number(r[12 + off]) || 0),
-              suspectedPct: Number(((Number(r[13 + off]) || 0) * 100).toFixed(2)),
-              treatment: Math.round(Number(r[15 + off]) || 0),
-              treatmentPct: Number(((Number(r[16 + off]) || 0) * 100).toFixed(2)),
-              followUp: Math.round(Number(r[18 + off]) || 0),
-              control: Math.round(Number(r[21 + off]) || 0),
-              anmTotal: Math.round(Number(r[24 + off]) || 0),
-              anmDone: Math.round(Number(r[25 + off]) || 0),
-              anmPct: Number(((Number(r[26 + off]) || 0) * 100).toFixed(2)),
-              choTotal: Math.round(Number(r[28 + off]) || 0),
-              choDone: Math.round(Number(r[29 + off]) || 0),
-              choPct: Number(((Number(r[30 + off]) || 0) * 100).toFixed(2)),
-              moTotal: Math.round(Number(r[32 + off]) || 0),
-              moDone: Math.round(Number(r[33 + off]) || 0),
-              moPct: Number(((Number(r[34 + off]) || 0) * 100).toFixed(2)),
+              rank: Number(r[1 + off]) || 0, unit: unitName,
+              pop30: Math.round(Number(r[3 + off]) || 0), targetFY: Math.round(Number(r[5 + off]) || 0),
+              htn: Math.round(Number(r[6 + off]) || 0), htnPct: Number(((Number(r[7 + off]) || 0) * 100).toFixed(2)),
+              dm: Math.round(Number(r[9 + off]) || 0), dmPct: Number(((Number(r[10 + off]) || 0) * 100).toFixed(2)),
+              suspected: Math.round(Number(r[12 + off]) || 0), suspectedPct: Number(((Number(r[13 + off]) || 0) * 100).toFixed(2)),
+              treatment: Math.round(Number(r[15 + off]) || 0), treatmentPct: Number(((Number(r[16 + off]) || 0) * 100).toFixed(2)),
+              followUp: Math.round(Number(r[18 + off]) || 0), control: Math.round(Number(r[21 + off]) || 0),
+              anmTotal: Math.round(Number(r[24 + off]) || 0), anmDone: Math.round(Number(r[25 + off]) || 0), anmPct: Number(((Number(r[26 + off]) || 0) * 100).toFixed(2)),
+              choTotal: Math.round(Number(r[28 + off]) || 0), choDone: Math.round(Number(r[29 + off]) || 0), choPct: Number(((Number(r[30 + off]) || 0) * 100).toFixed(2)),
+              moTotal: Math.round(Number(r[32 + off]) || 0), moDone: Math.round(Number(r[33 + off]) || 0), moPct: Number(((Number(r[34 + off]) || 0) * 100).toFixed(2)),
               score: Number(((Number(r[36 + off]) || 0) * 100).toFixed(2))
             };
             if (unitName.toLowerCase() === "ayodhya") district = record;
@@ -671,11 +632,10 @@
           units.forEach((u, idx) => u.rank = idx + 1);
 
           await set(child(rootRef, "ncd_screening"), {
-            reportTitle, updatedAt: new Date().toLocaleString("hi-IN"),
-            fileName: file.name, sheetName: selectedSheetName, district, units
+            reportTitle, updatedAt: new Date().toLocaleString("hi-IN"), fileName: file.name, sheetName: selectedSheetName, district, units
           });
           refreshStatus();
-          alert(`✅ NCD Block Summary अपलोड सफल!\nशीट: ${selectedSheetName}\nकुल इकाइयां: ${units.length}`);
+          alert(`✅ NCD Screening अपलोड सफल!\nकुल इकाइयां: ${units.length}\nजनपद कंपोजिट स्कोर: ${district?.score ?? "-"}%`);
 
         } else if (prog === "quality_assurance") {
           const rawRows = XLSX.utils.sheet_to_json(targetWorksheet, { defval: "" });
@@ -718,7 +678,7 @@
             updatedAt: new Date().toLocaleString("hi-IN"), fileName: file.name, sheetName: selectedSheetName, rows: cleanRows
           });
           refreshStatus();
-          alert(`✅ Quality Assurance अपलोड सफल! कुल स्वास्थ्य इकाइयां: ${cleanRows.length}`);
+          alert(`✅ Quality Assurance (NQAS) अपलोड सफल! कुल स्वास्थ्य इकाइयां: ${cleanRows.length}`);
 
         } else if (prog === "tele_cho" || prog === "tele_mo") {
           const dateMatch = file.name.match(/(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
@@ -766,7 +726,6 @@
           alert(`✅ ${label} (${displayDate}) अपलोड सफल!\nआज की पंक्तियां: ${newDailyRows.length}\nकुल संचित दिन: ${allDates.length}`);
 
         } else {
-          // ncd_facility & rbsk
           const rawJson = XLSX.utils.sheet_to_json(targetWorksheet, { defval: "" });
           const safeRows = rawJson.map(row => {
             const cleanObj = {};
@@ -783,9 +742,8 @@
             sheetName: selectedSheetName,
             rows: safeRows
           });
-
           refreshStatus();
-          alert(`✅ ${prog === "ncd_facility" ? "NCD Facility-wise Report" : "RBSK"} अपलोड सफल!\nशीट: ${selectedSheetName} • कुल पंक्तियां: ${safeRows.length}`);
+          alert(`✅ ${prog.toUpperCase()} अपलोड सफल! कुल पंक्तियां: ${safeRows.length}`);
         }
       } catch (err) {
         alert("❌ त्रुटि: " + err.message);
