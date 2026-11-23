@@ -1,0 +1,212 @@
+<!-- Chart.js & DataLabels CDN (Agar pehle se portal.html mein nahi hai to <head> mein jodein) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+<!-- Portal: Teleconsultation 2-Tab Section -->
+<div class="bg-white p-5 rounded-xl shadow-md border border-gray-200 my-6">
+  
+  <!-- Header + 2 Tabs -->
+  <div class="flex flex-wrap items-center justify-between gap-4 border-b pb-4 mb-4">
+    <div>
+      <h2 class="text-xl font-bold text-gray-800">📞 Teleconsultation Progress Dashboard</h2>
+      <p id="teleLastUpdated" class="text-xs text-gray-500 mt-1">Last Updated: --</p>
+    </div>
+
+    <!-- 2 Tabs: CHO Teleconsultation & MO Tele Consultation -->
+    <div class="flex bg-gray-100 p-1 rounded-xl border border-gray-200">
+      <button id="tabCHO" onclick="switchTeleTab('cho')" 
+        class="px-4 py-2 rounded-lg text-sm font-bold bg-indigo-600 text-white shadow transition">
+        👩‍⚕️ CHO Teleconsultation
+      </button>
+      <button id="tabMO" onclick="switchTeleTab('mo')" 
+        class="px-4 py-2 rounded-lg text-sm font-bold text-gray-700 hover:text-indigo-700 transition">
+        👨‍⚕️ MO Tele Consultation
+      </button>
+    </div>
+  </div>
+
+  <!-- Block Filter & Summary Cards -->
+  <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+    <select id="teleBlockDropdown" onchange="renderTeleView()" class="p-2.5 border border-gray-300 rounded-lg font-semibold text-sm bg-gray-50">
+      <option value="ALL">All 11 Blocks (Ayodhya District)</option>
+      <option value="Amaniganj">Amaniganj</option>
+      <option value="Bikapur">Bikapur</option>
+      <option value="Harringtonganj">Harringtonganj</option>
+      <option value="Masodha">Masodha</option>
+      <option value="Mavai">Mavai</option>
+      <option value="Milkipur">Milkipur</option>
+      <option value="Pura Bazar">Pura Bazar</option>
+      <option value="Rudauli">Rudauli</option>
+      <option value="Sohawal">Sohawal</option>
+      <option value="Tarun">Tarun</option>
+      <option value="Maya Bazar">Maya Bazar</option>
+    </select>
+
+    <!-- KPI Badges -->
+    <div class="flex gap-3 text-sm font-bold">
+      <span id="teleTotalTarget" class="px-3 py-1.5 bg-blue-50 text-blue-800 rounded-lg border border-blue-200">Target: 0</span>
+      <span id="teleTotalDone" class="px-3 py-1.5 bg-emerald-50 text-emerald-800 rounded-lg border border-emerald-200">Done: 0</span>
+      <span id="teleOverallPct" class="px-3 py-1.5 bg-indigo-50 text-indigo-800 rounded-lg border border-indigo-200">Ach: 0%</span>
+    </div>
+  </div>
+
+  <!-- Data-Labeled Bar Chart -->
+  <div class="mb-6" style="height: 300px;">
+    <canvas id="teleBarChart"></canvas>
+  </div>
+
+  <!-- Detailed Table -->
+  <div id="teleTableContainer" class="overflow-x-auto"></div>
+</div>
+
+<script>
+  let activeTeleTab = 'cho';
+  let teleRecords = [];
+  let teleChartInstance = null;
+
+  function switchTeleTab(tab) {
+    activeTeleTab = tab;
+    
+    // Tab Button Styling Update
+    const btnCHO = document.getElementById('tabCHO');
+    const btnMO = document.getElementById('tabMO');
+    if (tab === 'cho') {
+      btnCHO.className = 'px-4 py-2 rounded-lg text-sm font-bold bg-indigo-600 text-white shadow transition';
+      btnMO.className = 'px-4 py-2 rounded-lg text-sm font-bold text-gray-700 hover:text-indigo-700 transition';
+    } else {
+      btnMO.className = 'px-4 py-2 rounded-lg text-sm font-bold bg-indigo-600 text-white shadow transition';
+      btnCHO.className = 'px-4 py-2 rounded-lg text-sm font-bold text-gray-700 hover:text-indigo-700 transition';
+    }
+
+    // Fetch Data from Firebase
+    firebase.database().ref('teleconsultation/' + tab).once('value').then(snap => {
+      const val = snap.val();
+      if (!val || !val.records) {
+        teleRecords = [];
+        document.getElementById('teleLastUpdated').innerText = 'Last Updated: No data uploaded yet';
+      } else {
+        teleRecords = val.records;
+        document.getElementById('teleLastUpdated').innerText = 'Last Updated: ' + (val.updatedAt || '--');
+      }
+      renderTeleView();
+    });
+  }
+
+  function renderTeleView() {
+    const selectedBlock = document.getElementById('teleBlockDropdown').value;
+    const filtered = selectedBlock === 'ALL'
+      ? teleRecords
+      : teleRecords.filter(r => (r.Block || '').trim().toLowerCase() === selectedBlock.toLowerCase());
+
+    let sumTarget = 0, sumDone = 0;
+    filtered.forEach(r => {
+      sumTarget += parseFloat(r.Target) || 0;
+      sumDone += parseFloat(r.Total_Consultation || r.Consultation || r.Done) || 0;
+    });
+    const totalPct = sumTarget > 0 ? ((sumDone / sumTarget) * 100).toFixed(1) : 0;
+
+    document.getElementById('teleTotalTarget').innerText = `Target: ${sumTarget}`;
+    document.getElementById('teleTotalDone').innerText = `Done: ${sumDone}`;
+    document.getElementById('teleOverallPct').innerText = `Ach: ${totalPct}%`;
+
+    renderTeleChart(filtered);
+    renderTeleTable(filtered);
+  }
+
+  function renderTeleChart(rows) {
+    const ctx = document.getElementById('teleBarChart').getContext('2d');
+    if (teleChartInstance) teleChartInstance.destroy();
+
+    // Group by Block if ALL blocks selected, else show Facility/Officer wise
+    const selectedBlock = document.getElementById('teleBlockDropdown').value;
+    const labels = [];
+    const percentages = [];
+    const bgColors = [];
+
+    if (selectedBlock === 'ALL') {
+      const blockMap = {};
+      rows.forEach(r => {
+        const b = (r.Block || 'Unknown').trim();
+        if (!blockMap[b]) blockMap[b] = { t: 0, d: 0 };
+        blockMap[b].t += parseFloat(r.Target) || 0;
+        blockMap[b].d += parseFloat(r.Total_Consultation || r.Consultation || r.Done) || 0;
+      });
+      Object.keys(blockMap).forEach(b => {
+        const pct = blockMap[b].t > 0 ? parseFloat(((blockMap[b].d / blockMap[b].t) * 100).toFixed(1)) : 0;
+        labels.push(b);
+        percentages.push(pct);
+        bgColors.push(pct > 85 ? '#16a34a' : (pct >= 80 ? '#eab308' : '#dc2626'));
+      });
+    } else {
+      rows.forEach(r => {
+        const name = r.CHO_Name || r.MO_Name || r.Facility_Name || r.HWC_Name || 'Unit';
+        const t = parseFloat(r.Target) || 0;
+        const d = parseFloat(r.Total_Consultation || r.Consultation || r.Done) || 0;
+        const pct = t > 0 ? parseFloat(((d / t) * 100).toFixed(1)) : 0;
+        labels.push(name);
+        percentages.push(pct);
+        bgColors.push(pct > 85 ? '#16a34a' : (pct >= 80 ? '#eab308' : '#dc2626'));
+      });
+    }
+
+    teleChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Achievement %',
+          data: percentages,
+          backgroundColor: bgColors,
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          datalabels: {
+            anchor: 'end',
+            align: 'top',
+            formatter: val => val + '%',
+            font: { weight: 'bold', size: 11 },
+            color: '#1e293b'
+          }
+        },
+        scales: {
+          y: { beginAtZero: true, max: 115 }
+        }
+      },
+      plugins: [ChartDataLabels]
+    });
+  }
+
+  function renderTeleTable(rows) {
+    const container = document.getElementById('teleTableContainer');
+    if (rows.length === 0) {
+      container.innerHTML = '<p class="text-sm text-gray-500 py-4">Is selection ke liye koi record nahi mila.</p>';
+      return;
+    }
+
+    const keys = Object.keys(rows[0]);
+    let html = '<table class="w-full text-sm text-left border-collapse border border-gray-200"><thead><tr class="bg-gray-100">';
+    keys.forEach(k => html += `<th class="p-2.5 border border-gray-200 font-bold text-gray-700">${k}</th>`);
+    html += '<th class="p-2.5 border border-gray-200 font-bold text-center">Ach %</th></tr></thead><tbody>';
+
+    rows.forEach(r => {
+      const t = parseFloat(r.Target) || 0;
+      const d = parseFloat(r.Total_Consultation || r.Consultation || r.Done) || 0;
+      const pct = t > 0 ? ((d / t) * 100).toFixed(1) : 0;
+      const badgeClass = pct > 85 ? 'bg-green-600' : (pct >= 80 ? 'bg-yellow-500' : 'bg-red-600');
+
+      html += '<tr class="hover:bg-gray-50">';
+      keys.forEach(k => html += `<td class="p-2.5 border border-gray-200">${r[k] ?? '-'}</td>`);
+      html += `<td class="p-2.5 border border-gray-200 text-center font-bold text-white ${badgeClass}">${pct}%</td></tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  }
+
+  // Page load hote hi default 'CHO Teleconsultation' tab load karein
+  window.addEventListener('DOMContentLoaded', () => switchTeleTab('cho'));
+</script>
