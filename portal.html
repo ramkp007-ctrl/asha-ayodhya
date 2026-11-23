@@ -3,262 +3,276 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PAID — Ayodhya District Health Command Center</title>
+  <title>PAID — Ayodhya Health Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Outfit', 'Noto Sans Devanagari', sans-serif; }
-    .glass-card {
-      background: rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #FAF8F5;
+      color: #1A2622;
     }
-    @keyframes pulseGlow {
-      0%, 100% { opacity: 0.75; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.04); }
+    .serif-title {
+      font-family: 'Fraunces', serif;
+      letter-spacing: -0.02em;
     }
-    .pulse-slow { animation: pulseGlow 5s ease-in-out infinite; }
+    .soft-shadow {
+      box-shadow: 0 10px 30px -10px rgba(26, 38, 34, 0.06);
+    }
+    .card-hover {
+      transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .card-hover:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 35px -12px rgba(19, 60, 51, 0.10);
+      border-color: #9BB5AC;
+    }
   </style>
 </head>
-<body class="bg-[#F1F5F9] text-slate-900 min-h-screen antialiased">
+<body class="min-h-screen antialiased selection:bg-[#133C33] selection:text-white">
 
   <!-- ===================================================================== -->
-  <!-- 1. EXECUTIVE AYODHYA COMMAND LOGIN SCREEN (ORIGINAL DESIGN)           -->
+  <!-- 1. AESTHETIC MINIMALIST LOGIN SCREEN                                  -->
   <!-- ===================================================================== -->
-  <div id="loginScreen" class="min-h-screen grid grid-cols-1 lg:grid-cols-12 bg-white">
+  <div id="loginScreen" class="min-h-screen grid grid-cols-1 lg:grid-cols-12 bg-[#FAF8F5]">
 
-    <!-- LEFT 7 COLUMNS: DEEP ROYAL NAVY COMMAND VISUAL -->
-    <div class="lg:col-span-7 relative overflow-hidden bg-gradient-to-br from-[#091526] via-[#0F2544] to-[#163660] text-white flex flex-col justify-between p-8 md:p-14">
+    <!-- LEFT 6 COLUMNS: WARM BOTANICAL / ARCHITECTURAL CANVAS -->
+    <div class="lg:col-span-6 relative overflow-hidden bg-[#133C33] text-[#F6F4EF] flex flex-col justify-between p-10 md:p-16">
       
-      <!-- Architectural Grid & Ambient Glows -->
-      <div class="pointer-events-none absolute inset-0 opacity-10"
-        style="background-image: radial-gradient(#93C5FD 1px, transparent 1px); background-size: 26px 26px;"></div>
-      <div class="pointer-events-none absolute -top-28 -right-28 w-96 h-96 rounded-full bg-amber-500/15 blur-3xl"></div>
-      <div class="pointer-events-none absolute -bottom-32 -left-24 w-96 h-96 rounded-full bg-teal-400/15 blur-3xl"></div>
+      <!-- Subtle Organic Curves -->
+      <svg class="pointer-events-none absolute inset-0 w-full h-full opacity-15" viewBox="0 0 800 800" fill="none">
+        <circle cx="700" cy="120" r="340" stroke="#D8C3A5" stroke-width="1.5"/>
+        <circle cx="100" cy="720" r="380" stroke="#9BB5AC" stroke-width="1.5"/>
+        <path d="M-50 450 Q 350 250 850 520" stroke="#E5B887" stroke-width="1.2"/>
+      </svg>
 
-      <!-- Top Official Header -->
-      <div class="relative z-10 flex flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-400 flex items-center justify-center text-slate-950 font-extrabold text-lg shadow-lg">
-            +
-          </div>
-          <div>
-            <div class="text-xs font-extrabold tracking-widest text-amber-300 uppercase">District Health Society</div>
-            <div class="text-sm font-bold text-white">Ayodhya · Uttar Pradesh</div>
-          </div>
-        </div>
-        <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-white/10 border border-white/15 text-sky-200">
-          NHM Command Hub v2.0
+      <!-- Top Tag -->
+      <div class="relative z-10 flex items-center justify-between">
+        <span class="text-xs font-medium tracking-[0.2em] uppercase text-[#C7B299]">
+          District Health Society · Ayodhya
+        </span>
+        <span class="px-3 py-1 rounded-full text-[11px] bg-white/10 text-[#DCE7E2] backdrop-blur-xs">
+          NHM Uttar Pradesh
         </span>
       </div>
 
-      <!-- Center Hero Visualization & Live District Highlights -->
-      <div class="relative z-10 my-auto py-8 max-w-xl space-y-6">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-xs font-semibold">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          11 विकास खंड · 200+ आयुष्मान आरोग्य मंदिर · रियल-टाइम समीक्षा
+      <!-- Center Editorial Statement -->
+      <div class="relative z-10 my-auto py-12 max-w-md space-y-6">
+        <div class="w-12 h-12 rounded-2xl bg-[#E5B887]/20 border border-[#E5B887]/40 flex items-center justify-center text-[#E5B887]">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M12 3v18M3 12h18" stroke-linecap="round"/>
+            <circle cx="12" cy="12" r="9" stroke-opacity="0.4"/>
+          </svg>
         </div>
 
-        <h1 class="text-3xl md:text-5xl font-extrabold leading-tight tracking-tight">
-          Program Analysis &amp; <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-orange-300 to-teal-300">Integrated Dashboard</span>
+        <h1 class="serif-title text-4xl md:text-5xl font-medium leading-[1.15] text-[#FAF8F5]">
+          Clarity in every <span class="italic text-[#E5B887]">health indicator.</span>
         </h1>
 
-        <p class="text-sm md:text-base text-slate-300 leading-relaxed">
-          जनपद अयोध्या के समस्त स्वास्थ्य कार्यक्रमों — ASHA प्रोत्साहन भुगतान, JSY पाइपलाइन, ABHA ID, NCD स्क्रीनिंग, eSanjeevani टेली-कंसल्टेशन एवं NQAS गुणवत्ता का एकीकृत डिजिटल मंच।
+        <p class="text-sm text-[#C4D3CD] leading-relaxed font-normal">
+          जनपद अयोध्या के 11 विकास खंडों एवं स्वास्थ्य इकाइयों की प्रगति, टेली-कंसल्टेशन, मातृ-शिशु स्वास्थ्य एवं आशा प्रोत्साहन भुगतान का शांत और सटीक समीक्षा मंच।
         </p>
 
-        <!-- 3 Glassmorphism Preview Pills -->
-        <div class="grid grid-cols-3 gap-3 pt-2">
-          <div class="glass-card p-3.5 rounded-2xl">
-            <div class="text-amber-300 font-extrabold text-lg md:text-xl">11 Blocks</div>
-            <div class="text-[11px] text-slate-300 mt-0.5">ब्लॉक-वार रैंकिंग</div>
+        <div class="pt-4 flex items-center gap-6 border-t border-white/10 text-xs text-[#A8BDB5]">
+          <div>
+            <span class="block text-base font-semibold text-white">11 Blocks</span>
+            <span>Real-time Monitoring</span>
           </div>
-          <div class="glass-card p-3.5 rounded-2xl">
-            <div class="text-teal-300 font-extrabold text-lg md:text-xl">CHO &amp; MO</div>
-            <div class="text-[11px] text-slate-300 mt-0.5">दैनिक टेली-OPD ट्रैकर</div>
-          </div>
-          <div class="glass-card p-3.5 rounded-2xl">
-            <div class="text-sky-300 font-extrabold text-lg md:text-xl">100% Live</div>
-            <div class="text-[11px] text-slate-300 mt-0.5">Firebase डेटा सिंक</div>
+          <div class="h-7 w-px bg-white/15"></div>
+          <div>
+            <span class="block text-base font-semibold text-white">7 Programmes</span>
+            <span>Unified Workspace</span>
           </div>
         </div>
       </div>
 
-      <!-- Bottom Official Strip -->
-      <div class="relative z-10 flex flex-wrap justify-between items-center gap-2 text-[11px] text-slate-400 border-t border-white/10 pt-4">
-        <span>National Health Mission (NHM), Ayodhya</span>
-        <span>Secured Officer Access</span>
+      <!-- Bottom Caption -->
+      <div class="relative z-10 text-[11px] text-[#8FA89F]">
+        Program Analysis &amp; Integrated Dashboard (PAID)
       </div>
     </div>
 
-    <!-- RIGHT 5 COLUMNS: CRISP EXECUTIVE SIGN-IN -->
-    <div class="lg:col-span-5 flex flex-col justify-between p-8 md:p-14 bg-slate-50">
+    <!-- RIGHT 6 COLUMNS: SERENE IVORY SIGN-IN -->
+    <div class="lg:col-span-6 flex flex-col justify-between p-8 md:p-16 bg-[#FAF8F5]">
       <div class="flex justify-end">
-        <a href="index.html" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 hover:border-indigo-600 text-xs font-bold text-slate-700 hover:text-indigo-700 shadow-xs transition">
-          👩‍⚕️ ASHA Payment पोर्टल →
+        <a href="index.html" class="text-xs font-semibold text-[#133C33] hover:text-[#B87333] transition flex items-center gap-1.5">
+          <span>ASHA Payment Lookup</span>
+          <span>↗</span>
         </a>
       </div>
 
-      <div class="w-full max-w-sm mx-auto my-auto bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/70 border border-slate-100 space-y-6">
-        <div class="space-y-1.5">
-          <span class="inline-block text-[11px] font-extrabold tracking-wider uppercase text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md">
-            Officer Sign In
-          </span>
-          <h2 class="text-2xl font-extrabold text-slate-900">पोर्टल में प्रवेश करें</h2>
-          <p class="text-xs text-slate-500">अपने पंजीकृत मोबाइल नंबर और 4-अंकों के PIN से लॉगिन करें</p>
+      <div class="w-full max-w-sm mx-auto my-auto space-y-8">
+        <div class="space-y-2">
+          <p class="text-[11px] font-bold tracking-[0.22em] uppercase text-[#8C7A6B]">
+            Ayodhya Health
+          </p>
+          <h2 class="serif-title text-3xl text-[#1A2622]">Welcome back</h2>
+          <p class="text-xs text-[#64756F]">अपने पंजीकृत मोबाइल नंबर और 4-अंकों के PIN से प्रवेश करें</p>
         </div>
 
-        <form id="hubLoginForm" class="space-y-5">
+        <form id="hubLoginForm" class="space-y-6">
           <div>
-            <label for="loginMobile" class="block text-xs font-bold text-slate-700 mb-1.5">
-              मोबाइल नंबर (10 अंक)
+            <label for="loginMobile" class="block text-xs font-semibold text-[#4A5B55] mb-1.5">
+              Mobile Number
             </label>
-            <div class="relative">
-              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">+91</span>
-              <input type="tel" id="loginMobile" maxlength="10" required placeholder="98XXXXXXXX"
-                class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-700 focus:ring-4 focus:ring-indigo-700/10 rounded-xl text-sm font-bold text-slate-900 focus:outline-none transition" />
-            </div>
+            <input type="tel" id="loginMobile" maxlength="10" required placeholder="98XXXXXXXX"
+              class="w-full px-4 py-3.5 bg-white border border-[#E5DFD7] focus:border-[#133C33] rounded-2xl text-sm font-semibold text-[#1A2622] placeholder-slate-300 focus:outline-none soft-shadow transition" />
           </div>
 
           <div>
             <div class="flex justify-between items-center mb-1.5">
-              <label for="loginPin" class="block text-xs font-bold text-slate-700">
-                सुरक्षा PIN (4 अंक)
+              <label for="loginPin" class="block text-xs font-semibold text-[#4A5B55]">
+                Security PIN
               </label>
               <button type="button" onclick="togglePinVisibility()" id="pinToggleText"
-                class="text-[11px] font-bold text-indigo-700 hover:underline">
-                PIN दिखाएँ
+                class="text-[11px] font-semibold text-[#8C7A6B] hover:text-[#133C33]">
+                Show PIN
               </button>
             </div>
             <input type="password" id="loginPin" maxlength="4" required placeholder="••••"
-              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-700 focus:ring-4 focus:ring-indigo-700/10 rounded-xl text-base font-extrabold tracking-[0.4em] text-slate-900 focus:outline-none transition" />
+              class="w-full px-4 py-3.5 bg-white border border-[#E5DFD7] focus:border-[#133C33] rounded-2xl text-base font-bold tracking-[0.4em] text-[#1A2622] placeholder-slate-300 focus:outline-none soft-shadow transition" />
           </div>
 
-          <div id="loginError" class="hidden p-3 bg-rose-50 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold text-center"></div>
+          <div id="loginError" class="hidden p-3 bg-rose-50/90 text-rose-800 border border-rose-200 rounded-2xl text-xs font-medium text-center"></div>
 
           <button type="submit" id="loginBtn"
-            class="w-full py-3.5 bg-gradient-to-r from-[#0F2544] to-[#1E40AF] hover:from-[#163660] hover:to-[#1D4ED8] text-white font-extrabold rounded-xl text-sm shadow-lg shadow-blue-900/20 transition cursor-pointer">
-            समीक्षा डैशबोर्ड खोलें →
+            class="w-full py-3.5 bg-[#133C33] hover:bg-[#1C5246] text-[#FAF8F5] font-semibold rounded-full text-sm soft-shadow transition cursor-pointer">
+            Sign in to Workspace
           </button>
         </form>
       </div>
 
-      <div class="text-center text-[11px] text-slate-400">
-        केवल अधिकृत जिला एवं ब्लॉक अधिकारियों के लिए · DHS Ayodhya
+      <div class="text-center text-[11px] text-[#8C9B95]">
+        Authorized District &amp; Block Officers Only · Ayodhya
       </div>
     </div>
   </div>
 
   <!-- ===================================================================== -->
-  <!-- 2. EXECUTIVE COMMAND DASHBOARD HUB (POST-LOGIN)                       -->
+  <!-- 2. SERENE EDITORIAL WORKSPACE HUB (POST-LOGIN)                        -->
   <!-- ===================================================================== -->
   <div id="hubApp" class="hidden min-h-screen flex flex-col">
 
-    <!-- TOP EXECUTIVE NAVBAR -->
-    <header class="bg-[#0B192C] text-white sticky top-0 z-30 shadow-lg">
-      <div class="max-w-7xl mx-auto px-4 md:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+    <!-- MINIMAL STICKY HEADER -->
+    <header class="bg-[#FAF8F5]/90 backdrop-blur-md border-b border-[#EAE4DC] sticky top-0 z-30">
+      <div class="max-w-6xl mx-auto px-5 md:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
         
         <!-- Brand -->
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-400 flex items-center justify-center text-slate-950 font-black text-lg shadow">
-            P
+          <div class="w-9 h-9 rounded-full bg-[#133C33] text-[#E5B887] flex items-center justify-center font-semibold text-sm">
+            ✦
           </div>
           <div>
-            <div class="flex items-center gap-2">
-              <h1 class="text-base md:text-lg font-extrabold tracking-tight">PAID — NHM अयोध्या</h1>
-              <span id="roleBadge" class="text-[10px] bg-amber-400 text-slate-950 font-extrabold px-2.5 py-0.5 rounded-full">DISTRICT</span>
-            </div>
-            <p id="officerInfo" class="text-[11px] text-slate-300"></p>
+            <h1 class="serif-title text-lg font-semibold text-[#1A2622] leading-none">
+              Ayodhya Health
+            </h1>
+            <p class="text-[10px] font-semibold tracking-[0.18em] text-[#8C7A6B] uppercase mt-1">
+              Program Review Portal
+            </p>
           </div>
         </div>
 
-        <!-- Global Search Bar -->
-        <div class="order-3 md:order-2 w-full md:w-80 lg:w-96 relative">
-          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">🔍</span>
+        <!-- Subtle Search Pill -->
+        <div class="order-3 md:order-2 w-full md:w-72 lg:w-80 relative">
+          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8C9B95] text-xs">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+          </span>
           <input type="text" id="moduleSearchInput" oninput="filterPortalModules()"
-            placeholder="कार्यक्रम या इंडिकेटर खोजें (जैसे NCD, CHO, JSY, ABHA)..."
-            class="w-full pl-9 pr-4 py-2 bg-white/10 border border-white/15 focus:bg-white focus:text-slate-900 rounded-xl text-xs font-medium text-white placeholder-slate-300 focus:placeholder-slate-400 focus:outline-none transition" />
+            placeholder="Search indicators..."
+            class="w-full pl-9 pr-4 py-2 bg-white border border-[#E5DFD7] focus:border-[#133C33] rounded-full text-xs text-[#1A2622] placeholder-[#9AA8A2] focus:outline-none transition" />
         </div>
 
-        <!-- Actions -->
+        <!-- Officer Pill + Upload + Sign Out -->
         <div class="order-2 md:order-3 flex items-center gap-2.5">
           <a href="admin.html"
-            class="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-amber-300 text-xs font-bold rounded-xl border border-white/15 transition">
-            ⚙️ Data Upload
+            class="px-3.5 py-2 bg-white hover:bg-[#F2EDE6] text-[#1A2622] text-xs font-semibold rounded-full border border-[#E5DFD7] transition">
+            Upload Data
           </a>
+
+          <div class="hidden sm:flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-[#E5DFD7]">
+            <span id="userAvatarInitial" class="w-6 h-6 rounded-full bg-[#E6EFEA] text-[#133C33] font-bold text-[11px] flex items-center justify-center">A</span>
+            <span id="headerOfficerName" class="text-xs font-semibold text-[#1A2622]">Officer</span>
+          </div>
+
           <button id="logoutBtn"
-            class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow transition">
-            लॉगआउट
+            class="px-4 py-2 bg-[#133C33] hover:bg-[#1C5246] text-white text-xs font-semibold rounded-full transition">
+            Sign out
           </button>
         </div>
       </div>
     </header>
 
     <!-- MAIN WORKSPACE -->
-    <main class="max-w-7xl mx-auto w-full px-4 md:px-8 py-6 space-y-6 flex-1">
+    <main class="max-w-6xl mx-auto w-full px-5 md:px-8 py-8 md:py-10 space-y-8 flex-1">
 
-      <!-- SCOPE BANNER + CATEGORY FILTER PILLS -->
-      <div class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap justify-between items-center gap-4">
+      <!-- TOP HERO GREETING & SCOPE -->
+      <div class="flex flex-wrap justify-between items-end gap-4 pb-2 border-b border-[#EAE4DC]">
         <div>
-          <p id="scopeBanner" class="text-sm font-extrabold text-slate-900"></p>
-          <p class="text-xs text-slate-500 mt-0.5">नीचे दिए गए लाइव इंडिकेटर और कार्यक्रम मॉड्यूल पर क्लिक कर विस्तृत रिपोर्ट खोलें</p>
+          <span id="roleBadge" class="inline-block text-[10px] font-bold tracking-[0.16em] uppercase text-[#8C7A6B] bg-[#F1ECE4] px-3 py-1 rounded-full mb-2">
+            DISTRICT LEVEL
+          </span>
+          <h2 class="serif-title text-3xl md:text-4xl text-[#1A2622]">
+            Health Indicators
+          </h2>
+          <p id="officerInfo" class="text-xs text-[#64756F] mt-1.5"></p>
         </div>
 
-        <!-- Category Quick Filters -->
-        <div class="flex flex-wrap gap-1.5 bg-slate-100 p-1 rounded-xl" id="categoryFilterBar">
-          <button onclick="setCategoryFilter('ALL')" data-cat="ALL" class="cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-[#0F2544] text-white shadow-xs">सभी (7)</button>
-          <button onclick="setCategoryFilter('CLINICAL')" data-cat="CLINICAL" class="cat-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900">NCD &amp; Tele-OPD</button>
-          <button onclick="setCategoryFilter('MATERNAL')" data-cat="MATERNAL" class="cat-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900">Maternal &amp; Child</button>
-          <button onclick="setCategoryFilter('COMMUNITY')" data-cat="COMMUNITY" class="cat-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900">ASHA, ABHA &amp; QA</button>
+        <div class="flex flex-wrap gap-1.5" id="categoryFilterBar">
+          <button onclick="setCategoryFilter('ALL')" data-cat="ALL" class="cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#133C33] text-white">All (7)</button>
+          <button onclick="setCategoryFilter('CLINICAL')" data-cat="CLINICAL" class="cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-[#5A6B65] border border-[#E5DFD7] hover:border-[#133C33]">NCD &amp; Tele-OPD</button>
+          <button onclick="setCategoryFilter('MATERNAL')" data-cat="MATERNAL" class="cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-[#5A6B65] border border-[#E5DFD7] hover:border-[#133C33]">Maternal &amp; Child</button>
+          <button onclick="setCategoryFilter('COMMUNITY')" data-cat="COMMUNITY" class="cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-[#5A6B65] border border-[#E5DFD7] hover:border-[#133C33]">ASHA, ABHA &amp; QA</button>
         </div>
       </div>
 
-      <!-- LIVE DISTRICT PULSE STRIP (4 REAL-TIME SUMMARY CARDS FROM FIREBASE) -->
+      <!-- QUIET LUXURY KPI STRIP (4 WARM CARDS) -->
       <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <a href="ncd-dashboard.html" class="bg-white p-4 rounded-2xl border-l-4 border-l-rose-600 border border-slate-200 shadow-xs hover:shadow-md transition">
-          <div class="flex justify-between items-center">
-            <span class="text-[11px] font-bold text-rose-700 uppercase">NCD Composite Score</span>
-            <span class="text-base">❤️</span>
+        <a href="ncd-dashboard.html" class="bg-white p-5 rounded-3xl border border-[#EAE4DC] soft-shadow card-hover">
+          <div class="flex justify-between items-center text-xs font-medium text-[#7D6E60]">
+            <span>NCD Composite</span>
+            <span class="w-2 h-2 rounded-full bg-[#B87333]"></span>
           </div>
-          <div id="pulseNcdScore" class="text-2xl font-black text-slate-900 mt-1">--%</div>
-          <div id="pulseNcdSub" class="text-[11px] text-slate-500 mt-0.5">जनपद औसत स्कोर</div>
+          <div id="pulseNcdScore" class="serif-title text-3xl text-[#1A2622] mt-2">--%</div>
+          <div id="pulseNcdSub" class="text-[11px] text-[#7D8C86] mt-1">Ayodhya District Score</div>
         </a>
 
-        <a href="tele-dashboard.html" class="bg-white p-4 rounded-2xl border-l-4 border-l-purple-600 border border-slate-200 shadow-xs hover:shadow-md transition">
-          <div class="flex justify-between items-center">
-            <span class="text-[11px] font-bold text-purple-700 uppercase">Tele Consultation</span>
-            <span class="text-base">📞</span>
+        <a href="tele-dashboard.html" class="bg-white p-5 rounded-3xl border border-[#EAE4DC] soft-shadow card-hover">
+          <div class="flex justify-between items-center text-xs font-medium text-[#7D6E60]">
+            <span>Tele Consultation</span>
+            <span class="w-2 h-2 rounded-full bg-[#133C33]"></span>
           </div>
-          <div id="pulseTeleTotal" class="text-2xl font-black text-slate-900 mt-1">--</div>
-          <div id="pulseTeleSub" class="text-[11px] text-slate-500 mt-0.5">CHO + MO कुल परामर्श</div>
+          <div id="pulseTeleTotal" class="serif-title text-3xl text-[#1A2622] mt-2">--</div>
+          <div id="pulseTeleSub" class="text-[11px] text-[#7D8C86] mt-1">CHO + MO Total OPD</div>
         </a>
 
-        <a href="abha-dashboard.html" class="bg-white p-4 rounded-2xl border-l-4 border-l-emerald-600 border border-slate-200 shadow-xs hover:shadow-md transition">
-          <div class="flex justify-between items-center">
-            <span class="text-[11px] font-bold text-emerald-700 uppercase">ABHA ID Saturation</span>
-            <span class="text-base">🆔</span>
+        <a href="abha-dashboard.html" class="bg-white p-5 rounded-3xl border border-[#EAE4DC] soft-shadow card-hover">
+          <div class="flex justify-between items-center text-xs font-medium text-[#7D6E60]">
+            <span>ABHA Saturation</span>
+            <span class="w-2 h-2 rounded-full bg-[#4E7A6B]"></span>
           </div>
-          <div id="pulseAbhaPct" class="text-2xl font-black text-slate-900 mt-1">--%</div>
-          <div id="pulseAbhaSub" class="text-[11px] text-slate-500 mt-0.5">डिजिटल हेल्थ प्रगति</div>
+          <div id="pulseAbhaPct" class="serif-title text-3xl text-[#1A2622] mt-2">--%</div>
+          <div id="pulseAbhaSub" class="text-[11px] text-[#7D8C86] mt-1">Digital Health IDs</div>
         </a>
 
-        <a href="qa-dashboard.html" class="bg-white p-4 rounded-2xl border-l-4 border-l-amber-500 border border-slate-200 shadow-xs hover:shadow-md transition">
-          <div class="flex justify-between items-center">
-            <span class="text-[11px] font-bold text-amber-700 uppercase">Quality Assurance</span>
-            <span class="text-base">✅</span>
+        <a href="qa-dashboard.html" class="bg-white p-5 rounded-3xl border border-[#EAE4DC] soft-shadow card-hover">
+          <div class="flex justify-between items-center text-xs font-medium text-[#7D6E60]">
+            <span>Quality Certified</span>
+            <span class="w-2 h-2 rounded-full bg-[#C89B6E]"></span>
           </div>
-          <div id="pulseQaCount" class="text-2xl font-black text-slate-900 mt-1">--</div>
-          <div id="pulseQaSub" class="text-[11px] text-slate-500 mt-0.5">NQAS / Kayakalp इकाइयां</div>
+          <div id="pulseQaCount" class="serif-title text-3xl text-[#1A2622] mt-2">--</div>
+          <div id="pulseQaSub" class="text-[11px] text-[#7D8C86] mt-1">NQAS &amp; Kayakalp Units</div>
         </a>
       </section>
 
-      <!-- PROGRAM MODULES GRID -->
-      <section class="space-y-3">
+      <!-- BENTO MODULE CARDS GRID -->
+      <section class="space-y-4">
         <div class="flex justify-between items-center">
-          <h2 class="text-base font-extrabold text-slate-800">कार्यक्रम-वार समीक्षा डैशबोर्ड</h2>
-          <span id="moduleCountBadge" class="text-xs font-bold text-slate-500">7 मॉड्यूल</span>
+          <h3 class="text-sm font-bold tracking-wide text-[#4A5B55]">Programme Workspaces</h3>
+          <span id="moduleCountBadge" class="text-xs text-[#8C9B95]">7 modules</span>
         </div>
 
         <div id="modulesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
@@ -266,8 +280,9 @@
 
     </main>
 
-    <footer class="py-5 text-center text-xs text-slate-400 border-t border-slate-200 bg-white mt-8">
-      Program Analysis &amp; Integrated Dashboard (PAID) · District Health Society, Ayodhya
+    <!-- MINIMAL FOOTER -->
+    <footer class="py-6 text-center text-[11px] text-[#8C9B95]">
+      Ayodhya Health · District Health Society, Ayodhya (NHM)
     </footer>
   </div>
 
@@ -276,9 +291,9 @@
       const inp = document.getElementById("loginPin");
       const txt = document.getElementById("pinToggleText");
       if (inp.type === "password") {
-        inp.type = "text"; txt.textContent = "PIN छुपाएँ";
+        inp.type = "text"; txt.textContent = "Hide PIN";
       } else {
-        inp.type = "password"; txt.textContent = "PIN दिखाएँ";
+        inp.type = "password"; txt.textContent = "Show PIN";
       }
     };
   </script>
@@ -305,93 +320,79 @@
       {
         id: "ncd",
         category: "CLINICAL",
+        featured: true,
+        tag: "NCD Control",
         title: "NCD Screening",
         desc: "30+ आयु वर्ग में HTN, DM, कैंसर स्क्रीनिंग, ANM/CHO/MO लॉगिन एवं Facility-wise प्रगति।",
         url: "ncd-dashboard.html",
-        badge: "NCD Control",
-        accent: "from-rose-600 to-pink-600",
-        pillBg: "bg-rose-50 text-rose-800 border-rose-200",
-        icon: "❤️",
-        liveMetric: "डेटा सिंक...",
-        progressPct: 0
+        liveMetric: "Syncing...",
+        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`
       },
       {
         id: "tele",
         category: "CLINICAL",
-        title: "Tele Consultation (CHO & MO)",
-        desc: "आयुष्मान आरोग्य मंदिर (HWC) पर CHO एवं Medical Officer द्वारा दैनिक eSanjeevani OPD रैंकिंग।",
+        featured: true,
+        tag: "eSanjeevani",
+        title: "Tele Consultation",
+        desc: "आयुष्मान आरोग्य मंदिर पर CHO एवं Medical Officer द्वारा दैनिक टेली-OPD रैंकिंग।",
         url: "tele-dashboard.html",
-        badge: "eSanjeevani OPD",
-        accent: "from-purple-600 to-indigo-600",
-        pillBg: "bg-purple-50 text-purple-800 border-purple-200",
-        icon: "📞",
-        liveMetric: "डेटा सिंक...",
-        progressPct: 0
-      },
-      {
-        id: "jsy",
-        category: "MATERNAL",
-        title: "JSY Payment एवं सत्यापन",
-        desc: "संस्थागत प्रसव, PIN Verification, JSY Verification, MOIC स्वीकृति एवं भुगतान पेंडेंसी।",
-        url: "jsy-dashboard.html",
-        badge: "Maternal Health",
-        accent: "from-blue-600 to-indigo-700",
-        pillBg: "bg-blue-50 text-blue-800 border-blue-200",
-        icon: "🤰",
-        liveMetric: "डेटा सिंक...",
-        progressPct: 0
-      },
-      {
-        id: "rbsk",
-        category: "MATERNAL",
-        title: "RBSK (बाल स्वास्थ्य)",
-        desc: "मोबाइल हेल्थ टीम (MHT) विजिट, आंगनवाड़ी व विद्यालय स्क्रीनिंग एवं DEIC रेफरल प्रगति।",
-        url: "rbsk-dashboard.html",
-        badge: "Child Health",
-        accent: "from-amber-500 to-orange-600",
-        pillBg: "bg-amber-50 text-amber-800 border-amber-200",
-        icon: "👶",
-        liveMetric: "डेटा सिंक...",
-        progressPct: 0
+        liveMetric: "Syncing...",
+        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`
       },
       {
         id: "asha",
         category: "COMMUNITY",
-        title: "ASHA Payment समीक्षा",
-        desc: "आशा कार्यकर्ताओं की प्रोत्साहन राशि, शून्य भुगतान (₹0), PFMS Break एवं एक्टिविटी विश्लेषण।",
+        featured: false,
+        tag: "Community Process",
+        title: "ASHA Payment",
+        desc: "आशा प्रोत्साहन राशि, शून्य भुगतान (₹0), PFMS Break एवं एक्टिविटी विश्लेषण।",
         url: "dashboard.html",
-        badge: "Community Process",
-        accent: "from-teal-600 to-emerald-600",
-        pillBg: "bg-teal-50 text-teal-800 border-teal-200",
-        icon: "👩‍⚕️",
-        liveMetric: "डेटा सिंक...",
-        progressPct: 0
+        liveMetric: "Active",
+        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M2 12h3M19 12h3"/></svg>`
+      },
+      {
+        id: "jsy",
+        category: "MATERNAL",
+        featured: false,
+        tag: "Maternal Health",
+        title: "JSY Payment",
+        desc: "संस्थागत प्रसव, PIN Verification, MOIC स्वीकृति एवं भुगतान पेंडेंसी।",
+        url: "jsy-dashboard.html",
+        liveMetric: "Active",
+        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`
       },
       {
         id: "abha",
         category: "COMMUNITY",
-        title: "ABHA Progress एवं Scan-Share",
-        desc: "ब्लॉक एवं स्वास्थ्य केंद्रवार ABHA ID निर्माण लक्ष्य बनाम उपलब्धि और OPD Scan & Share।",
+        featured: false,
+        tag: "Digital Health",
+        title: "ABHA & Scan-Share",
+        desc: "ब्लॉक एवं स्वास्थ्य केंद्रवार ABHA ID निर्माण लक्ष्य बनाम उपलब्धि।",
         url: "abha-dashboard.html",
-        badge: "Digital Health",
-        accent: "from-emerald-600 to-green-700",
-        pillBg: "bg-emerald-50 text-emerald-800 border-emerald-200",
-        icon: "🆔",
-        liveMetric: "डेटा सिंक...",
-        progressPct: 0
+        liveMetric: "Active",
+        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 10h4M7 14h10"/></svg>`
+      },
+      {
+        id: "rbsk",
+        category: "MATERNAL",
+        featured: false,
+        tag: "Child Health",
+        title: "RBSK Screening",
+        desc: "मोबाइल हेल्थ टीम विजिट, आंगनवाड़ी व विद्यालय स्क्रीनिंग एवं DEIC रेफरल।",
+        url: "rbsk-dashboard.html",
+        liveMetric: "Active",
+        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>`
       },
       {
         id: "qa",
         category: "COMMUNITY",
+        featured: false,
+        tag: "Quality Standards",
         title: "Quality Assurance",
-        desc: "NQAS, कायाकल्प (Kayakalp) एवं लक्ष्य (LaQshya) के अंतर्गत स्वास्थ्य इकाइयों की सर्टिफिकेशन स्थिति।",
+        desc: "NQAS, कायाकल्प (Kayakalp) एवं लक्ष्य (LaQshya) सर्टिफिकेशन स्थिति।",
         url: "qa-dashboard.html",
-        badge: "Quality Standards",
-        accent: "from-cyan-600 to-sky-700",
-        pillBg: "bg-cyan-50 text-cyan-800 border-cyan-200",
-        icon: "✅",
-        liveMetric: "डेटा सिंक...",
-        progressPct: 0
+        liveMetric: "Active",
+        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`
       }
     ];
 
@@ -407,7 +408,7 @@
 
       errBox.classList.add("hidden");
       btn.disabled = true;
-      btn.textContent = "सत्यापन हो रहा है...";
+      btn.textContent = "Signing in...";
 
       try {
         const snap = await get(ref(db, `asha_portal_v2/officers/${mob}`));
@@ -424,7 +425,7 @@
         errBox.classList.remove("hidden");
       } finally {
         btn.disabled = false;
-        btn.textContent = "समीक्षा डैशबोर्ड खोलें →";
+        btn.textContent = "Sign in to Workspace";
       }
     });
 
@@ -443,8 +444,8 @@
       activeCategory = cat;
       document.querySelectorAll(".cat-btn").forEach(btn => {
         btn.className = btn.dataset.cat === cat
-          ? "cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-[#0F2544] text-white shadow-xs"
-          : "cat-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900";
+          ? "cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#133C33] text-white"
+          : "cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-[#5A6B65] border border-[#E5DFD7] hover:border-[#133C33]";
       });
       window.filterPortalModules();
     };
@@ -453,42 +454,42 @@
       const q = (document.getElementById("moduleSearchInput").value || "").trim().toLowerCase();
       const filtered = MODULES.filter(m => {
         if (activeCategory !== "ALL" && m.category !== activeCategory) return false;
-        if (q && !m.title.toLowerCase().includes(q) && !m.desc.toLowerCase().includes(q) && !m.badge.toLowerCase().includes(q)) return false;
+        if (q && !m.title.toLowerCase().includes(q) && !m.desc.toLowerCase().includes(q) && !m.tag.toLowerCase().includes(q)) return false;
         return true;
       });
 
-      document.getElementById("moduleCountBadge").textContent = `${filtered.length} मॉड्यूल`;
+      document.getElementById("moduleCountBadge").textContent = `${filtered.length} ${filtered.length === 1 ? 'module' : 'modules'}`;
       document.getElementById("modulesGrid").innerHTML = filtered.map(m => `
-        <a href="${m.url}" class="group bg-white rounded-2xl border border-slate-200 hover:border-indigo-500 shadow-xs hover:shadow-xl hover:-translate-y-0.5 transition-all overflow-hidden flex flex-col justify-between">
-          <div>
-            <!-- Top Color Accent Bar -->
-            <div class="h-1.5 w-full bg-gradient-to-r ${m.accent}"></div>
-            <div class="p-5 space-y-3">
-              <div class="flex justify-between items-start gap-2">
-                <span class="inline-block text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${m.pillBg}">${m.badge}</span>
-                <span class="text-xl">${m.icon}</span>
+        <a href="${m.url}"
+          class="group bg-white p-6 rounded-3xl border border-[#EAE4DC] soft-shadow card-hover flex flex-col justify-between space-y-6">
+          
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="w-11 h-11 rounded-2xl bg-[#F3EFEA] group-hover:bg-[#133C33] text-[#133C33] group-hover:text-[#E5B887] flex items-center justify-center transition">
+                ${m.icon}
               </div>
-              <h3 class="text-base font-extrabold text-slate-900 group-hover:text-indigo-800 transition">${m.title}</h3>
-              <p class="text-xs text-slate-600 leading-relaxed">${m.desc}</p>
+              <span class="text-[11px] font-semibold text-[#7D6E60] bg-[#FAF8F5] border border-[#EAE4DC] px-3 py-1 rounded-full">
+                ${m.tag}
+              </span>
+            </div>
+
+            <div>
+              <h4 class="serif-title text-xl text-[#1A2622] group-hover:text-[#133C33] transition">
+                ${m.title}
+              </h4>
+              <p class="text-xs text-[#64756F] leading-relaxed mt-1.5">
+                ${m.desc}
+              </p>
             </div>
           </div>
 
-          <div class="px-5 pb-5 pt-2 space-y-2.5">
-            <!-- Live Metric & Progress Bar -->
-            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-              <div class="flex justify-between items-center text-[11px] font-bold text-slate-700 mb-1">
-                <span>स्थिति:</span>
-                <span class="text-indigo-900">${m.liveMetric}</span>
-              </div>
-              <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                <div class="h-full bg-gradient-to-r ${m.accent} rounded-full transition-all duration-700" style="width: ${m.progressPct}%"></div>
-              </div>
-            </div>
-
-            <div class="flex justify-between items-center text-xs font-extrabold text-indigo-800 pt-1">
-              <span>डैशबोर्ड खोलें</span>
-              <span class="w-7 h-7 rounded-full bg-indigo-50 group-hover:bg-indigo-700 group-hover:text-white flex items-center justify-center transition">→</span>
-            </div>
+          <div class="pt-4 border-t border-[#F2EDE6] flex items-center justify-between text-xs">
+            <span class="font-semibold text-[#133C33] bg-[#EBF2EE] px-2.5 py-1 rounded-full">
+              ${m.liveMetric}
+            </span>
+            <span class="font-semibold text-[#64756F] group-hover:text-[#133C33] group-hover:translate-x-1 transition">
+              Explore →
+            </span>
           </div>
         </a>
       `).join("");
@@ -500,65 +501,36 @@
         if (!snap.exists()) return;
         const d = snap.val();
 
-        // 1. NCD
-        const ncdScore = Number(d.ncd_screening?.district?.score || 0);
-        if (ncdScore > 0) {
+        const ncdScore = d.ncd_screening?.district?.score;
+        if (ncdScore !== undefined) {
           document.getElementById("pulseNcdScore").textContent = `${ncdScore}%`;
-          document.getElementById("pulseNcdSub").textContent = `${(d.ncd_screening.units || []).length} इकाइयां रैंक की गईं`;
-          const m = MODULES.find(x => x.id === "ncd");
-          m.liveMetric = `स्कोर: ${ncdScore}%`;
-          m.progressPct = Math.min(100, ncdScore);
+          MODULES.find(x => x.id === "ncd").liveMetric = `Score ${ncdScore}%`;
         }
 
-        // 2. Tele Consultation (CHO + MO)
         const choRows = d.tele_cho?.rows || [];
         const moRows = d.tele_mo?.rows || [];
         const totalTc = [...choRows, ...moRows].reduce((s, r) => s + (Number(r.tc) || 0), 0);
-        const choDays = (d.tele_cho?.availableDates || []).filter(Boolean).length;
         document.getElementById("pulseTeleTotal").textContent = totalTc.toLocaleString("en-IN");
-        document.getElementById("pulseTeleSub").textContent = `CHO (${choDays} दिन) + MO डेटा`;
-        const teleMod = MODULES.find(x => x.id === "tele");
-        teleMod.liveMetric = `${totalTc.toLocaleString("en-IN")} कुल TC`;
-        teleMod.progressPct = totalTc > 0 ? 85 : 15;
+        MODULES.find(x => x.id === "tele").liveMetric = `${totalTc.toLocaleString("en-IN")} TC`;
 
-        // 3. ABHA
         const abhaRecs = d.abha_portal?.records || [];
         if (abhaRecs.length) {
           const pop = abhaRecs.reduce((s, r) => s + (Number(r.pop) || 0), 0);
           const cr = abhaRecs.reduce((s, r) => s + (Number(r.created) || 0), 0);
-          const pct = pop > 0 ? Number(((cr / pop) * 100).toFixed(1)) : 0;
+          const pct = pop > 0 ? ((cr / pop) * 100).toFixed(1) : "0.0";
           document.getElementById("pulseAbhaPct").textContent = `${pct}%`;
-          document.getElementById("pulseAbhaSub").textContent = `${cr.toLocaleString("en-IN")} निर्मित ABHA`;
-          const abhaMod = MODULES.find(x => x.id === "abha");
-          abhaMod.liveMetric = `${pct}% पूर्ण`;
-          abhaMod.progressPct = Math.min(100, pct);
+          MODULES.find(x => x.id === "abha").liveMetric = `${pct}% Done`;
         }
 
-        // 4. QA
         const qaRows = d.quality_assurance?.rows || [];
         if (qaRows.length) {
           const cert = qaRows.filter(r => String(r.status).includes("Certified")).length;
           document.getElementById("pulseQaCount").textContent = `${cert} / ${qaRows.length}`;
-          document.getElementById("pulseQaSub").textContent = `प्रमाणित स्वास्थ्य इकाइयां`;
-          const qaMod = MODULES.find(x => x.id === "qa");
-          qaMod.liveMetric = `${cert}/${qaRows.length} प्रमाणित`;
-          qaMod.progressPct = Math.round((cert / qaRows.length) * 100);
+          MODULES.find(x => x.id === "qa").liveMetric = `${cert} Certified`;
         }
 
-        // 5. JSY & ASHA & RBSK
-        if (d.jsy_portal?.latestDate) {
-          const jsyMod = MODULES.find(x => x.id === "jsy");
-          jsyMod.liveMetric = `अपडेट: ${d.jsy_portal.latestDate}`;
-          jsyMod.progressPct = 78;
-        }
-        if (d.months?.length) {
-          const ashaMod = MODULES.find(x => x.id === "asha");
-          ashaMod.liveMetric = `${d.months.length} माह डेटा सक्रिय`;
-          ashaMod.progressPct = 90;
-        }
-        const rbskMod = MODULES.find(x => x.id === "rbsk");
-        rbskMod.liveMetric = d.rbsk?.rows?.length ? `${d.rbsk.rows.length} रिकॉर्ड` : "समीक्षा हेतु तैयार";
-        rbskMod.progressPct = d.rbsk?.rows?.length ? 75 : 30;
+        if (d.jsy_portal?.latestDate) MODULES.find(x => x.id === "jsy").liveMetric = d.jsy_portal.latestDate;
+        if (d.months?.length) MODULES.find(x => x.id === "asha").liveMetric = `${d.months.length} Months`;
 
         window.filterPortalModules();
       } catch (err) {
@@ -571,11 +543,11 @@
       document.getElementById("hubApp").classList.remove("hidden");
 
       const isDistrict = currentOfficer.role === "DISTRICT";
-      document.getElementById("roleBadge").textContent = isDistrict ? "DISTRICT LEVEL" : `BLOCK: ${currentOfficer.block}`;
-      document.getElementById("officerInfo").textContent = `${currentOfficer.name} (${currentOfficer.designation}) · मो. ${currentOfficer.mobile}`;
-      document.getElementById("scopeBanner").textContent = isDistrict
-        ? "कार्यक्षेत्र: जनपद अयोध्या (समस्त 11 विकास खंड एवं जिला चिकित्सालय)"
-        : `कार्यक्षेत्र: विकास खंड ${currentOfficer.block}`;
+      const nameStr = currentOfficer.name || "Officer";
+      document.getElementById("userAvatarInitial").textContent = nameStr.charAt(0).toUpperCase();
+      document.getElementById("headerOfficerName").textContent = nameStr;
+      document.getElementById("roleBadge").textContent = isDistrict ? "AYODHYA DISTRICT · ALL 11 BLOCKS" : `BLOCK · ${currentOfficer.block}`;
+      document.getElementById("officerInfo").textContent = `${nameStr} (${currentOfficer.designation}) · ${currentOfficer.mobile}`;
 
       window.filterPortalModules();
       loadLivePulseData();
