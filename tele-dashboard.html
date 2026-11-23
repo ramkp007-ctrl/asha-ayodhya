@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tele Consultation Dashboard — NHM अयोध्या</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen font-sans antialiased">
+
+  <!-- HEADER (Matching portal.html Theme) -->
+  <header class="bg-slate-900 text-white shadow-md">
+    <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-wrap justify-between items-center gap-3">
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base font-bold">Tele Consultation समीक्षा (eSanjeevani) — NHM अयोध्या</h1>
+          <span id="roleBadge" class="text-[10px] bg-purple-400 text-slate-950 font-extrabold px-2.5 py-0.5 rounded-full">DISTRICT</span>
+        </div>
+        <p id="metaSubTitle" class="text-xs text-slate-300 mt-0.5">डेटा लोड हो रहा है...</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="portal.html" class="px-3.5 py-1.5 bg-teal-700 hover:bg-teal-600 text-xs font-bold rounded-lg">
+          ← वापस Program Portal
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-6 space-y-5">
+
+    <!-- 2 TABS: CHO TELECONSULTATION & MO TELE CONSULTATION -->
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap justify-between items-center gap-3">
+      <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+        <button id="tabCHO" onclick="switchTeleTab('tele_cho')"
+          class="px-4 py-2 rounded-lg text-xs font-bold bg-purple-700 text-white shadow transition">
+          👩‍⚕️ CHO Teleconsultation
+        </button>
+        <button id="tabMO" onclick="switchTeleTab('tele_mo')"
+          class="px-4 py-2 rounded-lg text-xs font-bold text-slate-700 hover:text-purple-800 transition">
+          👨‍⚕️ MO Tele Consultation
+        </button>
+      </div>
+
+      <button onclick="downloadTeleExcel()"
+        class="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow-sm">
+        ⬇️ Excel डाउनलोड करें (.xlsx)
+      </button>
+    </div>
+
+    <!-- FILTERS: DATE RANGE + BLOCK + STATUS + SEARCH -->
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <div>
+        <label class="block text-[11px] font-bold text-slate-600 mb-1">📅 From Date (दिनांक से):</label>
+        <input type="date" id="fromDateInput" onchange="renderDashboard()"
+          class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold bg-slate-50" />
+      </div>
+      <div>
+        <label class="block text-[11px] font-bold text-slate-600 mb-1">📅 To Date (दिनांक तक):</label>
+        <input type="date" id="toDateInput" onchange="renderDashboard()"
+          class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold bg-slate-50" />
+      </div>
+      <div>
+        <label class="block text-[11px] font-bold text-slate-600 mb-1">🏛️ Block (ब्लॉक):</label>
+        <select id="blockFilterSelect" onchange="renderDashboard()"
+          class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold bg-slate-50">
+          <option value="ALL">All Blocks (जनपद अयोध्या)</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[11px] font-bold text-slate-600 mb-1">⚡ प्रदर्शन फ़िल्टर:</label>
+        <select id="statusFilterSelect" onchange="renderDashboard()"
+          class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold bg-slate-50">
+          <option value="ALL">सभी Users (All)</option>
+          <option value="ZERO">⚠️ केवल Zero TC वाले (0)</option>
+          <option value="ACTIVE">✅ केवल Active Users (&gt;0)</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[11px] font-bold text-slate-600 mb-1">🔍 User / Facility खोजें:</label>
+        <input type="text" id="searchInput" oninput="renderDashboard()" placeholder="नाम या SC/HWC लिखें..."
+          class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-slate-50" />
+      </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-purple-200 shadow-sm">
+        <div class="text-xs font-semibold text-purple-800">कुल Unique Users</div>
+        <div id="kpiUniqueUsers" class="text-2xl font-extrabold text-slate-900 mt-1">0</div>
+        <div id="kpiActiveZero" class="text-[11px] text-slate-500 mt-0.5">Active: 0 | Zero: 0</div>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-emerald-200 shadow-sm">
+        <div class="text-xs font-semibold text-emerald-800">कुल Tele Consultations</div>
+        <div id="kpiTotalTc" class="text-2xl font-extrabold text-emerald-700 mt-1">0</div>
+        <div class="text-[11px] text-slate-500 mt-0.5">चयनित दिनांक रेंज का कुल योग</div>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-sky-200 shadow-sm">
+        <div class="text-xs font-semibold text-sky-800">औसत TC प्रति User</div>
+        <div id="kpiAvgTc" class="text-2xl font-extrabold text-sky-900 mt-1">0.0</div>
+        <div class="text-[11px] text-slate-500 mt-0.5">Average per CHO / MO</div>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-rose-200 shadow-sm">
+        <div class="text-xs font-semibold text-rose-800">Zero Reporting Users</div>
+        <div id="kpiZeroCount" class="text-2xl font-extrabold text-rose-700 mt-1">0</div>
+        <div class="text-[11px] text-rose-600 mt-0.5">0 टेली-कंसल्टेशन वाले</div>
+      </div>
+    </div>
+
+    <!-- BLOCK-WISE BAR CHART -->
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="text-sm font-bold text-slate-800">📊 ब्लॉक-वार कुल Tele Consultation (Date Range Sum)</h2>
+        <span class="text-[11px] text-slate-500">ब्लॉक बार पर क्लिक करके फ़िल्टर करें</span>
+      </div>
+      <div style="height: 280px;">
+        <canvas id="blockTcChart"></canvas>
+      </div>
+    </div>
+
+    <!-- UNIQUE USER-WISE TABLE -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="px-4 py-3 border-b bg-slate-50 flex justify-between items-center">
+        <h2 class="text-sm font-bold text-slate-800">📋 Unique User-wise Tele Consultation सूची</h2>
+        <span id="tableCountBadge" class="text-xs font-bold text-purple-800 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">0 Users</span>
+      </div>
+      <div class="overflow-x-auto max-h-[450px]">
+        <table class="w-full text-xs text-left border-collapse">
+          <thead class="bg-slate-900 text-white sticky top-0">
+            <tr>
+              <th class="p-2.5">रैंक</th>
+              <th class="p-2.5">Block</th>
+              <th class="p-2.5">User Name (Unique)</th>
+              <th class="p-2.5">Health Facility / Sub-Center</th>
+              <th class="p-2.5 text-center">दिन (Days)</th>
+              <th class="p-2.5 text-right">Total TC</th>
+              <th class="p-2.5 text-center">स्थिति</th>
+            </tr>
+          </thead>
+          <tbody id="tcTableBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
+      authDomain: "asha-payment.firebaseapp.com",
+      databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "asha-payment",
+      storageBucket: "asha-payment.firebasestorage.app",
+      messagingSenderId: "117935142167",
+      appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
+      measurementId: "G-43YGRC5CKL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Check officer login session from portal.html
+    const savedOfficer = JSON.parse(sessionStorage.getItem("nhm_ayodhya_officer") || "null");
+    if (savedOfficer) {
+      document.getElementById("roleBadge").textContent = savedOfficer.role === "DISTRICT" ? "DISTRICT LEVEL" : `BLOCK: ${savedOfficer.block}`;
+    }
+
+    let rawRows = [];
+    let renderedRows = [];
+    let currentTab = "tele_cho";
+    let chartInstance = null;
+
+    window.switchTeleTab = async function(tabKey) {
+      currentTab = tabKey;
+      document.getElementById("tabCHO").className = tabKey === "tele_cho"
+        ? "px-4 py-2 rounded-lg text-xs font-bold bg-purple-700 text-white shadow transition"
+        : "px-4 py-2 rounded-lg text-xs font-bold text-slate-700 hover:text-purple-800 transition";
+      document.getElementById("tabMO").className = tabKey === "tele_mo"
+        ? "px-4 py-2 rounded-lg text-xs font-bold bg-purple-700 text-white shadow transition"
+        : "px-4 py-2 rounded-lg text-xs font-bold text-slate-700 hover:text-purple-800 transition";
+
+      const snap = await get(ref(db, `asha_portal_v2/${tabKey}`));
+      if (!snap.exists() || !snap.val().rows) {
+        rawRows = [];
+        document.getElementById("metaSubTitle").textContent = "अभी इस टैब का डेटा अपलोड नहीं किया गया है।";
+        window.renderDashboard();
+        return;
+      }
+
+      const data = snap.val();
+      rawRows = data.rows || [];
+      const dates = (data.availableDates || []).sort();
+
+      // Populate Block Filter
+      const blocks = Array.from(new Set(rawRows.map(r => (r.block || "").trim()).filter(Boolean))).sort();
+      const blockSel = document.getElementById("blockFilterSelect");
+      blockSel.innerHTML = `<option value="ALL">All ${blocks.length} Blocks (जनपद अयोध्या)</option>` +
+        blocks.map(b => `<option value="${b}">${b}</option>`).join("");
+
+      if (savedOfficer && savedOfficer.role !== "DISTRICT" && savedOfficer.block) {
+        const matchedBlk = blocks.find(b => b.toLowerCase() === savedOfficer.block.toLowerCase());
+        if (matchedBlk) {
+          blockSel.value = matchedBlk;
+          blockSel.disabled = true;
+        }
+      }
+
+      if (dates.length > 0) {
+        const fEl = document.getElementById("fromDateInput");
+        const tEl = document.getElementById("toDateInput");
+        fEl.min = dates[0]; fEl.max = dates[dates.length - 1];
+        tEl.min = dates[0]; tEl.max = dates[dates.length - 1];
+        fEl.value = dates[0];
+        tEl.value = dates[dates.length - 1];
+        document.getElementById("metaSubTitle").textContent =
+          `उपलब्ध दिनांक: ${dates[0]} से ${dates[dates.length - 1]} (${dates.length} दिन) • अंतिम अपडेट: ${data.updatedAt || ""}`;
+      }
+
+      window.renderDashboard();
+    };
+
+    window.renderDashboard = function() {
+      const fromDt = document.getElementById("fromDateInput").value;
+      const toDt = document.getElementById("toDateInput").value;
+      const selBlock = document.getElementById("blockFilterSelect").value;
+      const perfFilter = document.getElementById("statusFilterSelect").value;
+      const searchQ = document.getElementById("searchInput").value.trim().toLowerCase();
+
+      // 1. Date Range Filter
+      const dateFiltered = rawRows.filter(r => {
+        if (fromDt && r.isoDate < fromDt) return false;
+        if (toDt && r.isoDate > toDt) return false;
+        return true;
+      });
+
+      // 2. Group by UNIQUE User & Sum TC across date range
+      const userMap = new Map();
+      dateFiltered.forEach(r => {
+        const cleanUser = String(r.user || "Unknown").replace(/\s+/g, " ").trim();
+        const userKey = cleanUser.toUpperCase();
+        const cleanBlock = String(r.block || "-").replace(/\s+/g, " ").trim();
+        const cleanFac = String(r.facility || "-").replace(/\s+/g, " ").trim();
+
+        if (!userMap.has(userKey)) {
+          userMap.set(userKey, {
+            user: cleanUser,
+            blocks: new Set(),
+            facilities: new Set(),
+            days: new Set(),
+            totalTc: 0
+          });
+        }
+        const entry = userMap.get(userKey);
+        if (cleanBlock && cleanBlock !== "-") entry.blocks.add(cleanBlock);
+        if (cleanFac && cleanFac !== "-") entry.facilities.add(cleanFac);
+        if (r.isoDate) entry.days.add(r.isoDate);
+        entry.totalTc += Number(r.tc) || 0;
+      });
+
+      const allUniqueUsers = Array.from(userMap.values()).map(u => ({
+        block: Array.from(u.blocks).join(", ") || "-",
+        user: u.user,
+        facility: Array.from(u.facilities).join(", ") || "-",
+        daysCount: u.days.size,
+        totalTc: u.totalTc
+      }));
+
+      // 3. Block Chart Data
+      const blockTotals = new Map();
+      allUniqueUsers.forEach(u => {
+        const b = u.block.split(",")[0].trim() || "Other";
+        blockTotals.set(b, (blockTotals.get(b) || 0) + u.totalTc);
+      });
+      renderChart(blockTotals, selBlock);
+
+      // 4. Filter for Table & KPIs
+      const finalRows = allUniqueUsers.filter(u => {
+        if (selBlock !== "ALL" && !u.block.toLowerCase().includes(selBlock.toLowerCase())) return false;
+        if (perfFilter === "ZERO" && u.totalTc > 0) return false;
+        if (perfFilter === "ACTIVE" && u.totalTc === 0) return false;
+        if (searchQ && !u.user.toLowerCase().includes(searchQ) && !u.facility.toLowerCase().includes(searchQ)) return false;
+        return true;
+      });
+
+      finalRows.sort((a, b) => b.totalTc - a.totalTc);
+      renderedRows = finalRows;
+
+      // 5. KPIs
+      const totalU = finalRows.length;
+      const sumTc = finalRows.reduce((s, r) => s + r.totalTc, 0);
+      const zeroU = finalRows.filter(r => r.totalTc === 0).length;
+      const activeU = totalU - zeroU;
+      const avg = totalU > 0 ? (sumTc / totalU).toFixed(1) : "0.0";
+
+      document.getElementById("kpiUniqueUsers").textContent = totalU.toLocaleString("en-IN");
+      document.getElementById("kpiActiveZero").textContent = `Active: ${activeU} | Zero: ${zeroU}`;
+      document.getElementById("kpiTotalTc").textContent = sumTc.toLocaleString("en-IN");
+      document.getElementById("kpiAvgTc").textContent = avg;
+      document.getElementById("kpiZeroCount").textContent = zeroU.toLocaleString("en-IN");
+      document.getElementById("tableCountBadge").textContent = `${totalU} Users`;
+
+      // 6. Table
+      const tbody = document.getElementById("tcTableBody");
+      if (!finalRows.length) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">चयनित फ़िल्टर के लिए कोई डेटा उपलब्ध नहीं है।</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = finalRows.map((r, i) => {
+        const isZero = r.totalTc === 0;
+        const badge = isZero
+          ? `<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-bold text-[10px]">Zero TC</span>`
+          : `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">Active</span>`;
+        return `
+          <tr class="hover:bg-slate-50 ${isZero ? 'bg-rose-50/30' : ''}">
+            <td class="p-2.5 text-slate-500">${i + 1}</td>
+            <td class="p-2.5 font-semibold text-slate-700">${r.block}</td>
+            <td class="p-2.5 font-bold text-slate-900">${r.user}</td>
+            <td class="p-2.5 text-slate-600">${r.facility}</td>
+            <td class="p-2.5 text-center text-slate-600">${r.daysCount}</td>
+            <td class="p-2.5 text-right font-extrabold ${isZero ? 'text-rose-600' : 'text-purple-900'}">${r.totalTc.toLocaleString("en-IN")}</td>
+            <td class="p-2.5 text-center">${badge}</td>
+          </tr>
+        `;
+      }).join("");
+    };
+
+    function renderChart(blockTotals, activeBlock) {
+      const ctx = document.getElementById("blockTcChart").getContext("2d");
+      if (chartInstance) chartInstance.destroy();
+
+      const sorted = Array.from(blockTotals.entries()).sort((a, b) => b[1] - a[1]);
+      const labels = sorted.map(x => x[0]);
+      const values = sorted.map(x => x[1]);
+      const colors = labels.map(b => (activeBlock !== "ALL" && b === activeBlock) ? "#6b21a8" : "#0d9488");
+
+      chartInstance = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{ label: "Total TC", data: values, backgroundColor: colors, borderRadius: 6 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: (e, el) => {
+            if (el.length > 0 && !document.getElementById("blockFilterSelect").disabled) {
+              const blk = labels[el[0].index];
+              const sel = document.getElementById("blockFilterSelect");
+              sel.value = sel.value === blk ? "ALL" : blk;
+              window.renderDashboard();
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            datalabels: { anchor: "end", align: "top", font: { weight: "bold", size: 11 }, formatter: v => v.toLocaleString("en-IN") }
+          },
+          scales: { y: { beginAtZero: true, suggestedMax: Math.max(...values, 10) * 1.15 } }
+        },
+        plugins: [ChartDataLabels]
+      });
+    }
+
+    window.downloadTeleExcel = function() {
+      if (!renderedRows.length) return alert("डाउनलोड करने के लिए कोई डेटा नहीं है।");
+      const fromDt = document.getElementById("fromDateInput").value;
+      const toDt = document.getElementById("toDateInput").value;
+      const rows = renderedRows.map((r, i) => ({
+        "Rank": i + 1, "Block": r.block, "User Name": r.user,
+        "Health Facility": r.facility, "Active Days": r.daysCount, "Total Tele Consultation": r.totalTc
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "TeleConsultation");
+      XLSX.writeFile(wb, `${currentTab}_${fromDt}_to_${toDt}.xlsx`);
+    };
+
+    window.switchTeleTab("tele_cho");
+  </script>
+</body>
+</html>
