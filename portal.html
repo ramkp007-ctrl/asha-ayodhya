@@ -84,7 +84,7 @@
           <button onclick="selectSubProgram('jsy')" id="nav_jsy"
             class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
             <span>• JSY Payment</span>
-            <span id="cnt_jsy" class="text-[10px] text-slate-400">—</span>
+            <span id="cnt_jsy" class="text-[10px] text-amber-300 font-bold">—</span>
           </button>
           <button onclick="selectSubProgram('mh_inst_delivery')" id="nav_mh_inst_delivery"
             class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
@@ -140,17 +140,17 @@
           <a href="index.html"
             class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-teal-200 hover:bg-slate-800 hover:text-white font-semibold transition">
             <span>• ASHA Payment ↗</span>
-            <span class="text-[10px] text-teal-400 font-bold">2,232</span>
+            <span id="cnt_asha" class="text-[10px] text-teal-400 font-bold">2,232</span>
           </a>
           <button onclick="selectSubProgram('abha')" id="nav_abha"
             class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
             <span>• ABHA ID</span>
-            <span id="cnt_abha" class="text-[10px] text-slate-400">—</span>
+            <span id="cnt_abha" class="text-[10px] text-sky-300 font-bold">—</span>
           </button>
         </div>
       </div>
 
-      <!-- 3. RBSK (Direct Module) -->
+      <!-- 3. RBSK -->
       <button onclick="selectSubProgram('rbsk')" id="nav_rbsk"
         class="nav-sub-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/40 border border-slate-800/60 font-extrabold text-purple-300 hover:bg-slate-800 hover:text-white transition text-left">
         <span>3. RBSK</span>
@@ -168,7 +168,7 @@
           <button onclick="selectSubProgram('qa')" id="nav_qa"
             class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
             <span>• NQAS Certification</span>
-            <span id="cnt_qa" class="text-[10px] text-emerald-400 font-bold">59/154</span>
+            <span id="cnt_qa" class="text-[10px] text-emerald-400 font-bold">—</span>
           </button>
           <button onclick="selectSubProgram('qa_kayakalp')" id="nav_qa_kayakalp"
             class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
@@ -189,7 +189,7 @@
           <button onclick="selectSubProgram('ncd')" id="nav_ncd"
             class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
             <span>• Composite Score</span>
-            <span id="cnt_ncd" class="text-[10px] text-slate-400">—</span>
+            <span id="cnt_ncd" class="text-[10px] text-rose-300 font-bold">—</span>
           </button>
           <button onclick="selectSubProgram('ncd_mo_exam')" id="nav_ncd_mo_exam"
             class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
@@ -249,11 +249,17 @@
       <!-- FILTER & THRESHOLD LEGEND BAR -->
       <div class="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-sm flex flex-wrap justify-between items-center gap-3 no-print">
         <div class="flex flex-wrap items-center gap-2.5">
+          <!-- Optional Date Selector (For JSY / ABHA multi-date uploads) -->
+          <select id="wsDateFilter" onchange="renderActiveProgram()" class="hidden px-3 py-2 border border-indigo-200 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-900">
+          </select>
+
           <select id="wsBlockFilter" onchange="renderActiveProgram()" class="px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50 text-slate-800">
             <option value="ALL">All 11 Blocks (जनपद अयोध्या)</option>
           </select>
+
           <input type="text" id="wsSearchInput" oninput="renderActiveProgram()" placeholder="🔍 ब्लॉक या इकाई खोजें..."
             class="px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 w-48" />
+
           <button onclick="exportActiveExcel()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition">
             ⬇️ Excel (.xlsx)
           </button>
@@ -393,114 +399,119 @@
       bd.classList.toggle("hidden");
     };
 
-    // COMPLETE 5-PROGRAM & SUB-PROGRAM REGISTRY
+    // MAPPED TO YOUR EXACT FIREBASE NODES IN admin.html
     const PROGRAMS = {
-      // 1. MATERNAL HEALTH
       jsy: {
         category: "1. Maternal Health",
         badgeClass: "bg-amber-100 text-amber-800",
         title: "JSY Payment — ब्लॉक एवं इकाई-वार समीक्षा",
-        sub: "जननी सुरक्षा योजना संस्थागत प्रसव सत्यापन, MOIC स्वीकृति एवं भुगतान प्रगति",
-        dbNode: "jsy"
+        sub: "जननी सुरक्षा योजना संस्थागत प्रसव सत्यापन, MOIC स्वीकृति एवं भुगतान प्रतिशत",
+        dbNode: "jsy_portal",
+        mode: "jsy"
       },
       mh_inst_delivery: {
         category: "1. Maternal Health",
         badgeClass: "bg-amber-100 text-amber-800",
         title: "Institutional Delivery (HMIS) — समीक्षा",
         sub: "HMIS पोर्टल के अनुसार अनुमानित प्रसव के सापेक्ष संस्थागत प्रसव प्रतिशत",
-        dbNode: "mh_inst_delivery"
+        dbNode: "mh_inst_delivery",
+        mode: "generic"
       },
       mh_delivery_ekavach: {
         category: "1. Maternal Health",
         badgeClass: "bg-amber-100 text-amber-800",
         title: "Delivery Updation (EKAVACH) — समीक्षा",
         sub: "e-Kavach पोर्टल पर आशा/ANM द्वारा प्रसव अपडेशन की ब्लॉक-वार प्रगति",
-        dbNode: "mh_delivery_ekavach"
+        dbNode: "mh_delivery_ekavach",
+        mode: "generic"
       },
       mh_anc_ekavach: {
         category: "1. Maternal Health",
         badgeClass: "bg-amber-100 text-amber-800",
         title: "ANC Coverage (EKAVACH) — समीक्षा",
         sub: "e-Kavach पोर्टल पर ANC पंजीकरण, जांच एवं HRP ट्रैकिंग प्रगति",
-        dbNode: "mh_anc_ekavach"
+        dbNode: "mh_anc_ekavach",
+        mode: "generic"
       },
       mh_anc_hmis: {
         category: "1. Maternal Health",
         badgeClass: "bg-amber-100 text-amber-800",
         title: "ANC Coverage (HMIS) — समीक्षा",
         sub: "HMIS रिपोर्ट के अनुसार प्रथम तिमाही एवं 4+ ANC कवरेज प्रतिशत",
-        dbNode: "mh_anc_hmis"
+        dbNode: "mh_anc_hmis",
+        mode: "generic"
       },
       mh_maternal_death: {
         category: "1. Maternal Health",
         badgeClass: "bg-rose-100 text-rose-800",
         title: "Maternal Death (MDSR) — समीक्षा",
         sub: "मातृ मृत्यु रिपोर्टिंग, CDR/MDSR समीक्षा एवं ब्लॉक-वार विवरण",
-        dbNode: "mh_maternal_death"
+        dbNode: "mh_maternal_death",
+        mode: "generic"
       },
       mh_child_death: {
         category: "1. Maternal Health",
         badgeClass: "bg-rose-100 text-rose-800",
         title: "Child Death (CDR) — समीक्षा",
         sub: "शिशु मृत्यु रिपोर्टिंग एवं ब्लॉक-वार समीक्षा विवरण",
-        dbNode: "mh_child_death"
+        dbNode: "mh_child_death",
+        mode: "generic"
       },
-
-      // 2. COMMUNITY PROCESS (ABHA ID inline; Tele CHO/MO -> tele-dashboard.html; ASHA -> index.html)
       abha: {
         category: "2. Community Process",
         badgeClass: "bg-sky-100 text-sky-800",
-        title: "ABHA ID — ब्लॉक-वार समीक्षा",
-        sub: "आयुष्मान भारत हेल्थ अकाउंट (ABHA) जनरेशन एवं लक्ष्य प्राप्ति",
-        dbNode: "abha"
+        title: "ABHA ID — ब्लॉक एवं आशा क्षेत्र-वार समीक्षा",
+        sub: "जनसंख्या लक्ष्य के सापेक्ष निर्मित ABHA ID प्रतिशत",
+        dbNode: "abha_portal",
+        mode: "abha"
       },
-
-      // 3. RBSK
       rbsk: {
         category: "3. RBSK",
         badgeClass: "bg-purple-100 text-purple-800",
         title: "RBSK — राष्ट्रीय बाल स्वास्थ्य कार्यक्रम समीक्षा",
         sub: "मोबाइल हेल्थ टीम विज़िट, आंगनवाड़ी व स्कूल स्क्रीनिंग एवं DEIC रेफरल प्रगति",
-        dbNode: "rbsk"
+        dbNode: "rbsk",
+        mode: "generic"
       },
-
-      // 4. QUALITY ASSURANCE
       qa: {
         category: "4. Quality Assurance",
         badgeClass: "bg-emerald-100 text-emerald-800",
         title: "NQAS Certification — प्रमाणीकरण समीक्षा",
-        sub: "Certified, Conditional एवं Deferred इकाइयों का ब्लॉक-वार विवरण",
-        dbNode: "qa"
+        sub: "Quality Certified, Conditional एवं Deferred स्वास्थ्य इकाइयों का ब्लॉक-वार विवरण",
+        dbNode: "quality_assurance",
+        mode: "qa"
       },
       qa_kayakalp: {
         category: "4. Quality Assurance",
         badgeClass: "bg-emerald-100 text-emerald-800",
         title: "KAYAKALP — स्वच्छता एवं गुणवत्ता समीक्षा",
         sub: "कायाकल्प मूल्यांकन स्कोर एवं प्रमाणित स्वास्थ्य इकाइयों की प्रगति",
-        dbNode: "qa_kayakalp"
+        dbNode: "qa_kayakalp",
+        mode: "generic"
       },
-
-      // 5. NCD
       ncd: {
         category: "5. NCD",
         badgeClass: "bg-rose-100 text-rose-800",
         title: "NCD Composite Score — समग्र स्कोर समीक्षा",
-        sub: "NP-NCD कार्यक्रम के अंतर्गत ब्लॉक-वार समग्र (Composite) प्रदर्शन स्कोर",
-        dbNode: "ncd"
+        sub: "NP-NCD कार्यक्रम के अंतर्गत ब्लॉक-वार Composite Score, HTN/DM व ANM/CHO/MO लॉगिन",
+        dbNode: "ncd_screening",
+        mode: "ncd"
       },
       ncd_mo_exam: {
         category: "5. NCD",
         badgeClass: "bg-rose-100 text-rose-800",
         title: "NCD MO Examination — चिकित्साधिकारी परीक्षण समीक्षा",
         sub: "रेफर किए गए उच्च-जोखिम मरीजों का MO द्वारा परीक्षण एवं उपचार प्रगति",
-        dbNode: "ncd_mo_exam"
+        dbNode: "ncd_mo_exam",
+        mode: "generic"
       },
       ncd_facility_progress: {
         category: "5. NCD",
         badgeClass: "bg-rose-100 text-rose-800",
         title: "NCD Facilitywise Progress — इकाई-वार प्रगति",
         sub: "उपकेन्द्र / HWC / PHC वार 30+ स्क्रीनिंग एवं लॉगिन प्रगति",
-        dbNode: "ncd_facility_progress"
+        dbNode: "ncd_facility_progress",
+        mode: "generic"
       }
     };
 
@@ -515,15 +526,14 @@
       return "#e11d48"; // Red <80
     }
 
-    function detectColumns(rows) {
-      if (!rows || !rows.length) return {};
-      const keys = Object.keys(rows[0]);
-      const blockKey = keys.find(k => /block/i.test(k)) || keys[0];
-      const facKey = keys.find(k => /facility|unit|center|sc|hwc|name/i.test(k) && k !== blockKey) || null;
-      const pctKey = keys.find(k => /%|pct|percent|ach|rate|score|cert|total|count|death/i.test(k))
-        || keys.find(k => typeof rows[0][k] === "number" && k !== blockKey)
-        || keys[keys.length - 1];
-      return { keys, blockKey, facKey, pctKey };
+    function getRecordsForProgram(key) {
+      const meta = PROGRAMS[key];
+      if (!meta) return [];
+      const mod = portalData[meta.dbNode];
+      if (!mod) return [];
+      if (meta.mode === "jsy" || meta.mode === "abha") return mod.records || [];
+      if (meta.mode === "ncd") return mod.units || [];
+      return mod.rows || [];
     }
 
     async function initPortal() {
@@ -533,7 +543,7 @@
           portalData = snap.val() || {};
         }
 
-        // Update Tele Consultation CHO & MO counts in sidebar
+        // Update Tele Consultation CHO & MO counts
         const choRows = portalData.tele_cho?.rows || [];
         const moRows = portalData.tele_mo?.rows || [];
         const choTc = choRows.reduce((s, r) => s + (Number(r.tc) || 0), 0);
@@ -541,12 +551,18 @@
         if (choTc > 0) document.getElementById("cnt_tele_cho").textContent = `${choTc.toLocaleString("en-IN")}`;
         if (moTc > 0) document.getElementById("cnt_tele_mo").textContent = `${moTc.toLocaleString("en-IN")}`;
 
-        // Update row counts for all inline sub-programs
+        // Update sidebar counts for all sub-programs
         Object.keys(PROGRAMS).forEach(k => {
-          const node = PROGRAMS[k].dbNode;
-          const rows = portalData[node]?.rows || [];
+          const list = getRecordsForProgram(k);
           const cntEl = document.getElementById(`cnt_${k}`);
-          if (cntEl && rows.length) cntEl.textContent = `${rows.length}`;
+          if (cntEl && list.length) {
+            if (k === "qa") {
+              const cert = list.filter(x => x.status === "Quality Certified").length;
+              cntEl.textContent = `${cert}/${list.length}`;
+            } else {
+              cntEl.textContent = `${list.length}`;
+            }
+          }
         });
 
         selectSubProgram("jsy");
@@ -566,7 +582,7 @@
         toggleSidebar();
       }
 
-      const meta = PROGRAMS[key] || { category: "Program", badgeClass: "bg-slate-100 text-slate-700", title: key.toUpperCase(), sub: "", dbNode: key };
+      const meta = PROGRAMS[key];
       const catEl = document.getElementById("wsCategoryPill");
       catEl.textContent = meta.category;
       catEl.className = `text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${meta.badgeClass}`;
@@ -577,12 +593,25 @@
       const mod = portalData[meta.dbNode] || {};
       document.getElementById("wsUpdatedBadge").textContent = `अपडेट: ${mod.updatedAt || "N/A"}`;
 
-      const rows = mod.rows || [];
-      const { blockKey } = detectColumns(rows);
-      const blocks = Array.from(new Set(rows.map(r => String(r[blockKey] || "").trim()).filter(Boolean))).sort();
+      const records = getRecordsForProgram(key);
+
+      // Date dropdown for JSY & ABHA
+      const dateSel = document.getElementById("wsDateFilter");
+      if ((meta.mode === "jsy" || meta.mode === "abha") && records.length) {
+        const dates = Array.from(new Set(records.map(r => r.date).filter(Boolean)));
+        dateSel.innerHTML = dates.map(d => `<option value="${d}">📅 दिनांक: ${d}</option>`).join("");
+        if (mod.latestDate && dates.includes(mod.latestDate)) dateSel.value = mod.latestDate;
+        dateSel.classList.remove("hidden");
+      } else {
+        dateSel.classList.add("hidden");
+      }
+
+      // Block dropdown
+      const blockField = meta.mode === "ncd" ? "unit" : (records[0] && "block" in records[0] ? "block" : Object.keys(records[0] || {})[0]);
+      const blocks = Array.from(new Set(records.map(r => String(r[blockField] || "").trim()).filter(Boolean))).sort();
 
       const sel = document.getElementById("wsBlockFilter");
-      sel.innerHTML = `<option value="ALL">All ${blocks.length || 11} Blocks (जनपद अयोध्या)</option>` +
+      sel.innerHTML = `<option value="ALL">All ${blocks.length || 11} ${meta.mode === "ncd" ? "Units / Blocks" : "Blocks (जनपद अयोध्या)"}</option>` +
         blocks.map(b => `<option value="${b}">${b}</option>`).join("");
 
       if (savedOfficer && savedOfficer.role !== "DISTRICT" && savedOfficer.block) {
@@ -594,13 +623,13 @@
     };
 
     window.renderActiveProgram = function() {
-      const meta = PROGRAMS[activeProg] || { dbNode: activeProg };
-      const mod = portalData[meta.dbNode] || {};
-      const rawRows = mod.rows || [];
+      const meta = PROGRAMS[activeProg];
+      let records = getRecordsForProgram(activeProg);
+      const selDate = document.getElementById("wsDateFilter").value;
       const selBlk = document.getElementById("wsBlockFilter").value;
       const searchQ = document.getElementById("wsSearchInput").value.trim().toLowerCase();
 
-      if (!rawRows.length) {
+      if (!records.length) {
         document.getElementById("kpi1Val").textContent = "0";
         document.getElementById("kpi2Val").textContent = "—";
         document.getElementById("kpi3Val").textContent = "—";
@@ -613,53 +642,285 @@
         return;
       }
 
-      const { keys, blockKey, facKey, pctKey } = detectColumns(rawRows);
+      // Filter by Date if JSY/ABHA
+      if ((meta.mode === "jsy" || meta.mode === "abha") && selDate) {
+        records = records.filter(r => r.date === selDate);
+      }
 
-      const filtered = rawRows.filter(r => {
-        const b = String(r[blockKey] || "").trim();
+      // Filter by Block & Search
+      const blockField = meta.mode === "ncd" ? "unit" : ("block" in records[0] ? "block" : Object.keys(records[0])[0]);
+      const filtered = records.filter(r => {
+        const b = String(r[blockField] || "").trim();
         if (selBlk !== "ALL" && b.toLowerCase() !== selBlk.toLowerCase()) return false;
-        if (searchQ) {
-          const hay = Object.values(r).join(" ").toLowerCase();
-          if (!hay.includes(searchQ)) return false;
-        }
+        if (searchQ && !Object.values(r).join(" ").toLowerCase().includes(searchQ)) return false;
         return true;
       });
       currentExportRows = filtered;
 
-      const grpMap = new Map();
-      filtered.forEach(r => {
-        const label = selBlk === "ALL"
-          ? (String(r[blockKey] || "Other").trim())
-          : (facKey ? String(r[facKey] || r[blockKey]).trim() : String(r[blockKey]).trim());
-        const rawVal = parseFloat(String(r[pctKey] ?? 0).replace(/[^0-9.-]/g, "")) || 0;
-        if (!grpMap.has(label)) grpMap.set(label, { name: label, sum: 0, count: 0 });
-        const g = grpMap.get(label);
-        g.sum += rawVal;
-        g.count += 1;
-      });
+      let ranked = [];
+      let kpi1 = { label: "कुल रिकॉर्ड", val: filtered.length, sub: "" };
+      let kpi2 = { label: "जनपद औसत", val: "0%", sub: "" };
+      let tableHtml = "";
 
-      const ranked = Array.from(grpMap.values()).map(g => ({
-        name: g.name,
-        avgVal: Number((g.sum / g.count).toFixed(1)),
-        count: g.count
-      })).sort((a, b) => b.avgVal - a.avgVal);
+      if (meta.mode === "jsy") {
+        // JSY Payment % = (pay / del) * 100
+        const grp = new Map();
+        filtered.forEach(r => {
+          const key = selBlk === "ALL" ? r.block : r.facility;
+          if (!grp.has(key)) grp.set(key, { name: key, del: 0, moic: 0, pay: 0, count: 0 });
+          const g = grp.get(key);
+          g.del += Number(r.del) || 0;
+          g.moic += Number(r.moic) || 0;
+          g.pay += Number(r.pay) || 0;
+          g.count += 1;
+        });
+        ranked = Array.from(grp.values()).map(g => ({
+          name: g.name,
+          val: g.del > 0 ? Number(((g.pay / g.del) * 100).toFixed(1)) : 0,
+          subText: `प्रसव: ${g.del} | भुगतान: ${g.pay}`
+        })).sort((a, b) => b.val - a.val);
 
-      const overallAvg = ranked.length
-        ? (ranked.reduce((s, x) => s + x.avgVal, 0) / ranked.length).toFixed(1)
-        : "0.0";
-      document.getElementById("kpi1Val").textContent = filtered.length.toLocaleString("en-IN");
-      document.getElementById("kpi1Sub").textContent = `${ranked.length} ${selBlk === "ALL" ? "Blocks" : "Units"}`;
-      document.getElementById("kpi2Val").textContent = `${overallAvg}`;
-      document.getElementById("kpi2Sub").textContent = `सूचक: ${pctKey}`;
+        const totDel = filtered.reduce((s, r) => s + (Number(r.del) || 0), 0);
+        const totPay = filtered.reduce((s, r) => s + (Number(r.pay) || 0), 0);
+        const totMoic = filtered.reduce((s, r) => s + (Number(r.moic) || 0), 0);
+        const pct = totDel > 0 ? ((totPay / totDel) * 100).toFixed(1) : "0.0";
+
+        kpi1 = { label: "कुल प्रसव (Deliveries)", val: totDel.toLocaleString("en-IN"), sub: `MOIC स्वीकृत: ${totMoic.toLocaleString("en-IN")}` };
+        kpi2 = { label: "JSY भुगतान प्रतिशत", val: `${pct}%`, sub: `कुल भुगतान: ${totPay.toLocaleString("en-IN")}` };
+
+        tableHtml = `
+          <table class="w-full text-xs text-left border-collapse">
+            <thead class="bg-slate-900 text-white sticky top-0">
+              <tr>
+                <th class="p-3">#</th><th class="p-3">Block</th><th class="p-3">Facility</th>
+                <th class="p-3 text-right">Deliveries</th><th class="p-3 text-right">JSY Verified</th>
+                <th class="p-3 text-right">MOIC Approved</th><th class="p-3 text-right">Payments</th>
+                <th class="p-3 text-right">Payment %</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              ${filtered.map((r, i) => {
+                const p = r.del > 0 ? ((r.pay / r.del) * 100).toFixed(1) : "0.0";
+                const clr = p > 85 ? "text-emerald-700" : (p >= 80 ? "text-amber-600" : "text-rose-600");
+                return `<tr class="hover:bg-slate-50">
+                  <td class="p-3 text-slate-400">${i + 1}</td>
+                  <td class="p-3 font-semibold">${r.block}</td>
+                  <td class="p-3 font-bold text-slate-900">${r.facility}</td>
+                  <td class="p-3 text-right">${r.del}</td>
+                  <td class="p-3 text-right">${r.jsy}</td>
+                  <td class="p-3 text-right">${r.moic}</td>
+                  <td class="p-3 text-right font-bold">${r.pay}</td>
+                  <td class="p-3 text-right font-extrabold ${clr}">${p}%</td>
+                </tr>`;
+              }).join("")}
+            </tbody>
+          </table>`;
+
+      } else if (meta.mode === "abha") {
+        // ABHA % = (created / pop) * 100
+        const grp = new Map();
+        filtered.forEach(r => {
+          const key = selBlk === "ALL" ? r.block : (r.sc || r.ashaName);
+          if (!grp.has(key)) grp.set(key, { name: key, pop: 0, created: 0 });
+          const g = grp.get(key);
+          g.pop += Number(r.pop) || 0;
+          g.created += Number(r.created) || 0;
+        });
+        ranked = Array.from(grp.values()).map(g => ({
+          name: g.name,
+          val: g.pop > 0 ? Number(((g.created / g.pop) * 100).toFixed(1)) : 0,
+          subText: `निर्मित: ${g.created.toLocaleString("en-IN")} / ${g.pop.toLocaleString("en-IN")}`
+        })).sort((a, b) => b.val - a.val);
+
+        const totPop = filtered.reduce((s, r) => s + (Number(r.pop) || 0), 0);
+        const totCr = filtered.reduce((s, r) => s + (Number(r.created) || 0), 0);
+        const pct = totPop > 0 ? ((totCr / totPop) * 100).toFixed(1) : "0.0";
+
+        kpi1 = { label: "लक्षित जनसंख्या", val: totPop.toLocaleString("en-IN"), sub: `${filtered.length} आशा क्षेत्र` };
+        kpi2 = { label: "ABHA उपलब्धि %", val: `${pct}%`, sub: `निर्मित ABHA: ${totCr.toLocaleString("en-IN")}` };
+
+        tableHtml = `
+          <table class="w-full text-xs text-left border-collapse">
+            <thead class="bg-slate-900 text-white sticky top-0">
+              <tr>
+                <th class="p-3">#</th><th class="p-3">Block</th><th class="p-3">SC / Sub-Center</th>
+                <th class="p-3">ASHA Name</th><th class="p-3 text-right">Population</th>
+                <th class="p-3 text-right">ABHA Created</th><th class="p-3 text-right">Progress %</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              ${filtered.slice(0, 300).map((r, i) => {
+                const p = r.pop > 0 ? ((r.created / r.pop) * 100).toFixed(1) : "0.0";
+                return `<tr class="hover:bg-slate-50">
+                  <td class="p-3 text-slate-400">${i + 1}</td>
+                  <td class="p-3 font-semibold">${r.block}</td>
+                  <td class="p-3">${r.sc}</td>
+                  <td class="p-3 font-bold">${r.ashaName}</td>
+                  <td class="p-3 text-right">${r.pop}</td>
+                  <td class="p-3 text-right font-bold text-sky-800">${r.created}</td>
+                  <td class="p-3 text-right font-extrabold">${p}%</td>
+                </tr>`;
+              }).join("")}
+            </tbody>
+          </table>`;
+
+      } else if (meta.mode === "ncd") {
+        // NCD Composite Score
+        ranked = filtered.map(u => ({
+          name: u.unit,
+          val: Number(u.score) || 0,
+          subText: `HTN: ${u.htnPct}% | DM: ${u.dmPct}%`
+        })).sort((a, b) => b.val - a.val);
+
+        const distScore = portalData.ncd_screening?.district?.score ??
+          (ranked.length ? (ranked.reduce((s, x) => s + x.val, 0) / ranked.length).toFixed(1) : "0.0");
+        const totHtn = filtered.reduce((s, u) => s + (Number(u.htn) || 0), 0);
+        const totDm = filtered.reduce((s, u) => s + (Number(u.dm) || 0), 0);
+
+        kpi1 = { label: "कुल इकाइयां / Blocks", val: filtered.length, sub: `HTN: ${totHtn.toLocaleString("en-IN")} | DM: ${totDm.toLocaleString("en-IN")}` };
+        kpi2 = { label: "Composite Score", val: `${distScore}%`, sub: "जनपद समग्र स्कोर" };
+
+        tableHtml = `
+          <table class="w-full text-xs text-left border-collapse">
+            <thead class="bg-slate-900 text-white sticky top-0">
+              <tr>
+                <th class="p-3">Rank</th><th class="p-3">Block / Unit</th><th class="p-3 text-right">30+ Pop</th>
+                <th class="p-3 text-right">HTN %</th><th class="p-3 text-right">DM %</th>
+                <th class="p-3 text-right">ANM %</th><th class="p-3 text-right">CHO %</th>
+                <th class="p-3 text-right">MO %</th><th class="p-3 text-right">Composite Score</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              ${filtered.map(u => `
+                <tr class="hover:bg-slate-50">
+                  <td class="p-3 font-bold text-slate-500">${u.rank}</td>
+                  <td class="p-3 font-extrabold text-slate-900">${u.unit}</td>
+                  <td class="p-3 text-right">${(u.pop30 || 0).toLocaleString("en-IN")}</td>
+                  <td class="p-3 text-right">${u.htnPct}%</td>
+                  <td class="p-3 text-right">${u.dmPct}%</td>
+                  <td class="p-3 text-right font-semibold text-teal-700">${u.anmPct}%</td>
+                  <td class="p-3 text-right font-semibold text-indigo-700">${u.choPct}%</td>
+                  <td class="p-3 text-right font-semibold text-amber-700">${u.moPct}%</td>
+                  <td class="p-3 text-right font-extrabold text-rose-700">${u.score}%</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>`;
+
+      } else if (meta.mode === "qa") {
+        // Quality Assurance (NQAS)
+        const grp = new Map();
+        filtered.forEach(r => {
+          const b = r.block || "Other";
+          if (!grp.has(b)) grp.set(b, { name: b, total: 0, cert: 0, cond: 0, def: 0 });
+          const g = grp.get(b);
+          g.total += 1;
+          if (r.status === "Quality Certified") g.cert += 1;
+          else if (r.status === "Conditional") g.cond += 1;
+          else g.def += 1;
+        });
+
+        ranked = Array.from(grp.values()).map(g => ({
+          name: g.name,
+          val: g.total > 0 ? Number(((g.cert / g.total) * 100).toFixed(1)) : 0,
+          subText: `Certified: ${g.cert} | Cond: ${g.cond} | Def: ${g.def}`
+        })).sort((a, b) => b.val - a.val);
+
+        const certAll = filtered.filter(r => r.status === "Quality Certified").length;
+        const condAll = filtered.filter(r => r.status === "Conditional").length;
+        const defAll = filtered.filter(r => r.status === "Deferred").length;
+
+        kpi1 = { label: "कुल मूल्यांकित इकाइयां", val: filtered.length, sub: `Cond: ${condAll} | Deferred: ${defAll}` };
+        kpi2 = { label: "Quality Certified", val: `${certAll} (${filtered.length ? ((certAll / filtered.length) * 100).toFixed(1) : 0}%)`, sub: "पूर्णतः प्रमाणित इकाइयां" };
+
+        tableHtml = `
+          <table class="w-full text-xs text-left border-collapse">
+            <thead class="bg-slate-900 text-white sticky top-0">
+              <tr>
+                <th class="p-3">SN</th><th class="p-3">Block</th><th class="p-3">Facility Name</th>
+                <th class="p-3">Type</th><th class="p-3 text-center">Packages</th>
+                <th class="p-3">Status</th><th class="p-3">Date</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              ${filtered.map((r, i) => {
+                const badge = r.status === "Quality Certified"
+                  ? "bg-emerald-100 text-emerald-800"
+                  : (r.status === "Conditional" ? "bg-amber-100 text-amber-800" : "bg-rose-100 text-rose-800");
+                return `<tr class="hover:bg-slate-50">
+                  <td class="p-3 text-slate-400">${i + 1}</td>
+                  <td class="p-3 font-semibold">${r.block}</td>
+                  <td class="p-3 font-bold text-slate-900">${r.facility}</td>
+                  <td class="p-3">${r.type}</td>
+                  <td class="p-3 text-center">${r.packages}</td>
+                  <td class="p-3"><span class="px-2.5 py-0.5 rounded-full font-bold text-[10px] ${badge}">${r.status}</span></td>
+                  <td class="p-3 text-slate-500">${r.date}</td>
+                </tr>`;
+              }).join("")}
+            </tbody>
+          </table>`;
+
+      } else {
+        // Generic Excel Table Mode (RBSK, HMIS, e-Kavach, Kayakalp, etc.)
+        const keys = Object.keys(filtered[0]);
+        const blkK = keys.find(k => /block/i.test(k)) || keys[0];
+        const numK = keys.find(k => /%|pct|percent|ach|rate|score|total|count|death/i.test(k))
+          || keys.find(k => typeof filtered[0][k] === "number" && k !== blkK)
+          || keys[keys.length - 1];
+
+        const grp = new Map();
+        filtered.forEach(r => {
+          const name = String(r[blkK] || "Other").trim();
+          const v = parseFloat(String(r[numK] ?? 0).replace(/[^0-9.-]/g, "")) || 0;
+          if (!grp.has(name)) grp.set(name, { name, sum: 0, count: 0 });
+          const g = grp.get(name);
+          g.sum += v; g.count += 1;
+        });
+
+        ranked = Array.from(grp.values()).map(g => ({
+          name: g.name,
+          val: Number((g.sum / g.count).toFixed(1)),
+          subText: `इकाइयां: ${g.count}`
+        })).sort((a, b) => b.val - a.val);
+
+        const avg = ranked.length ? (ranked.reduce((s, x) => s + x.val, 0) / ranked.length).toFixed(1) : "0.0";
+        kpi1 = { label: "कुल पंक्तियां (Rows)", val: filtered.length, sub: `${ranked.length} Blocks/Units` };
+        kpi2 = { label: `औसत (${numK})`, val: avg, sub: "ब्लॉक-वार औसत" };
+
+        tableHtml = `
+          <table class="w-full text-xs text-left border-collapse">
+            <thead class="bg-slate-900 text-white sticky top-0">
+              <tr><th class="p-3">#</th>${keys.map(k => `<th class="p-3 uppercase">${k}</th>`).join("")}</tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              ${filtered.map((r, i) => `
+                <tr class="hover:bg-slate-50">
+                  <td class="p-3 text-slate-400">${i + 1}</td>
+                  ${keys.map(k => `<td class="p-3 text-slate-700 font-medium">${r[k] ?? "-"}</td>`).join("")}
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>`;
+      }
+
+      // Render KPIs
+      document.getElementById("kpi1Label").textContent = kpi1.label;
+      document.getElementById("kpi1Val").textContent = kpi1.val;
+      document.getElementById("kpi1Sub").textContent = kpi1.sub;
+
+      document.getElementById("kpi2Label").textContent = kpi2.label;
+      document.getElementById("kpi2Val").textContent = kpi2.val;
+      document.getElementById("kpi2Sub").textContent = kpi2.sub;
+
       document.getElementById("kpi3Val").textContent = ranked[0] ? ranked[0].name : "—";
-      document.getElementById("kpi3Sub").textContent = ranked[0] ? `स्कोर: ${ranked[0].avgVal}` : "—";
-      const lastItem = ranked[ranked.length - 1];
-      document.getElementById("kpi4Val").textContent = lastItem ? lastItem.name : "—";
-      document.getElementById("kpi4Sub").textContent = lastItem ? `स्कोर: ${lastItem.avgVal}` : "—";
+      document.getElementById("kpi3Sub").textContent = ranked[0] ? `${ranked[0].val}% (${ranked[0].subText})` : "—";
+      const last = ranked[ranked.length - 1];
+      document.getElementById("kpi4Val").textContent = last ? last.name : "—";
+      document.getElementById("kpi4Sub").textContent = last ? `${last.val}% (${last.subText})` : "—";
 
+      // Render Top 5 & Poor 5
       const top5 = ranked.slice(0, 5);
       const poor5 = [...ranked].reverse().slice(0, 5);
-
       const renderBox = (list, isTop) => list.map((item, idx) => `
         <div class="flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 rounded-xl text-xs">
           <div class="flex items-center gap-2.5 min-w-0">
@@ -668,11 +929,11 @@
             </span>
             <div class="truncate">
               <div class="font-bold text-slate-900 truncate">${item.name}</div>
-              <div class="text-[10px] text-slate-500">इकाइयां: ${item.count}</div>
+              <div class="text-[10px] text-slate-500 truncate">${item.subText}</div>
             </div>
           </div>
           <span class="ml-2 px-3 py-1 rounded-full font-extrabold text-xs ${isTop ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}">
-            ${item.avgVal}
+            ${item.val}%
           </span>
         </div>
       `).join("");
@@ -680,6 +941,7 @@
       document.getElementById("wsTop5List").innerHTML = renderBox(top5, true);
       document.getElementById("wsPoor5List").innerHTML = renderBox(poor5, false);
 
+      // Chart
       const ctx = document.getElementById("wsBarChart").getContext("2d");
       if (wsChart) wsChart.destroy();
       const box = document.getElementById("wsChartBox");
@@ -690,8 +952,8 @@
         data: {
           labels: ranked.map(r => r.name),
           datasets: [{
-            data: ranked.map(r => r.avgVal),
-            backgroundColor: ranked.map(r => getThresholdColor(r.avgVal)),
+            data: ranked.map(r => r.val),
+            backgroundColor: ranked.map(r => getThresholdColor(r.val)),
             borderRadius: 6,
             maxBarThickness: 38
           }]
@@ -706,36 +968,19 @@
               align: "top",
               color: "#0f172a",
               font: { weight: "bold", size: 11 },
-              formatter: v => v
+              formatter: v => `${v}%`
             }
           },
           scales: {
             x: { grid: { display: false }, ticks: { font: { size: 10, weight: "bold" } } },
-            y: { beginAtZero: true, grid: { color: "#f1f5f9" }, suggestedMax: Math.max(...ranked.map(r => r.avgVal), 10) * 1.18 }
+            y: { beginAtZero: true, grid: { color: "#f1f5f9" }, suggestedMax: Math.max(...ranked.map(r => r.val), 10) * 1.18 }
           }
         },
         plugins: [ChartDataLabels]
       });
 
       document.getElementById("wsRowCount").textContent = `${filtered.length} Rows`;
-      document.getElementById("wsTableContainer").innerHTML = `
-        <table class="w-full text-xs text-left border-collapse">
-          <thead class="bg-slate-900 text-white sticky top-0">
-            <tr>
-              <th class="p-3">#</th>
-              ${keys.map(k => `<th class="p-3 font-bold uppercase">${k}</th>`).join("")}
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100">
-            ${filtered.map((r, i) => `
-              <tr class="hover:bg-slate-50">
-                <td class="p-3 text-slate-400 font-semibold">${i + 1}</td>
-                ${keys.map(k => `<td class="p-3 text-slate-700 font-medium">${r[k] ?? "-"}</td>`).join("")}
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-      `;
+      document.getElementById("wsTableContainer").innerHTML = tableHtml;
     };
 
     window.exportActiveExcel = function() {
