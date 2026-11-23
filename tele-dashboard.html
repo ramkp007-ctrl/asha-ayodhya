@@ -109,21 +109,49 @@
       </div>
     </div>
 
-    <!-- BLOCK-WISE BAR CHART -->
-    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-      <div class="flex justify-between items-center mb-3">
-        <h2 class="text-sm font-bold text-slate-800">📊 ब्लॉक-वार कुल Tele Consultation (Date Range Sum)</h2>
-        <span class="text-[11px] text-slate-500">ब्लॉक बार पर क्लिक करके फ़िल्टर करें</span>
+    <!-- 2 BOXES: TOP 5 & POOR 5 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- TOP 5 BOX -->
+      <div class="bg-white rounded-xl border border-emerald-200 shadow-sm overflow-hidden">
+        <div class="px-4 py-2.5 bg-emerald-700 text-white flex justify-between items-center">
+          <h3 id="top5Title" class="text-xs font-extrabold tracking-wide">🏆 Top 5 Blocks (सर्वश्रेष्ठ प्रदर्शन)</h3>
+          <span class="text-[10px] bg-emerald-900/60 px-2 py-0.5 rounded font-semibold">Highest TC</span>
+        </div>
+        <div id="top5List" class="divide-y divide-slate-100 p-2"></div>
       </div>
-      <div style="height: 280px;">
-        <canvas id="blockTcChart"></canvas>
+
+      <!-- POOR 5 BOX -->
+      <div class="bg-white rounded-xl border border-rose-200 shadow-sm overflow-hidden">
+        <div class="px-4 py-2.5 bg-rose-700 text-white flex justify-between items-center">
+          <h3 id="poor5Title" class="text-xs font-extrabold tracking-wide">⚠️ Poor 5 Blocks (न्यूनतम प्रदर्शन)</h3>
+          <span class="text-[10px] bg-rose-900/60 px-2 py-0.5 rounded font-semibold">Lowest TC</span>
+        </div>
+        <div id="poor5List" class="divide-y divide-slate-100 p-2"></div>
+      </div>
+    </div>
+
+    <!-- DYNAMIC DATA-LABELED CHART (ALL BLOCKS OR ALL FACILITIES OF SELECTED BLOCK TOP-TO-BOTTOM) -->
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+      <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+        <div>
+          <h2 id="chartMainTitle" class="text-sm font-bold text-slate-800">📊 ब्लॉक-वार कुल Tele Consultation (Top से Bottom)</h2>
+          <p id="chartSubHint" class="text-[11px] text-slate-500">किसी ब्लॉक के बार पर क्लिक करें या ऊपर ड्रॉपडाउन से ब्लॉक चुनें — उस ब्लॉक की सभी Facilities का चार्ट खुल जाएगा</p>
+        </div>
+        <button id="btnResetBlockChart" onclick="resetToAllBlocks()" class="hidden px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-[11px] font-bold rounded-lg">
+          ← सभी 11 Blocks देखें
+        </button>
+      </div>
+      <div id="chartScrollWrapper" class="overflow-x-auto">
+        <div id="chartInnerBox" style="height: 310px; min-width: 100%;">
+          <canvas id="blockTcChart"></canvas>
+        </div>
       </div>
     </div>
 
     <!-- UNIQUE FACILITY + USER TABLE -->
     <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
       <div class="px-4 py-3 border-b bg-slate-50 flex justify-between items-center">
-        <h2 class="text-sm font-bold text-slate-800">📋 ब्लॉक व स्वास्थ्य केंद्र-वार Tele Consultation सूची</h2>
+        <h2 id="tableHeading" class="text-sm font-bold text-slate-800">📋 ब्लॉक व स्वास्थ्य केंद्र-वार Tele Consultation सूची</h2>
         <span id="tableCountBadge" class="text-xs font-bold text-purple-800 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">0 इकाइयां</span>
       </div>
       <div class="overflow-x-auto max-h-[450px]">
@@ -174,7 +202,6 @@
     let currentTab = "tele_cho";
     let chartInstance = null;
 
-    // Smart Normalization: SC, HWC, AYODHYA, extra spaces aur punctuation hata kar core facility naam nikalta hai
     function normalizeFacilityKey(fac) {
       return String(fac || "")
         .toUpperCase()
@@ -189,6 +216,14 @@
       const map = { "MAVAI": "MAWAI", "PURA BAZAR": "POORA BAZAR", "HARINGTANGANJ": "HARIYANGATANGANJ" };
       return map[s] || s;
     }
+
+    window.resetToAllBlocks = function() {
+      const sel = document.getElementById("blockFilterSelect");
+      if (!sel.disabled) {
+        sel.value = "ALL";
+        window.renderDashboard();
+      }
+    };
 
     window.switchTeleTab = async function(tabKey) {
       currentTab = tabKey;
@@ -245,7 +280,7 @@
       const perfFilter = document.getElementById("statusFilterSelect").value;
       const searchQ = document.getElementById("searchInput").value.trim().toLowerCase();
 
-      // 1. Date Range Filter & Sort chronologically so latest spelling is picked automatically
+      // 1. Date Range Filter & Chronological Sort
       const dateFiltered = rawRows
         .filter(r => {
           if (fromDt && r.isoDate < fromDt) return false;
@@ -254,7 +289,7 @@
         })
         .sort((a, b) => String(a.isoDate || "").localeCompare(String(b.isoDate || "")));
 
-      // 2. Group by Normalized (Block + Facility) so spelling changes in User/Facility still merge properly
+      // 2. Group by Normalized (Block + Facility)
       const unitMap = new Map();
       dateFiltered.forEach(r => {
         const cleanUser = String(r.user || "Unknown").replace(/\s+/g, " ").trim();
@@ -277,7 +312,6 @@
         }
 
         const entry = unitMap.get(uniqueKey);
-        // Always update to the latest date's spelling for Block, Facility & User
         entry.block = cleanBlock;
         entry.facility = cleanFac;
         entry.user = cleanUser;
@@ -287,10 +321,8 @@
       });
 
       const allUniqueUnits = Array.from(unitMap.values()).map(u => {
-        // Agar kisi date ko spelling badli thi to bracket mein dikhayein
         const otherNames = Array.from(u.allNames).filter(n => n.toUpperCase() !== u.user.toUpperCase());
         const displayUser = otherNames.length > 0 ? `${u.user} (${otherNames.join(" / ")})` : u.user;
-
         return {
           block: u.block,
           facility: u.facility,
@@ -300,25 +332,69 @@
         };
       });
 
-      // 3. Block Chart Data
-      const blockTotals = new Map();
-      allUniqueUnits.forEach(u => {
-        const b = u.block || "Other";
-        blockTotals.set(b, (blockTotals.get(b) || 0) + u.totalTc);
-      });
-      renderChart(blockTotals, selBlock);
+      // 3. Filter for Selected Block, Status & Search
+      const blockOnlyUnits = allUniqueUnits
+        .filter(u => selBlock === "ALL" || u.block.toLowerCase() === selBlock.toLowerCase())
+        .sort((a, b) => b.totalTc - a.totalTc);
 
-      // 4. Filter for Table & KPIs
-      const finalRows = allUniqueUnits.filter(u => {
-        if (selBlock !== "ALL" && u.block.toLowerCase() !== selBlock.toLowerCase()) return false;
+      const finalRows = blockOnlyUnits.filter(u => {
         if (perfFilter === "ZERO" && u.totalTc > 0) return false;
         if (perfFilter === "ACTIVE" && u.totalTc === 0) return false;
         if (searchQ && !u.user.toLowerCase().includes(searchQ) && !u.facility.toLowerCase().includes(searchQ)) return false;
         return true;
       });
-
-      finalRows.sort((a, b) => b.totalTc - a.totalTc);
       renderedRows = finalRows;
+
+      // 4. Update Top 5 & Poor 5 Boxes AND Chart based on ALL vs Single Block
+      const resetBtn = document.getElementById("btnResetBlockChart");
+      const blockSelEl = document.getElementById("blockFilterSelect");
+
+      if (selBlock === "ALL") {
+        // Aggregate Block-wise totals
+        const blockStatsMap = new Map();
+        allUniqueUnits.forEach(u => {
+          const b = u.block || "Other";
+          if (!blockStatsMap.has(b)) blockStatsMap.set(b, { name: b, totalTc: 0, count: 0 });
+          const st = blockStatsMap.get(b);
+          st.totalTc += u.totalTc;
+          st.count += 1;
+        });
+
+        const sortedBlocks = Array.from(blockStatsMap.values()).sort((a, b) => b.totalTc - a.totalTc);
+
+        // Top 5 & Poor 5 Blocks
+        document.getElementById("top5Title").textContent = "🏆 Top 5 Blocks (सर्वश्रेष्ठ प्रदर्शन)";
+        document.getElementById("poor5Title").textContent = "⚠️ Poor 5 Blocks (न्यूनतम प्रदर्शन)";
+        renderTopPoorBoxes(sortedBlocks, true);
+
+        // Chart: All Blocks Top-to-Bottom
+        document.getElementById("chartMainTitle").textContent = "📊 सभी 11 Blocks का कुल Tele Consultation (Top से Bottom)";
+        document.getElementById("chartSubHint").textContent = "किसी ब्लॉक के बार पर क्लिक करें या ऊपर ड्रॉपडाउन से ब्लॉक चुनें — उस ब्लॉक की सभी Facilities का डेटा खुल जाएगा";
+        resetBtn.classList.add("hidden");
+
+        renderDataLabeledChart(
+          sortedBlocks.map(b => b.name),
+          sortedBlocks.map(b => b.totalTc),
+          sortedBlocks.map(() => "#0d9488"),
+          true
+        );
+      } else {
+        // Single Block Selected -> Top 5 & Poor 5 Facilities of that Block
+        document.getElementById("top5Title").textContent = `🏆 Top 5 Facilities — ${selBlock}`;
+        document.getElementById("poor5Title").textContent = `⚠️ Poor 5 Facilities — ${selBlock}`;
+        renderTopPoorBoxes(blockOnlyUnits, false);
+
+        // Chart: ALL Facilities of selected block from Top to Bottom with Data Labels
+        document.getElementById("chartMainTitle").textContent = `📊 ${selBlock} ब्लॉक की सभी ${blockOnlyUnits.length} Facilities (Top से Bottom तक)`;
+        document.getElementById("chartSubHint").textContent = "हर बार के ऊपर कुल Tele Consultation संख्या (Data Label) प्रदर्शित है";
+        if (!blockSelEl.disabled) resetBtn.classList.remove("hidden");
+
+        const facLabels = blockOnlyUnits.map(f => `${f.facility} (${f.user.split("(")[0].trim()})`);
+        const facValues = blockOnlyUnits.map(f => f.totalTc);
+        const facColors = blockOnlyUnits.map(f => f.totalTc === 0 ? "#e11d48" : (f.totalTc >= 10 ? "#059669" : "#d97706"));
+
+        renderDataLabeledChart(facLabels, facValues, facColors, false);
+      }
 
       // 5. KPIs
       const totalU = finalRows.length;
@@ -360,37 +436,112 @@
       }).join("");
     };
 
-    function renderChart(blockTotals, activeBlock) {
+    function renderTopPoorBoxes(sortedDescList, isBlockMode) {
+      const top5El = document.getElementById("top5List");
+      const poor5El = document.getElementById("poor5List");
+
+      if (!sortedDescList.length) {
+        top5El.innerHTML = `<p class="p-3 text-xs text-slate-400">डेटा उपलब्ध नहीं</p>`;
+        poor5El.innerHTML = `<p class="p-3 text-xs text-slate-400">डेटा उपलब्ध नहीं</p>`;
+        return;
+      }
+
+      const top5 = sortedDescList.slice(0, 5);
+      // Bottom 5 sorted lowest first
+      const poor5 = [...sortedDescList].reverse().slice(0, 5);
+
+      const buildRow = (item, idx, isTop) => {
+        const title = isBlockMode ? item.name : item.facility;
+        const sub = isBlockMode
+          ? `${item.count} इकाइयां • औसत: ${(item.count ? (item.totalTc / item.count).toFixed(1) : 0)}`
+          : `${item.user}`;
+        const pillClass = isTop
+          ? "bg-emerald-100 text-emerald-900 border border-emerald-300"
+          : (item.totalTc === 0 ? "bg-rose-100 text-rose-800 border border-rose-300" : "bg-amber-100 text-amber-900 border border-amber-300");
+
+        return `
+          <div class="flex items-center justify-between px-2.5 py-2 hover:bg-slate-50 rounded-lg text-xs">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="w-5 h-5 flex-shrink-0 rounded-full flex items-center justify-center text-[10px] font-extrabold ${isTop ? 'bg-emerald-700 text-white' : 'bg-rose-700 text-white'}">
+                ${idx + 1}
+              </span>
+              <div class="truncate">
+                <div class="font-bold text-slate-900 truncate">${title}</div>
+                <div class="text-[10px] text-slate-500 truncate">${sub}</div>
+              </div>
+            </div>
+            <span class="ml-2 flex-shrink-0 px-2.5 py-0.5 rounded-full font-extrabold text-xs ${pillClass}">
+              ${item.totalTc.toLocaleString("en-IN")}
+            </span>
+          </div>
+        `;
+      };
+
+      top5El.innerHTML = top5.map((item, idx) => buildRow(item, idx, true)).join("");
+      poor5El.innerHTML = poor5.map((item, idx) => buildRow(item, idx, false)).join("");
+    }
+
+    function renderDataLabeledChart(labels, values, colors, isBlockLevel) {
       const ctx = document.getElementById("blockTcChart").getContext("2d");
       if (chartInstance) chartInstance.destroy();
 
-      const sorted = Array.from(blockTotals.entries()).sort((a, b) => b[1] - a[1]);
-      const labels = sorted.map(x => x[0]);
-      const values = sorted.map(x => x[1]);
-      const colors = labels.map(b => (activeBlock !== "ALL" && b === activeBlock) ? "#6b21a8" : "#0d9488");
+      // Adjust width dynamically if a block has 25-35 facilities so every label & bar stays readable
+      const innerBox = document.getElementById("chartInnerBox");
+      if (!isBlockLevel && labels.length > 14) {
+        innerBox.style.width = `${labels.length * 52}px`;
+        innerBox.style.height = "350px";
+      } else {
+        innerBox.style.width = "100%";
+        innerBox.style.height = "300px";
+      }
 
       chartInstance = new Chart(ctx, {
         type: "bar",
         data: {
           labels,
-          datasets: [{ label: "Total TC", data: values, backgroundColor: colors, borderRadius: 6 }]
+          datasets: [{
+            label: "Total TC",
+            data: values,
+            backgroundColor: colors,
+            borderRadius: 5,
+            maxBarThickness: 38
+          }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           onClick: (e, el) => {
-            if (el.length > 0 && !document.getElementById("blockFilterSelect").disabled) {
+            if (isBlockLevel && el.length > 0 && !document.getElementById("blockFilterSelect").disabled) {
               const blk = labels[el[0].index];
               const sel = document.getElementById("blockFilterSelect");
-              sel.value = sel.value === blk ? "ALL" : blk;
+              sel.value = blk;
               window.renderDashboard();
             }
           },
           plugins: {
             legend: { display: false },
-            datalabels: { anchor: "end", align: "top", font: { weight: "bold", size: 11 }, formatter: v => v.toLocaleString("en-IN") }
+            datalabels: {
+              anchor: "end",
+              align: "top",
+              offset: 2,
+              color: "#0f172a",
+              font: { weight: "bold", size: 11 },
+              formatter: v => v.toLocaleString("en-IN")
+            }
           },
-          scales: { y: { beginAtZero: true, suggestedMax: Math.max(...values, 10) * 1.15 } }
+          scales: {
+            x: {
+              ticks: {
+                font: { size: 10, weight: "bold" },
+                maxRotation: isBlockLevel ? 25 : 45,
+                minRotation: isBlockLevel ? 0 : 45
+              }
+            },
+            y: {
+              beginAtZero: true,
+              suggestedMax: Math.max(...values, 10) * 1.18
+            }
+          }
         },
         plugins: [ChartDataLabels]
       });
