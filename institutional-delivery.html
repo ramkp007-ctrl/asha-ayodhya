@@ -23,39 +23,39 @@
     }
   </style>
 </head>
-<body class="min-h-screen antialiased">
+<body class="min-h-screen antialiased overflow-x-hidden">
 
-  <!-- CLEAN EXECUTIVE HEADER -->
+  <!-- HEADER -->
   <header class="bg-slate-900 text-white border-b border-slate-800">
-    <div class="max-w-7xl mx-auto px-5 py-4 flex flex-wrap justify-between items-center gap-3">
-      <div>
-        <div class="flex items-center gap-2.5">
-          <h1 class="text-base sm:text-lg font-extrabold tracking-tight">Institutional Delivery Review (HMIS) — NHM Ayodhya</h1>
+    <div class="max-w-7xl mx-auto px-3 sm:px-5 py-3.5 sm:py-4 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+      <div class="min-w-0">
+        <div class="flex flex-wrap items-center gap-2">
+          <h1 class="text-sm sm:text-lg font-extrabold tracking-tight">Institutional Delivery Review (HMIS) — NHM Ayodhya</h1>
           <span id="roleBadge" class="text-[10px] bg-teal-500/20 text-teal-300 border border-teal-500/30 font-bold px-2.5 py-0.5 rounded-full uppercase">DISTRICT</span>
         </div>
-        <p id="metaSubTitle" class="text-xs text-slate-400 mt-0.5">Loading HMIS records...</p>
+        <p id="metaSubTitle" class="text-[11px] sm:text-xs text-slate-400 mt-0.5 truncate">Loading HMIS records...</p>
       </div>
-      <div class="flex items-center gap-2 no-print">
-        <a href="fru-review.html" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition">
-          🏥 FRU Review (8 FRUs) ↗
+      <div class="flex flex-wrap items-center gap-2 no-print">
+        <a href="fru-review.html" class="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition">
+          🏥 FRU Review ↗
         </a>
-        <button onclick="downloadInstExcel()" class="px-3.5 py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-xl transition">
-          ⬇️ Export Excel
+        <button onclick="downloadInstExcel()" class="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-xl transition">
+          ⬇️ Excel
         </button>
-        <button onclick="window.print()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl transition">
+        <button onclick="window.print()" class="hidden sm:inline-block px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl transition">
           🖨️ Print
         </button>
-        <a href="portal.html" class="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition">
+        <a href="portal.html" class="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition">
           ← Portal
         </a>
       </div>
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto px-5 py-6 space-y-6">
+  <main class="max-w-7xl mx-auto px-3 sm:px-5 py-4 sm:py-6 space-y-5">
 
-    <!-- COMPACT FILTER BAR -->
-    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 no-print">
+    <!-- MOBILE-RESPONSIVE FILTER BAR (WITH FACILITY DROPDOWN FOR MONTH-WISE TREND) -->
+    <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2.5 sm:gap-3 no-print">
       <div>
         <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Month</label>
         <select id="monthFilterSelect" onchange="renderDashboard()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
@@ -64,68 +64,69 @@
       </div>
       <div>
         <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Block</label>
-        <select id="blockFilterSelect" onchange="renderDashboard()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+        <select id="blockFilterSelect" onchange="onBlockFilterChange()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
           <option value="ALL">All Blocks</option>
         </select>
       </div>
       <div>
         <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Facility Type</label>
-        <select id="typeFilterSelect" onchange="renderDashboard()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+        <select id="typeFilterSelect" onchange="onTypeOrOwnerChange()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
           <option value="ALL">All Types</option>
         </select>
       </div>
       <div>
         <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Ownership</label>
-        <select id="ownerFilterSelect" onchange="renderDashboard()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+        <select id="ownerFilterSelect" onchange="onTypeOrOwnerChange()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
           <option value="ALL">Public &amp; Private</option>
         </select>
       </div>
-      <div>
-        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Search Facility</label>
-        <input type="text" id="searchInput" oninput="renderDashboard()" placeholder="Type facility name..."
-          class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30" />
+      <div class="sm:col-span-2">
+        <label class="block text-[10px] font-bold text-teal-700 uppercase tracking-wider mb-1">Select Facility (For Month-wise Trend)</label>
+        <select id="facilityFilterSelect" onchange="renderDashboard()" class="w-full px-3 py-2 border border-teal-200 rounded-xl text-xs font-bold bg-teal-50/40 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+          <option value="ALL">All Facilities (Block / District Level)</option>
+        </select>
       </div>
     </div>
 
-    <!-- 4 ESSENTIAL KPI CARDS -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
-        <div class="text-xs font-semibold text-slate-500">Total Institutional Deliveries</div>
-        <div id="kpiTotalDel" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">0</div>
-        <div id="kpiPubPvtSub" class="text-[11px] font-medium text-teal-700 mt-1">Public: 0 • Private: 0</div>
+    <!-- 4 KPI CARDS -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-[11px] sm:text-xs font-semibold text-slate-500">Total Institutional Deliveries</div>
+        <div id="kpiTotalDel" class="text-xl sm:text-3xl font-extrabold text-slate-900 mt-1">0</div>
+        <div id="kpiPubPvtSub" class="text-[10px] sm:text-[11px] font-medium text-teal-700 mt-1">Public: 0 • Private: 0</div>
       </div>
 
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
-        <div class="text-xs font-semibold text-slate-500">Normal Deliveries</div>
-        <div id="kpiNormalDel" class="text-2xl sm:text-3xl font-extrabold text-teal-700 mt-1">0</div>
-        <div id="kpiNormalPctSub" class="text-[11px] font-medium text-slate-500 mt-1">0.0% of Total Deliveries</div>
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-[11px] sm:text-xs font-semibold text-slate-500">Normal Deliveries</div>
+        <div id="kpiNormalDel" class="text-xl sm:text-3xl font-extrabold text-teal-700 mt-1">0</div>
+        <div id="kpiNormalPctSub" class="text-[10px] sm:text-[11px] font-medium text-slate-500 mt-1">0.0% of Total Deliveries</div>
       </div>
 
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
-        <div class="text-xs font-semibold text-slate-500">8-FRU C-Section Deliveries</div>
-        <div id="kpiTotalCs" class="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1">0</div>
-        <div id="kpiCsPctSub" class="text-[11px] font-medium text-amber-700 mt-1">FRU C-Sec Rate: 0.0%</div>
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-[11px] sm:text-xs font-semibold text-slate-500">8-FRU C-Section Deliveries</div>
+        <div id="kpiTotalCs" class="text-xl sm:text-3xl font-extrabold text-amber-600 mt-1">0</div>
+        <div id="kpiCsPctSub" class="text-[10px] sm:text-[11px] font-medium text-amber-700 mt-1">FRU C-Sec Rate: 0.0%</div>
       </div>
 
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
-        <div class="text-xs font-semibold text-slate-500">8-FRU Night C-Section (8PM–8AM)</div>
-        <div id="kpiNightCs" class="text-2xl sm:text-3xl font-extrabold text-indigo-700 mt-1">0</div>
-        <div id="kpiNightPctSub" class="text-[11px] font-medium text-indigo-600 mt-1">0.0% of FRU C-Sections</div>
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-[11px] sm:text-xs font-semibold text-slate-500">8-FRU Night C-Sec (8PM–8AM)</div>
+        <div id="kpiNightCs" class="text-xl sm:text-3xl font-extrabold text-indigo-700 mt-1">0</div>
+        <div id="kpiNightPctSub" class="text-[10px] sm:text-[11px] font-medium text-indigo-600 mt-1">0.0% of FRU C-Sections</div>
       </div>
     </div>
 
-    <!-- MONTH-WISE DELIVERY & 8-FRU C-SECTION TREND -->
-    <section class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
-      <div class="flex flex-wrap justify-between items-center gap-2">
-        <div>
-          <h2 class="text-sm font-extrabold text-slate-900">Month-wise Institutional Delivery &amp; 8-FRU C-Section Trend</h2>
-          <p class="text-[11px] text-slate-500">Monthly Institutional Deliveries (all facilities) vs C-Section &amp; Night C-Section (8 designated FRUs)</p>
+    <!-- MONTH-WISE DELIVERY & C-SECTION TREND (DYNAMIC FOR SELECTED FACILITY / BLOCK / DISTRICT) -->
+    <section class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+      <div class="flex flex-wrap justify-between items-start sm:items-center gap-2">
+        <div class="min-w-0">
+          <h2 id="monthTrendTitle" class="text-sm font-extrabold text-slate-900">Month-wise Trend — District Ayodhya</h2>
+          <p id="monthTrendSub" class="text-[11px] text-slate-500">Monthly Institutional Deliveries vs 8-FRU C-Section &amp; Night C-Section</p>
         </div>
-        <span id="monthTrendBadge" class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">0 Months</span>
+        <span id="monthTrendBadge" class="px-3 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200/80 text-xs font-bold flex-shrink-0">0 Months</span>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
-        <div class="lg:col-span-7" style="height: 250px;">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-center">
+        <div class="lg:col-span-7 w-full" style="height: 240px;">
           <canvas id="monthTrendChart"></canvas>
         </div>
         <div class="lg:col-span-5 overflow-x-auto border border-slate-200/80 rounded-xl">
@@ -134,7 +135,7 @@
               <tr>
                 <th class="p-2.5 font-bold">Month</th>
                 <th class="p-2.5 font-bold text-right">Inst. Del.</th>
-                <th class="p-2.5 font-bold text-right">FRU C-Sec</th>
+                <th class="p-2.5 font-bold text-right">C-Section</th>
                 <th class="p-2.5 font-bold text-right">Night CS</th>
               </tr>
             </thead>
@@ -147,35 +148,35 @@
     <!-- TOP 5 & BOTTOM 5 (ACTIVE FACILITIES ONLY) -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-        <div class="px-4 py-3 bg-teal-800 text-white flex justify-between items-center">
-          <h3 id="top5Title" class="text-xs font-extrabold tracking-wide">Top 5 Facilities (Highest Deliveries)</h3>
-          <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold">Active Units</span>
+        <div class="px-4 py-3 bg-teal-800 text-white flex justify-between items-center gap-2">
+          <h3 id="top5Title" class="text-xs font-extrabold tracking-wide truncate">Top 5 Facilities (Highest Deliveries)</h3>
+          <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold flex-shrink-0">Active Units</span>
         </div>
-        <div id="top5List" class="divide-y divide-slate-100 p-2.5"></div>
+        <div id="top5List" class="divide-y divide-slate-100 p-2 sm:p-2.5"></div>
       </div>
 
       <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-        <div class="px-4 py-3 bg-slate-800 text-white flex justify-between items-center">
-          <h3 id="poor5Title" class="text-xs font-extrabold tracking-wide">Bottom 5 Facilities (Lowest Active Deliveries)</h3>
-          <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold">Excludes All-Month 0</span>
+        <div class="px-4 py-3 bg-slate-800 text-white flex justify-between items-center gap-2">
+          <h3 id="poor5Title" class="text-xs font-extrabold tracking-wide truncate">Bottom 5 Facilities (Lowest Active Deliveries)</h3>
+          <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold flex-shrink-0">Excludes All-Month 0</span>
         </div>
-        <div id="poor5List" class="divide-y divide-slate-100 p-2.5"></div>
+        <div id="poor5List" class="divide-y divide-slate-100 p-2 sm:p-2.5"></div>
       </div>
     </div>
 
     <!-- BLOCK / FACILITY BAR CHART -->
-    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
       <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
         <div>
           <h2 id="chartMainTitle" class="text-sm font-extrabold text-slate-900">Block-wise Institutional Deliveries vs 8-FRU C-Section</h2>
-          <p id="chartSubHint" class="text-[11px] text-slate-500">Click any block bar to drill down into facility-level deliveries</p>
+          <p id="chartSubHint" class="text-[11px] text-slate-500">Tap any block bar to view facility-level deliveries</p>
         </div>
         <button id="btnResetBlockChart" onclick="resetToAllBlocks()" class="hidden px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold rounded-xl no-print transition">
           ← All Blocks
         </button>
       </div>
       <div class="overflow-x-auto">
-        <div id="chartInnerBox" style="height: 310px; min-width: 100%;">
+        <div id="chartInnerBox" style="height: 290px; min-width: 100%;">
           <canvas id="instDelChart"></canvas>
         </div>
       </div>
@@ -183,12 +184,12 @@
 
     <!-- DETAILED FACILITY TABLE -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-      <div class="px-4 py-3.5 border-b border-slate-100 flex justify-between items-center">
-        <h2 class="text-sm font-extrabold text-slate-900">Facility-wise Institutional Delivery Register</h2>
+      <div class="px-4 py-3.5 border-b border-slate-100 flex justify-between items-center gap-2">
+        <h2 class="text-sm font-extrabold text-slate-900">Facility-wise Delivery Register</h2>
         <span id="tableCountBadge" class="text-xs font-bold text-teal-800 bg-teal-50 px-3 py-1 rounded-full border border-teal-200/70">0 Records</span>
       </div>
-      <div class="overflow-x-auto max-h-[500px]">
-        <table class="w-full text-xs text-left border-collapse">
+      <div class="overflow-x-auto max-h-[480px]">
+        <table class="w-full text-xs text-left border-collapse min-w-[720px]">
           <thead class="bg-slate-900 text-white sticky top-0">
             <tr>
               <th class="p-3 font-bold">#</th>
@@ -281,10 +282,57 @@
       return `${String(block || "").trim().toUpperCase()}|||${String(facility || "").trim().toUpperCase()}`;
     }
 
+    function populateFacilityDropdown() {
+      const selBlock = document.getElementById("blockFilterSelect").value;
+      const selType = document.getElementById("typeFilterSelect").value;
+      const selOwner = document.getElementById("ownerFilterSelect").value;
+      const facSel = document.getElementById("facilityFilterSelect");
+      const prevVal = facSel.value;
+
+      const matchingRows = allRows.filter(r => {
+        if (selBlock !== "ALL" && r.block.toLowerCase() !== selBlock.toLowerCase()) return false;
+        if (selType !== "ALL" && r.facilityType !== selType) return false;
+        if (selOwner !== "ALL" && r.ownership !== selOwner) return false;
+        return true;
+      });
+
+      const facMap = new Map();
+      matchingRows.forEach(r => {
+        const key = normalizeFacKey(r.block, r.facilityName);
+        if (!facMap.has(key)) {
+          facMap.set(key, {
+            key,
+            label: selBlock === "ALL" ? `${r.facilityName} (${r.block})` : r.facilityName
+          });
+        }
+      });
+
+      const sortedFacs = Array.from(facMap.values()).sort((a, b) => a.label.localeCompare(b.label));
+      facSel.innerHTML = `<option value="ALL">All Facilities (${sortedFacs.length})</option>` +
+        sortedFacs.map(f => `<option value="${f.key}">${f.label}</option>`).join("");
+
+      if (sortedFacs.some(f => f.key === prevVal)) {
+        facSel.value = prevVal;
+      } else {
+        facSel.value = "ALL";
+      }
+    }
+
+    window.onBlockFilterChange = function() {
+      populateFacilityDropdown();
+      window.renderDashboard();
+    };
+
+    window.onTypeOrOwnerChange = function() {
+      populateFacilityDropdown();
+      window.renderDashboard();
+    };
+
     window.resetToAllBlocks = function() {
       const sel = document.getElementById("blockFilterSelect");
       if (!sel.disabled) {
         sel.value = "ALL";
+        populateFacilityDropdown();
         window.renderDashboard();
       }
     };
@@ -293,7 +341,7 @@
       const snap = await get(dbRef);
       if (!snap.exists() || !snap.val().rows) {
         allRows = [];
-        document.getElementById("metaSubTitle").textContent = "No data uploaded yet. Please upload HMIS file from Master Admin.";
+        document.getElementById("metaSubTitle").textContent = "No data uploaded yet. Please upload HMIS file in Master Admin.";
         window.renderDashboard();
         return;
       }
@@ -327,13 +375,15 @@
         }
       }
 
+      populateFacilityDropdown();
+
       document.getElementById("metaSubTitle").textContent =
-        `Months: ${months.join(", ")} • Total Records: ${allRows.length.toLocaleString("en-IN")} • Updated: ${data.updatedAt || ""}`;
+        `Months: ${months.join(", ")} • Records: ${allRows.length.toLocaleString("en-IN")} • Updated: ${data.updatedAt || ""}`;
 
       window.renderDashboard();
     }
 
-    function renderMonthTrend(trendRows) {
+    function renderMonthTrend(trendRows, scopeTitle) {
       const monthMap = new Map();
       trendRows.forEach(r => {
         const m = r.month || "Unknown";
@@ -347,6 +397,7 @@
       });
 
       const list = sortMonthsChronologically(Array.from(monthMap.keys())).map(k => monthMap.get(k));
+      document.getElementById("monthTrendTitle").textContent = `Month-wise Trend — ${scopeTitle}`;
       document.getElementById("monthTrendBadge").textContent = `${list.length} Months`;
 
       const tbody = document.getElementById("monthTrendTableBody");
@@ -355,8 +406,8 @@
             <tr class="hover:bg-slate-50">
               <td class="p-2.5 font-extrabold text-slate-900">${m.month}</td>
               <td class="p-2.5 text-right font-extrabold text-teal-800">${m.del.toLocaleString("en-IN")}</td>
-              <td class="p-2.5 text-right font-bold text-amber-600">${m.cs.toLocaleString("en-IN")}</td>
-              <td class="p-2.5 text-right font-bold text-indigo-700">${m.night.toLocaleString("en-IN")}</td>
+              <td class="p-2.5 text-right font-bold text-amber-600">${m.cs > 0 ? m.cs.toLocaleString("en-IN") : "—"}</td>
+              <td class="p-2.5 text-right font-bold text-indigo-700">${m.night > 0 ? m.night.toLocaleString("en-IN") : "—"}</td>
             </tr>
           `).join("")
         : `<tr><td colspan="4" class="p-4 text-center text-slate-400">No monthly data</td></tr>`;
@@ -364,16 +415,18 @@
       const ctx = document.getElementById("monthTrendChart").getContext("2d");
       if (monthChartInstance) monthChartInstance.destroy();
 
+      const hasAnyCs = list.some(m => m.cs > 0);
+      const datasets = [
+        { label: "Institutional Deliveries", data: list.map(m => m.del), backgroundColor: "#0d9488", borderRadius: 6, maxBarThickness: 38 }
+      ];
+      if (hasAnyCs) {
+        datasets.push({ label: "8-FRU C-Section", data: list.map(m => m.cs), backgroundColor: "#d97706", borderRadius: 6, maxBarThickness: 38 });
+        datasets.push({ label: "8-FRU Night C-Section", data: list.map(m => m.night), backgroundColor: "#4338ca", borderRadius: 6, maxBarThickness: 38 });
+      }
+
       monthChartInstance = new Chart(ctx, {
         type: "bar",
-        data: {
-          labels: list.map(m => m.month),
-          datasets: [
-            { label: "Institutional Deliveries", data: list.map(m => m.del), backgroundColor: "#0d9488", borderRadius: 6, maxBarThickness: 38 },
-            { label: "8-FRU C-Section", data: list.map(m => m.cs), backgroundColor: "#d97706", borderRadius: 6, maxBarThickness: 38 },
-            { label: "8-FRU Night C-Section", data: list.map(m => m.night), backgroundColor: "#4338ca", borderRadius: 6, maxBarThickness: 38 }
-          ]
-        },
+        data: { labels: list.map(m => m.month), datasets },
         options: {
           responsive: true,
           maintainAspectRatio: false,
@@ -399,7 +452,7 @@
       const selBlock = document.getElementById("blockFilterSelect").value;
       const selType = document.getElementById("typeFilterSelect").value;
       const selOwner = document.getElementById("ownerFilterSelect").value;
-      const searchQ = document.getElementById("searchInput").value.trim().toLowerCase();
+      const selFacKey = document.getElementById("facilityFilterSelect").value;
 
       // Strict Active Rule: Exclude facilities with 0 deliveries across all months from Top/Bottom
       const everActiveFacilities = new Set();
@@ -409,14 +462,22 @@
         }
       });
 
+      // Month-wise trend rows (respects Block, Type, Ownership AND Selected Facility)
       const trendScopeRows = allRows.filter(r => {
         if (selBlock !== "ALL" && r.block.toLowerCase() !== selBlock.toLowerCase()) return false;
         if (selType !== "ALL" && r.facilityType !== selType) return false;
         if (selOwner !== "ALL" && r.ownership !== selOwner) return false;
-        if (searchQ && !r.facilityName.toLowerCase().includes(searchQ) && !r.block.toLowerCase().includes(searchQ)) return false;
+        if (selFacKey !== "ALL" && normalizeFacKey(r.block, r.facilityName) !== selFacKey) return false;
         return true;
       });
-      renderMonthTrend(trendScopeRows);
+
+      let trendTitle = "District Ayodhya";
+      if (selFacKey !== "ALL" && trendScopeRows.length > 0) {
+        trendTitle = `${trendScopeRows[0].facilityName} (${trendScopeRows[0].block})`;
+      } else if (selBlock !== "ALL") {
+        trendTitle = `Block: ${selBlock}`;
+      }
+      renderMonthTrend(trendScopeRows, trendTitle);
 
       const monthRows = allRows.filter(r => selMonth === "ALL" || r.month === selMonth);
       const baseFiltered = monthRows.filter(r => {
@@ -428,7 +489,7 @@
       const finalRows = baseFiltered
         .filter(r => {
           if (selBlock !== "ALL" && r.block.toLowerCase() !== selBlock.toLowerCase()) return false;
-          if (searchQ && !r.facilityName.toLowerCase().includes(searchQ) && !r.block.toLowerCase().includes(searchQ)) return false;
+          if (selFacKey !== "ALL" && normalizeFacKey(r.block, r.facilityName) !== selFacKey) return false;
           return true;
         })
         .sort((a, b) => (Number(b.instDel) || 0) - (Number(a.instDel) || 0));
@@ -500,13 +561,14 @@
         const sortedBlocks = Array.from(blkMap.values()).sort((a, b) => b.del - a.del);
 
         document.getElementById("chartMainTitle").textContent = "Block-wise Institutional Deliveries vs 8-FRU C-Section";
-        document.getElementById("chartSubHint").textContent = "Click any block bar to drill down into facility-level deliveries";
+        document.getElementById("chartSubHint").textContent = "Tap any block bar to view facility-level deliveries";
         resetBtn.classList.add("hidden");
 
         renderChart(sortedBlocks.map(b => b.name), sortedBlocks.map(b => b.del), sortedBlocks.map(b => b.cs), true);
       } else {
+        const blockScopeRows = baseFiltered.filter(r => r.block.toLowerCase() === selBlock.toLowerCase());
         const facMap = new Map();
-        finalRows.forEach(r => {
+        blockScopeRows.forEach(r => {
           const fKey = normalizeFacKey(r.block, r.facilityName);
           if (!everActiveFacilities.has(fKey)) return;
           const isFru = isDesignatedFruRecord(r);
@@ -590,8 +652,8 @@
         const pill = isTop ? "bg-teal-50 text-teal-900 border border-teal-200" : "bg-slate-100 text-slate-800 border border-slate-200";
 
         return `
-          <div class="flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 rounded-xl text-xs">
-            <div class="flex items-center gap-3 min-w-0">
+          <div class="flex items-center justify-between px-2.5 py-2.5 hover:bg-slate-50 rounded-xl text-xs gap-2">
+            <div class="flex items-center gap-2.5 min-w-0">
               <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-[11px] font-extrabold ${isTop ? 'bg-teal-700 text-white' : 'bg-slate-700 text-white'}">
                 ${idx + 1}
               </span>
@@ -600,7 +662,7 @@
                 <div class="text-[11px] text-slate-500 truncate">${sub}</div>
               </div>
             </div>
-            <span class="ml-2 flex-shrink-0 px-3 py-1 rounded-full font-extrabold text-xs ${pill}">
+            <span class="flex-shrink-0 px-2.5 py-1 rounded-full font-extrabold text-[11px] sm:text-xs ${pill}">
               ${item.del.toLocaleString("en-IN")} ${csBadge}
             </span>
           </div>
@@ -618,15 +680,15 @@
       if (chartInstance) chartInstance.destroy();
 
       const innerBox = document.getElementById("chartInnerBox");
-      innerBox.style.width = (!isBlockLevel && labels.length > 14) ? `${labels.length * 56}px` : "100%";
+      innerBox.style.width = (!isBlockLevel && labels.length > 10) ? `${labels.length * 52}px` : "100%";
 
       chartInstance = new Chart(ctx, {
         type: "bar",
         data: {
           labels,
           datasets: [
-            { label: "Institutional Deliveries (2.2)", data: delVals, backgroundColor: "#0d9488", borderRadius: 6, maxBarThickness: 34 },
-            { label: "8-FRU C-Section (3.1)", data: csVals, backgroundColor: "#d97706", borderRadius: 6, maxBarThickness: 34 }
+            { label: "Institutional Deliveries (2.2)", data: delVals, backgroundColor: "#0d9488", borderRadius: 6, maxBarThickness: 32 },
+            { label: "8-FRU C-Section (3.1)", data: csVals, backgroundColor: "#d97706", borderRadius: 6, maxBarThickness: 32 }
           ]
         },
         options: {
@@ -635,6 +697,7 @@
           onClick: (e, el) => {
             if (isBlockLevel && el.length > 0 && !document.getElementById("blockFilterSelect").disabled) {
               document.getElementById("blockFilterSelect").value = labels[el[0].index];
+              populateFacilityDropdown();
               window.renderDashboard();
             }
           },
@@ -647,7 +710,752 @@
             }
           },
           scales: {
-            x: { grid: { display: false }, ticks: { font: { size: 10, weight: "bold" }, maxRotation: isBlockLevel ? 25 : 45 } },
+            x: { grid: { display: false }, ticks: { font: { size: 10, weight: "bold" }, maxRotation: 45, minRotation: isBlockLevel ? 20 : 40 } },
+            y: { beginAtZero: true, grid: { color: "#f1f5f9" }, suggestedMax: Math.max(...delVals, 10) * 1.18 }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
+    }
+
+    window.downloadInstExcel = function() {
+      if (!renderedRows.length) return alert("No data to export.");
+      const rows = renderedRows.map((r, i) => {
+        const isFru = isDesignatedFruRecord(r);
+        return {
+          "SN": i + 1,
+          "Month": r.month,
+          "Block": r.block,
+          "Facility Type": r.facilityType,
+          "Facility Name": r.facilityName,
+          "Ownership": r.ownership,
+          "Institutional Deliveries (2.2)": r.instDel,
+          "FRU C-Section (3.1)": isFru ? r.cSection : "",
+          "FRU Night C-Section (3.1.1)": isFru ? r.nightCs : ""
+        };
+      });
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "InstitutionalDelivery");
+      XLSX.writeFile(wb, `Institutional_Delivery_NHM_Ayodhya.xlsx`);
+    };
+
+    loadData();
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Institutional Delivery Review — NHM Ayodhya</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #ffffff !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen antialiased overflow-x-hidden">
+
+  <!-- HEADER -->
+  <header class="bg-slate-900 text-white border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-3 sm:px-5 py-3.5 sm:py-4 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+      <div class="min-w-0">
+        <div class="flex flex-wrap items-center gap-2">
+          <h1 class="text-sm sm:text-lg font-extrabold tracking-tight">Institutional Delivery Review (HMIS) — NHM Ayodhya</h1>
+          <span id="roleBadge" class="text-[10px] bg-teal-500/20 text-teal-300 border border-teal-500/30 font-bold px-2.5 py-0.5 rounded-full uppercase">DISTRICT</span>
+        </div>
+        <p id="metaSubTitle" class="text-[11px] sm:text-xs text-slate-400 mt-0.5 truncate">Loading HMIS records...</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2 no-print">
+        <a href="fru-review.html" class="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition">
+          🏥 FRU Review ↗
+        </a>
+        <button onclick="downloadInstExcel()" class="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-xl transition">
+          ⬇️ Excel
+        </button>
+        <button onclick="window.print()" class="hidden sm:inline-block px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl transition">
+          🖨️ Print
+        </button>
+        <a href="portal.html" class="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition">
+          ← Portal
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-3 sm:px-5 py-4 sm:py-6 space-y-5">
+
+    <!-- MOBILE-RESPONSIVE FILTER BAR (WITH FACILITY DROPDOWN FOR MONTH-WISE TREND) -->
+    <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2.5 sm:gap-3 no-print">
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Month</label>
+        <select id="monthFilterSelect" onchange="renderDashboard()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+          <option value="ALL">All Months</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Block</label>
+        <select id="blockFilterSelect" onchange="onBlockFilterChange()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+          <option value="ALL">All Blocks</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Facility Type</label>
+        <select id="typeFilterSelect" onchange="onTypeOrOwnerChange()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+          <option value="ALL">All Types</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Ownership</label>
+        <select id="ownerFilterSelect" onchange="onTypeOrOwnerChange()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+          <option value="ALL">Public &amp; Private</option>
+        </select>
+      </div>
+      <div class="sm:col-span-2">
+        <label class="block text-[10px] font-bold text-teal-700 uppercase tracking-wider mb-1">Select Facility (For Month-wise Trend)</label>
+        <select id="facilityFilterSelect" onchange="renderDashboard()" class="w-full px-3 py-2 border border-teal-200 rounded-xl text-xs font-bold bg-teal-50/40 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+          <option value="ALL">All Facilities (Block / District Level)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 4 KPI CARDS -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-[11px] sm:text-xs font-semibold text-slate-500">Total Institutional Deliveries</div>
+        <div id="kpiTotalDel" class="text-xl sm:text-3xl font-extrabold text-slate-900 mt-1">0</div>
+        <div id="kpiPubPvtSub" class="text-[10px] sm:text-[11px] font-medium text-teal-700 mt-1">Public: 0 • Private: 0</div>
+      </div>
+
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-[11px] sm:text-xs font-semibold text-slate-500">Normal Deliveries</div>
+        <div id="kpiNormalDel" class="text-xl sm:text-3xl font-extrabold text-teal-700 mt-1">0</div>
+        <div id="kpiNormalPctSub" class="text-[10px] sm:text-[11px] font-medium text-slate-500 mt-1">0.0% of Total Deliveries</div>
+      </div>
+
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-[11px] sm:text-xs font-semibold text-slate-500">8-FRU C-Section Deliveries</div>
+        <div id="kpiTotalCs" class="text-xl sm:text-3xl font-extrabold text-amber-600 mt-1">0</div>
+        <div id="kpiCsPctSub" class="text-[10px] sm:text-[11px] font-medium text-amber-700 mt-1">FRU C-Sec Rate: 0.0%</div>
+      </div>
+
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-[11px] sm:text-xs font-semibold text-slate-500">8-FRU Night C-Sec (8PM–8AM)</div>
+        <div id="kpiNightCs" class="text-xl sm:text-3xl font-extrabold text-indigo-700 mt-1">0</div>
+        <div id="kpiNightPctSub" class="text-[10px] sm:text-[11px] font-medium text-indigo-600 mt-1">0.0% of FRU C-Sections</div>
+      </div>
+    </div>
+
+    <!-- MONTH-WISE DELIVERY & C-SECTION TREND (DYNAMIC FOR SELECTED FACILITY / BLOCK / DISTRICT) -->
+    <section class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+      <div class="flex flex-wrap justify-between items-start sm:items-center gap-2">
+        <div class="min-w-0">
+          <h2 id="monthTrendTitle" class="text-sm font-extrabold text-slate-900">Month-wise Trend — District Ayodhya</h2>
+          <p id="monthTrendSub" class="text-[11px] text-slate-500">Monthly Institutional Deliveries vs 8-FRU C-Section &amp; Night C-Section</p>
+        </div>
+        <span id="monthTrendBadge" class="px-3 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200/80 text-xs font-bold flex-shrink-0">0 Months</span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-center">
+        <div class="lg:col-span-7 w-full" style="height: 240px;">
+          <canvas id="monthTrendChart"></canvas>
+        </div>
+        <div class="lg:col-span-5 overflow-x-auto border border-slate-200/80 rounded-xl">
+          <table class="w-full text-xs text-left border-collapse">
+            <thead class="bg-slate-900 text-white">
+              <tr>
+                <th class="p-2.5 font-bold">Month</th>
+                <th class="p-2.5 font-bold text-right">Inst. Del.</th>
+                <th class="p-2.5 font-bold text-right">C-Section</th>
+                <th class="p-2.5 font-bold text-right">Night CS</th>
+              </tr>
+            </thead>
+            <tbody id="monthTrendTableBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOP 5 & BOTTOM 5 (ACTIVE FACILITIES ONLY) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div class="px-4 py-3 bg-teal-800 text-white flex justify-between items-center gap-2">
+          <h3 id="top5Title" class="text-xs font-extrabold tracking-wide truncate">Top 5 Facilities (Highest Deliveries)</h3>
+          <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold flex-shrink-0">Active Units</span>
+        </div>
+        <div id="top5List" class="divide-y divide-slate-100 p-2 sm:p-2.5"></div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div class="px-4 py-3 bg-slate-800 text-white flex justify-between items-center gap-2">
+          <h3 id="poor5Title" class="text-xs font-extrabold tracking-wide truncate">Bottom 5 Facilities (Lowest Active Deliveries)</h3>
+          <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold flex-shrink-0">Excludes All-Month 0</span>
+        </div>
+        <div id="poor5List" class="divide-y divide-slate-100 p-2 sm:p-2.5"></div>
+      </div>
+    </div>
+
+    <!-- BLOCK / FACILITY BAR CHART -->
+    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+      <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+        <div>
+          <h2 id="chartMainTitle" class="text-sm font-extrabold text-slate-900">Block-wise Institutional Deliveries vs 8-FRU C-Section</h2>
+          <p id="chartSubHint" class="text-[11px] text-slate-500">Tap any block bar to view facility-level deliveries</p>
+        </div>
+        <button id="btnResetBlockChart" onclick="resetToAllBlocks()" class="hidden px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold rounded-xl no-print transition">
+          ← All Blocks
+        </button>
+      </div>
+      <div class="overflow-x-auto">
+        <div id="chartInnerBox" style="height: 290px; min-width: 100%;">
+          <canvas id="instDelChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- DETAILED FACILITY TABLE -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      <div class="px-4 py-3.5 border-b border-slate-100 flex justify-between items-center gap-2">
+        <h2 class="text-sm font-extrabold text-slate-900">Facility-wise Delivery Register</h2>
+        <span id="tableCountBadge" class="text-xs font-bold text-teal-800 bg-teal-50 px-3 py-1 rounded-full border border-teal-200/70">0 Records</span>
+      </div>
+      <div class="overflow-x-auto max-h-[480px]">
+        <table class="w-full text-xs text-left border-collapse min-w-[720px]">
+          <thead class="bg-slate-900 text-white sticky top-0">
+            <tr>
+              <th class="p-3 font-bold">#</th>
+              <th class="p-3 font-bold">Month</th>
+              <th class="p-3 font-bold">Block</th>
+              <th class="p-3 font-bold">Type</th>
+              <th class="p-3 font-bold">Facility Name</th>
+              <th class="p-3 font-bold">Ownership</th>
+              <th class="p-3 font-bold text-right">Inst. Del. (2.2)</th>
+              <th class="p-3 font-bold text-right">C-Section (8 FRU)</th>
+              <th class="p-3 font-bold text-right">C-Sec %</th>
+              <th class="p-3 font-bold text-right">Night CS (8 FRU)</th>
+            </tr>
+          </thead>
+          <tbody id="idTableBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
+      authDomain: "asha-payment.firebaseapp.com",
+      databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "asha-payment",
+      storageBucket: "asha-payment.firebasestorage.app",
+      messagingSenderId: "117935142167",
+      appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
+      measurementId: "G-43YGRC5CKL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const dbRef = ref(db, "asha_portal_v2/mh_inst_delivery");
+
+    const savedOfficer = JSON.parse(sessionStorage.getItem("nhm_ayodhya_officer") || "null");
+    if (savedOfficer) {
+      document.getElementById("roleBadge").textContent = savedOfficer.role === "DISTRICT" ? "DISTRICT LEVEL" : `BLOCK: ${savedOfficer.block}`;
+    }
+
+    const FRU_LIST = [
+      { id: 1, label: "Rudauli", matchFac: (f) => f.includes("RUDAULI") && f.includes("CHC"), matchBlk: (b) => b.includes("RUDAULI") },
+      { id: 2, label: "Sohawal", matchFac: (f) => f.includes("SOHAWAL") && f.includes("CHC"), matchBlk: (b) => b.includes("SOHAWAL") },
+      { id: 3, label: "Bikapur", matchFac: (f) => f.includes("BIKAPUR") && f.includes("CHC"), matchBlk: (b) => b.includes("BIKAPUR") },
+      { id: 4, label: "Pura Bazar", matchFac: (f) => (f.includes("PURA BAZAR") || f.includes("POORA BAZAR") || f.includes("PURABAZAR")) && f.includes("CHC"), matchBlk: (b) => b.includes("PURA BAZAR") || b.includes("POORA BAZAR") || b.includes("PURABAZAR") },
+      { id: 5, label: "Milkipur", matchFac: (f) => f.includes("MILKIPUR") && f.includes("CHC"), matchBlk: (b) => b.includes("MILKIPUR") },
+      { id: 6, label: "Medical College", matchFac: (f) => f.includes("MEDICAL COLLEGE") || f.includes("ASMC") || f.includes("GMC") || f.includes("DASHRATH"), matchBlk: (b) => b.includes("MEDICAL COLLEGE") || b.includes("ASMC") || b.includes("GMC") },
+      { id: 7, label: "District Women Hospital", matchFac: (f) => f.includes("DISTRICT WOMEN") || f.includes("DWH") || f.includes("WOMEN HOSPITAL") || f.includes("MAHILA CHIKITSALAYA") || f.includes("MAHILA HOSPITAL"), matchBlk: (b) => b.includes("DWH") || b.includes("WOMEN HOSPITAL") || b.includes("MAHILA") },
+      { id: 8, label: "100 Bed Kumarganj", matchFac: (f) => f.includes("KUMARGANJ") && (f.includes("100") || f.includes("BED") || f.includes("HOSPITAL")), matchBlk: (b) => b.includes("KUMARGANJ") }
+    ];
+
+    function isDesignatedFruRecord(r) {
+      if (!r || /private|pvt/i.test(String(r.ownership || ""))) return false;
+      const fac = String(r.facilityName || "").toUpperCase();
+      const blk = String(r.block || "").toUpperCase();
+      const typ = String(r.facilityType || "").toUpperCase();
+      return FRU_LIST.some(fru => {
+        if (fru.matchFac(fac)) return true;
+        if (fru.matchBlk(blk) && (/CHC|FRU|DH|HOSPITAL|MEDICAL/.test(typ) || /CHC|HOSPITAL|100|WOMEN|MAHILA|MEDICAL/.test(fac))) return true;
+        return false;
+      });
+    }
+
+    let allRows = [];
+    let renderedRows = [];
+    let chartInstance = null;
+    let monthChartInstance = null;
+
+    const MONTH_ORDER = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
+
+    function sortMonthsChronologically(monthsList) {
+      return [...monthsList].sort((a, b) => {
+        const parseM = (s) => {
+          const m = String(s || "").trim().match(/^([A-Za-z]{3})[-/\s]?(\d{2,4})$/);
+          if (!m) return 999999;
+          const mon = MONTH_ORDER[m[1].toLowerCase()] || 0;
+          const yr = m[2].length === 2 ? 2000 + Number(m[2]) : Number(m[2]);
+          return yr * 100 + mon;
+        };
+        return parseM(a) - parseM(b);
+      });
+    }
+
+    function normalizeFacKey(block, facility) {
+      return `${String(block || "").trim().toUpperCase()}|||${String(facility || "").trim().toUpperCase()}`;
+    }
+
+    function populateFacilityDropdown() {
+      const selBlock = document.getElementById("blockFilterSelect").value;
+      const selType = document.getElementById("typeFilterSelect").value;
+      const selOwner = document.getElementById("ownerFilterSelect").value;
+      const facSel = document.getElementById("facilityFilterSelect");
+      const prevVal = facSel.value;
+
+      const matchingRows = allRows.filter(r => {
+        if (selBlock !== "ALL" && r.block.toLowerCase() !== selBlock.toLowerCase()) return false;
+        if (selType !== "ALL" && r.facilityType !== selType) return false;
+        if (selOwner !== "ALL" && r.ownership !== selOwner) return false;
+        return true;
+      });
+
+      const facMap = new Map();
+      matchingRows.forEach(r => {
+        const key = normalizeFacKey(r.block, r.facilityName);
+        if (!facMap.has(key)) {
+          facMap.set(key, {
+            key,
+            label: selBlock === "ALL" ? `${r.facilityName} (${r.block})` : r.facilityName
+          });
+        }
+      });
+
+      const sortedFacs = Array.from(facMap.values()).sort((a, b) => a.label.localeCompare(b.label));
+      facSel.innerHTML = `<option value="ALL">All Facilities (${sortedFacs.length})</option>` +
+        sortedFacs.map(f => `<option value="${f.key}">${f.label}</option>`).join("");
+
+      if (sortedFacs.some(f => f.key === prevVal)) {
+        facSel.value = prevVal;
+      } else {
+        facSel.value = "ALL";
+      }
+    }
+
+    window.onBlockFilterChange = function() {
+      populateFacilityDropdown();
+      window.renderDashboard();
+    };
+
+    window.onTypeOrOwnerChange = function() {
+      populateFacilityDropdown();
+      window.renderDashboard();
+    };
+
+    window.resetToAllBlocks = function() {
+      const sel = document.getElementById("blockFilterSelect");
+      if (!sel.disabled) {
+        sel.value = "ALL";
+        populateFacilityDropdown();
+        window.renderDashboard();
+      }
+    };
+
+    async function loadData() {
+      const snap = await get(dbRef);
+      if (!snap.exists() || !snap.val().rows) {
+        allRows = [];
+        document.getElementById("metaSubTitle").textContent = "No data uploaded yet. Please upload HMIS file in Master Admin.";
+        window.renderDashboard();
+        return;
+      }
+
+      const data = snap.val();
+      allRows = (Array.isArray(data.rows) ? data.rows : Object.values(data.rows)).filter(Boolean);
+
+      const months = sortMonthsChronologically(Array.from(new Set(allRows.map(r => r.month).filter(Boolean))));
+      const blocks = Array.from(new Set(allRows.map(r => r.block).filter(Boolean))).sort();
+      const types = Array.from(new Set(allRows.map(r => r.facilityType).filter(Boolean))).sort();
+      const owners = Array.from(new Set(allRows.map(r => r.ownership).filter(Boolean))).sort();
+
+      const mSel = document.getElementById("monthFilterSelect");
+      mSel.innerHTML = `<option value="ALL">All Months (${months.length})</option>` + months.map(m => `<option value="${m}">${m}</option>`).join("");
+      if (months.length) mSel.value = months[months.length - 1];
+
+      const bSel = document.getElementById("blockFilterSelect");
+      bSel.innerHTML = `<option value="ALL">All ${blocks.length} Blocks</option>` + blocks.map(b => `<option value="${b}">${b}</option>`).join("");
+
+      const tSel = document.getElementById("typeFilterSelect");
+      tSel.innerHTML = `<option value="ALL">All Types (${types.length})</option>` + types.map(t => `<option value="${t}">${t}</option>`).join("");
+
+      const oSel = document.getElementById("ownerFilterSelect");
+      oSel.innerHTML = `<option value="ALL">Public &amp; Private</option>` + owners.map(o => `<option value="${o}">${o}</option>`).join("");
+
+      if (savedOfficer && savedOfficer.role !== "DISTRICT" && savedOfficer.block) {
+        const matched = blocks.find(b => b.toLowerCase() === savedOfficer.block.toLowerCase());
+        if (matched) {
+          bSel.value = matched;
+          bSel.disabled = true;
+        }
+      }
+
+      populateFacilityDropdown();
+
+      document.getElementById("metaSubTitle").textContent =
+        `Months: ${months.join(", ")} • Records: ${allRows.length.toLocaleString("en-IN")} • Updated: ${data.updatedAt || ""}`;
+
+      window.renderDashboard();
+    }
+
+    function renderMonthTrend(trendRows, scopeTitle) {
+      const monthMap = new Map();
+      trendRows.forEach(r => {
+        const m = r.month || "Unknown";
+        if (!monthMap.has(m)) monthMap.set(m, { month: m, del: 0, cs: 0, night: 0 });
+        const item = monthMap.get(m);
+        item.del += Number(r.instDel) || 0;
+        if (isDesignatedFruRecord(r)) {
+          item.cs += Number(r.cSection) || 0;
+          item.night += Number(r.nightCs) || 0;
+        }
+      });
+
+      const list = sortMonthsChronologically(Array.from(monthMap.keys())).map(k => monthMap.get(k));
+      document.getElementById("monthTrendTitle").textContent = `Month-wise Trend — ${scopeTitle}`;
+      document.getElementById("monthTrendBadge").textContent = `${list.length} Months`;
+
+      const tbody = document.getElementById("monthTrendTableBody");
+      tbody.innerHTML = list.length
+        ? list.map(m => `
+            <tr class="hover:bg-slate-50">
+              <td class="p-2.5 font-extrabold text-slate-900">${m.month}</td>
+              <td class="p-2.5 text-right font-extrabold text-teal-800">${m.del.toLocaleString("en-IN")}</td>
+              <td class="p-2.5 text-right font-bold text-amber-600">${m.cs > 0 ? m.cs.toLocaleString("en-IN") : "—"}</td>
+              <td class="p-2.5 text-right font-bold text-indigo-700">${m.night > 0 ? m.night.toLocaleString("en-IN") : "—"}</td>
+            </tr>
+          `).join("")
+        : `<tr><td colspan="4" class="p-4 text-center text-slate-400">No monthly data</td></tr>`;
+
+      const ctx = document.getElementById("monthTrendChart").getContext("2d");
+      if (monthChartInstance) monthChartInstance.destroy();
+
+      const hasAnyCs = list.some(m => m.cs > 0);
+      const datasets = [
+        { label: "Institutional Deliveries", data: list.map(m => m.del), backgroundColor: "#0d9488", borderRadius: 6, maxBarThickness: 38 }
+      ];
+      if (hasAnyCs) {
+        datasets.push({ label: "8-FRU C-Section", data: list.map(m => m.cs), backgroundColor: "#d97706", borderRadius: 6, maxBarThickness: 38 });
+        datasets.push({ label: "8-FRU Night C-Section", data: list.map(m => m.night), backgroundColor: "#4338ca", borderRadius: 6, maxBarThickness: 38 });
+      }
+
+      monthChartInstance = new Chart(ctx, {
+        type: "bar",
+        data: { labels: list.map(m => m.month), datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "top", labels: { font: { size: 11, weight: "bold" } } },
+            datalabels: {
+              anchor: "end", align: "top", offset: 2, color: "#0f172a",
+              font: { weight: "bold", size: 10 },
+              formatter: v => v > 0 ? v.toLocaleString("en-IN") : ""
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11, weight: "bold" } } },
+            y: { beginAtZero: true, grid: { color: "#f1f5f9" }, suggestedMax: Math.max(...list.map(m => m.del), 10) * 1.2 }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
+    }
+
+    window.renderDashboard = function() {
+      const selMonth = document.getElementById("monthFilterSelect").value;
+      const selBlock = document.getElementById("blockFilterSelect").value;
+      const selType = document.getElementById("typeFilterSelect").value;
+      const selOwner = document.getElementById("ownerFilterSelect").value;
+      const selFacKey = document.getElementById("facilityFilterSelect").value;
+
+      // Strict Active Rule: Exclude facilities with 0 deliveries across all months from Top/Bottom
+      const everActiveFacilities = new Set();
+      allRows.forEach(r => {
+        if ((Number(r.instDel) || 0) > 0) {
+          everActiveFacilities.add(normalizeFacKey(r.block, r.facilityName));
+        }
+      });
+
+      // Month-wise trend rows (respects Block, Type, Ownership AND Selected Facility)
+      const trendScopeRows = allRows.filter(r => {
+        if (selBlock !== "ALL" && r.block.toLowerCase() !== selBlock.toLowerCase()) return false;
+        if (selType !== "ALL" && r.facilityType !== selType) return false;
+        if (selOwner !== "ALL" && r.ownership !== selOwner) return false;
+        if (selFacKey !== "ALL" && normalizeFacKey(r.block, r.facilityName) !== selFacKey) return false;
+        return true;
+      });
+
+      let trendTitle = "District Ayodhya";
+      if (selFacKey !== "ALL" && trendScopeRows.length > 0) {
+        trendTitle = `${trendScopeRows[0].facilityName} (${trendScopeRows[0].block})`;
+      } else if (selBlock !== "ALL") {
+        trendTitle = `Block: ${selBlock}`;
+      }
+      renderMonthTrend(trendScopeRows, trendTitle);
+
+      const monthRows = allRows.filter(r => selMonth === "ALL" || r.month === selMonth);
+      const baseFiltered = monthRows.filter(r => {
+        if (selType !== "ALL" && r.facilityType !== selType) return false;
+        if (selOwner !== "ALL" && r.ownership !== selOwner) return false;
+        return true;
+      });
+
+      const finalRows = baseFiltered
+        .filter(r => {
+          if (selBlock !== "ALL" && r.block.toLowerCase() !== selBlock.toLowerCase()) return false;
+          if (selFacKey !== "ALL" && normalizeFacKey(r.block, r.facilityName) !== selFacKey) return false;
+          return true;
+        })
+        .sort((a, b) => (Number(b.instDel) || 0) - (Number(a.instDel) || 0));
+
+      renderedRows = finalRows;
+
+      // KPIs
+      const sumDel = finalRows.reduce((s, r) => s + (Number(r.instDel) || 0), 0);
+      const fruRows = finalRows.filter(isDesignatedFruRecord);
+      const sumCs = fruRows.reduce((s, r) => s + (Number(r.cSection) || 0), 0);
+      const sumNight = fruRows.reduce((s, r) => s + (Number(r.nightCs) || 0), 0);
+      const fruDel = fruRows.reduce((s, r) => s + (Number(r.instDel) || 0), 0);
+      const sumNormal = Math.max(0, sumDel - sumCs);
+
+      const pubDel = finalRows.filter(r => /public|govt/i.test(r.ownership)).reduce((s, r) => s + (Number(r.instDel) || 0), 0);
+      const pvtDel = finalRows.filter(r => /private|pvt/i.test(r.ownership)).reduce((s, r) => s + (Number(r.instDel) || 0), 0);
+
+      const csPct = fruDel > 0 ? ((sumCs / fruDel) * 100).toFixed(1) : "0.0";
+      const nightPct = sumCs > 0 ? ((sumNight / sumCs) * 100).toFixed(1) : "0.0";
+      const normPct = sumDel > 0 ? ((sumNormal / sumDel) * 100).toFixed(1) : "0.0";
+
+      document.getElementById("kpiTotalDel").textContent = sumDel.toLocaleString("en-IN");
+      document.getElementById("kpiPubPvtSub").textContent = `Public: ${pubDel.toLocaleString("en-IN")} • Private: ${pvtDel.toLocaleString("en-IN")}`;
+      document.getElementById("kpiNormalDel").textContent = sumNormal.toLocaleString("en-IN");
+      document.getElementById("kpiNormalPctSub").textContent = `${normPct}% of Total Deliveries`;
+      document.getElementById("kpiTotalCs").textContent = sumCs.toLocaleString("en-IN");
+      document.getElementById("kpiCsPctSub").textContent = `FRU C-Sec Rate: ${csPct}%`;
+      document.getElementById("kpiNightCs").textContent = sumNight.toLocaleString("en-IN");
+      document.getElementById("kpiNightPctSub").textContent = `${nightPct}% of FRU C-Sections`;
+      document.getElementById("tableCountBadge").textContent = `${finalRows.length} Records`;
+
+      const resetBtn = document.getElementById("btnResetBlockChart");
+      const blockSelEl = document.getElementById("blockFilterSelect");
+
+      if (selBlock === "ALL") {
+        const facMap = new Map();
+        baseFiltered.forEach(r => {
+          const fKey = normalizeFacKey(r.block, r.facilityName);
+          if (!everActiveFacilities.has(fKey)) return;
+          const isFru = isDesignatedFruRecord(r);
+          if (!facMap.has(fKey)) {
+            facMap.set(fKey, {
+              _uid: fKey,
+              name: r.facilityName,
+              sub: `${r.block} • ${r.ownership || "Public"}`,
+              isFru,
+              del: 0,
+              cs: 0
+            });
+          }
+          const st = facMap.get(fKey);
+          st.del += Number(r.instDel) || 0;
+          if (isFru) st.cs += Number(r.cSection) || 0;
+        });
+        const eligibleFacilities = Array.from(facMap.values()).sort((a, b) => b.del - a.del);
+
+        document.getElementById("top5Title").textContent = "Top 5 Facilities (Highest Deliveries)";
+        document.getElementById("poor5Title").textContent = "Bottom 5 Facilities (Lowest Active Deliveries)";
+        renderTopPoorBoxes(eligibleFacilities);
+
+        const blkMap = new Map();
+        baseFiltered.forEach(r => {
+          const b = r.block || "Other";
+          if (!blkMap.has(b)) blkMap.set(b, { name: b, del: 0, cs: 0 });
+          const st = blkMap.get(b);
+          st.del += Number(r.instDel) || 0;
+          if (isDesignatedFruRecord(r)) st.cs += Number(r.cSection) || 0;
+        });
+        const sortedBlocks = Array.from(blkMap.values()).sort((a, b) => b.del - a.del);
+
+        document.getElementById("chartMainTitle").textContent = "Block-wise Institutional Deliveries vs 8-FRU C-Section";
+        document.getElementById("chartSubHint").textContent = "Tap any block bar to view facility-level deliveries";
+        resetBtn.classList.add("hidden");
+
+        renderChart(sortedBlocks.map(b => b.name), sortedBlocks.map(b => b.del), sortedBlocks.map(b => b.cs), true);
+      } else {
+        const blockScopeRows = baseFiltered.filter(r => r.block.toLowerCase() === selBlock.toLowerCase());
+        const facMap = new Map();
+        blockScopeRows.forEach(r => {
+          const fKey = normalizeFacKey(r.block, r.facilityName);
+          if (!everActiveFacilities.has(fKey)) return;
+          const isFru = isDesignatedFruRecord(r);
+          if (!facMap.has(fKey)) {
+            facMap.set(fKey, {
+              _uid: fKey,
+              name: r.facilityName,
+              sub: `${r.facilityType || "Facility"} • ${r.ownership || "Public"}`,
+              isFru,
+              del: 0,
+              cs: 0
+            });
+          }
+          const st = facMap.get(fKey);
+          st.del += Number(r.instDel) || 0;
+          if (isFru) st.cs += Number(r.cSection) || 0;
+        });
+        const eligibleBlockFacilities = Array.from(facMap.values()).sort((a, b) => b.del - a.del);
+
+        document.getElementById("top5Title").textContent = `Top Facilities — ${selBlock}`;
+        document.getElementById("poor5Title").textContent = `Bottom Facilities — ${selBlock}`;
+        renderTopPoorBoxes(eligibleBlockFacilities);
+
+        document.getElementById("chartMainTitle").textContent = `${selBlock} — Active Facilities (${eligibleBlockFacilities.length})`;
+        document.getElementById("chartSubHint").textContent = "Institutional Deliveries vs 8-FRU C-Section";
+        if (!blockSelEl.disabled) resetBtn.classList.remove("hidden");
+
+        renderChart(eligibleBlockFacilities.map(f => f.name), eligibleBlockFacilities.map(f => f.del), eligibleBlockFacilities.map(f => f.cs), false);
+      }
+
+      const tbody = document.getElementById("idTableBody");
+      if (!finalRows.length) {
+        tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-400">No records match the current filter.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = finalRows.map((r, i) => {
+        const del = Number(r.instDel) || 0;
+        const isFru = isDesignatedFruRecord(r);
+        const cs = isFru ? (Number(r.cSection) || 0) : null;
+        const night = isFru ? (Number(r.nightCs) || 0) : null;
+        const cPct = (isFru && del > 0) ? `${((cs / del) * 100).toFixed(1)}%` : "—";
+        const ownBadge = /private|pvt/i.test(r.ownership)
+          ? `<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold text-[10px]">${r.ownership}</span>`
+          : `<span class="px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 font-bold text-[10px]">${r.ownership || "Public"}</span>`;
+
+        return `
+          <tr class="hover:bg-slate-50/90 transition">
+            <td class="p-3 text-slate-400 font-semibold">${i + 1}</td>
+            <td class="p-3 font-semibold text-slate-600">${r.month}</td>
+            <td class="p-3 font-bold text-slate-800">${r.block}</td>
+            <td class="p-3 text-slate-500">${r.facilityType || "-"}</td>
+            <td class="p-3 font-bold text-slate-900">${r.facilityName} ${isFru ? '<span class="ml-1.5 px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 text-[9px] font-extrabold">FRU</span>' : ''}</td>
+            <td class="p-3">${ownBadge}</td>
+            <td class="p-3 text-right font-extrabold text-teal-800">${del.toLocaleString("en-IN")}</td>
+            <td class="p-3 text-right font-bold ${isFru ? 'text-amber-600' : 'text-slate-300'}">${isFru ? cs.toLocaleString("en-IN") : "—"}</td>
+            <td class="p-3 text-right font-semibold ${isFru ? 'text-slate-700' : 'text-slate-300'}">${cPct}</td>
+            <td class="p-3 text-right font-bold ${isFru ? 'text-indigo-700' : 'text-slate-300'}">${isFru ? night.toLocaleString("en-IN") : "—"}</td>
+          </tr>
+        `;
+      }).join("");
+    };
+
+    function renderTopPoorBoxes(sortedDesc) {
+      const topEl = document.getElementById("top5List");
+      const poorEl = document.getElementById("poor5List");
+      if (!sortedDesc.length) {
+        topEl.innerHTML = `<p class="p-4 text-xs text-slate-400">No data available</p>`;
+        poorEl.innerHTML = `<p class="p-4 text-xs text-slate-400">No data available</p>`;
+        return;
+      }
+
+      const top5 = sortedDesc.slice(0, 5);
+      const topIds = new Set(top5.map(x => x._uid));
+      const poor5 = [...sortedDesc].filter(x => !topIds.has(x._uid)).sort((a, b) => a.del - b.del).slice(0, 5);
+
+      const buildRow = (item, idx, isTop) => {
+        const cPct = item.del > 0 ? ((item.cs / item.del) * 100).toFixed(1) : "0.0";
+        const sub = item.isFru ? `${item.sub} • FRU C-Sec: ${item.cs}` : item.sub;
+        const csBadge = item.isFru ? `<span class="font-semibold opacity-75">(CS: ${cPct}%)</span>` : "";
+        const pill = isTop ? "bg-teal-50 text-teal-900 border border-teal-200" : "bg-slate-100 text-slate-800 border border-slate-200";
+
+        return `
+          <div class="flex items-center justify-between px-2.5 py-2.5 hover:bg-slate-50 rounded-xl text-xs gap-2">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-[11px] font-extrabold ${isTop ? 'bg-teal-700 text-white' : 'bg-slate-700 text-white'}">
+                ${idx + 1}
+              </span>
+              <div class="truncate">
+                <div class="font-bold text-slate-900 truncate">${item.name}</div>
+                <div class="text-[11px] text-slate-500 truncate">${sub}</div>
+              </div>
+            </div>
+            <span class="flex-shrink-0 px-2.5 py-1 rounded-full font-extrabold text-[11px] sm:text-xs ${pill}">
+              ${item.del.toLocaleString("en-IN")} ${csBadge}
+            </span>
+          </div>
+        `;
+      };
+
+      topEl.innerHTML = top5.map((x, i) => buildRow(x, i, true)).join("");
+      poorEl.innerHTML = poor5.length
+        ? poor5.map((x, i) => buildRow(x, i, false)).join("")
+        : `<p class="p-4 text-xs text-slate-400 text-center">All active units are in the Top list</p>`;
+    }
+
+    function renderChart(labels, delVals, csVals, isBlockLevel) {
+      const ctx = document.getElementById("instDelChart").getContext("2d");
+      if (chartInstance) chartInstance.destroy();
+
+      const innerBox = document.getElementById("chartInnerBox");
+      innerBox.style.width = (!isBlockLevel && labels.length > 10) ? `${labels.length * 52}px` : "100%";
+
+      chartInstance = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            { label: "Institutional Deliveries (2.2)", data: delVals, backgroundColor: "#0d9488", borderRadius: 6, maxBarThickness: 32 },
+            { label: "8-FRU C-Section (3.1)", data: csVals, backgroundColor: "#d97706", borderRadius: 6, maxBarThickness: 32 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: (e, el) => {
+            if (isBlockLevel && el.length > 0 && !document.getElementById("blockFilterSelect").disabled) {
+              document.getElementById("blockFilterSelect").value = labels[el[0].index];
+              populateFacilityDropdown();
+              window.renderDashboard();
+            }
+          },
+          plugins: {
+            legend: { position: "top", labels: { font: { size: 11, weight: "bold" } } },
+            datalabels: {
+              anchor: "end", align: "top", offset: 2, color: "#0f172a",
+              font: { weight: "bold", size: 10 },
+              formatter: v => v > 0 ? v.toLocaleString("en-IN") : ""
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 10, weight: "bold" }, maxRotation: 45, minRotation: isBlockLevel ? 20 : 40 } },
             y: { beginAtZero: true, grid: { color: "#f1f5f9" }, suggestedMax: Math.max(...delVals, 10) * 1.18 }
           }
         },
