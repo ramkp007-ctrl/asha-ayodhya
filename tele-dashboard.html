@@ -84,24 +84,24 @@
           class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/70 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
       </div>
       <div>
-        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">🏛️ Block (ब्लॉक)</label>
+        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">🏛️ Block / Hub (इकाई)</label>
         <select id="blockFilterSelect" onchange="renderDashboard()"
           class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/70 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
-          <option value="ALL">All Blocks (जनपद अयोध्या)</option>
+          <option value="ALL">All Units (जनपद अयोध्या)</option>
         </select>
       </div>
       <div>
         <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">⚡ प्रदर्शन फ़िल्टर</label>
         <select id="statusFilterSelect" onchange="renderDashboard()"
           class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/70 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
-          <option value="ALL">सभी इकाइयां / Users (All)</option>
+          <option value="ALL">सभी इकाइयां / MOs (All)</option>
           <option value="ZERO">⚠️ केवल Zero TC वाले (0)</option>
           <option value="ACTIVE">✅ केवल Active (&gt;0)</option>
         </select>
       </div>
       <div>
-        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">🔍 User / Facility खोजें</label>
-        <input type="text" id="searchInput" oninput="renderDashboard()" placeholder="नाम या SC/HWC लिखें..."
+        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">🔍 MO / Facility खोजें</label>
+        <input type="text" id="searchInput" oninput="renderDashboard()" placeholder="डॉक्टर या CHC/PHC लिखें..."
           class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-800 bg-slate-50/70 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
       </div>
     </div>
@@ -110,7 +110,7 @@
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
       <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden">
         <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
-        <div class="text-xs font-bold text-slate-500">कुल Unique इकाइयां</div>
+        <div id="kpiUniqueLabel" class="text-xs font-bold text-slate-500">कुल Unique इकाइयां</div>
         <div id="kpiUniqueUsers" class="text-2xl font-extrabold text-slate-900 mt-1">0</div>
         <div id="kpiActiveZero" class="text-[11px] font-medium text-slate-500 mt-0.5">Active: 0 | Zero: 0</div>
       </div>
@@ -124,7 +124,7 @@
 
       <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden">
         <div class="absolute top-0 left-0 w-1 h-full bg-sky-500"></div>
-        <div class="text-xs font-bold text-slate-500">औसत TC प्रति इकाई</div>
+        <div id="kpiAvgLabel" class="text-xs font-bold text-slate-500">औसत TC प्रति इकाई</div>
         <div id="kpiAvgTc" class="text-2xl font-extrabold text-sky-900 mt-1">0.0</div>
         <div class="text-[11px] font-medium text-slate-500 mt-0.5">Total period avg / User</div>
       </div>
@@ -138,18 +138,18 @@
 
       <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden col-span-2 sm:col-span-1">
         <div class="absolute top-0 left-0 w-1 h-full bg-rose-500"></div>
-        <div class="text-xs font-bold text-slate-500">Zero Reporting इकाइयां</div>
+        <div id="kpiZeroLabel" class="text-xs font-bold text-slate-500">Zero Reporting इकाइयां</div>
         <div id="kpiZeroCount" class="text-2xl font-extrabold text-rose-600 mt-1">0</div>
         <div class="text-[11px] font-medium text-rose-600 mt-0.5">0 टेली-कंसल्टेशन वाले</div>
       </div>
     </div>
 
-    <!-- TOP 5 & POOR 5 BOXES (ONLY BLOCKS / FACILITIES — WITH TOTAL TC & AVG IN BRACKET) -->
+    <!-- TOP 5 & POOR 5 BOXES -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <!-- TOP 5 BOX -->
       <div class="bg-white rounded-2xl border border-emerald-200/80 shadow-sm overflow-hidden">
         <div class="px-4 py-3 bg-gradient-to-r from-emerald-800 to-teal-700 text-white flex justify-between items-center">
-          <h3 id="top5Title" class="text-xs font-extrabold tracking-wide">🏆 Top 5 Blocks (सर्वश्रेष्ठ प्रदर्शन)</h3>
+          <h3 id="top5Title" class="text-xs font-extrabold tracking-wide">🏆 Top 5 Blocks / Hubs (सर्वश्रेष्ठ प्रदर्शन)</h3>
           <span class="text-[10px] bg-white/15 border border-white/20 px-2.5 py-0.5 rounded-full font-semibold">Total TC (Avg/Day)</span>
         </div>
         <div id="top5List" class="divide-y divide-slate-100 p-2.5"></div>
@@ -158,7 +158,7 @@
       <!-- POOR 5 BOX -->
       <div class="bg-white rounded-2xl border border-rose-200/80 shadow-sm overflow-hidden">
         <div class="px-4 py-3 bg-gradient-to-r from-rose-800 to-rose-700 text-white flex justify-between items-center">
-          <h3 id="poor5Title" class="text-xs font-extrabold tracking-wide">⚠️ Poor 5 Blocks (न्यूनतम प्रदर्शन)</h3>
+          <h3 id="poor5Title" class="text-xs font-extrabold tracking-wide">⚠️ Poor 5 Blocks / Hubs (न्यूनतम प्रदर्शन)</h3>
           <span class="text-[10px] bg-white/15 border border-white/20 px-2.5 py-0.5 rounded-full font-semibold">Total TC (Avg/Day)</span>
         </div>
         <div id="poor5List" class="divide-y divide-slate-100 p-2.5"></div>
@@ -169,11 +169,11 @@
     <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
       <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
         <div>
-          <h2 id="chartMainTitle" class="text-sm font-bold text-slate-800">📊 ब्लॉक-वार कुल Tele Consultation (Top से Bottom)</h2>
-          <p id="chartSubHint" class="text-[11px] text-slate-500">किसी ब्लॉक के बार पर क्लिक करें या ऊपर ड्रॉपडाउन से ब्लॉक चुनें — उस ब्लॉक की सभी Facilities का चार्ट खुल जाएगा</p>
+          <h2 id="chartMainTitle" class="text-sm font-bold text-slate-800">📊 ब्लॉक / हब-वार कुल Tele Consultation (Top से Bottom)</h2>
+          <p id="chartSubHint" class="text-[11px] text-slate-500">किसी ब्लॉक के बार पर क्लिक करें या ऊपर ड्रॉपडाउन से ब्लॉक चुनें — उस ब्लॉक की सभी Facilities / MOs का चार्ट खुल जाएगा</p>
         </div>
         <button id="btnResetBlockChart" onclick="resetToAllBlocks()" class="hidden px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-[11px] font-bold rounded-xl no-print transition">
-          ← सभी 11 Blocks देखें
+          ← सभी Blocks / Hubs देखें
         </button>
       </div>
       <div id="chartScrollWrapper" class="overflow-x-auto">
@@ -183,7 +183,7 @@
       </div>
     </div>
 
-    <!-- UNIQUE FACILITY + USER TABLE -->
+    <!-- UNIQUE FACILITY / MO TABLE -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
       <div class="px-4 py-3.5 border-b border-slate-100 bg-slate-50/70 flex justify-between items-center">
         <h2 id="tableHeading" class="text-sm font-bold text-slate-800">📋 ब्लॉक व स्वास्थ्य केंद्र-वार Tele Consultation सूची</h2>
@@ -194,9 +194,9 @@
           <thead class="bg-slate-900 text-white sticky top-0">
             <tr>
               <th class="p-3 font-bold">रैंक</th>
-              <th class="p-3 font-bold">Block</th>
-              <th class="p-3 font-bold">Health Facility / Sub-Center</th>
-              <th class="p-3 font-bold">User Name (CHO / MO)</th>
+              <th class="p-3 font-bold">Block / Hub</th>
+              <th class="p-3 font-bold">Health Facility</th>
+              <th id="thUserCol" class="p-3 font-bold">User Name (CHO)</th>
               <th class="p-3 font-bold text-center">Active Days</th>
               <th class="p-3 font-bold text-right">Total TC</th>
               <th class="p-3 font-bold text-right">Avg TC / Day</th>
@@ -283,12 +283,23 @@
 
     window.switchTeleTab = async function(tabKey) {
       currentTab = tabKey;
-      document.getElementById("tabCHO").className = tabKey === "tele_cho"
+      const isMo = tabKey === "tele_mo";
+
+      document.getElementById("tabCHO").className = !isMo
         ? "px-4 py-2 rounded-lg text-xs font-bold bg-indigo-700 text-white shadow-sm transition"
         : "px-4 py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-indigo-800 transition";
-      document.getElementById("tabMO").className = tabKey === "tele_mo"
+      document.getElementById("tabMO").className = isMo
         ? "px-4 py-2 rounded-lg text-xs font-bold bg-indigo-700 text-white shadow-sm transition"
         : "px-4 py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-indigo-800 transition";
+
+      // Update labels dynamically for MO vs CHO
+      document.getElementById("kpiUniqueLabel").textContent = isMo ? "कुल Medical Officers (MO)" : "कुल Unique इकाइयां (HWC)";
+      document.getElementById("kpiAvgLabel").textContent = isMo ? "औसत TC प्रति MO" : "औसत TC प्रति इकाई";
+      document.getElementById("kpiZeroLabel").textContent = isMo ? "Zero Reporting MOs" : "Zero Reporting इकाइयां";
+      document.getElementById("thUserCol").textContent = isMo ? "MO Name (Doctor)" : "User Name (CHO)";
+      document.getElementById("tableHeading").textContent = isMo
+        ? "📋 ब्लॉक / हब व मेडिकल ऑफिसर-वार Tele Consultation सूची"
+        : "📋 ब्लॉक व स्वास्थ्य केंद्र-वार Tele Consultation सूची";
 
       const snap = await get(ref(db, `asha_portal_v2/${tabKey}`));
       if (!snap.exists()) {
@@ -304,7 +315,6 @@
         ? data.rows
         : (Array.isArray(data.records) ? data.records : Object.values(data.rows || data.records || {}));
 
-      // Normalize every row safely so both old and new uploads work identically
       rawRows = sourceList
         .filter(r => r && typeof r === "object")
         .map(r => {
@@ -313,7 +323,7 @@
             isoDate: iso,
             block: String(r.block || r.Block || "").trim(),
             facility: String(r.facility || r["Facility Name"] || "").trim(),
-            user: String(r.user || r.userName || r["User Name"] || "").trim(),
+            user: String(r.user || r.userName || r["MO Name"] || r["User Name"] || "").trim(),
             tc: Number(r.tc ?? r["Tele Consultation"] ?? 0) || 0
           };
         })
@@ -329,7 +339,7 @@
 
       const blocks = Array.from(new Set(rawRows.map(r => r.block).filter(Boolean))).sort();
       const blockSel = document.getElementById("blockFilterSelect");
-      blockSel.innerHTML = `<option value="ALL">All ${blocks.length} Blocks (जनपद अयोध्या)</option>` +
+      blockSel.innerHTML = `<option value="ALL">All ${blocks.length} Blocks / Hubs (जनपद अयोध्या)</option>` +
         blocks.map(b => `<option value="${b}">${b}</option>`).join("");
 
       if (savedOfficer && savedOfficer.role !== "DISTRICT" && savedOfficer.block) {
@@ -349,7 +359,6 @@
         fEl.min = firstIso; fEl.max = lastIso;
         tEl.min = firstIso; tEl.max = lastIso;
 
-        // Default to the latest uploaded file's exact date so newly uploaded data appears immediately
         fEl.value = lastIso;
         tEl.value = lastIso;
 
@@ -363,6 +372,7 @@
     };
 
     window.renderDashboard = function() {
+      const isMo = currentTab === "tele_mo";
       const fromDt = document.getElementById("fromDateInput").value;
       const toDt = document.getElementById("toDateInput").value;
       const selBlock = document.getElementById("blockFilterSelect").value;
@@ -396,7 +406,11 @@
 
         const normBlk = normalizeBlockKey(cleanBlock);
         const normFac = normalizeFacilityKey(cleanFac) || cleanUser.toUpperCase();
-        const uniqueKey = `${normBlk}|||${normFac}`;
+        // For MO: keep each individual Doctor (MO Name) separate even when multiple MOs work at the same CHC/PHC
+        // For CHO: group by Sub-Center / HWC facility so CHO transfers across dates merge cleanly
+        const uniqueKey = isMo
+          ? `${normBlk}|||${normFac}|||${cleanUser.toUpperCase()}`
+          : `${normBlk}|||${normFac}`;
 
         if (!unitMap.has(uniqueKey)) {
           unitMap.set(uniqueKey, {
@@ -459,30 +473,37 @@
 
         const sortedBlocks = Array.from(blockStatsMap.values()).sort((a, b) => b.totalTc - a.totalTc);
 
-        document.getElementById("top5Title").textContent = "🏆 Top 5 Blocks (सर्वश्रेष्ठ प्रदर्शन)";
-        document.getElementById("poor5Title").textContent = "⚠️ Poor 5 Blocks (न्यूनतम प्रदर्शन)";
+        document.getElementById("top5Title").textContent = isMo ? "🏆 Top 5 Blocks / Hubs (MO TC)" : "🏆 Top 5 Blocks (सर्वश्रेष्ठ प्रदर्शन)";
+        document.getElementById("poor5Title").textContent = isMo ? "⚠️ Poor 5 Blocks / Hubs (MO TC)" : "⚠️ Poor 5 Blocks (न्यूनतम प्रदर्शन)";
         renderTopPoorBoxes(sortedBlocks, true, periodDays);
 
-        document.getElementById("chartMainTitle").textContent = "📊 सभी 11 Blocks का कुल Tele Consultation (Top से Bottom)";
-        document.getElementById("chartSubHint").textContent = "किसी ब्लॉक के बार पर क्लिक करें या ऊपर ड्रॉपडाउन से ब्लॉक चुनें — उस ब्लॉक की सभी Facilities का डेटा खुल जाएगा";
+        document.getElementById("chartMainTitle").textContent = `📊 सभी ${sortedBlocks.length} Blocks / Hubs का कुल Tele Consultation (Top से Bottom)`;
+        document.getElementById("chartSubHint").textContent = isMo
+          ? "किसी ब्लॉक/हब के बार पर क्लिक करें या ऊपर ड्रॉपडाउन से चुनें — उस ब्लॉक के सभी Medical Officers का चार्ट खुल जाएगा"
+          : "किसी ब्लॉक के बार पर क्लिक करें या ऊपर ड्रॉपडाउन से ब्लॉक चुनें — उस ब्लॉक की सभी Facilities का डेटा खुल जाएगा";
         resetBtn.classList.add("hidden");
 
         renderDataLabeledChart(
           sortedBlocks.map(b => b.name),
           sortedBlocks.map(b => b.totalTc),
-          sortedBlocks.map(() => "#0d9488"),
+          sortedBlocks.map(() => isMo ? "#4f46e5" : "#0d9488"),
           true
         );
       } else {
-        document.getElementById("top5Title").textContent = `🏆 Top 5 Facilities — ${selBlock}`;
-        document.getElementById("poor5Title").textContent = `⚠️ Poor 5 Facilities — ${selBlock}`;
+        document.getElementById("top5Title").textContent = isMo ? `🏆 Top 5 MOs — ${selBlock}` : `🏆 Top 5 Facilities — ${selBlock}`;
+        document.getElementById("poor5Title").textContent = isMo ? `⚠️ Poor 5 MOs — ${selBlock}` : `⚠️ Poor 5 Facilities — ${selBlock}`;
         renderTopPoorBoxes(blockOnlyUnits, false, periodDays);
 
-        document.getElementById("chartMainTitle").textContent = `📊 ${selBlock} ब्लॉक की सभी ${blockOnlyUnits.length} Facilities (Top से Bottom तक)`;
+        document.getElementById("chartMainTitle").textContent = isMo
+          ? `📊 ${selBlock} के सभी ${blockOnlyUnits.length} Medical Officers (Top से Bottom तक)`
+          : `📊 ${selBlock} ब्लॉक की सभी ${blockOnlyUnits.length} Facilities (Top से Bottom तक)`;
         document.getElementById("chartSubHint").textContent = "हर बार के ऊपर कुल Tele Consultation संख्या (Data Label) प्रदर्शित है";
         if (!blockSelEl.disabled) resetBtn.classList.remove("hidden");
 
-        const facLabels = blockOnlyUnits.map(f => `${f.facility} (${f.user.split("(")[0].trim()})`);
+        const facLabels = blockOnlyUnits.map(f => isMo
+          ? `${f.user.split("(")[0].trim()} (${f.facility.replace(/AYODHYA/gi, "").trim()})`
+          : `${f.facility} (${f.user.split("(")[0].trim()})`
+        );
         const facValues = blockOnlyUnits.map(f => f.totalTc);
         const facColors = blockOnlyUnits.map(f => f.totalTc === 0 ? "#e11d48" : (f.totalTc >= 10 ? "#059669" : "#d97706"));
 
@@ -503,7 +524,7 @@
       document.getElementById("kpiAvgTcPerDay").textContent = avgPerUserPerDay;
       document.getElementById("kpiAvgDaySub").textContent = `${periodDays} दिनों के आधार पर औसत`;
       document.getElementById("kpiZeroCount").textContent = zeroU.toLocaleString("en-IN");
-      document.getElementById("tableCountBadge").textContent = `${totalU} इकाइयां`;
+      document.getElementById("tableCountBadge").textContent = isMo ? `${totalU} MOs` : `${totalU} इकाइयां`;
 
       const tbody = document.getElementById("tcTableBody");
       if (!finalRows.length) {
@@ -521,7 +542,7 @@
             <td class="p-3 text-slate-400 font-semibold">${i + 1}</td>
             <td class="p-3 font-semibold text-slate-700">${r.block}</td>
             <td class="p-3 font-bold text-slate-900">${r.facility}</td>
-            <td class="p-3 text-slate-600">${r.user}</td>
+            <td class="p-3 text-slate-700 font-medium">${r.user}</td>
             <td class="p-3 text-center text-slate-600 font-medium">${r.daysCount} / ${periodDays}</td>
             <td class="p-3 text-right font-extrabold ${isZero ? 'text-rose-600' : 'text-indigo-900'}">${r.totalTc.toLocaleString("en-IN")}</td>
             <td class="p-3 text-right font-bold text-teal-700">${r.avgPerDay.toFixed(2)}</td>
@@ -532,6 +553,7 @@
     };
 
     function renderTopPoorBoxes(sortedDescList, isBlockMode, periodDays) {
+      const isMo = currentTab === "tele_mo";
       const top5El = document.getElementById("top5List");
       const poor5El = document.getElementById("poor5List");
 
@@ -545,13 +567,13 @@
       const poor5 = [...sortedDescList].reverse().slice(0, 5);
 
       const buildRow = (item, idx, isTop) => {
-        const title = isBlockMode ? item.name : item.facility;
+        const title = isBlockMode ? item.name : (isMo ? item.user : item.facility);
         const avgUserDay = isBlockMode
           ? (item.count ? (item.totalTc / (item.count * periodDays)).toFixed(2) : "0.00")
           : (item.totalTc / periodDays).toFixed(2);
         const sub = isBlockMode
-          ? `कुल इकाइयां: ${item.count}`
-          : `${item.user}`;
+          ? (isMo ? `कुल MOs: ${item.count}` : `कुल इकाइयां: ${item.count}`)
+          : (isMo ? `${item.facility}` : `${item.user}`);
         const pillClass = isTop
           ? "bg-emerald-50 text-emerald-900 border border-emerald-200"
           : (item.totalTc === 0 ? "bg-rose-50 text-rose-800 border border-rose-200" : "bg-amber-50 text-amber-900 border border-amber-200");
@@ -651,11 +673,12 @@
       if (!renderedRows.length) return alert("डाउनलोड करने के लिए कोई डेटा नहीं है।");
       const fromDt = document.getElementById("fromDateInput").value;
       const toDt = document.getElementById("toDateInput").value;
+      const isMo = currentTab === "tele_mo";
       const rows = renderedRows.map((r, i) => ({
         "Rank": i + 1,
-        "Block": r.block,
+        "Block / Hub": r.block,
         "Health Facility": r.facility,
-        "User Name": r.user,
+        [isMo ? "MO Name" : "User Name"]: r.user,
         "Active Days": r.daysCount,
         "Total Tele Consultation": r.totalTc,
         "Avg TC Per Day": Number(r.avgPerDay.toFixed(2))
