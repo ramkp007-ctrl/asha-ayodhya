@@ -1,1487 +1,849 @@
 <!DOCTYPE html>
-
 <html lang="hi">
-
 <head>
-
 <meta charset="UTF-8" />
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
 <title>Master Admin - NHM अयोध्या डेटा अपलोड एवं प्रबंधन</title>
-
 <script src="https://cdn.tailwindcss.com"></script>
-
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-
 </head>
-
 <body class="bg-slate-100 text-slate-800 min-h-screen">
 
-
-
 <header class="bg-slate-900 text-white shadow-md">
-
 <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
-
 <div>
-
 <h1 class="text-lg md:text-xl font-bold">NHM अयोध्या — Master Data Uploader &amp; Control</h1>
-
 <p class="text-xs text-slate-300">ASHA Payment, JSY, ABHA, NCD, RBSK, QA, Tele Consultation एवं अधिकारी प्रबंधन</p>
-
 </div>
-
 <div class="flex flex-wrap gap-2">
-
 <a href="officers-admin.html" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-xs font-bold rounded-lg">
-
 👮 अधिकारी प्रबंधन
-
 </a>
-
 <a href="portal.html" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-xs font-bold rounded-lg">
-
 🏛️ Program Review Portal →
-
 </a>
-
 </div>
-
 </div>
-
 </header>
-
-
 
 <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
 
-
-
 <!-- SECTION 1: ASHA PAYMENT UPLOADER -->
-
 <section class="bg-white p-6 rounded-xl shadow-sm border border-teal-200 space-y-4">
-
 <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
-
 <h2 class="text-base font-bold text-teal-900">1. आशा प्रोत्साहन राशि (ASHA Payment) Excel / CSV अपलोड</h2>
-
 <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded font-semibold">
-
 ✅ 1 ID पर 2 ASHA अलग-अलग सुरक्षित
-
 </span>
-
 </div>
-
-
 
 <div class="flex flex-wrap items-center gap-3">
-
 <input type="file" id="csvFileInput" accept=".xlsx,.xls,.csv" multiple
-
 class="block text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-800 hover:file:bg-teal-100" />
-
 <input type="text" id="inspectAshaId" value="2404031" placeholder="ASHA ID जाँचें (उदा. 2404031)"
-
 class="px-3 py-2 border border-slate-300 rounded-lg text-xs w-48" />
-
 <button id="inspectBtn" class="px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-lg">
-
 🔍 ID योग जाँचें
-
 </button>
-
 </div>
-
-
 
 <div class="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-100">
-
 <button id="uploadCsvBtn" class="px-5 py-2 bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold rounded-lg shadow">
-
 ASHA डेटा अपलोड और सेव करें
-
 </button>
-
 <button id="clearDbBtn" class="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 ml-auto">
-
 ASHA भुगतान डेटा रीसेट करें
-
 </button>
-
 </div>
-
-
 
 <div id="uploadStatus" class="p-3 bg-slate-50 rounded-lg text-xs font-medium text-slate-700 border border-slate-200">
-
 डेटाबेस स्थिति जाँची जा रही है...
-
 </div>
-
-
 
 <div id="auditPreviewBox" class="hidden p-4 bg-emerald-50/70 border border-emerald-300 rounded-xl space-y-2 text-xs">
-
 <div id="auditSummary" class="text-slate-900 font-semibold"></div>
-
 <div id="auditTableWrap" class="bg-white p-3 rounded-lg border border-emerald-200 overflow-x-auto max-h-72"></div>
-
 </div>
-
 </section>
-
-
 
 <!-- SECTION 2 & 3: JSY PAYMENT & ABHA PROGRESS UPLOADERS -->
-
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
 <!-- JSY Uploader (File Name = Date) -->
-
 <section class="bg-white p-6 rounded-xl shadow-sm border border-indigo-200 space-y-4">
-
 <div class="border-b pb-3">
-
 <h2 class="text-base font-bold text-indigo-950">2. JSY भुगतान पाइपलाइन डेटा अपलोड</h2>
-
 <p class="text-[11px] text-slate-500 mt-0.5">नोट: फ़ाइल का नाम ही रिपोर्ट दिनांक माना जाएगा (जैसे <b>18-11-2026.xlsx</b>)।</p>
-
 </div>
-
 <input type="file" id="jsyFileInput" accept=".xlsx,.xls,.csv"
-
 class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-800" />
-
 <button id="uploadJsyBtn" class="w-full py-2.5 bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold rounded-lg shadow">
-
 JSY डेटा अपलोड करें
-
 </button>
-
 <div id="jsyStatus" class="p-2.5 bg-slate-50 rounded-lg text-xs text-slate-700 border border-slate-200">
-
 JSY डेटाबेस जाँचा जा रहा है...
-
 </div>
-
 </section>
-
-
 
 <!-- ABHA Progress Uploader -->
-
 <section class="bg-white p-6 rounded-xl shadow-sm border border-emerald-200 space-y-4">
-
 <div class="border-b pb-3">
-
 <h2 class="text-base font-bold text-emerald-950">3. ABHA ID प्रगति डेटा अपलोड</h2>
-
 <p class="text-[11px] text-slate-500 mt-0.5">कॉलम: Block, SC, Village, Asha Area, ASHA Name, ASHA ID, Population, ABHA Created</p>
-
 </div>
-
 <input type="file" id="abhaFileInput" accept=".xlsx,.xls,.csv"
-
 class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-800" />
-
 <button id="uploadAbhaBtn" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow">
-
 ABHA डेटा अपलोड करें
-
 </button>
-
 <div id="abhaStatus" class="p-2.5 bg-slate-50 rounded-lg text-xs text-slate-700 border border-slate-200">
-
 ABHA डेटाबेस जाँचा जा रहा है...
-
 </div>
-
 </section>
-
 </div>
-
-
 
 <!-- SECTION 4: NEW PROGRAMS UPLOADER (NCD, RBSK, QUALITY ASSURANCE, TELE CONSULTATION) -->
-
 <section class="bg-white p-6 rounded-xl shadow-sm border border-rose-200 space-y-4">
-
 <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
-
 <div>
-
 <h2 class="text-base font-bold text-rose-950">4. अन्य कार्यक्रम डेटा अपलोड (NCD Screening, RBSK, Quality Assurance, Tele Consultation)</h2>
-
 <p class="text-[11px] text-slate-500 mt-0.5">Program Review Portal के चारों नए मॉड्यूल के लिए मासिक/साप्ताहिक Excel (.xlsx) अपलोड करें</p>
-
 </div>
-
 <span class="text-[11px] bg-rose-50 text-rose-800 border border-rose-200 px-2.5 py-1 rounded-lg font-bold">
-
 4 Programs Active
-
 </span>
-
 </div>
-
-
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
 <div>
-
 <label class="block text-xs font-bold text-slate-700 mb-1">कार्यक्रम चुनें (Select Program)</label>
-
 <select id="newProgramSelect" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold bg-slate-50 focus:border-rose-700 focus:outline-none">
-
 <option value="ncd_screening">❤️ NCD Screening (Composite Scoring &amp; ANM/CHO/MO Status)</option>
-
 <option value="quality_assurance">✅ Quality Assurance (NQAS / Kayakalp / LaQshya)</option>
-
 <option value="rbsk">👶 RBSK (Mobile Health Team &amp; Child Screening)</option>
-
 <option value="tele_consultation">📞 Tele Consultation (eSanjeevani HWC OPD)</option>
-
 </select>
-
 </div>
-
-
 
 <div>
-
 <label class="block text-xs font-bold text-slate-700 mb-1">Excel / CSV फ़ाइल चुनें</label>
-
 <input type="file" id="newProgramFile" accept=".xlsx,.xls,.csv"
-
 class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-rose-50 file:text-rose-800 hover:file:bg-rose-100" />
-
+</div>
 </div>
 
+<!-- Tele Consultation Report Date Picker (Auto-shows when Tele Consultation is selected) -->
+<div id="teleDateWrap" class="hidden p-3 bg-sky-50 border border-sky-200 rounded-lg flex flex-wrap items-center justify-between gap-3">
+<div>
+<label for="teleReportDate" class="block text-xs font-bold text-sky-950">📅 Tele Consultation रिपोर्ट दिनांक (Report Date)</label>
+<p class="text-[11px] text-sky-700">पोर्टल पर यही दिनांक और इसी दिनांक का नया डेटा स्वतः अपडेट होगा।</p>
 </div>
-
-
+<input type="date" id="teleReportDate" class="px-3 py-1.5 border border-sky-300 rounded-lg text-xs font-bold bg-white text-slate-800" />
+</div>
 
 <div id="newProgramHint" class="p-2.5 bg-rose-50/50 border border-rose-200/80 rounded-lg text-[11px] text-slate-700">
-
 💡 <strong>NCD Screening:</strong> सीधे <b>'Composite'</b> शीट वाली Excel फ़ाइल (जैसे 18-11-2026.xlsx) चुनें। यह सभी 11 ब्लॉकों + Urban DHQ, रेफर (%) और ANM/CHO/MO लॉगिन स्टेटस को स्वतः अपडेट कर देगी।
-
 </div>
-
-
 
 <button id="uploadNewProgramBtn" class="w-full py-2.5 bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold rounded-lg shadow">
-
 चयनित कार्यक्रम का डेटा अपलोड करें ↑
-
 </button>
-
-
 
 <div id="newProgramStatus" class="p-3 bg-slate-50 rounded-lg text-xs text-slate-700 border border-slate-200 space-y-1">
-
 नए कार्यक्रमों का डेटाबेस जाँचा जा रहा है...
-
 </div>
-
 </section>
-
-
 
 <!-- SECTION 5: RESET FORGOTTEN 6-DIGIT ASHA PIN -->
-
 <section class="bg-white p-5 rounded-xl shadow-sm border border-amber-200 flex flex-wrap justify-between items-center gap-4">
-
 <div>
-
 <h2 class="text-sm font-bold text-amber-900">5. भूला हुआ 6-अंकों का ASHA PIN रीसेट करें (डिफ़ॉल्ट 123456)</h2>
-
 <p class="text-xs text-slate-500">आशा कार्यकर्ता द्वारा अपना PIN भूल जाने पर यहाँ से रीसेट करें</p>
-
 </div>
-
 <div class="flex items-center gap-2">
-
 <input type="text" id="resetPinAshaId" placeholder="ASHA ID दर्ज करें"
-
 class="px-3 py-2 border border-slate-300 rounded-lg text-xs w-48" />
-
 <button id="resetPinBtn" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg">
-
 PIN रीसेट करें
-
 </button>
-
 </div>
-
 <div id="pinResetStatus" class="hidden w-full p-2.5 rounded-lg text-xs font-semibold"></div>
-
 </section>
-
-
 
 </main>
 
-
-
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-
 import { getDatabase, ref, update, set, get, remove, child } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
-
-
 const firebaseConfig = {
-
 apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
-
 authDomain: "asha-payment.firebaseapp.com",
-
 databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
-
 projectId: "asha-payment",
-
 storageBucket: "asha-payment.firebasestorage.app",
-
 messagingSenderId: "117935142167",
-
 appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
-
 measurementId: "G-43YGRC5CKL"
-
 };
-
-
 
 const app = initializeApp(firebaseConfig);
-
 const db = getDatabase(app);
-
 const rootRef = ref(db, "asha_portal_v2");
-
 const jsyRef = ref(db, "asha_portal_v2/jsy_portal");
-
 const abhaRef = ref(db, "asha_portal_v2/abha_portal");
 
+// Set today's date as default in Tele Consultation date picker
+const teleDateInput = document.getElementById("teleReportDate");
+if (teleDateInput) {
+const now = new Date();
+const yyyy = now.getFullYear();
+const mm = String(now.getMonth() + 1).padStart(2, "0");
+const dd = String(now.getDate()).padStart(2, "0");
+teleDateInput.value = `${yyyy}-${mm}-${dd}`;
+}
 
+function isoToDDMMYYYY(iso) {
+if (!iso) return "";
+const parts = String(iso).split("-");
+if (parts.length !== 3) return String(iso);
+return `${parts[2]}-${parts[1]}-${parts[0]}`;
+}
 
 function getCol(row, candidates) {
-
 for (const key of candidates) {
-
 if (row[key] !== undefined && String(row[key]).trim() !== "") return String(row[key]).trim();
-
 }
-
 return "";
-
 }
-
-
 
 function formatExcelDate(val) {
-
 if (typeof val === "number" && val > 30000) {
-
 const d = new Date((val - 25569) * 86400 * 1000);
-
 return `${String(d.getUTCDate()).padStart(2, "0")}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCFullYear()).slice(-2)}`;
-
 }
-
 return String(val || "").trim();
-
 }
-
-
 
 function parseAmount(raw) {
-
 const num = parseFloat(String(raw || "0").replace(/,/g, "").replace(/[^\d.-]/g, "").trim());
-
 return Number.isFinite(num) ? num : 0;
-
 }
-
-
 
 function normalizeMonth(raw) {
-
 const str = String(raw || "").trim();
-
 if (!str) return "";
-
 if (/^\d{5}(\.\d+)?$/.test(str)) {
-
 const serial = Math.floor(Number(str));
-
 if (serial > 30000 && serial < 70000) {
-
 const date = new Date((serial - 25569) * 86400 * 1000);
-
 return `${String(date.getUTCMonth() + 1).padStart(2, "0")}-${date.getUTCFullYear()}`;
-
 }
-
 }
-
 const map = { jan:"01", feb:"02", mar:"03", apr:"04", may:"05", jun:"06", jul:"07", aug:"08", sep:"09", oct:"10", nov:"11", dec:"12" };
-
 const m1 = str.match(/^([A-Za-z]{3})[-/\s](\d{2,4})$/);
-
 if (m1 && map[m1[1].toLowerCase()]) {
-
 const yy = m1[2].length === 2 ? `20${m1[2]}` : m1[2];
-
 return `${map[m1[1].toLowerCase()]}-${yy}`;
-
 }
-
 const mDate = str.match(/^\d{1,2}[-/](\d{1,2})[-/](\d{4})$/);
-
 if (mDate) return `${mDate[1].padStart(2, "0")}-${mDate[2]}`;
-
 const m3 = str.match(/^(\d{1,2})[-/](\d{4})$/);
-
 if (m3) return `${m3[1].padStart(2, "0")}-${m3[2]}`;
-
 return str;
-
 }
-
-
 
 function safeKey(str) { return String(str || "").replace(/[.#$\[\]\/]/g, "_").trim().toUpperCase(); }
-
 function normalizeIdentityName(name) { return String(name || "").replace(/\s+/g, " ").trim().toUpperCase(); }
-
 function toWorkerList(entry) {
-
 if (!entry || typeof entry !== "object") return [];
-
 if (Array.isArray(entry)) return entry.filter(w => w && typeof w === "object");
-
 if ("n" in entry || "p" in entry || "id" in entry) return [entry];
-
 return Object.values(entry).filter(w => w && typeof w === "object");
-
 }
-
-
 
 async function readPrimarySheetOnly(file, statusEl) {
-
 const buffer = await file.arrayBuffer();
-
 const workbook = XLSX.read(buffer, { type: "array", raw: true });
-
 const firstSheetName = workbook.SheetNames[0];
-
 if (statusEl) statusEl.textContent = `फ़ाइल "${file.name}" की शीट "${firstSheetName}" पढ़ी जा रही है...`;
-
 await new Promise(r => setTimeout(r, 15));
-
 const jsonRows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheetName], { defval: "" });
-
 const fallbackMonth = normalizeMonth(firstSheetName);
-
 return jsonRows.map(r => {
-
 const obj = {};
-
 for (const [k, v] of Object.entries(r)) obj[String(k).trim().toUpperCase()] = v;
-
 if (!obj["MONTH"] && !obj["PAY_MONTH"] && !obj["BILL_MONTH"]) obj["MONTH"] = fallbackMonth;
-
 return obj;
-
 });
-
 }
-
-
 
 function processRowsIntoData(combinedRows, existing) {
-
 const headsList = [...(existing.heads || [])];
-
 const headIndexMap = new Map();
-
 headsList.forEach((item, idx) => headIndexMap.set(`${item.p}|||${item.h}`, idx));
-
 const monthsSet = new Set((existing.months || []).map(normalizeMonth).filter(Boolean));
-
 const workerBuckets = new Map();
 
-
-
 for (const [idKey, entry] of Object.entries(existing.workers || {})) {
-
 const list = toWorkerList(entry);
-
 const nameMap = new Map();
-
 list.forEach(w => nameMap.set(normalizeIdentityName(w.n) || "UNKNOWN", JSON.parse(JSON.stringify(w))));
-
 if (nameMap.size > 0) workerBuckets.set(idKey, nameMap);
-
 }
-
-
 
 const uploadingMonths = new Set();
-
 for (const row of combinedRows) {
-
 const m = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
-
 if (m) uploadingMonths.add(m);
-
 }
-
-
 
 for (const nameMap of workerBuckets.values()) {
-
 for (const w of nameMap.values()) {
-
 if (!w.p) continue;
-
 for (const hIdx of Object.keys(w.p)) {
-
 const cleanMonthMap = {};
-
 for (const [rawM, val] of Object.entries(w.p[hIdx])) {
-
 const normM = normalizeMonth(rawM);
-
 if (!uploadingMonths.has(normM)) cleanMonthMap[normM] = Number(val) || 0;
-
 }
-
 w.p[hIdx] = cleanMonthMap;
-
 }
-
 }
-
 }
-
-
 
 for (const row of combinedRows) {
-
 const rawId = getCol(row, ["ASHA_ID", "ASHA ID", "ASHAID", "ID"]);
-
 const idKey = safeKey(rawId);
-
 if (!idKey || idKey.includes("TOTAL")) continue;
-
 const rawName = getCol(row, ["ASHA_NAME", "ASHA NAME", "NAME"]).replace(/\s+/g, " ").trim();
-
 if (rawName.toUpperCase().includes("TOTAL")) continue;
-
 const nameKey = normalizeIdentityName(rawName) || "UNKNOWN";
-
 const month = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
-
 if (month) monthsSet.add(month);
-
 const program = getCol(row, ["PROGRAM NAME", "PROGRAM", "SCHEME", "PROG_NAME"]) || "Other";
-
 const head = getCol(row, ["HEAD", "HEAD NAME", "INCENTIVE HEAD", "ACTIVITY"]).replace(/\s+/g, " ");
-
 if (!head || head.toUpperCase() === "TOTAL") continue;
 
-
-
 const headKey = `${program}|||${head}`;
-
 let hIdx = headIndexMap.get(headKey);
-
 if (hIdx === undefined) {
-
 hIdx = headsList.length;
-
 headIndexMap.set(headKey, hIdx);
-
 headsList.push({ p: program, h: head });
-
 }
-
-
 
 if (!workerBuckets.has(idKey)) workerBuckets.set(idKey, new Map());
-
 const nameMap = workerBuckets.get(idKey);
-
 let w = nameMap.get(nameKey);
-
 if (!w) {
-
 w = {
-
 id: rawId, n: rawName,
-
 b: getCol(row, ["BLOCK", "BLOCK NAME"]),
-
 s: getCol(row, ["SC", "SUB CENTER", "SUB_CENTER", "SUBCENTER"]),
-
 v: getCol(row, ["VILLAGE", "VILLAGE NAME"]),
-
 t: 0, p: {}
-
 };
-
 nameMap.set(nameKey, w);
-
 }
-
 const amount = parseAmount(getCol(row, ["AMOUNT", "PAID_AMOUNT", "NET_AMOUNT", "TOTAL"]));
-
 if (amount > 0 && month) {
-
 if (!w.p) w.p = {};
-
 if (!w.p[hIdx]) w.p[hIdx] = {};
-
 w.p[hIdx][month] = (Number(w.p[hIdx][month]) || 0) + amount;
-
 }
-
 }
-
-
 
 const finalWorkers = {};
-
 let totalAllWorkers = 0, totalIndividualAshas = 0, duplicateIdCount = 0;
-
 for (const [idKey, nameMap] of workerBuckets.entries()) {
-
 const list = Array.from(nameMap.values());
-
 list.forEach(w => {
-
 let grandTotal = 0;
-
 if (w.p) {
-
 for (const hIdx of Object.keys(w.p)) {
-
 for (const m of Object.keys(w.p[hIdx])) grandTotal += Number(w.p[hIdx][m]) || 0;
-
 }
-
 }
-
 w.t = grandTotal;
-
 totalAllWorkers += grandTotal;
-
 totalIndividualAshas++;
-
 });
-
 if (list.length > 1) { duplicateIdCount++; finalWorkers[idKey] = list; }
-
 else if (list.length === 1) finalWorkers[idKey] = list[0];
-
 }
-
-
 
 return { payload: { heads: headsList, months: Array.from(monthsSet).sort(), workers: finalWorkers }, totalAllWorkers, totalIndividualAshas, duplicateIdCount };
-
 }
-
-
 
 async function refreshStatus() {
-
 const snap = await get(rootRef);
-
 const statusEl = document.getElementById("uploadStatus");
-
 if (snap.exists()) {
-
 const d = snap.val();
-
 let totalAshas = 0;
-
 for (const entry of Object.values(d.workers || {})) totalAshas += toWorkerList(entry).length;
-
 const offCount = Object.keys(d.officers || {}).length;
-
 statusEl.innerHTML = `📊 <strong>ASHA डेटाबेस:</strong> ${totalAshas.toLocaleString()} आशा • 👮 ${offCount} अधिकारी • माह: <strong>${(d.months || []).join(", ") || "-"}</strong>`;
 
-
-
 const jsyData = d.jsy_portal;
-
 if (jsyData && jsyData.records) {
-
 const uniqueDates = Array.from(new Set(jsyData.records.map(r => r.date))).join(", ");
-
 document.getElementById("jsyStatus").innerHTML = `✅ <strong>JSY सक्रिय दिनांक:</strong> ${uniqueDates} (कुल ${jsyData.records.length} रिकॉर्ड)`;
-
 } else {
-
 document.getElementById("jsyStatus").textContent = "अभी कोई JSY डेटा अपलोड नहीं है।";
-
 }
-
-
 
 const abhaData = d.abha_portal;
-
 if (abhaData && abhaData.records) {
-
 const uniqueAbhaDates = Array.from(new Set(abhaData.records.map(r => r.date))).join(", ");
-
 document.getElementById("abhaStatus").innerHTML = `✅ <strong>ABHA सक्रिय दिनांक:</strong> ${uniqueAbhaDates} (कुल ${abhaData.records.length} आशा क्षेत्र)`;
-
 } else {
-
 document.getElementById("abhaStatus").textContent = "अभी कोई ABHA डेटा अपलोड नहीं है।";
-
 }
-
-
 
 const ncdTxt = d.ncd_screening?.units
-
 ? `✅ <strong>NCD Screening:</strong> ${d.ncd_screening.units.length} इकाइयां (${d.ncd_screening.reportTitle || "Updated"})`
-
 : "⚪ <strong>NCD Screening:</strong> डिफ़ॉल्ट डेटा सक्रिय";
-
 const qaTxt = d.quality_assurance?.rows
-
 ? `✅ <strong>Quality Assurance:</strong> ${d.quality_assurance.rows.length} इकाइयां (${d.quality_assurance.fileName})`
-
 : "⚪ <strong>Quality Assurance:</strong> डिफ़ॉल्ट 154 इकाइयां सक्रिय";
-
 const rbskTxt = d.rbsk?.rows
-
 ? `✅ <strong>RBSK:</strong> ${d.rbsk.rows.length} रिकॉर्ड (${d.rbsk.fileName})`
-
 : "⚪ <strong>RBSK:</strong> डेटा प्रतीक्षित";
-
+const teleDateLabel = d.tele_consultation?.latestDate ? ` • दिनांक: ${d.tele_consultation.latestDate}` : "";
 const teleTxt = d.tele_consultation?.rows
-
-? `✅ <strong>Tele Consultation:</strong> ${d.tele_consultation.rows.length} रिकॉर्ड (${d.tele_consultation.fileName})`
-
+? `✅ <strong>Tele Consultation:</strong> ${d.tele_consultation.rows.length} रिकॉर्ड (${d.tele_consultation.fileName}${teleDateLabel})`
 : "⚪ <strong>Tele Consultation:</strong> डेटा प्रतीक्षित";
 
-
-
 document.getElementById("newProgramStatus").innerHTML = `
-
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[11px]">
-
 <div>${ncdTxt}</div>
-
 <div>${qaTxt}</div>
-
 <div>${rbskTxt}</div>
-
 <div>${teleTxt}</div>
-
 </div>
-
 `;
-
 }
-
 }
-
-
 
 // 1. ASHA Upload
-
 document.getElementById("uploadCsvBtn").addEventListener("click", async () => {
-
 const files = document.getElementById("csvFileInput").files;
-
 const statusEl = document.getElementById("uploadStatus");
-
 if (!files.length) return alert("पहले ASHA Excel/CSV फ़ाइल चुनें।");
-
 const existingSnap = await get(rootRef);
-
 const existing = existingSnap.exists() ? existingSnap.val() : { heads: [], months: [], workers: {} };
-
 let combinedRows = [];
-
 for (const file of files) combinedRows = combinedRows.concat(await readPrimarySheetOnly(file, statusEl));
-
 const { payload, totalAllWorkers, totalIndividualAshas } = processRowsIntoData(combinedRows, existing);
-
 await update(rootRef, payload);
-
 statusEl.innerHTML = `✅ <strong>ASHA अपलोड सफल!</strong> ${totalIndividualAshas.toLocaleString()} आशा • कुल राशि: ₹${Math.round(totalAllWorkers).toLocaleString("en-IN")}`;
-
 });
-
-
 
 // Inspect ASHA ID
-
 document.getElementById("inspectBtn").addEventListener("click", async () => {
-
 const files = document.getElementById("csvFileInput").files;
-
 const targetId = document.getElementById("inspectAshaId").value.trim();
-
 const statusEl = document.getElementById("uploadStatus");
-
 if (!files.length) return alert("पहले फ़ाइल चुनें।");
-
 let combinedRows = [];
-
 for (const file of files) combinedRows = combinedRows.concat(await readPrimarySheetOnly(file, statusEl));
-
 const { payload } = processRowsIntoData(combinedRows, { heads: [], months: [], workers: {} });
-
 const matchedList = toWorkerList(payload.workers[safeKey(targetId)]);
-
 document.getElementById("auditSummary").textContent = matchedList.length
-
 ? matchedList.map(w => `${w.n} (${w.b}): ₹${w.t.toLocaleString("en-IN")}`).join(" | ")
-
 : `ID "${targetId}" फ़ाइल में नहीं मिली।`;
-
 document.getElementById("auditPreviewBox").classList.remove("hidden");
-
 });
 
-
-
 // 2. JSY Upload
-
 document.getElementById("uploadJsyBtn").addEventListener("click", async () => {
-
 const file = document.getElementById("jsyFileInput").files[0];
-
 if (!file) return alert("पहले JSY Excel/CSV फ़ाइल चुनें।");
-
-
 
 const fileDateLabel = file.name.replace(/\.[^.]+$/, "").trim();
 
-
-
 const buf = await file.arrayBuffer();
-
 const wb = XLSX.read(buf, { type: "array" });
-
 const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: 0 });
 
-
-
 const newRecords = raw.map(r => ({
-
 date: fileDateLabel || formatExcelDate(r.Date || r.DATE),
-
 fileName: file.name,
-
 block: String(r.Block || r.BLOCK || "").trim(),
-
 facility: String(r.facility_name_id || r.FACILITY_NAME_ID || r.Facility || "").trim(),
-
 del: Number(r.total_deliveries || 0),
-
 pin: Number(r.pin_verified || 0),
-
 jsy: Number(r.jsy_verified || 0),
-
 reg: Number(r.beneficiaries_registered || 0),
-
 moic: Number(r.moic_approvals || 0),
-
 prop: Number(r.proposals_initiated || 0),
-
 pay: Number(r.payments_made || 0)
-
 })).filter(x => x.block && x.facility);
 
-
-
 const snap = await get(jsyRef);
-
 const oldRecords = snap.exists() ? (snap.val().records || []).filter(r => r.date !== fileDateLabel) : [];
-
 const mergedRecords = [...oldRecords, ...newRecords];
-
-
 
 await set(jsyRef, {
-
 updatedAt: new Date().toLocaleString("hi-IN"),
-
 latestDate: fileDateLabel,
-
 records: mergedRecords
-
 });
-
 refreshStatus();
-
 alert(`फ़ाइल "${file.name}" (दिनांक: ${fileDateLabel}) के ${newRecords.length} केंद्रों का डेटा सेव हो गया!`);
-
 });
-
-
 
 // 3. ABHA Upload
-
 document.getElementById("uploadAbhaBtn").addEventListener("click", async () => {
-
 const file = document.getElementById("abhaFileInput").files[0];
-
 if (!file) return alert("पहले ABHA Excel/CSV फ़ाइल चुनें।");
 
-
-
 const dateMatch = file.name.match(/(\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4})/);
-
 const fileDateLabel = dateMatch ? dateMatch[1] : file.name.replace(/\.[^.]+$/, "").trim();
 
-
-
 const buf = await file.arrayBuffer();
-
 const wb = XLSX.read(buf, { type: "array" });
-
 const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "" });
 
-
-
 let sumPop = 0, sumCreated = 0;
-
 const newRecords = raw.map(r => {
-
 const norm = {};
-
 for (const [k, v] of Object.entries(r)) {
-
 norm[String(k).trim().toUpperCase()] = v;
-
 }
-
 const pop = Number(String(norm["POPULATION"] || norm["TARGET"] || 0).replace(/,/g, "")) || 0;
-
 const created = Number(String(norm["ABHA CREATED"] || norm["ABHA_CREATED"] || norm["CREATED"] || 0).replace(/,/g, "")) || 0;
-
 sumPop += pop;
-
 sumCreated += created;
 
-
-
 return {
-
 date: fileDateLabel,
-
 fileName: file.name,
-
 block: String(norm["BLOCK"] || "").trim(),
-
 sc: String(norm["SC"] || norm["SUB CENTER"] || norm["SUB_CENTER"] || "").trim(),
-
 village: String(norm["VILLAGE"] || "").trim(),
-
 area: String(norm["ASHA AREA"] || norm["AREA"] || "").trim(),
-
 ashaName: String(norm["ASHA NAME"] || norm["ASHA_NAME"] || "").trim(),
-
 ashaId: String(norm["ASHA ID"] || norm["ASHA_ID"] || "").trim(),
-
 pop,
-
 created
-
 };
-
 }).filter(x => x.block && (x.ashaName || x.sc));
 
-
-
 const snap = await get(abhaRef);
-
 const oldRecords = snap.exists()
-
 ? (snap.val().records || []).filter(r => r.date !== fileDateLabel && !String(r.date).startsWith("ABHA ID_"))
-
 : [];
-
 const mergedRecords = [...oldRecords, ...newRecords];
 
-
-
 await set(abhaRef, {
-
 updatedAt: new Date().toLocaleString("hi-IN"),
-
 latestDate: fileDateLabel,
-
 records: mergedRecords
-
 });
-
 refreshStatus();
-
 alert(`✅ अपलोड सफल!\nदिनांक: ${fileDateLabel}\nकुल क्षेत्र: ${newRecords.length}\nकुल जनसंख्या: ${sumPop.toLocaleString("en-IN")}\nनिर्मित ABHA: ${sumCreated.toLocaleString("en-IN")}`);
-
 });
-
-
 
 // 4. NEW PROGRAMS UPLOADER (NCD, QUALITY ASSURANCE, RBSK, TELE CONSULTATION)
-
 const PROGRAM_HINTS = {
-
 ncd_screening: "💡 <strong>NCD Screening:</strong> सीधे <b>'Composite'</b> शीट वाली Excel फ़ाइल (जैसे 18-11-2026.xlsx) चुनें। यह सभी 11 ब्लॉकों + Urban DHQ, रेफर (%) और ANM/CHO/MO लॉगिन स्टेटस को स्वतः अपडेट कर देगी।",
-
 quality_assurance: "💡 <strong>Quality Assurance:</strong> NQAS Excel फ़ाइल (जैसे NQAS 18-11-2026.xlsx) चुनें। ब्लॉक नाम व सर्टिफिकेशन स्टेटस स्वतः साफ़ होकर सेव होंगे।",
-
 rbsk: "💡 <strong>RBSK:</strong> ब्लॉक-वार MHT विजिट, आंगनवाड़ी व स्कूल स्क्रीनिंग की Excel शीट चुनें।",
-
-tele_consultation: "💡 <strong>Tele Consultation:</strong> ब्लॉक/HWC-वार eSanjeevani टेली-कंसल्टेशन लक्ष्य व उपलब्धि की Excel शीट चुनें।"
-
+tele_consultation: "💡 <strong>Tele Consultation:</strong> ब्लॉक/HWC-वार eSanjeevani टेली-कंसल्टेशन लक्ष्य व उपलब्धि की Excel शीट चुनें। ऊपर दी गई दिनांक के अनुसार डेटा अपडेट होगा।"
 };
-
-
 
 document.getElementById("newProgramSelect").addEventListener("change", (e) => {
-
-document.getElementById("newProgramHint").innerHTML = PROGRAM_HINTS[e.target.value] || "";
-
+const val = e.target.value;
+document.getElementById("newProgramHint").innerHTML = PROGRAM_HINTS[val] || "";
+const dateWrap = document.getElementById("teleDateWrap");
+if (val === "tele_consultation") {
+dateWrap.classList.remove("hidden");
+} else {
+dateWrap.classList.add("hidden");
+}
 });
 
-
+// Auto-detect date from filename when choosing a Tele Consultation file
+document.getElementById("newProgramFile").addEventListener("change", (e) => {
+if (document.getElementById("newProgramSelect").value !== "tele_consultation") return;
+const f = e.target.files[0];
+if (!f) return;
+const match = f.name.match(/(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
+if (match && teleDateInput) {
+const dd = match[1].padStart(2, "0");
+const mm = match[2].padStart(2, "0");
+const yyyy = match[3];
+teleDateInput.value = `${yyyy}-${mm}-${dd}`;
+}
+});
 
 document.getElementById("uploadNewProgramBtn").addEventListener("click", async () => {
-
 const prog = document.getElementById("newProgramSelect").value;
-
 const file = document.getElementById("newProgramFile").files[0];
-
 const btn = document.getElementById("uploadNewProgramBtn");
-
 if (!file) return alert("कृपया पहले Excel / CSV फ़ाइल चुनें।");
 
-
-
 btn.disabled = true;
-
 btn.textContent = "प्रोसेस एवं अपलोड हो रहा है...";
 
-
-
 try {
-
 const buffer = await file.arrayBuffer();
-
-const wb = XLSX.read(buffer, { type: "array" });
-
-
+const wb = XLSX.read(buffer, { type: "array", raw: false });
 
 if (prog === "ncd_screening") {
-
 const sheetName = wb.SheetNames.includes("Composite") ? "Composite" : wb.SheetNames[0];
-
 const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: null });
 
-
-
 let unitColIdx = 2;
-
 let headerRowIdx = 2;
-
 for (let rIdx = 0; rIdx < Math.min(8, rows.length); rIdx++) {
-
 const row = rows[rIdx] || [];
-
 const foundIdx = row.findIndex(cell => String(cell || "").trim().toUpperCase() === "UNIT");
-
 if (foundIdx !== -1) {
-
 unitColIdx = foundIdx;
-
 headerRowIdx = rIdx;
-
 break;
-
 }
-
 }
-
-
 
 const off = unitColIdx - 2;
-
 const titleCell = (rows[headerRowIdx - 1] || []).find(c => c && String(c).trim().length > 5);
-
 const reportTitle = titleCell ? String(titleCell).trim() : "Ayodhya - NCD Composite Scoring Report";
 
-
-
 let district = null;
-
 const units = [];
 
-
-
 for (let i = headerRowIdx + 2; i < rows.length; i++) {
-
 const r = rows[i] || [];
-
 const unitName = r[2 + off] ? String(r[2 + off]).trim() : "";
-
 if (!unitName || !isNaN(Number(unitName))) continue;
 
-
-
 const record = {
-
 rank: Number(r[1 + off]) || 0,
-
 unit: unitName,
-
 pop30: Math.round(Number(r[3 + off]) || 0),
-
 targetFY: Math.round(Number(r[5 + off]) || 0),
-
 htn: Math.round(Number(r[6 + off]) || 0),
-
 htnPct: Number(((Number(r[7 + off]) || 0) * 100).toFixed(2)),
-
 dm: Math.round(Number(r[9 + off]) || 0),
-
 dmPct: Number(((Number(r[10 + off]) || 0) * 100).toFixed(2)),
-
 suspected: Math.round(Number(r[12 + off]) || 0),
-
 suspectedPct: Number(((Number(r[13 + off]) || 0) * 100).toFixed(2)),
-
 treatment: Math.round(Number(r[15 + off]) || 0),
-
 treatmentPct: Number(((Number(r[16 + off]) || 0) * 100).toFixed(2)),
-
 followUp: Math.round(Number(r[18 + off]) || 0),
-
 control: Math.round(Number(r[21 + off]) || 0),
-
 anmTotal: Math.round(Number(r[24 + off]) || 0),
-
 anmDone: Math.round(Number(r[25 + off]) || 0),
-
 anmPct: Number(((Number(r[26 + off]) || 0) * 100).toFixed(2)),
-
 choTotal: Math.round(Number(r[28 + off]) || 0),
-
 choDone: Math.round(Number(r[29 + off]) || 0),
-
 choPct: Number(((Number(r[30 + off]) || 0) * 100).toFixed(2)),
-
 moTotal: Math.round(Number(r[32 + off]) || 0),
-
 moDone: Math.round(Number(r[33 + off]) || 0),
-
 moPct: Number(((Number(r[34 + off]) || 0) * 100).toFixed(2)),
-
 score: Number(((Number(r[36 + off]) || 0) * 100).toFixed(2))
-
 };
-
-
 
 if (unitName.toLowerCase() === "ayodhya") {
-
 district = record;
-
 } else {
-
 units.push(record);
-
 }
-
 }
-
-
 
 units.sort((a, b) => b.score - a.score);
-
 units.forEach((u, idx) => u.rank = idx + 1);
 
-
-
 await set(child(rootRef, "ncd_screening"), {
-
 reportTitle,
-
 updatedAt: new Date().toLocaleString("hi-IN"),
-
 fileName: file.name,
-
 district,
-
 units
-
 });
 
-
-
 refreshStatus();
-
 alert(`✅ NCD Screening अपलोड सफल!\nकुल इकाइयां: ${units.length}\nजनपद कंपोजिट स्कोर: ${district?.score ?? "-"}%`);
 
-
-
 } else if (prog === "quality_assurance") {
-
 const firstSheet = wb.Sheets[wb.SheetNames[0]];
-
 const rawRows = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
 
-
-
 const normBlock = (b) => {
-
 const s = String(b || "").trim().toUpperCase();
-
 const map = {
-
 "MAVAI": "MAWAI",
-
 "PURA BAZAR": "POORA BAZAR",
-
 "HARIYANGATANGANJ": "HARINGTANGANJ",
-
 "HAIRINGTANGANJ": "HARINGTANGANJ",
-
 "CHC POORA BAZAR": "POORA BAZAR",
-
 "CHC BIKAPUR": "BIKAPUR",
-
 "SRIRAM HOSPITAL": "DH / DISTRICT HOSPITAL",
-
 "DWH": "DH / DISTRICT HOSPITAL"
-
 };
-
 return map[s] || s;
-
 };
-
-
 
 const normStatus = (st) => {
-
 const s = String(st || "").trim().toUpperCase();
-
 if (s.includes("CONDITIONAL")) return "Conditional";
-
 if (s.includes("CERTIFIED")) return "Quality Certified";
-
 if (s.includes("DEFFERED") || s.includes("DEFERRED")) return "Deferred";
-
 return s;
-
 };
-
-
 
 const normType = (t) => {
-
 const s = String(t || "").trim().toUpperCase();
-
 if (s.includes("DH")) return "DH Level";
-
 if (s.includes("CHC")) return "CHC";
-
 return "AAM-SC";
-
 };
-
-
 
 const cleanRows = rawRows.map((r, idx) => {
-
 const norm = {};
-
 for (const [k, v] of Object.entries(r)) {
-
 norm[String(k).replace(/\s+/g, " ").trim().toUpperCase()] = v;
-
 }
-
 const rawDt = norm["DATE OF ASSESSMENT"] || norm["DATE"] || "";
-
 return {
-
 sn: Number(norm["SN"]) || idx + 1,
-
 block: normBlock(norm["BLOCK"]),
-
 facility: String(norm["FACILITY NAME"] || norm["FACILITY"] || "").trim(),
-
 type: normType(norm["TYPE OF FACILITY (DH/CHC/PHC/ UPHC/AAM- SC)"] || norm["TYPE"]),
-
 packages: Number(norm["NO. OF DEPARTMENT /PACKAGES ASSESSED"] || norm["NO. OF DEPARTMENT/PACKAGES ASSESSED"] || norm["PACKAGES"] || 0) || 0,
-
 status: normStatus(norm["CERTIFCATION STATUS (FULLY CERTIFIED/CONDITIONAL)"] || norm["CERTIFICATION STATUS"] || norm["STATUS"]),
-
 date: typeof rawDt === "number" ? formatExcelDate(rawDt) : String(rawDt || "").trim(),
-
 fy: String(norm["FY YEAR"] || norm["FY"] || "").trim()
-
 };
-
 }).filter(x => x.facility);
 
-
-
 await set(child(rootRef, "quality_assurance"), {
-
 updatedAt: new Date().toLocaleString("hi-IN"),
-
 fileName: file.name,
-
 rows: cleanRows
-
 });
 
-
-
 refreshStatus();
-
 alert(`✅ Quality Assurance (NQAS) अपलोड सफल!\nफ़ाइल: ${file.name}\nकुल स्वास्थ्य इकाइयां: ${cleanRows.length}`);
 
-
-
-} else {
-
-// Sanitize all column keys for Firebase safety (removes ., #, $, /, [, ])
+} else if (prog === "tele_consultation") {
+const selectedIso = document.getElementById("teleReportDate")?.value;
+const reportDate = isoToDDMMYYYY(selectedIso);
+if (!reportDate) {
+btn.disabled = false;
+btn.textContent = "चयनित कार्यक्रम का डेटा अपलोड करें ↑";
+return alert("कृपया Tele Consultation की रिपोर्ट दिनांक चुनें।");
+}
 
 const firstSheet = wb.Sheets[wb.SheetNames[0]];
-
 const rawJson = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
 
 const safeRows = rawJson.map(row => {
-
-const cleanObj = {};
-
+const cleanObj = { date: reportDate };
 for (const [k, v] of Object.entries(row)) {
-
 const cleanKey = String(k || "COL").replace(/[.#$\[\]\/\\]/g, "_").replace(/\s+/g, " ").trim() || "COL";
-
-cleanObj[cleanKey] = v;
-
+cleanObj[cleanKey] = v === undefined || v === null ? "" : (typeof v === "string" ? v.trim() : v);
 }
-
+if (!cleanObj["Date"] && !cleanObj["DATE"]) {
+cleanObj["Date"] = reportDate;
+}
 return cleanObj;
+}).filter(r => Object.values(r).some(v => v !== "" && v !== reportDate));
 
+const teleRef = child(rootRef, "tele_consultation");
+const prevSnap = await get(teleRef);
+const prevData = prevSnap.exists() ? prevSnap.val() : {};
+
+let availableDates = Array.isArray(prevData.availableDates)
+? [...prevData.availableDates]
+: Object.values(prevData.availableDates || {});
+availableDates = availableDates.filter(d => d && d !== "undefined" && d !== "null");
+
+if (!availableDates.includes(reportDate)) {
+availableDates.push(reportDate);
+}
+availableDates.sort((a, b) => {
+const [d1, m1, y1] = a.split("-").map(Number);
+const [d2, m2, y2] = b.split("-").map(Number);
+return new Date(y1, m1 - 1, d1) - new Date(y2, m2 - 1, d2);
 });
 
+const recordsByDate = prevData.recordsByDate || {};
+recordsByDate[reportDate] = safeRows;
 
+await set(teleRef, {
+updatedAt: new Date().toLocaleString("hi-IN"),
+fileName: file.name,
+latestDate: reportDate,
+availableDates,
+recordsByDate,
+rows: safeRows
+});
+
+refreshStatus();
+alert(`✅ TELE CONSULTATION अपलोड सफल!\nरिपोर्ट दिनांक: ${reportDate}\nफ़ाइल: ${file.name}\nकुल पंक्तियां: ${safeRows.length}`);
+
+} else {
+// RBSK and any other program
+const firstSheet = wb.Sheets[wb.SheetNames[0]];
+const rawJson = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+const safeRows = rawJson.map(row => {
+const cleanObj = {};
+for (const [k, v] of Object.entries(row)) {
+const cleanKey = String(k || "COL").replace(/[.#$\[\]\/\\]/g, "_").replace(/\s+/g, " ").trim() || "COL";
+cleanObj[cleanKey] = v === undefined || v === null ? "" : v;
+}
+return cleanObj;
+});
 
 await set(child(rootRef, prog), {
-
 updatedAt: new Date().toLocaleString("hi-IN"),
-
 fileName: file.name,
-
 rows: safeRows
-
 });
-
-
 
 refreshStatus();
-
 alert(`✅ ${prog.toUpperCase()} अपलोड सफल!\nफ़ाइल: ${file.name}\nकुल पंक्तियां: ${safeRows.length}`);
-
 }
-
 } catch (err) {
-
 alert("❌ त्रुटि: " + err.message);
-
 } finally {
-
 btn.disabled = false;
-
 btn.textContent = "चयनित कार्यक्रम का डेटा अपलोड करें ↑";
-
 }
-
 });
-
-
 
 // Reset ASHA PIN
-
 document.getElementById("resetPinBtn").addEventListener("click", async () => {
-
 const rawId = document.getElementById("resetPinAshaId").value.trim();
-
 const box = document.getElementById("pinResetStatus");
-
 box.classList.remove("hidden");
-
 if (!rawId) return;
-
 const workerRef = child(rootRef, `workers/${safeKey(rawId)}`);
-
 const snap = await get(workerRef);
-
 if (!snap.exists()) {
-
 box.className = "w-full p-2.5 rounded-lg text-xs font-semibold bg-red-50 text-red-700";
-
 box.textContent = `❌ ASHA ID "${rawId}" नहीं मिली।`;
-
 return;
-
 }
-
 const val = snap.val();
-
 if (Array.isArray(val)) {
-
 for (let i = 0; i < val.length; i++) await remove(child(workerRef, `${i}/pin`));
-
 } else await remove(child(workerRef, "pin"));
-
 box.className = "w-full p-2.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-800";
-
 box.textContent = `✅ ID ${rawId} का PIN रीसेट हो गया (डिफ़ॉल्ट 123456)।`;
-
 });
-
-
 
 document.getElementById("clearDbBtn").addEventListener("click", async () => {
-
 if (!confirm("केवल ASHA भुगतान डेटा साफ़ करें? (Officers, JSY, ABHA, NCD और QA सुरक्षित रहेंगे)")) return;
-
 await update(rootRef, { heads: null, months: null, workers: null });
-
 refreshStatus();
-
 });
 
-
-
 refreshStatus();
-
 </script>
-
 </body>
-
 </html>
