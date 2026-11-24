@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Institutional Delivery Review (HMIS) — NHM अयोध्या</title>
+  <title>Institutional Delivery Review — NHM Ayodhya</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -14,162 +14,118 @@
   <style>
     body {
       font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
-      background-color: #f4f6f9;
+      background-color: #f8fafc;
+      color: #0f172a;
     }
     @media print {
       .no-print { display: none !important; }
-      body { background: #fff !important; }
+      body { background: #ffffff !important; }
     }
   </style>
 </head>
-<body class="text-slate-800 min-h-screen antialiased">
+<body class="min-h-screen antialiased">
 
-  <!-- HEADER -->
-  <header class="bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 text-white shadow-lg border-b border-teal-900/50">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
+  <!-- CLEAN EXECUTIVE HEADER -->
+  <header class="bg-slate-900 text-white border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-5 py-4 flex flex-wrap justify-between items-center gap-3">
       <div>
         <div class="flex items-center gap-2.5">
-          <h1 class="text-base sm:text-lg font-extrabold tracking-tight">Institutional Delivery समीक्षा (HMIS) — NHM अयोध्या</h1>
-          <span id="roleBadge" class="text-[10px] bg-teal-400/20 text-teal-200 border border-teal-400/40 font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">DISTRICT</span>
+          <h1 class="text-base sm:text-lg font-extrabold tracking-tight">Institutional Delivery Review (HMIS) — NHM Ayodhya</h1>
+          <span id="roleBadge" class="text-[10px] bg-teal-500/20 text-teal-300 border border-teal-500/30 font-bold px-2.5 py-0.5 rounded-full uppercase">DISTRICT</span>
         </div>
-        <p id="metaSubTitle" class="text-xs text-slate-300 mt-1">डेटा लोड हो रहा है...</p>
+        <p id="metaSubTitle" class="text-xs text-slate-400 mt-0.5">Loading HMIS records...</p>
       </div>
-      <div class="flex flex-wrap items-center gap-2 no-print">
-        <a href="fru-review.html"
-          class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold rounded-xl shadow-sm transition flex items-center gap-1.5">
-          <span>🏥 FRU Review (8 FRUs)</span>
-          <span>↗</span>
+      <div class="flex items-center gap-2 no-print">
+        <a href="fru-review.html" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition">
+          🏥 FRU Review (8 FRUs) ↗
         </a>
-        <button onclick="document.getElementById('uploadDrawer').classList.toggle('hidden')"
-          class="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-xl shadow-sm transition">
-          ⬆️ Excel अपलोड करें
+        <button onclick="downloadInstExcel()" class="px-3.5 py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-xl transition">
+          ⬇️ Export Excel
         </button>
-        <button onclick="window.print()" class="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white border border-white/15 text-xs font-semibold rounded-xl transition">
+        <button onclick="window.print()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl transition">
           🖨️ Print
         </button>
-        <a href="portal.html" class="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-xl shadow-sm transition">
-          ← Program Portal
+        <a href="portal.html" class="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition">
+          ← Portal
         </a>
       </div>
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto px-4 py-6 space-y-5">
+  <main class="max-w-7xl mx-auto px-5 py-6 space-y-6">
 
-    <!-- COLLAPSIBLE EXCEL UPLOAD BAR -->
-    <section id="uploadDrawer" class="hidden bg-white p-5 rounded-2xl border-2 border-amber-300 shadow-md space-y-3 no-print">
-      <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-100 pb-2.5">
-        <div>
-          <h2 class="text-sm font-extrabold text-amber-950">📤 Institutional Delivery (HMIS) Excel / CSV अपलोड</h2>
-          <p class="text-[11px] text-slate-500">कॉलम: <b>Month, Block Name, Facility Type, Facility Name, Ownership, 2.2 Institutional Deliveries, 3.1 C-Section, 3.1.1 Night C-Section</b></p>
-        </div>
-        <button onclick="document.getElementById('uploadDrawer').classList.add('hidden')" class="text-xs font-bold text-slate-400 hover:text-slate-700">✕ बंद करें</button>
-      </div>
-      <div class="flex flex-wrap items-center gap-3">
-        <input type="file" id="idExcelInput" accept=".xlsx,.xls,.csv" multiple
-          class="block text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-50 file:text-amber-900 hover:file:bg-amber-100" />
-        <button id="btnUploadIdFile" onclick="uploadInstDeliveryFile()"
-          class="px-5 py-2 bg-amber-700 hover:bg-amber-800 text-white text-xs font-extrabold rounded-xl shadow transition">
-          डेटाबेस में सेव करें ↑
-        </button>
-      </div>
-    </section>
-
-    <!-- FILTERS: MONTH + BLOCK + FACILITY TYPE + OWNERSHIP + SEARCH -->
-    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 no-print">
+    <!-- COMPACT FILTER BAR -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 no-print">
       <div>
-        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">📅 Month (माह)</label>
-        <select id="monthFilterSelect" onchange="renderDashboard()"
-          class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/70 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
-          <option value="ALL">सभी माह (All Months)</option>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Month</label>
+        <select id="monthFilterSelect" onchange="renderDashboard()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+          <option value="ALL">All Months</option>
         </select>
       </div>
       <div>
-        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">🏛️ Block Name (ब्लॉक)</label>
-        <select id="blockFilterSelect" onchange="renderDashboard()"
-          class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/70 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
-          <option value="ALL">All Blocks (जनपद अयोध्या)</option>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Block</label>
+        <select id="blockFilterSelect" onchange="renderDashboard()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+          <option value="ALL">All Blocks</option>
         </select>
       </div>
       <div>
-        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">🏥 Facility Type</label>
-        <select id="typeFilterSelect" onchange="renderDashboard()"
-          class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/70 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
-          <option value="ALL">सभी प्रकार (All Types)</option>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Facility Type</label>
+        <select id="typeFilterSelect" onchange="renderDashboard()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+          <option value="ALL">All Types</option>
         </select>
       </div>
       <div>
-        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">🏢 Ownership (स्वामित्व)</label>
-        <select id="ownerFilterSelect" onchange="renderDashboard()"
-          class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/70 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
-          <option value="ALL">Public + Private (सभी)</option>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Ownership</label>
+        <select id="ownerFilterSelect" onchange="renderDashboard()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+          <option value="ALL">Public &amp; Private</option>
         </select>
       </div>
       <div>
-        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">🔍 Facility खोजें</label>
-        <div class="flex gap-1.5">
-          <input type="text" id="searchInput" oninput="renderDashboard()" placeholder="इकाई का नाम लिखें..."
-            class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-800 bg-slate-50/70 focus:outline-none focus:ring-2 focus:ring-teal-500/30" />
-          <button onclick="downloadInstExcel()" title="Excel डाउनलोड करें"
-            class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm flex-shrink-0">
-            ⬇️
-          </button>
-        </div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Search Facility</label>
+        <input type="text" id="searchInput" oninput="renderDashboard()" placeholder="Type facility name..."
+          class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30" />
       </div>
     </div>
 
-    <!-- 5 DISTRICT KPI CARDS -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
-      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
-        <div class="text-xs font-bold text-slate-500">कुल Reporting इकाइयां</div>
-        <div id="kpiUnits" class="text-2xl font-extrabold text-slate-900 mt-1">0</div>
-        <div id="kpiActiveZero" class="text-[11px] font-medium text-slate-500 mt-0.5">Active: 0 | Zero: 0</div>
+    <!-- 4 ESSENTIAL KPI CARDS -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-xs font-semibold text-slate-500">Total Institutional Deliveries</div>
+        <div id="kpiTotalDel" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">0</div>
+        <div id="kpiPubPvtSub" class="text-[11px] font-medium text-teal-700 mt-1">Public: 0 • Private: 0</div>
       </div>
 
-      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-1 h-full bg-emerald-600"></div>
-        <div class="text-xs font-bold text-slate-500">कुल Institutional Deliveries</div>
-        <div id="kpiTotalDel" class="text-2xl font-extrabold text-emerald-700 mt-1">0</div>
-        <div id="kpiPubPvtSub" class="text-[11px] font-medium text-slate-500 mt-0.5">Public: 0 | Private: 0</div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-xs font-semibold text-slate-500">Normal Deliveries</div>
+        <div id="kpiNormalDel" class="text-2xl sm:text-3xl font-extrabold text-teal-700 mt-1">0</div>
+        <div id="kpiNormalPctSub" class="text-[11px] font-medium text-slate-500 mt-1">0.0% of Total Deliveries</div>
       </div>
 
-      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
-        <div class="text-xs font-bold text-slate-500">8-FRU C-Section Deliveries</div>
-        <div id="kpiTotalCs" class="text-2xl font-extrabold text-amber-700 mt-1">0</div>
-        <div id="kpiCsPctSub" class="text-[11px] font-bold text-amber-700 mt-0.5">FRU C-Sec दर: 0.0%</div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-xs font-semibold text-slate-500">8-FRU C-Section Deliveries</div>
+        <div id="kpiTotalCs" class="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1">0</div>
+        <div id="kpiCsPctSub" class="text-[11px] font-medium text-amber-700 mt-1">FRU C-Sec Rate: 0.0%</div>
       </div>
 
-      <div class="bg-gradient-to-br from-indigo-50/90 via-white to-white p-4 rounded-2xl border border-indigo-200 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-1 h-full bg-indigo-600"></div>
-        <div class="text-xs font-extrabold text-indigo-950">8-FRU Night C-Sec (8PM–8AM)</div>
-        <div id="kpiNightCs" class="text-2xl font-extrabold text-indigo-700 mt-1">0</div>
-        <div id="kpiNightPctSub" class="text-[11px] font-bold text-indigo-600 mt-0.5">कुल C-Section का 0.0%</div>
-      </div>
-
-      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden col-span-2 sm:col-span-1">
-        <div class="absolute top-0 left-0 w-1 h-full bg-teal-600"></div>
-        <div class="text-xs font-bold text-slate-500">Normal Deliveries</div>
-        <div id="kpiNormalDel" class="text-2xl font-extrabold text-teal-800 mt-1">0</div>
-        <div id="kpiNormalPctSub" class="text-[11px] font-medium text-teal-700 mt-0.5">सामान्य प्रसव: 0.0%</div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-xs font-semibold text-slate-500">8-FRU Night C-Section (8PM–8AM)</div>
+        <div id="kpiNightCs" class="text-2xl sm:text-3xl font-extrabold text-indigo-700 mt-1">0</div>
+        <div id="kpiNightPctSub" class="text-[11px] font-medium text-indigo-600 mt-1">0.0% of FRU C-Sections</div>
       </div>
     </div>
 
-    <!-- MONTH-WISE DELIVERY & 8-FRU C-SECTION TREND REVIEW -->
-    <section class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
-      <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-100 pb-3">
+    <!-- MONTH-WISE DELIVERY & 8-FRU C-SECTION TREND -->
+    <section class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+      <div class="flex flex-wrap justify-between items-center gap-2">
         <div>
-          <h2 class="text-sm font-extrabold text-slate-900">📅 Month-wise Institutional Delivery एवं 8-FRU C-Section समीक्षा</h2>
-          <p class="text-[11px] text-slate-500">माह-वार कुल प्रसव (सभी इकाइयां) तथा C-Section व रात्रि C-Section (केवल चिन्हित 8 FRUs)</p>
+          <h2 class="text-sm font-extrabold text-slate-900">Month-wise Institutional Delivery &amp; 8-FRU C-Section Trend</h2>
+          <p class="text-[11px] text-slate-500">Monthly Institutional Deliveries (all facilities) vs C-Section &amp; Night C-Section (8 designated FRUs)</p>
         </div>
-        <span id="monthTrendBadge" class="px-3 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200 text-xs font-bold">
-          0 माह उपलब्ध
-        </span>
+        <span id="monthTrendBadge" class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">0 Months</span>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-        <div class="lg:col-span-7" style="height: 260px;">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+        <div class="lg:col-span-7" style="height: 250px;">
           <canvas id="monthTrendChart"></canvas>
         </div>
         <div class="lg:col-span-5 overflow-x-auto border border-slate-200/80 rounded-xl">
@@ -177,7 +133,7 @@
             <thead class="bg-slate-900 text-white">
               <tr>
                 <th class="p-2.5 font-bold">Month</th>
-                <th class="p-2.5 font-bold text-right">Inst. Del</th>
+                <th class="p-2.5 font-bold text-right">Inst. Del.</th>
                 <th class="p-2.5 font-bold text-right">FRU C-Sec</th>
                 <th class="p-2.5 font-bold text-right">Night CS</th>
               </tr>
@@ -188,48 +144,48 @@
       </div>
     </section>
 
-    <!-- TOP 5 & BOTTOM 5 COMPARISON BOXES (ONLY FACILITIES WITH DELIVERY > 0 IN AT LEAST ONE MONTH) -->
+    <!-- TOP 5 & BOTTOM 5 (ACTIVE FACILITIES ONLY) -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="bg-white rounded-2xl border border-emerald-200/80 shadow-sm overflow-hidden">
-        <div class="px-4 py-3 bg-gradient-to-r from-emerald-800 to-teal-700 text-white flex justify-between items-center">
-          <h3 id="top5Title" class="text-xs font-extrabold tracking-wide">🏆 Top 5 Facilities (सर्वाधिक संस्थागत प्रसव)</h3>
-          <span class="text-[10px] bg-white/15 border border-white/20 px-2.5 py-0.5 rounded-full font-semibold">Active Delivery Units</span>
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div class="px-4 py-3 bg-teal-800 text-white flex justify-between items-center">
+          <h3 id="top5Title" class="text-xs font-extrabold tracking-wide">Top 5 Facilities (Highest Deliveries)</h3>
+          <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold">Active Units</span>
         </div>
         <div id="top5List" class="divide-y divide-slate-100 p-2.5"></div>
       </div>
 
-      <div class="bg-white rounded-2xl border border-rose-200/80 shadow-sm overflow-hidden">
-        <div class="px-4 py-3 bg-gradient-to-r from-rose-800 to-rose-700 text-white flex justify-between items-center">
-          <h3 id="poor5Title" class="text-xs font-extrabold tracking-wide">⚠️ Bottom 5 Facilities (न्यूनतम प्रसव — Active Units)</h3>
-          <span class="text-[10px] bg-white/15 border border-white/20 px-2.5 py-0.5 rounded-full font-semibold">Excludes All-Month 0</span>
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div class="px-4 py-3 bg-slate-800 text-white flex justify-between items-center">
+          <h3 id="poor5Title" class="text-xs font-extrabold tracking-wide">Bottom 5 Facilities (Lowest Active Deliveries)</h3>
+          <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold">Excludes All-Month 0</span>
         </div>
         <div id="poor5List" class="divide-y divide-slate-100 p-2.5"></div>
       </div>
     </div>
 
-    <!-- BLOCK / FACILITY DATA-LABELED CHART -->
-    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+    <!-- BLOCK / FACILITY BAR CHART -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
       <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
         <div>
-          <h2 id="chartMainTitle" class="text-sm font-bold text-slate-800">📊 ब्लॉक-वार Institutional Deliveries एवं 8-FRU C-Section तुलना (Top से Bottom)</h2>
-          <p id="chartSubHint" class="text-[11px] text-slate-500">किसी ब्लॉक के बार पर क्लिक करें या ऊपर ड्रॉपडाउन से ब्लॉक चुनें — उस ब्लॉक की सभी Facilities खुल जाएंगी</p>
+          <h2 id="chartMainTitle" class="text-sm font-extrabold text-slate-900">Block-wise Institutional Deliveries vs 8-FRU C-Section</h2>
+          <p id="chartSubHint" class="text-[11px] text-slate-500">Click any block bar to drill down into facility-level deliveries</p>
         </div>
-        <button id="btnResetBlockChart" onclick="resetToAllBlocks()" class="hidden px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-[11px] font-bold rounded-xl no-print transition">
-          ← सभी Blocks देखें
+        <button id="btnResetBlockChart" onclick="resetToAllBlocks()" class="hidden px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold rounded-xl no-print transition">
+          ← All Blocks
         </button>
       </div>
       <div class="overflow-x-auto">
-        <div id="chartInnerBox" style="height: 320px; min-width: 100%;">
+        <div id="chartInnerBox" style="height: 310px; min-width: 100%;">
           <canvas id="instDelChart"></canvas>
         </div>
       </div>
     </div>
 
-    <!-- DETAILED FACILITY TABLE (C-SECTION ONLY FOR 8 DESIGNATED FRUs; "—" FOR OTHERS) -->
-    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-      <div class="px-4 py-3.5 border-b border-slate-100 bg-slate-50/70 flex justify-between items-center">
-        <h2 class="text-sm font-bold text-slate-800">📋 ब्लॉक व स्वास्थ्य इकाई-वार Institutional Delivery तालिका</h2>
-        <span id="tableCountBadge" class="text-xs font-bold text-teal-900 bg-teal-50 px-3 py-1 rounded-full border border-teal-200">0 इकाइयां</span>
+    <!-- DETAILED FACILITY TABLE -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      <div class="px-4 py-3.5 border-b border-slate-100 flex justify-between items-center">
+        <h2 class="text-sm font-extrabold text-slate-900">Facility-wise Institutional Delivery Register</h2>
+        <span id="tableCountBadge" class="text-xs font-bold text-teal-800 bg-teal-50 px-3 py-1 rounded-full border border-teal-200/70">0 Records</span>
       </div>
       <div class="overflow-x-auto max-h-[500px]">
         <table class="w-full text-xs text-left border-collapse">
@@ -237,15 +193,14 @@
             <tr>
               <th class="p-3 font-bold">#</th>
               <th class="p-3 font-bold">Month</th>
-              <th class="p-3 font-bold">Block Name</th>
+              <th class="p-3 font-bold">Block</th>
               <th class="p-3 font-bold">Type</th>
               <th class="p-3 font-bold">Facility Name</th>
               <th class="p-3 font-bold">Ownership</th>
-              <th class="p-3 font-bold text-right">Institutional Del. (2.2)</th>
+              <th class="p-3 font-bold text-right">Inst. Del. (2.2)</th>
               <th class="p-3 font-bold text-right">C-Section (8 FRU)</th>
               <th class="p-3 font-bold text-right">C-Sec %</th>
-              <th class="p-3 font-bold text-right">Night C-Sec (8 FRU)</th>
-              <th class="p-3 font-bold text-right">Night %</th>
+              <th class="p-3 font-bold text-right">Night CS (8 FRU)</th>
             </tr>
           </thead>
           <tbody id="idTableBody" class="divide-y divide-slate-100"></tbody>
@@ -257,7 +212,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
@@ -279,7 +234,6 @@
       document.getElementById("roleBadge").textContent = savedOfficer.role === "DISTRICT" ? "DISTRICT LEVEL" : `BLOCK: ${savedOfficer.block}`;
     }
 
-    // Strict 8 Designated FRUs (Only these 8 display C-Section; all other facilities show "—")
     const FRU_LIST = [
       { id: 1, label: "Rudauli", matchFac: (f) => f.includes("RUDAULI") && f.includes("CHC"), matchBlk: (b) => b.includes("RUDAULI") },
       { id: 2, label: "Sohawal", matchFac: (f) => f.includes("SOHAWAL") && f.includes("CHC"), matchBlk: (b) => b.includes("SOHAWAL") },
@@ -323,102 +277,9 @@
       });
     }
 
-    function formatMonthLabel(raw) {
-      if (typeof raw === "number" && raw > 30000) {
-        const d = new Date((raw - 25569) * 86400 * 1000);
-        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        return `${months[d.getUTCMonth()]}-${String(d.getUTCFullYear()).slice(-2)}`;
-      }
-      return String(raw || "").trim();
-    }
-
-    function pickNumericCol(row, exactList, partialRegex) {
-      for (const k of exactList) {
-        if (row[k] !== undefined && row[k] !== "") return Number(String(row[k]).replace(/,/g, "")) || 0;
-      }
-      for (const [k, v] of Object.entries(row)) {
-        if (partialRegex.test(k)) return Number(String(v).replace(/,/g, "")) || 0;
-      }
-      return 0;
-    }
-
     function normalizeFacKey(block, facility) {
       return `${String(block || "").trim().toUpperCase()}|||${String(facility || "").trim().toUpperCase()}`;
     }
-
-    window.uploadInstDeliveryFile = async function() {
-      const files = document.getElementById("idExcelInput").files;
-      if (!files || !files.length) return alert("कृपया पहले Institutional Delivery की Excel / CSV फ़ाइल चुनें।");
-
-      const btn = document.getElementById("btnUploadIdFile");
-      btn.disabled = true;
-      btn.textContent = "प्रोसेस और सेव हो रहा है...";
-
-      try {
-        let incomingRecords = [];
-        for (const file of files) {
-          const buf = await file.arrayBuffer();
-          const wb = XLSX.read(buf, { type: "array", raw: true });
-          const rawJson = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "" });
-          const fallbackMonth = file.name.replace(/\.[^.]+$/, "").trim();
-
-          const parsed = rawJson.map(r => {
-            const clean = {};
-            for (const [k, v] of Object.entries(r)) {
-              clean[String(k).replace(/\s+/g, " ").trim()] = v;
-            }
-            const month = formatMonthLabel(clean["Month"] || clean["MONTH"]) || fallbackMonth;
-            const block = String(clean["Block Name"] || clean["Block"] || clean["BLOCK"] || "").trim();
-            const facilityType = String(clean["Facility Type"] || clean["Type"] || "").trim();
-            const facilityName = String(clean["Facility Name"] || clean["Facility"] || "").trim();
-            const ownership = String(clean["Ownership"] || clean["OWNERSHIP"] || "").trim();
-
-            const instDel = pickNumericCol(
-              clean,
-              ["2.2. :: Number of Institutional Deliveries conducted (Including C-Sections)", "2.2. :: Number of Institutional Deliveries conducted"],
-              /^2\.2\.|institutional\s*deliver/i
-            );
-            const cSection = pickNumericCol(
-              clean,
-              ["3.1. :: Total number of C -Section deliveries performed", "3.1. :: Total number of C-Section deliveries performed"],
-              /^3\.1\.|total.*c\s*-?\s*section/i
-            );
-            const nightCs = pickNumericCol(
-              clean,
-              ["3.1.1. :: Out of total C-sections, number performed at night (8 PM- 8 AM)", "3.1.1. :: Out of total C-sections, number performed at night (8 PM-8 AM)"],
-              /^3\.1\.1\.|night.*8\s*pm/i
-            );
-
-            return { month, block, facilityType, facilityName, ownership, instDel, cSection, nightCs };
-          }).filter(x => x.block && x.facilityName && x.block.toUpperCase() !== "TOTAL");
-
-          incomingRecords = incomingRecords.concat(parsed);
-        }
-
-        if (!incomingRecords.length) {
-          throw new Error("फ़ाइल में वैध Block Name और Facility Name नहीं मिला।");
-        }
-
-        const uploadingMonths = new Set(incomingRecords.map(r => r.month));
-        const keptOld = allRows.filter(r => !uploadingMonths.has(r.month));
-        const merged = [...keptOld, ...incomingRecords];
-
-        await set(dbRef, {
-          updatedAt: new Date().toLocaleString("hi-IN"),
-          fileName: files[files.length - 1].name,
-          rows: merged
-        });
-
-        document.getElementById("uploadDrawer").classList.add("hidden");
-        await loadData();
-        alert(`✅ अपलोड सफल!\nकुल अपलोड रिकॉर्ड: ${incomingRecords.length}`);
-      } catch (err) {
-        alert("❌ त्रुटि: " + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "डेटाबेस में सेव करें ↑";
-      }
-    };
 
     window.resetToAllBlocks = function() {
       const sel = document.getElementById("blockFilterSelect");
@@ -432,8 +293,7 @@
       const snap = await get(dbRef);
       if (!snap.exists() || !snap.val().rows) {
         allRows = [];
-        document.getElementById("metaSubTitle").textContent = "अभी डेटा अपलोड नहीं है — ऊपर 'Excel अपलोड करें' बटन दबाकर फ़ाइल अपलोड करें।";
-        document.getElementById("uploadDrawer").classList.remove("hidden");
+        document.getElementById("metaSubTitle").textContent = "No data uploaded yet. Please upload HMIS file from Master Admin.";
         window.renderDashboard();
         return;
       }
@@ -447,17 +307,17 @@
       const owners = Array.from(new Set(allRows.map(r => r.ownership).filter(Boolean))).sort();
 
       const mSel = document.getElementById("monthFilterSelect");
-      mSel.innerHTML = `<option value="ALL">सभी माह (${months.length})</option>` + months.map(m => `<option value="${m}">${m}</option>`).join("");
+      mSel.innerHTML = `<option value="ALL">All Months (${months.length})</option>` + months.map(m => `<option value="${m}">${m}</option>`).join("");
       if (months.length) mSel.value = months[months.length - 1];
 
       const bSel = document.getElementById("blockFilterSelect");
-      bSel.innerHTML = `<option value="ALL">All ${blocks.length} Blocks (जनपद अयोध्या)</option>` + blocks.map(b => `<option value="${b}">${b}</option>`).join("");
+      bSel.innerHTML = `<option value="ALL">All ${blocks.length} Blocks</option>` + blocks.map(b => `<option value="${b}">${b}</option>`).join("");
 
       const tSel = document.getElementById("typeFilterSelect");
-      tSel.innerHTML = `<option value="ALL">सभी प्रकार (${types.length})</option>` + types.map(t => `<option value="${t}">${t}</option>`).join("");
+      tSel.innerHTML = `<option value="ALL">All Types (${types.length})</option>` + types.map(t => `<option value="${t}">${t}</option>`).join("");
 
       const oSel = document.getElementById("ownerFilterSelect");
-      oSel.innerHTML = `<option value="ALL">Public + Private (सभी)</option>` + owners.map(o => `<option value="${o}">${o}</option>`).join("");
+      oSel.innerHTML = `<option value="ALL">Public &amp; Private</option>` + owners.map(o => `<option value="${o}">${o}</option>`).join("");
 
       if (savedOfficer && savedOfficer.role !== "DISTRICT" && savedOfficer.block) {
         const matched = blocks.find(b => b.toLowerCase() === savedOfficer.block.toLowerCase());
@@ -468,7 +328,7 @@
       }
 
       document.getElementById("metaSubTitle").textContent =
-        `उपलब्ध माह: ${months.join(", ")} • कुल रिकॉर्ड: ${allRows.length} • अंतिम अपडेट: ${data.updatedAt || ""}`;
+        `Months: ${months.join(", ")} • Total Records: ${allRows.length.toLocaleString("en-IN")} • Updated: ${data.updatedAt || ""}`;
 
       window.renderDashboard();
     }
@@ -486,24 +346,20 @@
         }
       });
 
-      const orderedKeys = sortMonthsChronologically(Array.from(monthMap.keys()));
-      const list = orderedKeys.map(k => monthMap.get(k));
-
-      document.getElementById("monthTrendBadge").textContent = `${list.length} माह उपलब्ध`;
+      const list = sortMonthsChronologically(Array.from(monthMap.keys())).map(k => monthMap.get(k));
+      document.getElementById("monthTrendBadge").textContent = `${list.length} Months`;
 
       const tbody = document.getElementById("monthTrendTableBody");
-      if (!list.length) {
-        tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">कोई माह डेटा उपलब्ध नहीं</td></tr>`;
-      } else {
-        tbody.innerHTML = list.map(m => `
-          <tr class="hover:bg-slate-50">
-            <td class="p-2.5 font-extrabold text-slate-900">${m.month}</td>
-            <td class="p-2.5 text-right font-extrabold text-emerald-800">${m.del.toLocaleString("en-IN")}</td>
-            <td class="p-2.5 text-right font-bold text-amber-700">${m.cs.toLocaleString("en-IN")}</td>
-            <td class="p-2.5 text-right font-bold text-indigo-700">${m.night.toLocaleString("en-IN")}</td>
-          </tr>
-        `).join("");
-      }
+      tbody.innerHTML = list.length
+        ? list.map(m => `
+            <tr class="hover:bg-slate-50">
+              <td class="p-2.5 font-extrabold text-slate-900">${m.month}</td>
+              <td class="p-2.5 text-right font-extrabold text-teal-800">${m.del.toLocaleString("en-IN")}</td>
+              <td class="p-2.5 text-right font-bold text-amber-600">${m.cs.toLocaleString("en-IN")}</td>
+              <td class="p-2.5 text-right font-bold text-indigo-700">${m.night.toLocaleString("en-IN")}</td>
+            </tr>
+          `).join("")
+        : `<tr><td colspan="4" class="p-4 text-center text-slate-400">No monthly data</td></tr>`;
 
       const ctx = document.getElementById("monthTrendChart").getContext("2d");
       if (monthChartInstance) monthChartInstance.destroy();
@@ -513,9 +369,9 @@
         data: {
           labels: list.map(m => m.month),
           datasets: [
-            { label: "Institutional Deliveries (All)", data: list.map(m => m.del), backgroundColor: "#0d9488", borderRadius: 6, maxBarThickness: 42 },
-            { label: "8-FRU C-Section (3.1)", data: list.map(m => m.cs), backgroundColor: "#d97706", borderRadius: 6, maxBarThickness: 42 },
-            { label: "8-FRU Night C-Section (3.1.1)", data: list.map(m => m.night), backgroundColor: "#4f46e5", borderRadius: 6, maxBarThickness: 42 }
+            { label: "Institutional Deliveries", data: list.map(m => m.del), backgroundColor: "#0d9488", borderRadius: 6, maxBarThickness: 38 },
+            { label: "8-FRU C-Section", data: list.map(m => m.cs), backgroundColor: "#d97706", borderRadius: 6, maxBarThickness: 38 },
+            { label: "8-FRU Night C-Section", data: list.map(m => m.night), backgroundColor: "#4338ca", borderRadius: 6, maxBarThickness: 38 }
           ]
         },
         options: {
@@ -545,7 +401,7 @@
       const selOwner = document.getElementById("ownerFilterSelect").value;
       const searchQ = document.getElementById("searchInput").value.trim().toLowerCase();
 
-      // Strict Rule: Only facilities where delivery (> 0) was conducted in ANY uploaded month qualify for Top & Bottom
+      // Strict Active Rule: Exclude facilities with 0 deliveries across all months from Top/Bottom
       const everActiveFacilities = new Set();
       allRows.forEach(r => {
         if ((Number(r.instDel) || 0) > 0) {
@@ -563,7 +419,6 @@
       renderMonthTrend(trendScopeRows);
 
       const monthRows = allRows.filter(r => selMonth === "ALL" || r.month === selMonth);
-
       const baseFiltered = monthRows.filter(r => {
         if (selType !== "ALL" && r.facilityType !== selType) return false;
         if (selOwner !== "ALL" && r.ownership !== selOwner) return false;
@@ -580,12 +435,8 @@
 
       renderedRows = finalRows;
 
-      // KPIs (C-Section strictly from the 8 designated FRUs)
-      const totalUnits = finalRows.length;
-      const activeUnits = finalRows.filter(r => (Number(r.instDel) || 0) > 0).length;
-      const zeroUnits = totalUnits - activeUnits;
+      // KPIs
       const sumDel = finalRows.reduce((s, r) => s + (Number(r.instDel) || 0), 0);
-
       const fruRows = finalRows.filter(isDesignatedFruRecord);
       const sumCs = fruRows.reduce((s, r) => s + (Number(r.cSection) || 0), 0);
       const sumNight = fruRows.reduce((s, r) => s + (Number(r.nightCs) || 0), 0);
@@ -599,19 +450,16 @@
       const nightPct = sumCs > 0 ? ((sumNight / sumCs) * 100).toFixed(1) : "0.0";
       const normPct = sumDel > 0 ? ((sumNormal / sumDel) * 100).toFixed(1) : "0.0";
 
-      document.getElementById("kpiUnits").textContent = totalUnits.toLocaleString("en-IN");
-      document.getElementById("kpiActiveZero").textContent = `Active: ${activeUnits} | Zero: ${zeroUnits}`;
       document.getElementById("kpiTotalDel").textContent = sumDel.toLocaleString("en-IN");
-      document.getElementById("kpiPubPvtSub").textContent = `Public: ${pubDel.toLocaleString("en-IN")} | Private: ${pvtDel.toLocaleString("en-IN")}`;
-      document.getElementById("kpiTotalCs").textContent = sumCs.toLocaleString("en-IN");
-      document.getElementById("kpiCsPctSub").textContent = `8-FRU C-Sec दर: ${csPct}%`;
-      document.getElementById("kpiNightCs").textContent = sumNight.toLocaleString("en-IN");
-      document.getElementById("kpiNightPctSub").textContent = `कुल C-Section का ${nightPct}%`;
+      document.getElementById("kpiPubPvtSub").textContent = `Public: ${pubDel.toLocaleString("en-IN")} • Private: ${pvtDel.toLocaleString("en-IN")}`;
       document.getElementById("kpiNormalDel").textContent = sumNormal.toLocaleString("en-IN");
-      document.getElementById("kpiNormalPctSub").textContent = `सामान्य प्रसव: ${normPct}%`;
-      document.getElementById("tableCountBadge").textContent = `${totalUnits} रिकॉर्ड`;
+      document.getElementById("kpiNormalPctSub").textContent = `${normPct}% of Total Deliveries`;
+      document.getElementById("kpiTotalCs").textContent = sumCs.toLocaleString("en-IN");
+      document.getElementById("kpiCsPctSub").textContent = `FRU C-Sec Rate: ${csPct}%`;
+      document.getElementById("kpiNightCs").textContent = sumNight.toLocaleString("en-IN");
+      document.getElementById("kpiNightPctSub").textContent = `${nightPct}% of FRU C-Sections`;
+      document.getElementById("tableCountBadge").textContent = `${finalRows.length} Records`;
 
-      // Top & Bottom Facilities
       const resetBtn = document.getElementById("btnResetBlockChart");
       const blockSelEl = document.getElementById("blockFilterSelect");
 
@@ -625,7 +473,7 @@
             facMap.set(fKey, {
               _uid: fKey,
               name: r.facilityName,
-              sub: `${r.block} • ${r.facilityType || "Facility"} (${r.ownership || "Public"})`,
+              sub: `${r.block} • ${r.ownership || "Public"}`,
               isFru,
               del: 0,
               cs: 0
@@ -637,8 +485,8 @@
         });
         const eligibleFacilities = Array.from(facMap.values()).sort((a, b) => b.del - a.del);
 
-        document.getElementById("top5Title").textContent = "🏆 Top 5 Facilities (सर्वाधिक प्रसव — जनपद)";
-        document.getElementById("poor5Title").textContent = "⚠️ Bottom 5 Facilities (न्यूनतम प्रसव — Active Units)";
+        document.getElementById("top5Title").textContent = "Top 5 Facilities (Highest Deliveries)";
+        document.getElementById("poor5Title").textContent = "Bottom 5 Facilities (Lowest Active Deliveries)";
         renderTopPoorBoxes(eligibleFacilities);
 
         const blkMap = new Map();
@@ -651,16 +499,11 @@
         });
         const sortedBlocks = Array.from(blkMap.values()).sort((a, b) => b.del - a.del);
 
-        document.getElementById("chartMainTitle").textContent = "📊 ब्लॉक-वार Institutional Deliveries एवं 8-FRU C-Section तुलना (Top से Bottom)";
-        document.getElementById("chartSubHint").textContent = "किसी ब्लॉक के बार पर क्लिक करें या ऊपर ड्रॉपडाउन से चुनें — उस ब्लॉक की सभी Facilities खुल जाएंगी";
+        document.getElementById("chartMainTitle").textContent = "Block-wise Institutional Deliveries vs 8-FRU C-Section";
+        document.getElementById("chartSubHint").textContent = "Click any block bar to drill down into facility-level deliveries";
         resetBtn.classList.add("hidden");
 
-        renderChart(
-          sortedBlocks.map(b => b.name),
-          sortedBlocks.map(b => b.del),
-          sortedBlocks.map(b => b.cs),
-          true
-        );
+        renderChart(sortedBlocks.map(b => b.name), sortedBlocks.map(b => b.del), sortedBlocks.map(b => b.cs), true);
       } else {
         const facMap = new Map();
         finalRows.forEach(r => {
@@ -683,26 +526,20 @@
         });
         const eligibleBlockFacilities = Array.from(facMap.values()).sort((a, b) => b.del - a.del);
 
-        document.getElementById("top5Title").textContent = `🏆 Top Facilities — ${selBlock}`;
-        document.getElementById("poor5Title").textContent = `⚠️ Bottom Facilities — ${selBlock} (Active Units)`;
+        document.getElementById("top5Title").textContent = `Top Facilities — ${selBlock}`;
+        document.getElementById("poor5Title").textContent = `Bottom Facilities — ${selBlock}`;
         renderTopPoorBoxes(eligibleBlockFacilities);
 
-        document.getElementById("chartMainTitle").textContent = `📊 ${selBlock} की Active Facilities (${eligibleBlockFacilities.length} इकाइयां)`;
-        document.getElementById("chartSubHint").textContent = "हर बार के ऊपर कुल Institutional Deliveries एवं 8-FRU C-Section संख्या प्रदर्शित है";
+        document.getElementById("chartMainTitle").textContent = `${selBlock} — Active Facilities (${eligibleBlockFacilities.length})`;
+        document.getElementById("chartSubHint").textContent = "Institutional Deliveries vs 8-FRU C-Section";
         if (!blockSelEl.disabled) resetBtn.classList.remove("hidden");
 
-        renderChart(
-          eligibleBlockFacilities.map(f => f.name),
-          eligibleBlockFacilities.map(f => f.del),
-          eligibleBlockFacilities.map(f => f.cs),
-          false
-        );
+        renderChart(eligibleBlockFacilities.map(f => f.name), eligibleBlockFacilities.map(f => f.del), eligibleBlockFacilities.map(f => f.cs), false);
       }
 
-      // Full Detailed Table (C-Section ONLY for 8 designated FRUs; "—" for all others)
       const tbody = document.getElementById("idTableBody");
       if (!finalRows.length) {
-        tbody.innerHTML = `<tr><td colspan="11" class="p-6 text-center text-slate-500">चयनित फ़िल्टर के लिए कोई रिकॉर्ड उपलब्ध नहीं है।</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-400">No records match the current filter.</td></tr>`;
         return;
       }
 
@@ -712,24 +549,22 @@
         const cs = isFru ? (Number(r.cSection) || 0) : null;
         const night = isFru ? (Number(r.nightCs) || 0) : null;
         const cPct = (isFru && del > 0) ? `${((cs / del) * 100).toFixed(1)}%` : "—";
-        const nPct = (isFru && cs > 0) ? `${((night / cs) * 100).toFixed(1)}%` : "—";
         const ownBadge = /private|pvt/i.test(r.ownership)
-          ? `<span class="px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 font-bold text-[10px]">${r.ownership}</span>`
-          : `<span class="px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 font-bold text-[10px]">${r.ownership || "Public"}</span>`;
+          ? `<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold text-[10px]">${r.ownership}</span>`
+          : `<span class="px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 font-bold text-[10px]">${r.ownership || "Public"}</span>`;
 
         return `
-          <tr class="hover:bg-slate-50 transition ${del === 0 ? 'bg-rose-50/25' : ''}">
+          <tr class="hover:bg-slate-50/90 transition">
             <td class="p-3 text-slate-400 font-semibold">${i + 1}</td>
             <td class="p-3 font-semibold text-slate-600">${r.month}</td>
             <td class="p-3 font-bold text-slate-800">${r.block}</td>
-            <td class="p-3 text-slate-600">${r.facilityType || "-"}</td>
-            <td class="p-3 font-bold text-slate-900">${r.facilityName} ${isFru ? '<span class="ml-1 px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 text-[9px] font-extrabold">FRU</span>' : ''}</td>
+            <td class="p-3 text-slate-500">${r.facilityType || "-"}</td>
+            <td class="p-3 font-bold text-slate-900">${r.facilityName} ${isFru ? '<span class="ml-1.5 px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 text-[9px] font-extrabold">FRU</span>' : ''}</td>
             <td class="p-3">${ownBadge}</td>
-            <td class="p-3 text-right font-extrabold text-emerald-800">${del.toLocaleString("en-IN")}</td>
-            <td class="p-3 text-right font-bold ${isFru ? 'text-amber-700' : 'text-slate-300'}">${isFru ? cs.toLocaleString("en-IN") : "—"}</td>
+            <td class="p-3 text-right font-extrabold text-teal-800">${del.toLocaleString("en-IN")}</td>
+            <td class="p-3 text-right font-bold ${isFru ? 'text-amber-600' : 'text-slate-300'}">${isFru ? cs.toLocaleString("en-IN") : "—"}</td>
             <td class="p-3 text-right font-semibold ${isFru ? 'text-slate-700' : 'text-slate-300'}">${cPct}</td>
             <td class="p-3 text-right font-bold ${isFru ? 'text-indigo-700' : 'text-slate-300'}">${isFru ? night.toLocaleString("en-IN") : "—"}</td>
-            <td class="p-3 text-right font-semibold ${isFru ? 'text-indigo-600' : 'text-slate-300'}">${nPct}</td>
           </tr>
         `;
       }).join("");
@@ -739,30 +574,25 @@
       const topEl = document.getElementById("top5List");
       const poorEl = document.getElementById("poor5List");
       if (!sortedDesc.length) {
-        topEl.innerHTML = `<p class="p-3 text-xs text-slate-400">डेटा उपलब्ध नहीं</p>`;
-        poorEl.innerHTML = `<p class="p-3 text-xs text-slate-400">डेटा उपलब्ध नहीं</p>`;
+        topEl.innerHTML = `<p class="p-4 text-xs text-slate-400">No data available</p>`;
+        poorEl.innerHTML = `<p class="p-4 text-xs text-slate-400">No data available</p>`;
         return;
       }
 
       const top5 = sortedDesc.slice(0, 5);
       const topIds = new Set(top5.map(x => x._uid));
-      const poor5 = [...sortedDesc]
-        .filter(x => !topIds.has(x._uid))
-        .sort((a, b) => a.del - b.del)
-        .slice(0, 5);
+      const poor5 = [...sortedDesc].filter(x => !topIds.has(x._uid)).sort((a, b) => a.del - b.del).slice(0, 5);
 
       const buildRow = (item, idx, isTop) => {
         const cPct = item.del > 0 ? ((item.cs / item.del) * 100).toFixed(1) : "0.0";
         const sub = item.isFru ? `${item.sub} • FRU C-Sec: ${item.cs}` : item.sub;
-        const csBadge = item.isFru ? `<span class="font-semibold opacity-80">(CS: ${cPct}%)</span>` : "";
-        const pill = isTop
-          ? "bg-emerald-50 text-emerald-900 border border-emerald-200"
-          : (item.del === 0 ? "bg-rose-50 text-rose-800 border border-rose-200" : "bg-amber-50 text-amber-900 border border-amber-200");
+        const csBadge = item.isFru ? `<span class="font-semibold opacity-75">(CS: ${cPct}%)</span>` : "";
+        const pill = isTop ? "bg-teal-50 text-teal-900 border border-teal-200" : "bg-slate-100 text-slate-800 border border-slate-200";
 
         return `
-          <div class="flex items-center justify-between px-3 py-2.5 hover:bg-slate-50/80 rounded-xl text-xs transition">
+          <div class="flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 rounded-xl text-xs">
             <div class="flex items-center gap-3 min-w-0">
-              <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-[11px] font-extrabold ${isTop ? 'bg-emerald-700 text-white' : 'bg-rose-700 text-white'}">
+              <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-[11px] font-extrabold ${isTop ? 'bg-teal-700 text-white' : 'bg-slate-700 text-white'}">
                 ${idx + 1}
               </span>
               <div class="truncate">
@@ -777,13 +607,10 @@
         `;
       };
 
-      topEl.innerHTML = top5.length
-        ? top5.map((x, i) => buildRow(x, i, true)).join("")
-        : `<p class="p-4 text-xs text-slate-400 text-center">कोई Active रिकॉर्ड नहीं</p>`;
-
+      topEl.innerHTML = top5.map((x, i) => buildRow(x, i, true)).join("");
       poorEl.innerHTML = poor5.length
         ? poor5.map((x, i) => buildRow(x, i, false)).join("")
-        : `<p class="p-4 text-xs text-emerald-700 font-semibold text-center">सभी Active इकाइयां Top सूची में शामिल हैं</p>`;
+        : `<p class="p-4 text-xs text-slate-400 text-center">All active units are in the Top list</p>`;
     }
 
     function renderChart(labels, delVals, csVals, isBlockLevel) {
@@ -791,33 +618,15 @@
       if (chartInstance) chartInstance.destroy();
 
       const innerBox = document.getElementById("chartInnerBox");
-      if (!isBlockLevel && labels.length > 14) {
-        innerBox.style.width = `${labels.length * 56}px`;
-        innerBox.style.height = "360px";
-      } else {
-        innerBox.style.width = "100%";
-        innerBox.style.height = "320px";
-      }
+      innerBox.style.width = (!isBlockLevel && labels.length > 14) ? `${labels.length * 56}px` : "100%";
 
       chartInstance = new Chart(ctx, {
         type: "bar",
         data: {
           labels,
           datasets: [
-            {
-              label: "Institutional Deliveries (2.2)",
-              data: delVals,
-              backgroundColor: "#059669",
-              borderRadius: 6,
-              maxBarThickness: 34
-            },
-            {
-              label: "8-FRU C-Section Deliveries (3.1)",
-              data: csVals,
-              backgroundColor: "#d97706",
-              borderRadius: 6,
-              maxBarThickness: 34
-            }
+            { label: "Institutional Deliveries (2.2)", data: delVals, backgroundColor: "#0d9488", borderRadius: 6, maxBarThickness: 34 },
+            { label: "8-FRU C-Section (3.1)", data: csVals, backgroundColor: "#d97706", borderRadius: 6, maxBarThickness: 34 }
           ]
         },
         options: {
@@ -825,36 +634,21 @@
           maintainAspectRatio: false,
           onClick: (e, el) => {
             if (isBlockLevel && el.length > 0 && !document.getElementById("blockFilterSelect").disabled) {
-              const blk = labels[el[0].index];
-              document.getElementById("blockFilterSelect").value = blk;
+              document.getElementById("blockFilterSelect").value = labels[el[0].index];
               window.renderDashboard();
             }
           },
           plugins: {
             legend: { position: "top", labels: { font: { size: 11, weight: "bold" } } },
             datalabels: {
-              anchor: "end",
-              align: "top",
-              offset: 2,
-              color: "#0f172a",
+              anchor: "end", align: "top", offset: 2, color: "#0f172a",
               font: { weight: "bold", size: 10 },
               formatter: v => v > 0 ? v.toLocaleString("en-IN") : ""
             }
           },
           scales: {
-            x: {
-              grid: { display: false },
-              ticks: {
-                font: { size: 10, weight: "bold" },
-                maxRotation: isBlockLevel ? 25 : 45,
-                minRotation: isBlockLevel ? 0 : 45
-              }
-            },
-            y: {
-              beginAtZero: true,
-              grid: { color: "#f1f5f9" },
-              suggestedMax: Math.max(...delVals, 10) * 1.18
-            }
+            x: { grid: { display: false }, ticks: { font: { size: 10, weight: "bold" }, maxRotation: isBlockLevel ? 25 : 45 } },
+            y: { beginAtZero: true, grid: { color: "#f1f5f9" }, suggestedMax: Math.max(...delVals, 10) * 1.18 }
           }
         },
         plugins: [ChartDataLabels]
@@ -862,16 +656,28 @@
     }
 
     window.downloadInstExcel = function() {
-      if (!renderedRows.length) return alert("डाउनलोड करने के लिए कोई डेटा नहीं है।");
+      if (!renderedRows.length) return alert("No data to export.");
       const rows = renderedRows.map((r, i) => {
         const isFru = isDesignatedFruRecord(r);
         return {
           "SN": i + 1,
           "Month": r.month,
-          "Block Name": r.block,
+          "Block": r.block,
           "Facility Type": r.facilityType,
           "Facility Name": r.facilityName,
           "Ownership": r.ownership,
           "Institutional Deliveries (2.2)": r.instDel,
           "FRU C-Section (3.1)": isFru ? r.cSection : "",
           "FRU Night C-Section (3.1.1)": isFru ? r.nightCs : ""
+        };
+      });
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "InstitutionalDelivery");
+      XLSX.writeFile(wb, `Institutional_Delivery_NHM_Ayodhya.xlsx`);
+    };
+
+    loadData();
+  </script>
+</body>
+</html>
