@@ -13,7 +13,7 @@
 <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
 <div>
 <h1 class="text-lg md:text-xl font-bold">NHM अयोध्या — Master Data Uploader &amp; Control</h1>
-<p class="text-xs text-slate-300">ASHA Payment, JSY, ABHA, NCD, RBSK, QA, Tele Consultation एवं अधिकारी प्रबंधन</p>
+<p class="text-xs text-slate-300">ASHA Payment, JSY, ABHA, Institutional Delivery, NCD, RBSK, QA, Tele Consultation एवं अधिकारी प्रबंधन</p>
 </div>
 <div class="flex flex-wrap gap-2">
 <a href="officers-admin.html" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-xs font-bold rounded-lg">
@@ -101,15 +101,15 @@ ABHA डेटाबेस जाँचा जा रहा है...
 </section>
 </div>
 
-<!-- SECTION 4: NEW PROGRAMS UPLOADER (NCD, RBSK, QUALITY ASSURANCE, TELE CONSULTATION) -->
+<!-- SECTION 4: PROGRAMS UPLOADER (INSTITUTIONAL DELIVERY, NCD, QUALITY ASSURANCE, RBSK, TELE CONSULTATION) -->
 <section class="bg-white p-6 rounded-xl shadow-sm border border-rose-200 space-y-4">
 <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
 <div>
-<h2 class="text-base font-bold text-rose-950">4. अन्य कार्यक्रम डेटा अपलोड (NCD Screening, RBSK, Quality Assurance, Tele Consultation)</h2>
-<p class="text-[11px] text-slate-500 mt-0.5">Program Review Portal के चारों नए मॉड्यूल के लिए मासिक/साप्ताहिक Excel (.xlsx) अपलोड करें</p>
+<h2 class="text-base font-bold text-rose-950">4. अन्य कार्यक्रम डेटा अपलोड (Institutional Delivery, NCD, Quality Assurance, RBSK, Tele Consultation)</h2>
+<p class="text-[11px] text-slate-500 mt-0.5">Program Review Portal के सभी मॉड्यूल के लिए मासिक/साप्ताहिक Excel (.xlsx) अपलोड करें</p>
 </div>
 <span class="text-[11px] bg-rose-50 text-rose-800 border border-rose-200 px-2.5 py-1 rounded-lg font-bold">
-4 Programs Active
+5 Programs Active
 </span>
 </div>
 
@@ -117,6 +117,7 @@ ABHA डेटाबेस जाँचा जा रहा है...
 <div>
 <label class="block text-xs font-bold text-slate-700 mb-1">कार्यक्रम चुनें (Select Program)</label>
 <select id="newProgramSelect" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold bg-slate-50 focus:border-rose-700 focus:outline-none">
+<option value="mh_inst_delivery">🤰 Institutional Delivery &amp; C-Section (HMIS — Apr 26 आदि)</option>
 <option value="ncd_screening">❤️ NCD Screening (Composite Scoring &amp; ANM/CHO/MO Status)</option>
 <option value="quality_assurance">✅ Quality Assurance (NQAS / Kayakalp / LaQshya)</option>
 <option value="rbsk">👶 RBSK (Mobile Health Team &amp; Child Screening)</option>
@@ -125,8 +126,8 @@ ABHA डेटाबेस जाँचा जा रहा है...
 </div>
 
 <div>
-<label class="block text-xs font-bold text-slate-700 mb-1">Excel / CSV फ़ाइल चुनें</label>
-<input type="file" id="newProgramFile" accept=".xlsx,.xls,.csv"
+<label class="block text-xs font-bold text-slate-700 mb-1">Excel / CSV फ़ाइल चुनें (एक या एकाधिक माह)</label>
+<input type="file" id="newProgramFile" accept=".xlsx,.xls,.csv" multiple
 class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-rose-50 file:text-rose-800 hover:file:bg-rose-100" />
 </div>
 </div>
@@ -147,7 +148,7 @@ class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:ro
 </div>
 
 <div id="newProgramHint" class="p-2.5 bg-rose-50/50 border border-rose-200/80 rounded-lg text-[11px] text-slate-700">
-💡 <strong>NCD Screening:</strong> सीधे <b>'Composite'</b> शीट वाली Excel फ़ाइल (जैसे 18-11-2026.xlsx) चुनें। यह सभी 11 ब्लॉकों + Urban DHQ, रेफर (%) और ANM/CHO/MO लॉगिन स्टेटस को स्वतः अपडेट कर देगी।
+💡 <strong>Institutional Delivery (HMIS):</strong> सीधे HMIS Excel फ़ाइल (जैसे <b>Apr 26.xlsx</b>) चुनें। कॉलम: <b>Month, Block Name, Facility Type, Facility Name, Ownership, 2.2 Institutional Deliveries, 3.1 C-Section, 3.1.1 Night C-Section</b> स्वतः पढ़कर सेव हो जाएंगे।
 </div>
 
 <button id="uploadNewProgramBtn" class="w-full py-2.5 bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold rounded-lg shadow">
@@ -200,7 +201,6 @@ const abhaRef = ref(db, "asha_portal_v2/abha_portal");
 
 const teleDateInput = document.getElementById("teleReportDate");
 
-// Extract date from filename or text -> returns both { iso: "YYYY-MM-DD", ddmmyyyy: "DD-MM-YYYY" }
 function parseFlexibleDate(rawStr) {
 const clean = String(rawStr || "").replace(/\.[^.]+$/, "").trim();
 if (!clean) return null;
@@ -216,6 +216,25 @@ const yyyy = m[3].length === 2 ? `20${m[3]}` : m[3];
 return { iso: `${yyyy}-${mm}-${dd}`, ddmmyyyy: `${dd}-${mm}-${yyyy}` };
 }
 return null;
+}
+
+function formatHmisMonthLabel(raw) {
+if (typeof raw === "number" && raw > 30000) {
+const d = new Date((raw - 25569) * 86400 * 1000);
+const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+return `${months[d.getUTCMonth()]}-${String(d.getUTCFullYear()).slice(-2)}`;
+}
+return String(raw || "").trim();
+}
+
+function pickNumericCol(row, exactList, partialRegex) {
+for (const k of exactList) {
+if (row[k] !== undefined && row[k] !== "") return Number(String(row[k]).replace(/,/g, "")) || 0;
+}
+for (const [k, v] of Object.entries(row)) {
+if (partialRegex.test(k)) return Number(String(v).replace(/,/g, "")) || 0;
+}
+return 0;
 }
 
 function getCol(row, candidates) {
@@ -410,6 +429,12 @@ document.getElementById("abhaStatus").innerHTML = `✅ <strong>ABHA सक्र
 document.getElementById("abhaStatus").textContent = "अभी कोई ABHA डेटा अपलोड नहीं है।";
 }
 
+const instRows = d.mh_inst_delivery?.rows || [];
+const instMonths = Array.from(new Set(instRows.map(r => r.month).filter(Boolean))).join(", ");
+const instTxt = instRows.length
+? `✅ <strong>Institutional Delivery:</strong> ${instRows.length} रिकॉर्ड (${instMonths || d.mh_inst_delivery.fileName})`
+: "⚪ <strong>Institutional Delivery:</strong> डेटा प्रतीक्षित";
+
 const ncdTxt = d.ncd_screening?.units
 ? `✅ <strong>NCD Screening:</strong> ${d.ncd_screening.units.length} इकाइयां (${d.ncd_screening.reportTitle || "Updated"})`
 : "⚪ <strong>NCD Screening:</strong> डिफ़ॉल्ट डेटा सक्रिय";
@@ -422,16 +447,16 @@ const rbskTxt = d.rbsk?.rows
 
 const choDates = Array.isArray(d.tele_cho?.availableDates) ? d.tele_cho.availableDates.filter(Boolean) : [];
 const moDates = Array.isArray(d.tele_mo?.availableDates) ? d.tele_mo.availableDates.filter(Boolean) : [];
-const choTxt = choDates.length ? `CHO: ${d.tele_cho.latestDate || choDates[choDates.length - 1]} (${choDates.length} दिन)` : "";
-const moTxt = moDates.length ? `MO: ${d.tele_mo.latestDate || moDates[moDates.length - 1]} (${moDates.length} दिन)` : "";
+const choTxt = choDates.length ? `CHO: ${d.tele_cho.latestDate || choDates[choDates.length - 1]}` : "";
+const moTxt = moDates.length ? `MO: ${d.tele_mo.latestDate || moDates[moDates.length - 1]}` : "";
 const teleSummary = [choTxt, moTxt].filter(Boolean).join(" | ");
-
 const teleTxt = teleSummary
 ? `✅ <strong>Tele Consultation:</strong> ${teleSummary}`
 : "⚪ <strong>Tele Consultation:</strong> डेटा प्रतीक्षित";
 
 document.getElementById("newProgramStatus").innerHTML = `
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[11px]">
+<div>${instTxt}</div>
 <div>${ncdTxt}</div>
 <div>${qaTxt}</div>
 <div>${rbskTxt}</div>
@@ -561,12 +586,13 @@ refreshStatus();
 alert(`✅ अपलोड सफल!\nदिनांक: ${fileDateLabel}\nकुल क्षेत्र: ${newRecords.length}\nकुल जनसंख्या: ${sumPop.toLocaleString("en-IN")}\nनिर्मित ABHA: ${sumCreated.toLocaleString("en-IN")}`);
 });
 
-// 4. NEW PROGRAMS UPLOADER (NCD, QUALITY ASSURANCE, RBSK, TELE CONSULTATION)
+// 4. SECTION 4 UPLOADER
 const PROGRAM_HINTS = {
+mh_inst_delivery: "💡 <strong>Institutional Delivery (HMIS):</strong> सीधे HMIS Excel फ़ाइल (जैसे <b>Apr 26.xlsx</b>) चुनें। कॉलम: <b>Month, Block Name, Facility Type, Facility Name, Ownership, 2.2 Institutional Deliveries, 3.1 C-Section, 3.1.1 Night C-Section</b> स्वतः पढ़कर सेव हो जाएंगे।",
 ncd_screening: "💡 <strong>NCD Screening:</strong> सीधे <b>'Composite'</b> शीट वाली Excel फ़ाइल (जैसे 18-11-2026.xlsx) चुनें। यह सभी 11 ब्लॉकों + Urban DHQ, रेफर (%) और ANM/CHO/MO लॉगिन स्टेटस को स्वतः अपडेट कर देगी।",
 quality_assurance: "💡 <strong>Quality Assurance:</strong> NQAS Excel फ़ाइल (जैसे NQAS 18-11-2026.xlsx) चुनें। ब्लॉक नाम व सर्टिफिकेशन स्टेटस स्वतः साफ़ होकर सेव होंगे।",
 rbsk: "💡 <strong>RBSK:</strong> ब्लॉक-वार MHT विजिट, आंगनवाड़ी व स्कूल स्क्रीनिंग की Excel शीट चुनें।",
-tele_consultation: "💡 <strong>Tele Consultation:</strong> CHO के लिए <b>CHO_DD-MM-YYYY.xlsx</b> (कॉलम: Block, Facility Name, User Name, Tele Consultation) और MO के लिए <b>MOTC_DD-MM-YYYY.xlsx</b> (कॉलम: Block, Facility Name, MO Name, Tele Consultation) अपलोड करें।"
+tele_consultation: "💡 <strong>Tele Consultation:</strong> CHO के लिए <b>CHO_DD-MM-YYYY.xlsx</b> और MO के लिए <b>MOTC_DD-MM-YYYY.xlsx</b> अपलोड करें।"
 };
 
 document.getElementById("newProgramSelect").addEventListener("change", (e) => {
@@ -580,7 +606,6 @@ dateWrap.classList.add("hidden");
 }
 });
 
-// Auto-extract date & CHO/MO role from selected file's own name (and header fallback)
 document.getElementById("newProgramFile").addEventListener("change", (e) => {
 if (document.getElementById("newProgramSelect").value !== "tele_consultation") return;
 const f = e.target.files[0];
@@ -602,7 +627,8 @@ teleDateInput.value = parsedDate ? parsedDate.iso : "";
 
 document.getElementById("uploadNewProgramBtn").addEventListener("click", async () => {
 const prog = document.getElementById("newProgramSelect").value;
-const file = document.getElementById("newProgramFile").files[0];
+const files = document.getElementById("newProgramFile").files;
+const file = files[0];
 const btn = document.getElementById("uploadNewProgramBtn");
 if (!file) return alert("कृपया पहले Excel / CSV फ़ाइल चुनें।");
 
@@ -610,6 +636,73 @@ btn.disabled = true;
 btn.textContent = "प्रोसेस एवं अपलोड हो रहा है...";
 
 try {
+if (prog === "mh_inst_delivery") {
+let incomingRecords = [];
+for (const f of files) {
+const buf = await f.arrayBuffer();
+const wb = XLSX.read(buf, { type: "array", raw: true });
+const rawJson = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "" });
+const fallbackMonth = f.name.replace(/\.[^.]+$/, "").trim();
+
+const parsed = rawJson.map(r => {
+const clean = {};
+for (const [k, v] of Object.entries(r)) {
+clean[String(k).replace(/\s+/g, " ").trim()] = v;
+}
+const month = formatHmisMonthLabel(clean["Month"] || clean["MONTH"]) || fallbackMonth;
+const block = String(clean["Block Name"] || clean["Block"] || clean["BLOCK"] || "").trim();
+const facilityType = String(clean["Facility Type"] || clean["Type"] || "").trim();
+const facilityName = String(clean["Facility Name"] || clean["Facility"] || "").trim();
+const ownership = String(clean["Ownership"] || clean["OWNERSHIP"] || "").trim();
+
+const instDel = pickNumericCol(
+clean,
+["2.2. :: Number of Institutional Deliveries conducted (Including C-Sections)", "2.2. :: Number of Institutional Deliveries conducted"],
+/^2\.2\.|institutional\s*deliver/i
+);
+const cSection = pickNumericCol(
+clean,
+["3.1. :: Total number of C -Section deliveries performed", "3.1. :: Total number of C-Section deliveries performed"],
+/^3\.1\.|total.*c\s*-?\s*section/i
+);
+const nightCs = pickNumericCol(
+clean,
+["3.1.1. :: Out of total C-sections, number performed at night (8 PM- 8 AM)", "3.1.1. :: Out of total C-sections, number performed at night (8 PM-8 AM)"],
+/^3\.1\.1\.|night.*8\s*pm/i
+);
+
+return { month, block, facilityType, facilityName, ownership, instDel, cSection, nightCs };
+}).filter(x => x.block && x.facilityName && x.block.toUpperCase() !== "TOTAL");
+
+incomingRecords = incomingRecords.concat(parsed);
+}
+
+if (!incomingRecords.length) {
+throw new Error("फ़ाइल में वैध Block Name और Facility Name नहीं मिला।");
+}
+
+const instRef = child(rootRef, "mh_inst_delivery");
+const prevSnap = await get(instRef);
+const prevRows = prevSnap.exists() && Array.isArray(prevSnap.val().rows) ? prevSnap.val().rows : [];
+
+const uploadingMonths = new Set(incomingRecords.map(r => r.month));
+const keptOld = prevRows.filter(r => r && !uploadingMonths.has(r.month));
+const merged = [...keptOld, ...incomingRecords];
+
+const sumDel = incomingRecords.reduce((s, r) => s + r.instDel, 0);
+const sumCs = incomingRecords.reduce((s, r) => s + r.cSection, 0);
+
+await set(instRef, {
+updatedAt: new Date().toLocaleString("hi-IN"),
+fileName: files[files.length - 1].name,
+rows: merged
+});
+
+refreshStatus();
+alert(`✅ Institutional Delivery (HMIS) अपलोड सफल!\nमाह: ${Array.from(uploadingMonths).join(", ")}\nकुल इकाइयां: ${incomingRecords.length}\nकुल प्रसव: ${sumDel.toLocaleString("en-IN")} | C-Section: ${sumCs.toLocaleString("en-IN")}`);
+return;
+}
+
 const buffer = await file.arrayBuffer();
 const wb = XLSX.read(buffer, { type: "array", raw: false });
 
@@ -766,13 +859,12 @@ parsedDate = parseFlexibleDate(rowDateRaw);
 if (!parsedDate || !parsedDate.iso) {
 btn.disabled = false;
 btn.textContent = "चयनित कार्यक्रम का डेटा अपलोड करें ↑";
-return alert("फ़ाइल के नाम में दिनांक नहीं मिली! कृपया ऊपर 'फ़ाइल की रिपोर्ट दिनांक' बॉक्स में इस फ़ाइल की सही दिनांक चुनें (जैसे 21-11-2026) और फिर अपलोड करें।");
+return alert("फ़ाइल के नाम में दिनांक नहीं मिली! कृपया ऊपर 'फ़ाइल की रिपोर्ट दिनांक' बॉक्स में इस फ़ाइल की सही दिनांक चुनें और फिर अपलोड करें।");
 }
 
-const isoDate = parsedDate.iso;          // YYYY-MM-DD
-const displayDate = parsedDate.ddmmyyyy; // DD-MM-YYYY
+const isoDate = parsedDate.iso;
+const displayDate = parsedDate.ddmmyyyy;
 
-// Auto-detect MO if sheet contains "MO Name" column
 let teleRole = document.getElementById("teleRoleSelect")?.value || "tele_cho";
 if (rawJson.length > 0) {
 const headersUpper = Object.keys(rawJson[0]).map(k => k.trim().toUpperCase());
@@ -783,8 +875,6 @@ if (roleSel) roleSel.value = "tele_mo";
 }
 }
 
-// Supports both CHO (Block, Facility Name, User Name, Tele Consultation)
-// and MO (Block, Facility Name, MO Name, Tele Consultation)
 let totalTC = 0;
 const newRows = rawJson.map(row => {
 const upperMap = {};
@@ -800,18 +890,11 @@ const tc = Number(String(upperMap["TELE CONSULTATION"] || upperMap["TOTAL TELECO
 
 totalTC += tc;
 
-return {
-isoDate,
-date: displayDate,
-block,
-facility,
-user,
-tc
-};
+return { isoDate, date: displayDate, block, facility, user, tc };
 }).filter(r => r.block && r.block.toUpperCase() !== "TOTAL");
 
 if (newRows.length === 0) {
-throw new Error("फ़ाइल में वैध Block / Tele Consultation डेटा नहीं मिला। कृपया कॉलम हेडर जाँचें।");
+throw new Error("फ़ाइल में वैध Block / Tele Consultation डेटा नहीं मिला।");
 }
 
 const roleRef = child(rootRef, teleRole);
@@ -835,7 +918,6 @@ tc: Number(r.tc ?? r["Tele Consultation"] ?? 0) || 0
 .filter(r => r && r.block && r.isoDate !== isoDate);
 
 const mergedRows = [...existingRows, ...newRows];
-
 const validDatesSet = new Set(mergedRows.map(r => r.isoDate).filter(Boolean));
 const sortedIsoDates = Array.from(validDatesSet).sort();
 
@@ -848,10 +930,9 @@ rows: mergedRows
 });
 
 refreshStatus();
-alert(`✅ ${teleRole === "tele_cho" ? "CHO" : "MO"} Tele Consultation अपलोड सफल!\nफ़ाइल दिनांक: ${displayDate}\nकुल ${teleRole === "tele_mo" ? "मेडिकल ऑफिसर" : "रिकॉर्ड"}: ${newRows.length}\nकुल Tele Consultation: ${totalTC.toLocaleString("en-IN")}`);
+alert(`✅ ${teleRole === "tele_cho" ? "CHO" : "MO"} Tele Consultation अपलोड सफल!\nफ़ाइल दिनांक: ${displayDate}\nकुल रिकॉर्ड: ${newRows.length}\nकुल Tele Consultation: ${totalTC.toLocaleString("en-IN")}`);
 
 } else {
-// RBSK and any other program
 const firstSheet = wb.Sheets[wb.SheetNames[0]];
 const rawJson = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
 const safeRows = rawJson.map(row => {
