@@ -120,7 +120,7 @@ ABHA डेटाबेस जाँचा जा रहा है...
 <option value="ncd_screening">❤️ NCD Screening (Composite Scoring &amp; ANM/CHO/MO Status)</option>
 <option value="quality_assurance">✅ Quality Assurance (NQAS / Kayakalp / LaQshya)</option>
 <option value="rbsk">👶 RBSK (Mobile Health Team &amp; Child Screening)</option>
-<option value="tele_consultation">📞 Tele Consultation (eSanjeevani HWC OPD)</option>
+<option value="tele_consultation">📞 Tele Consultation (eSanjeevani HWC / MO OPD)</option>
 </select>
 </div>
 
@@ -131,13 +131,19 @@ class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:ro
 </div>
 </div>
 
-<!-- Tele Consultation Report Date Picker (Auto-shows when Tele Consultation is selected) -->
-<div id="teleDateWrap" class="hidden p-3 bg-sky-50 border border-sky-200 rounded-lg flex flex-wrap items-center justify-between gap-3">
+<!-- Tele Consultation Options (Role & File's Own Date) -->
+<div id="teleDateWrap" class="hidden p-3.5 bg-sky-50 border border-sky-200 rounded-lg grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
 <div>
-<label for="teleReportDate" class="block text-xs font-bold text-sky-950">📅 Tele Consultation रिपोर्ट दिनांक (Report Date)</label>
-<p class="text-[11px] text-sky-700">पोर्टल पर यही दिनांक और इसी दिनांक का नया डेटा स्वतः अपडेट होगा।</p>
+<label for="teleRoleSelect" class="block text-xs font-bold text-sky-950 mb-1">🩺 डेटा श्रेणी चुनें (CHO / MO)</label>
+<select id="teleRoleSelect" class="w-full px-3 py-1.5 border border-sky-300 rounded-lg text-xs font-bold bg-white text-slate-800">
+<option value="tele_cho">CHO Tele Consultation (eSanjeevani HWC)</option>
+<option value="tele_mo">MO Tele Consultation (PHC / CHC / Hub)</option>
+</select>
 </div>
-<input type="date" id="teleReportDate" class="px-3 py-1.5 border border-sky-300 rounded-lg text-xs font-bold bg-white text-slate-800" />
+<div>
+<label for="teleReportDate" class="block text-xs font-bold text-sky-950 mb-1">📅 फ़ाइल की रिपोर्ट दिनांक (फ़ाइल के नाम से स्वतः आएगी)</label>
+<input type="date" id="teleReportDate" class="w-full px-3 py-1.5 border border-sky-300 rounded-lg text-xs font-bold bg-white text-slate-800" />
+</div>
 </div>
 
 <div id="newProgramHint" class="p-2.5 bg-rose-50/50 border border-rose-200/80 rounded-lg text-[11px] text-slate-700">
@@ -192,14 +198,28 @@ const rootRef = ref(db, "asha_portal_v2");
 const jsyRef = ref(db, "asha_portal_v2/jsy_portal");
 const abhaRef = ref(db, "asha_portal_v2/abha_portal");
 
-// Set today's date as default in Tele Consultation date picker
 const teleDateInput = document.getElementById("teleReportDate");
-if (teleDateInput) {
-const now = new Date();
-const yyyy = now.getFullYear();
-const mm = String(now.getMonth() + 1).padStart(2, "0");
-const dd = String(now.getDate()).padStart(2, "0");
-teleDateInput.value = `${yyyy}-${mm}-${dd}`;
+
+// Extract date from filename (supports DD-MM-YYYY, DD.MM.YYYY, DD/MM/YYYY, DD-MM-YY, YYYY-MM-DD)
+function extractFileDate(fileName) {
+const base = String(fileName || "").replace(/\.[^.]+$/, "").trim();
+// Match YYYY-MM-DD
+let m = base.match(/(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
+if (m) {
+const yyyy = m[1];
+const mm = m[2].padStart(2, "0");
+const dd = m[3].padStart(2, "0");
+return { iso: `${yyyy}-${mm}-${dd}`, ddmmyyyy: `${dd}-${mm}-${yyyy}` };
+}
+// Match DD-MM-YYYY or DD-MM-YY
+m = base.match(/(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})/);
+if (m) {
+const dd = m[1].padStart(2, "0");
+const mm = m[2].padStart(2, "0");
+const yyyy = m[3].length === 2 ? `20${m[3]}` : m[3];
+return { iso: `${yyyy}-${mm}-${dd}`, ddmmyyyy: `${dd}-${mm}-${yyyy}` };
+}
+return null;
 }
 
 function isoToDDMMYYYY(iso) {
@@ -410,9 +430,14 @@ const qaTxt = d.quality_assurance?.rows
 const rbskTxt = d.rbsk?.rows
 ? `✅ <strong>RBSK:</strong> ${d.rbsk.rows.length} रिकॉर्ड (${d.rbsk.fileName})`
 : "⚪ <strong>RBSK:</strong> डेटा प्रतीक्षित";
-const teleDateLabel = d.tele_consultation?.latestDate ? ` • दिनांक: ${d.tele_consultation.latestDate}` : "";
-const teleTxt = d.tele_consultation?.rows
-? `✅ <strong>Tele Consultation:</strong> ${d.tele_consultation.rows.length} रिकॉर्ड (${d.tele_consultation.fileName}${teleDateLabel})`
+
+const choDate = d.tele_cho?.latestDate ? `CHO: ${d.tele_cho.latestDate}` : "";
+const moDate = d.tele_mo?.latestDate ? `MO: ${d.tele_mo.latestDate}` : "";
+const genDate = d.tele_consultation?.latestDate ? d.tele_consultation.latestDate : "";
+const teleDatesStr = [choDate, moDate].filter(Boolean).join(" | ") || genDate;
+
+const teleTxt = (d.tele_consultation?.rows || d.tele_cho?.records || d.tele_mo?.records)
+? `✅ <strong>Tele Consultation:</strong> फ़ाइल दिनांक (${teleDatesStr || "सक्रिय"})`
 : "⚪ <strong>Tele Consultation:</strong> डेटा प्रतीक्षित";
 
 document.getElementById("newProgramStatus").innerHTML = `
@@ -551,7 +576,7 @@ const PROGRAM_HINTS = {
 ncd_screening: "💡 <strong>NCD Screening:</strong> सीधे <b>'Composite'</b> शीट वाली Excel फ़ाइल (जैसे 18-11-2026.xlsx) चुनें। यह सभी 11 ब्लॉकों + Urban DHQ, रेफर (%) और ANM/CHO/MO लॉगिन स्टेटस को स्वतः अपडेट कर देगी।",
 quality_assurance: "💡 <strong>Quality Assurance:</strong> NQAS Excel फ़ाइल (जैसे NQAS 18-11-2026.xlsx) चुनें। ब्लॉक नाम व सर्टिफिकेशन स्टेटस स्वतः साफ़ होकर सेव होंगे।",
 rbsk: "💡 <strong>RBSK:</strong> ब्लॉक-वार MHT विजिट, आंगनवाड़ी व स्कूल स्क्रीनिंग की Excel शीट चुनें।",
-tele_consultation: "💡 <strong>Tele Consultation:</strong> ब्लॉक/HWC-वार eSanjeevani टेली-कंसल्टेशन लक्ष्य व उपलब्धि की Excel शीट चुनें। ऊपर दी गई दिनांक के अनुसार डेटा अपडेट होगा।"
+tele_consultation: "💡 <strong>Tele Consultation:</strong> फ़ाइल का नाम रिपोर्ट दिनांक के साथ रखें (जैसे <b>CHO_23-11-2026.xlsx</b> या <b>23-11-2026.xlsx</b>)। पोर्टल पर ठीक उसी फ़ाइल की दिनांक दिखेगी (आज की दिनांक नहीं)।"
 };
 
 document.getElementById("newProgramSelect").addEventListener("change", (e) => {
@@ -565,17 +590,23 @@ dateWrap.classList.add("hidden");
 }
 });
 
-// Auto-detect date from filename when choosing a Tele Consultation file
+// Auto-extract date & CHO/MO role ONLY from the selected file's own name (never defaults to today)
 document.getElementById("newProgramFile").addEventListener("change", (e) => {
 if (document.getElementById("newProgramSelect").value !== "tele_consultation") return;
 const f = e.target.files[0];
-if (!f) return;
-const match = f.name.match(/(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
-if (match && teleDateInput) {
-const dd = match[1].padStart(2, "0");
-const mm = match[2].padStart(2, "0");
-const yyyy = match[3];
-teleDateInput.value = `${yyyy}-${mm}-${dd}`;
+if (!f) {
+if (teleDateInput) teleDateInput.value = "";
+return;
+}
+const upperName = f.name.toUpperCase();
+const roleSel = document.getElementById("teleRoleSelect");
+if (roleSel) {
+if (upperName.includes("MO")) roleSel.value = "tele_mo";
+else if (upperName.includes("CHO")) roleSel.value = "tele_cho";
+}
+const parsedDate = extractFileDate(f.name);
+if (teleDateInput) {
+teleDateInput.value = parsedDate ? parsedDate.iso : "";
 }
 });
 
@@ -730,61 +761,130 @@ refreshStatus();
 alert(`✅ Quality Assurance (NQAS) अपलोड सफल!\nफ़ाइल: ${file.name}\nकुल स्वास्थ्य इकाइयां: ${cleanRows.length}`);
 
 } else if (prog === "tele_consultation") {
-const selectedIso = document.getElementById("teleReportDate")?.value;
-const reportDate = isoToDDMMYYYY(selectedIso);
-if (!reportDate) {
-btn.disabled = false;
-btn.textContent = "चयनित कार्यक्रम का डेटा अपलोड करें ↑";
-return alert("कृपया Tele Consultation की रिपोर्ट दिनांक चुनें।");
-}
-
 const firstSheet = wb.Sheets[wb.SheetNames[0]];
 const rawJson = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
 
-const safeRows = rawJson.map(row => {
-const cleanObj = { date: reportDate };
+// Priority 1: Date selected in picker (which auto-fills from filename)
+// Priority 2: Date from filename directly
+// Priority 3: Date column inside sheet (if present)
+const parsedFromFile = extractFileDate(file.name);
+const selectedIso = document.getElementById("teleReportDate")?.value;
+let reportDate = isoToDDMMYYYY(selectedIso) || (parsedFromFile ? parsedFromFile.ddmmyyyy : "");
+
+if (!reportDate && rawJson.length > 0) {
+const firstRowDate = rawJson[0]["Date"] || rawJson[0]["DATE"] || rawJson[0]["Report Date"] || "";
+if (firstRowDate) reportDate = String(firstRowDate).trim();
+}
+
+if (!reportDate) {
+btn.disabled = false;
+btn.textContent = "चयनित कार्यक्रम का डेटा अपलोड करें ↑";
+return alert("फ़ाइल के नाम में दिनांक नहीं मिली! कृपया ऊपर 'फ़ाइल की रिपोर्ट दिनांक' बॉक्स में इस फ़ाइल की सही दिनांक चुनें (जैसे 23-11-2026) और फिर अपलोड करें।");
+}
+
+const teleRole = document.getElementById("teleRoleSelect")?.value || "tele_cho";
+
+// Map exact headers: Block, Facility Name, User Name, Tele Consultation
+let totalTC = 0;
+const normalizedRecords = rawJson.map(row => {
+const upperMap = {};
+const cleanOriginal = {};
 for (const [k, v] of Object.entries(row)) {
-const cleanKey = String(k || "COL").replace(/[.#$\[\]\/\\]/g, "_").replace(/\s+/g, " ").trim() || "COL";
-cleanObj[cleanKey] = v === undefined || v === null ? "" : (typeof v === "string" ? v.trim() : v);
+const trimmedKey = String(k || "COL").replace(/[.#$\[\]\/\\]/g, "_").replace(/\s+/g, " ").trim() || "COL";
+const val = v === undefined || v === null ? "" : (typeof v === "string" ? v.trim() : v);
+upperMap[trimmedKey.toUpperCase()] = val;
+cleanOriginal[trimmedKey] = val;
 }
-if (!cleanObj["Date"] && !cleanObj["DATE"]) {
-cleanObj["Date"] = reportDate;
+
+const block = String(upperMap["BLOCK"] || upperMap["BLOCK NAME"] || "").trim();
+const facility = String(upperMap["FACILITY NAME"] || upperMap["FACILITY"] || upperMap["HWC"] || "").trim();
+const userName = String(upperMap["USER NAME"] || upperMap["CHO NAME"] || upperMap["MO NAME"] || upperMap["NAME"] || "").trim();
+const tcCount = Number(String(upperMap["TELE CONSULTATION"] || upperMap["TOTAL TELECONSULTATION"] || upperMap["TELECONSULTATION"] || upperMap["TC"] || 0).replace(/,/g, "")) || 0;
+
+totalTC += tcCount;
+
+return {
+...cleanOriginal,
+date: reportDate,
+Date: reportDate,
+block,
+facility,
+userName,
+tc: tcCount,
+"Block": block,
+"Facility Name": facility,
+"User Name": userName,
+"Tele Consultation": tcCount
+};
+}).filter(r => r.block && r.block.toUpperCase() !== "TOTAL");
+
+if (normalizedRecords.length === 0) {
+throw new Error("फ़ाइल में वैध Block / Tele Consultation डेटा नहीं मिला। कृपया कॉलम हेडर जाँचें।");
 }
-return cleanObj;
-}).filter(r => Object.values(r).some(v => v !== "" && v !== reportDate));
 
-const teleRef = child(rootRef, "tele_consultation");
-const prevSnap = await get(teleRef);
-const prevData = prevSnap.exists() ? prevSnap.val() : {};
+// 1. Update role-specific node (tele_cho or tele_mo) with the FILE's exact date
+const roleRef = child(rootRef, teleRole);
+const roleSnap = await get(roleRef);
+const prevRoleData = roleSnap.exists() ? roleSnap.val() : {};
 
-let availableDates = Array.isArray(prevData.availableDates)
-? [...prevData.availableDates]
-: Object.values(prevData.availableDates || {});
-availableDates = availableDates.filter(d => d && d !== "undefined" && d !== "null");
-
-if (!availableDates.includes(reportDate)) {
-availableDates.push(reportDate);
-}
-availableDates.sort((a, b) => {
+let roleDates = Array.isArray(prevRoleData.availableDates)
+? [...prevRoleData.availableDates]
+: Object.values(prevRoleData.availableDates || {});
+roleDates = roleDates.filter(d => d && d !== "undefined" && d !== "null");
+if (!roleDates.includes(reportDate)) roleDates.push(reportDate);
+roleDates.sort((a, b) => {
 const [d1, m1, y1] = a.split("-").map(Number);
 const [d2, m2, y2] = b.split("-").map(Number);
 return new Date(y1, m1 - 1, d1) - new Date(y2, m2 - 1, d2);
 });
 
-const recordsByDate = prevData.recordsByDate || {};
-recordsByDate[reportDate] = safeRows;
+const prevRoleRecords = Array.isArray(prevRoleData.records)
+? prevRoleData.records.filter(r => r && r.date && r.date !== reportDate)
+: [];
+const mergedRoleRecords = [...prevRoleRecords, ...normalizedRecords];
 
-await set(teleRef, {
-updatedAt: new Date().toLocaleString("hi-IN"),
+const roleRecordsByDate = prevRoleData.recordsByDate || {};
+roleRecordsByDate[reportDate] = normalizedRecords;
+
+await set(roleRef, {
+updatedAt: reportDate,
 fileName: file.name,
 latestDate: reportDate,
-availableDates,
-recordsByDate,
-rows: safeRows
+availableDates: roleDates,
+recordsByDate: roleRecordsByDate,
+records: mergedRoleRecords
+});
+
+// 2. Also sync general tele_consultation node with the FILE's exact date
+const genRef = child(rootRef, "tele_consultation");
+const genSnap = await get(genRef);
+const prevGenData = genSnap.exists() ? genSnap.val() : {};
+
+let genDates = Array.isArray(prevGenData.availableDates)
+? [...prevGenData.availableDates]
+: Object.values(prevGenData.availableDates || {});
+genDates = genDates.filter(d => d && d !== "undefined" && d !== "null");
+if (!genDates.includes(reportDate)) genDates.push(reportDate);
+genDates.sort((a, b) => {
+const [d1, m1, y1] = a.split("-").map(Number);
+const [d2, m2, y2] = b.split("-").map(Number);
+return new Date(y1, m1 - 1, d1) - new Date(y2, m2 - 1, d2);
+});
+
+const genRecordsByDate = prevGenData.recordsByDate || {};
+genRecordsByDate[reportDate] = normalizedRecords;
+
+await set(genRef, {
+updatedAt: reportDate,
+fileName: file.name,
+latestDate: reportDate,
+availableDates: genDates,
+recordsByDate: genRecordsByDate,
+rows: normalizedRecords
 });
 
 refreshStatus();
-alert(`✅ TELE CONSULTATION अपलोड सफल!\nरिपोर्ट दिनांक: ${reportDate}\nफ़ाइल: ${file.name}\nकुल पंक्तियां: ${safeRows.length}`);
+alert(`✅ TELE CONSULTATION (${teleRole === "tele_cho" ? "CHO" : "MO"}) अपलोड सफल!\nफ़ाइल दिनांक: ${reportDate}\nकुल रिकॉर्ड: ${normalizedRecords.length}\nकुल Tele Consultation: ${totalTC.toLocaleString("en-IN")}`);
 
 } else {
 // RBSK and any other program
