@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ANC Coverage (e-Kavach) Review — NHM Ayodhya</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #ffffff !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen antialiased overflow-x-hidden">
+
+  <!-- HEADER -->
+  <header class="bg-slate-900 text-white border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-3 sm:px-5 py-3.5 sm:py-4 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+      <div class="min-w-0">
+        <div class="flex flex-wrap items-center gap-2">
+          <h1 class="text-sm sm:text-lg font-extrabold tracking-tight">ANC Coverage Review (e-Kavach) — NHM Ayodhya</h1>
+          <span id="roleBadge" class="text-[10px] bg-teal-500/20 text-teal-300 border border-teal-500/30 font-bold px-2.5 py-0.5 rounded-full uppercase">DISTRICT</span>
+        </div>
+        <p id="metaSubTitle" class="text-[11px] sm:text-xs text-slate-400 mt-0.5 truncate">Loading e-Kavach ANC records...</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2 no-print">
+        <button onclick="document.getElementById('uploadDrawer').classList.toggle('hidden')"
+          class="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-xl transition">
+          ⬆️ Upload Excel
+        </button>
+        <button onclick="downloadAncExcel()"
+          class="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-xl transition">
+          ⬇️ Export
+        </button>
+        <button onclick="window.print()"
+          class="hidden sm:inline-block px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl transition">
+          🖨️ Print
+        </button>
+        <a href="portal.html"
+          class="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition">
+          ← Portal
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-3 sm:px-5 py-4 sm:py-6 space-y-5">
+
+    <!-- COLLAPSIBLE UPLOAD BAR -->
+    <section id="uploadDrawer" class="hidden bg-white p-4 sm:p-5 rounded-2xl border-2 border-teal-300 shadow-sm space-y-3 no-print">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+        <div>
+          <h2 class="text-sm font-extrabold text-slate-900">Upload ANC e-Kavach Excel (.xlsx)</h2>
+          <p class="text-[11px] text-slate-500">Columns: Block, Location, ANC Registration, 1st Trimester, ANC Services, 4+ ANC, Hb&lt;11, Hb&lt;7, HRP Identification</p>
+        </div>
+        <button onclick="document.getElementById('uploadDrawer').classList.add('hidden')" class="text-xs font-bold text-slate-400 hover:text-slate-700">✕</button>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <input type="file" id="ancFileInput" accept=".xlsx,.xls,.csv"
+          class="block text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-teal-50 file:text-teal-900 hover:file:bg-teal-100" />
+        <button id="btnUploadAnc" onclick="uploadAncFile()"
+          class="px-5 py-2 bg-teal-700 hover:bg-teal-800 text-white text-xs font-extrabold rounded-xl transition">
+          Save to Database ↑
+        </button>
+      </div>
+    </section>
+
+    <!-- MOBILE-RESPONSIVE FILTER BAR -->
+    <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3 no-print">
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Report Date</label>
+        <select id="dateFilterSelect" onchange="renderDashboard()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+        </select>
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Block / Unit</label>
+        <select id="blockFilterSelect" onchange="renderDashboard()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+          <option value="ALL">All 12 Blocks / Units</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-teal-700 uppercase tracking-wider mb-1">Chart &amp; Rank Metric</label>
+        <select id="metricFilterSelect" onchange="renderDashboard()" class="w-full px-3 py-2 border border-teal-200 rounded-xl text-xs font-bold bg-teal-50/40 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+          <option value="firstTriPct">1st Trimester ANC %</option>
+          <option value="fourAncPct">4 or More ANC %</option>
+          <option value="ancServPct">ANC Services Received %</option>
+          <option value="hrpPct">HRP Identification %</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Clinical Focus</label>
+        <select id="focusFilterSelect" onchange="renderDashboard()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+          <option value="ALL">All Sub-Centers / Locations</option>
+          <option value="HB7">Severe Anemia (Hb &lt; 7 &gt; 0)</option>
+          <option value="LOW_4ANC">Low 4+ ANC (&lt; 30%)</option>
+          <option value="ZERO_REG">Zero ANC Registration</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Search Location</label>
+        <input type="text" id="searchInput" oninput="renderDashboard()" placeholder="Search SC / UPHC..."
+          class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30" />
+      </div>
+    </div>
+
+    <!-- 5 CORE KPI CARDS -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-[11px] font-semibold text-slate-500">Total ANC Registration</div>
+        <div id="kpiAncReg" class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1">0</div>
+        <div id="kpiAncServSub" class="text-[10px] sm:text-[11px] font-medium text-teal-700 mt-1">ANC Services: 0 (0.0%)</div>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-[11px] font-semibold text-slate-500">1st Trimester Registration</div>
+        <div id="kpiFirstTri" class="text-xl sm:text-2xl font-extrabold text-teal-700 mt-1">0</div>
+        <div id="kpiFirstTriPct" class="text-[10px] sm:text-[11px] font-bold text-teal-700 mt-1">0.0% of ANC Reg.</div>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-[11px] font-semibold text-slate-500">4 or More ANC Checkups</div>
+        <div id="kpiFourAnc" class="text-xl sm:text-2xl font-extrabold text-indigo-700 mt-1">0</div>
+        <div id="kpiFourAncPct" class="text-[10px] sm:text-[11px] font-bold text-indigo-600 mt-1">0.0% of ANC Reg.</div>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-[11px] font-semibold text-slate-500">Anemia (Hb&lt;11 / Severe Hb&lt;7)</div>
+        <div id="kpiHb11" class="text-xl sm:text-2xl font-extrabold text-amber-600 mt-1">0</div>
+        <div id="kpiHb7Sub" class="text-[10px] sm:text-[11px] font-bold text-rose-600 mt-1">Severe Anemia (Hb&lt;7): 0</div>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs col-span-2 sm:col-span-1">
+        <div class="text-[11px] font-semibold text-slate-500">HRP Identification</div>
+        <div id="kpiHrp" class="text-xl sm:text-2xl font-extrabold text-rose-700 mt-1">0</div>
+        <div id="kpiHrpPct" class="text-[10px] sm:text-[11px] font-medium text-slate-500 mt-1">0.0% of ANC Reg.</div>
+      </div>
+    </div>
+
+    <!-- TOP 5 & BOTTOM 5 COMPARISON -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div class="px-4 py-3 bg-teal-800 text-white flex justify-between items-center gap-2">
+          <h3 id="top5Title" class="text-xs font-extrabold tracking-wide truncate">Top 5 Blocks (1st Trimester %)</h3>
+          <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold flex-shrink-0">Best Performers</span>
+        </div>
+        <div id="top5List" class="divide-y divide-slate-100 p-2 sm:p-2.5"></div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div class="px-4 py-3 bg-slate-800 text-white flex justify-between items-center gap-2">
+          <h3 id="poor5Title" class="text-xs font-extrabold tracking-wide truncate">Bottom 5 Blocks (Needs Focus)</h3>
+          <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold flex-shrink-0">Active Reg. Only</span>
+        </div>
+        <div id="poor5List" class="divide-y divide-slate-100 p-2 sm:p-2.5"></div>
+      </div>
+    </div>
+
+    <!-- THRESHOLD COLOR-CODED BAR CHART -->
+    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+      <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+        <div>
+          <h2 id="chartMainTitle" class="text-sm font-extrabold text-slate-900">Block-wise 1st Trimester ANC %</h2>
+          <p id="chartSubHint" class="text-[11px] text-slate-500">Tap any block bar to drill down into sub-centers • Green (&gt;85%), Amber (80–85%), Rose (&lt;80%)</p>
+        </div>
+        <button id="btnResetBlockChart" onclick="resetToAllBlocks()" class="hidden px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold rounded-xl no-print transition">
+          ← All Blocks
+        </button>
+      </div>
+      <div class="overflow-x-auto">
+        <div id="chartInnerBox" style="height: 290px; min-width: 100%;">
+          <canvas id="ancBarChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUB-CENTER / LOCATION REGISTER -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      <div class="px-4 py-3.5 border-b border-slate-100 flex justify-between items-center gap-2">
+        <h2 class="text-sm font-extrabold text-slate-900">Sub-Center / Location-wise ANC Register</h2>
+        <span id="tableCountBadge" class="text-xs font-bold text-teal-800 bg-teal-50 px-3 py-1 rounded-full border border-teal-200/70">0 Locations</span>
+      </div>
+      <div class="overflow-x-auto max-h-[500px]">
+        <table class="w-full text-xs text-left border-collapse min-w-[820px]">
+          <thead class="bg-slate-900 text-white sticky top-0">
+            <tr>
+              <th class="p-3 font-bold">#</th>
+              <th class="p-3 font-bold">Block</th>
+              <th class="p-3 font-bold">Location / SC</th>
+              <th class="p-3 font-bold text-right">ANC Reg.</th>
+              <th class="p-3 font-bold text-right">1st Tri</th>
+              <th class="p-3 font-bold text-right">1st Tri %</th>
+              <th class="p-3 font-bold text-right">ANC Serv.</th>
+              <th class="p-3 font-bold text-right">4+ ANC</th>
+              <th class="p-3 font-bold text-right">4+ ANC %</th>
+              <th class="p-3 font-bold text-right">Hb&lt;11</th>
+              <th class="p-3 font-bold text-right">Hb&lt;7</th>
+              <th class="p-3 font-bold text-right">HRP</th>
+            </tr>
+          </thead>
+          <tbody id="ancTableBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
+      authDomain: "asha-payment.firebaseapp.com",
+      databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "asha-payment",
+      storageBucket: "asha-payment.firebasestorage.app",
+      messagingSenderId: "117935142167",
+      appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
+      measurementId: "G-43YGRC5CKL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const dbRef = ref(db, "asha_portal_v2/mh_anc_ekavach");
+
+    const savedOfficer = JSON.parse(sessionStorage.getItem("nhm_ayodhya_officer") || "null");
+    if (savedOfficer) {
+      document.getElementById("roleBadge").textContent = savedOfficer.role === "DISTRICT" ? "DISTRICT LEVEL" : `BLOCK: ${savedOfficer.block}`;
+    }
+
+    let allRows = [];
+    let renderedRows = [];
+    let chartInstance = null;
+
+    const METRIC_LABELS = {
+      firstTriPct: "1st Trimester ANC %",
+      fourAncPct: "4 or More ANC %",
+      ancServPct: "ANC Services %",
+      hrpPct: "HRP Identification %"
+    };
+
+    function getThresholdColor(pct, metricKey) {
+      if (metricKey === "hrpPct") return "#4338ca";
+      if (pct > 85) return "#0d9488";
+      if (pct >= 80) return "#d97706";
+      return "#e11d48";
+    }
+
+    function extractDateLabel(fileName) {
+      const m = String(fileName || "").match(/(\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4})/);
+      return m ? m[1] : String(fileName || "").replace(/\.[^.]+$/, "").trim();
+    }
+
+    window.uploadAncFile = async function() {
+      const file = document.getElementById("ancFileInput").files[0];
+      if (!file) return alert("Please select an ANC e-Kavach Excel/CSV file first.");
+
+      const btn = document.getElementById("btnUploadAnc");
+      btn.disabled = true;
+      btn.textContent = "Uploading...";
+
+      try {
+        const dateLabel = extractDateLabel(file.name);
+        const buf = await file.arrayBuffer();
+        const wb = XLSX.read(buf, { type: "array", raw: true });
+        const rawJson = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: 0 });
+
+        const parsed = rawJson.map(r => {
+          const clean = {};
+          for (const [k, v] of Object.entries(r)) {
+            clean[String(k).replace(/\s+/g, " ").trim().toUpperCase()] = v;
+          }
+          const block = String(clean["BLOCK"] || "").trim();
+          const location = String(clean["LOCATION"] || clean["SC"] || clean["SUB CENTER"] || "").trim();
+          const ancReg = Number(clean["ANC REGISTRATION"] || 0) || 0;
+          const firstTri = Number(clean["ANC REGISTRATION IN 1ST TRIMESTER"] || 0) || 0;
+          const ancServ = Number(clean["PW RECEIVED ANC SERVICES"] || 0) || 0;
+          const fourAnc = Number(clean["PW RECEIVED 4 OR MORE ANC"] || 0) || 0;
+          const hb11 = Number(clean["PW HAVING HB<11"] || 0) || 0;
+          const hb7 = Number(clean["PW HAVING HB<7"] || 0) || 0;
+          const hrp = Number(clean["HRP IDENTIFICATION"] || 0) || 0;
+
+          return { date: dateLabel, block, location, ancReg, firstTri, ancServ, fourAnc, hb11, hb7, hrp };
+        }).filter(x => x.block && x.location && x.block.toUpperCase() !== "TOTAL");
+
+        if (!parsed.length) throw new Error("No valid Block/Location rows found in the selected file.");
+
+        const keptOld = allRows.filter(r => r.date !== dateLabel);
+        const merged = [...keptOld, ...parsed];
+
+        await set(dbRef, {
+          updatedAt: new Date().toLocaleString("hi-IN"),
+          latestDate: dateLabel,
+          fileName: file.name,
+          rows: merged
+        });
+
+        document.getElementById("uploadDrawer").classList.add("hidden");
+        await loadData();
+        alert(`✅ ANC e-Kavach Uploaded!\nDate: ${dateLabel}\nLocations: ${parsed.length}`);
+      } catch (err) {
+        alert("❌ Error: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Save to Database ↑";
+      }
+    };
+
+    window.resetToAllBlocks = function() {
+      const sel = document.getElementById("blockFilterSelect");
+      if (!sel.disabled) {
+        sel.value = "ALL";
+        window.renderDashboard();
+      }
+    };
+
+    async function loadData() {
+      const snap = await get(dbRef);
+      if (!snap.exists() || !snap.val().rows) {
+        allRows = [];
+        document.getElementById("metaSubTitle").textContent = "No ANC e-Kavach data uploaded yet. Click 'Upload Excel' above.";
+        document.getElementById("uploadDrawer").classList.remove("hidden");
+        window.renderDashboard();
+        return;
+      }
+
+      const data = snap.val();
+      allRows = (Array.isArray(data.rows) ? data.rows : Object.values(data.rows)).filter(Boolean);
+
+      const dates = Array.from(new Set(allRows.map(r => r.date).filter(Boolean)));
+      const blocks = Array.from(new Set(allRows.map(r => r.block).filter(Boolean))).sort();
+
+      const dSel = document.getElementById("dateFilterSelect");
+      dSel.innerHTML = dates.map(d => `<option value="${d}">Date: ${d}</option>`).join("");
+      if (data.latestDate && dates.includes(data.latestDate)) dSel.value = data.latestDate;
+      else if (dates.length) dSel.value = dates[dates.length - 1];
+
+      const bSel = document.getElementById("blockFilterSelect");
+      bSel.innerHTML = `<option value="ALL">All ${blocks.length} Blocks / Units</option>` +
+        blocks.map(b => `<option value="${b}">${b}</option>`).join("");
+
+      if (savedOfficer && savedOfficer.role !== "DISTRICT" && savedOfficer.block) {
+        const matched = blocks.find(b => b.toLowerCase() === savedOfficer.block.toLowerCase());
+        if (matched) {
+          bSel.value = matched;
+          bSel.disabled = true;
+        }
+      }
+
+      document.getElementById("metaSubTitle").textContent =
+        `Report Date: ${dSel.value} • Total Locations: ${allRows.filter(r => r.date === dSel.value).length} • Updated: ${data.updatedAt || ""}`;
+
+      window.renderDashboard();
+    }
+
+    function computeMetrics(item) {
+      const reg = Number(item.ancReg) || 0;
+      return {
+        firstTriPct: reg > 0 ? Number(((item.firstTri / reg) * 100).toFixed(1)) : 0,
+        fourAncPct: reg > 0 ? Number(((item.fourAnc / reg) * 100).toFixed(1)) : 0,
+        ancServPct: reg > 0 ? Number(((item.ancServ / reg) * 100).toFixed(1)) : 0,
+        hrpPct: reg > 0 ? Number(((item.hrp / reg) * 100).toFixed(1)) : 0
+      };
+    }
+
+    window.renderDashboard = function() {
+      const selDate = document.getElementById("dateFilterSelect").value;
+      const selBlock = document.getElementById("blockFilterSelect").value;
+      const selMetric = document.getElementById("metricFilterSelect").value;
+      const selFocus = document.getElementById("focusFilterSelect").value;
+      const searchQ = document.getElementById("searchInput").value.trim().toLowerCase();
+
+      const dateRows = allRows.filter(r => !selDate || r.date === selDate);
+
+      const finalRows = dateRows.filter(r => {
+        if (selBlock !== "ALL" && r.block.toLowerCase() !== selBlock.toLowerCase()) return false;
+        const m = computeMetrics(r);
+        if (selFocus === "HB7" && (Number(r.hb7) || 0) === 0) return false;
+        if (selFocus === "LOW_4ANC" && m.fourAncPct >= 30) return false;
+        if (selFocus === "ZERO_REG" && (Number(r.ancReg) || 0) > 0) return false;
+        if (searchQ && !r.location.toLowerCase().includes(searchQ) && !r.block.toLowerCase().includes(searchQ)) return false;
+        return true;
+      });
+
+      renderedRows = finalRows;
+
+      // KPIs
+      const sumReg = finalRows.reduce((s, r) => s + (Number(r.ancReg) || 0), 0);
+      const sum1st = finalRows.reduce((s, r) => s + (Number(r.firstTri) || 0), 0);
+      const sumServ = finalRows.reduce((s, r) => s + (Number(r.ancServ) || 0), 0);
+      const sum4Anc = finalRows.reduce((s, r) => s + (Number(r.fourAnc) || 0), 0);
+      const sumHb11 = finalRows.reduce((s, r) => s + (Number(r.hb11) || 0), 0);
+      const sumHb7 = finalRows.reduce((s, r) => s + (Number(r.hb7) || 0), 0);
+      const sumHrp = finalRows.reduce((s, r) => s + (Number(r.hrp) || 0), 0);
+
+      const pct1st = sumReg > 0 ? ((sum1st / sumReg) * 100).toFixed(1) : "0.0";
+      const pctServ = sumReg > 0 ? ((sumServ / sumReg) * 100).toFixed(1) : "0.0";
+      const pct4Anc = sumReg > 0 ? ((sum4Anc / sumReg) * 100).toFixed(1) : "0.0";
+      const pctHrp = sumReg > 0 ? ((sumHrp / sumReg) * 100).toFixed(1) : "0.0";
+
+      document.getElementById("kpiAncReg").textContent = sumReg.toLocaleString("en-IN");
+      document.getElementById("kpiAncServSub").textContent = `ANC Services: ${sumServ.toLocaleString("en-IN")} (${pctServ}%)`;
+      document.getElementById("kpiFirstTri").textContent = sum1st.toLocaleString("en-IN");
+      document.getElementById("kpiFirstTriPct").textContent = `${pct1st}% of ANC Reg.`;
+      document.getElementById("kpiFourAnc").textContent = sum4Anc.toLocaleString("en-IN");
+      document.getElementById("kpiFourAncPct").textContent = `${pct4Anc}% of ANC Reg.`;
+      document.getElementById("kpiHb11").textContent = sumHb11.toLocaleString("en-IN");
+      document.getElementById("kpiHb7Sub").textContent = `Severe Anemia (Hb<7): ${sumHb7.toLocaleString("en-IN")}`;
+      document.getElementById("kpiHrp").textContent = sumHrp.toLocaleString("en-IN");
+      document.getElementById("kpiHrpPct").textContent = `${pctHrp}% of ANC Reg.`;
+      document.getElementById("tableCountBadge").textContent = `${finalRows.length} Locations`;
+
+      const metricLabel = METRIC_LABELS[selMetric];
+      const resetBtn = document.getElementById("btnResetBlockChart");
+      const blockSelEl = document.getElementById("blockFilterSelect");
+
+      if (selBlock === "ALL") {
+        const blkMap = new Map();
+        dateRows.forEach(r => {
+          const b = r.block || "Other";
+          if (!blkMap.has(b)) blkMap.set(b, { _uid: b, name: b, ancReg: 0, firstTri: 0, ancServ: 0, fourAnc: 0, hrp: 0, count: 0 });
+          const st = blkMap.get(b);
+          st.ancReg += Number(r.ancReg) || 0;
+          st.firstTri += Number(r.firstTri) || 0;
+          st.ancServ += Number(r.ancServ) || 0;
+          st.fourAnc += Number(r.fourAnc) || 0;
+          st.hrp += Number(r.hrp) || 0;
+          st.count += 1;
+        });
+
+        const rankedBlocks = Array.from(blkMap.values())
+          .filter(b => b.ancReg > 0)
+          .map(b => {
+            const m = computeMetrics(b);
+            return {
+              _uid: b._uid,
+              name: b.name,
+              val: m[selMetric],
+              sub: `Reg: ${b.ancReg.toLocaleString("en-IN")} • SCs: ${b.count}`
+            };
+          })
+          .sort((a, b) => b.val - a.val);
+
+        document.getElementById("top5Title").textContent = `Top 5 Blocks (${metricLabel})`;
+        document.getElementById("poor5Title").textContent = `Bottom 5 Blocks (${metricLabel})`;
+        renderTopPoorBoxes(rankedBlocks, selMetric);
+
+        document.getElementById("chartMainTitle").textContent = `Block-wise ${metricLabel}`;
+        document.getElementById("chartSubHint").textContent = "Tap any block bar to drill down into sub-centers";
+        resetBtn.classList.add("hidden");
+
+        renderChart(
+          rankedBlocks.map(x => x.name),
+          rankedBlocks.map(x => x.val),
+          rankedBlocks.map(x => getThresholdColor(x.val, selMetric)),
+          true
+        );
+      } else {
+        const rankedLocs = finalRows
+          .filter(r => (Number(r.ancReg) || 0) > 0)
+          .map((r, idx) => {
+            const m = computeMetrics(r);
+            return {
+              _uid: `${r.location}_${idx}`,
+              name: r.location,
+              val: m[selMetric],
+              sub: `Reg: ${r.ancReg} • 4+ ANC: ${r.fourAnc} • HRP: ${r.hrp}`
+            };
+          })
+          .sort((a, b) => b.val - a.val);
+
+        document.getElementById("top5Title").textContent = `Top 5 Locations — ${selBlock}`;
+        document.getElementById("poor5Title").textContent = `Bottom 5 Locations — ${selBlock}`;
+        renderTopPoorBoxes(rankedLocs, selMetric);
+
+        document.getElementById("chartMainTitle").textContent = `${selBlock} — Sub-Center ${metricLabel} (${rankedLocs.length})`;
+        document.getElementById("chartSubHint").textContent = "Locations with active ANC registrations";
+        if (!blockSelEl.disabled) resetBtn.classList.remove("hidden");
+
+        renderChart(
+          rankedLocs.map(x => x.name),
+          rankedLocs.map(x => x.val),
+          rankedLocs.map(x => getThresholdColor(x.val, selMetric)),
+          false
+        );
+      }
+
+      // Table sorted by selected metric descending
+      const sortedTableRows = [...finalRows].sort((a, b) => computeMetrics(b)[selMetric] - computeMetrics(a)[selMetric]);
+      const tbody = document.getElementById("ancTableBody");
+      if (!sortedTableRows.length) {
+        tbody.innerHTML = `<tr><td colspan="12" class="p-6 text-center text-slate-400">No locations match the selected filter.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = sortedTableRows.map((r, i) => {
+        const m = computeMetrics(r);
+        const c1 = m.firstTriPct > 85 ? "text-teal-700" : (m.firstTriPct >= 80 ? "text-amber-600" : "text-rose-600");
+        const c4 = m.fourAncPct > 85 ? "text-teal-700" : (m.fourAncPct >= 80 ? "text-amber-600" : "text-indigo-700");
+        const hb7Val = Number(r.hb7) || 0;
+
+        return `
+          <tr class="hover:bg-slate-50/90 transition ${hb7Val > 0 ? 'bg-rose-50/30' : ''}">
+            <td class="p-3 text-slate-400 font-semibold">${i + 1}</td>
+            <td class="p-3 font-bold text-slate-700">${r.block}</td>
+            <td class="p-3 font-bold text-slate-900">${r.location}</td>
+            <td class="p-3 text-right font-extrabold text-slate-900">${(Number(r.ancReg) || 0).toLocaleString("en-IN")}</td>
+            <td class="p-3 text-right font-semibold text-slate-700">${(Number(r.firstTri) || 0).toLocaleString("en-IN")}</td>
+            <td class="p-3 text-right font-extrabold ${c1}">${m.firstTriPct}%</td>
+            <td class="p-3 text-right text-slate-600">${(Number(r.ancServ) || 0).toLocaleString("en-IN")}</td>
+            <td class="p-3 text-right font-semibold text-slate-700">${(Number(r.fourAnc) || 0).toLocaleString("en-IN")}</td>
+            <td class="p-3 text-right font-extrabold ${c4}">${m.fourAncPct}%</td>
+            <td class="p-3 text-right font-semibold text-amber-700">${(Number(r.hb11) || 0).toLocaleString("en-IN")}</td>
+            <td class="p-3 text-right font-extrabold ${hb7Val > 0 ? 'text-rose-600' : 'text-slate-300'}">${hb7Val > 0 ? hb7Val : "—"}</td>
+            <td class="p-3 text-right font-bold text-indigo-700">${(Number(r.hrp) || 0).toLocaleString("en-IN")}</td>
+          </tr>
+        `;
+      }).join("");
+    };
+
+    function renderTopPoorBoxes(sortedDesc, metricKey) {
+      const topEl = document.getElementById("top5List");
+      const poorEl = document.getElementById("poor5List");
+      if (!sortedDesc.length) {
+        topEl.innerHTML = `<p class="p-4 text-xs text-slate-400">No data available</p>`;
+        poorEl.innerHTML = `<p class="p-4 text-xs text-slate-400">No data available</p>`;
+        return;
+      }
+
+      const top5 = sortedDesc.slice(0, 5);
+      const topIds = new Set(top5.map(x => x._uid));
+      const poor5 = [...sortedDesc].filter(x => !topIds.has(x._uid)).sort((a, b) => a.val - b.val).slice(0, 5);
+
+      const buildRow = (item, idx, isTop) => {
+        const pill = isTop ? "bg-teal-50 text-teal-900 border border-teal-200" : "bg-slate-100 text-slate-800 border border-slate-200";
+        return `
+          <div class="flex items-center justify-between px-2.5 py-2.5 hover:bg-slate-50 rounded-xl text-xs gap-2">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-[11px] font-extrabold ${isTop ? 'bg-teal-700 text-white' : 'bg-slate-700 text-white'}">
+                ${idx + 1}
+              </span>
+              <div class="truncate">
+                <div class="font-bold text-slate-900 truncate">${item.name}</div>
+                <div class="text-[11px] text-slate-500 truncate">${item.sub}</div>
+              </div>
+            </div>
+            <span class="flex-shrink-0 px-2.5 py-1 rounded-full font-extrabold text-xs ${pill}">
+              ${item.val}%
+            </span>
+          </div>
+        `;
+      };
+
+      topEl.innerHTML = top5.map((x, i) => buildRow(x, i, true)).join("");
+      poorEl.innerHTML = poor5.length
+        ? poor5.map((x, i) => buildRow(x, i, false)).join("")
+        : `<p class="p-4 text-xs text-slate-400 text-center">All active units are in the Top list</p>`;
+    }
+
+    function renderChart(labels, values, colors, isBlockLevel) {
+      const ctx = document.getElementById("ancBarChart").getContext("2d");
+      if (chartInstance) chartInstance.destroy();
+
+      const innerBox = document.getElementById("chartInnerBox");
+      innerBox.style.width = (!isBlockLevel && labels.length > 10) ? `${labels.length * 48}px` : "100%";
+
+      chartInstance = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            data: values,
+            backgroundColor: colors,
+            borderRadius: 6,
+            maxBarThickness: 36
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: (e, el) => {
+            if (isBlockLevel && el.length > 0 && !document.getElementById("blockFilterSelect").disabled) {
+              document.getElementById("blockFilterSelect").value = labels[el[0].index];
+              window.renderDashboard();
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              anchor: "end", align: "top", offset: 2, color: "#0f172a",
+              font: { weight: "bold", size: 10 },
+              formatter: v => `${v}%`
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 10, weight: "bold" }, maxRotation: 45, minRotation: isBlockLevel ? 20 : 40 } },
+            y: { beginAtZero: true, grid: { color: "#f1f5f9" }, suggestedMax: Math.max(...values, 20) * 1.18 }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
+    }
+
+    window.downloadAncExcel = function() {
+      if (!renderedRows.length) return alert("No ANC data to export.");
+      const rows = renderedRows.map((r, i) => {
+        const m = computeMetrics(r);
+        return {
+          "SN": i + 1,
+          "Date": r.date,
+          "Block": r.block,
+          "Location": r.location,
+          "ANC Registration": r.ancReg,
+          "1st Trimester ANC": r.firstTri,
+          "1st Trimester %": `${m.firstTriPct}%`,
+          "PW Received ANC Services": r.ancServ,
+          "PW Received 4+ ANC": r.fourAnc,
+          "4+ ANC %": `${m.fourAncPct}%`,
+          "PW having Hb<11": r.hb11,
+          "PW having Hb<7": r.hb7,
+          "HRP Identification": r.hrp
+        };
+      });
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "ANC_Ekavach");
+      XLSX.writeFile(wb, `ANC_Ekavach_NHM_Ayodhya.xlsx`);
+    };
+
+    loadData();
+  </script>
+</body>
+</html>
