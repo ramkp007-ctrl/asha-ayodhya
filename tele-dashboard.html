@@ -239,6 +239,25 @@
     let currentTab = "tele_cho";
     let chartInstance = null;
 
+    function toIsoDate(rawStr) {
+      const s = String(rawStr || "").trim();
+      if (!s) return "";
+      let m = s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
+      if (m) return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
+      m = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})/);
+      if (m) {
+        const yyyy = m[3].length === 2 ? `20${m[3]}` : m[3];
+        return `${yyyy}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+      }
+      return "";
+    }
+
+    function formatDisplayDate(iso) {
+      if (!iso || !iso.includes("-")) return iso || "";
+      const [y, m, d] = iso.split("-");
+      return `${d}-${m}-${y}`;
+    }
+
     function normalizeFacilityKey(fac) {
       return String(fac || "")
         .toUpperCase()
@@ -272,7 +291,7 @@
         : "px-4 py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-indigo-800 transition";
 
       const snap = await get(ref(db, `asha_portal_v2/${tabKey}`));
-      if (!snap.exists() || !snap.val().rows) {
+      if (!snap.exists()) {
         rawRows = [];
         allAvailableDates = [];
         document.getElementById("metaSubTitle").textContent = "अभी इस टैब का डेटा अपलोड नहीं किया गया है।";
@@ -281,10 +300,34 @@
       }
 
       const data = snap.val();
-      rawRows = data.rows || [];
-      allAvailableDates = (data.availableDates || []).filter(Boolean).sort();
+      const sourceList = Array.isArray(data.rows)
+        ? data.rows
+        : (Array.isArray(data.records) ? data.records : Object.values(data.rows || data.records || {}));
 
-      const blocks = Array.from(new Set(rawRows.map(r => (r.block || "").trim()).filter(Boolean))).sort();
+      // Normalize every row safely so both old and new uploads work identically
+      rawRows = sourceList
+        .filter(r => r && typeof r === "object")
+        .map(r => {
+          const iso = toIsoDate(r.isoDate || r.date || r.Date || data.latestIsoDate || data.latestDate);
+          return {
+            isoDate: iso,
+            block: String(r.block || r.Block || "").trim(),
+            facility: String(r.facility || r["Facility Name"] || "").trim(),
+            user: String(r.user || r.userName || r["User Name"] || "").trim(),
+            tc: Number(r.tc ?? r["Tele Consultation"] ?? 0) || 0
+          };
+        })
+        .filter(r => r.block && r.isoDate);
+
+      const dateSet = new Set(rawRows.map(r => r.isoDate));
+      (Array.isArray(data.availableDates) ? data.availableDates : Object.values(data.availableDates || {}))
+        .map(toIsoDate)
+        .filter(Boolean)
+        .forEach(d => dateSet.add(d));
+
+      allAvailableDates = Array.from(dateSet).sort();
+
+      const blocks = Array.from(new Set(rawRows.map(r => r.block).filter(Boolean))).sort();
       const blockSel = document.getElementById("blockFilterSelect");
       blockSel.innerHTML = `<option value="ALL">All ${blocks.length} Blocks (जनपद अयोध्या)</option>` +
         blocks.map(b => `<option value="${b}">${b}</option>`).join("");
@@ -300,12 +343,20 @@
       if (allAvailableDates.length > 0) {
         const fEl = document.getElementById("fromDateInput");
         const tEl = document.getElementById("toDateInput");
-        fEl.min = allAvailableDates[0]; fEl.max = allAvailableDates[allAvailableDates.length - 1];
-        tEl.min = allAvailableDates[0]; tEl.max = allAvailableDates[allAvailableDates.length - 1];
-        fEl.value = allAvailableDates[0];
-        tEl.value = allAvailableDates[allAvailableDates.length - 1];
+        const firstIso = allAvailableDates[0];
+        const lastIso = allAvailableDates[allAvailableDates.length - 1];
+
+        fEl.min = firstIso; fEl.max = lastIso;
+        tEl.min = firstIso; tEl.max = lastIso;
+
+        // Default to the latest uploaded file's exact date so newly uploaded data appears immediately
+        fEl.value = lastIso;
+        tEl.value = lastIso;
+
         document.getElementById("metaSubTitle").textContent =
-          `उपलब्ध दिनांक: ${allAvailableDates[0]} से ${allAvailableDates[allAvailableDates.length - 1]} (${allAvailableDates.length} दिन) • अंतिम अपडेट: ${data.updatedAt || ""}`;
+          `नवीनतम रिपोर्ट दिनांक: ${formatDisplayDate(lastIso)} • उपलब्ध अवधि: ${formatDisplayDate(firstIso)} से ${formatDisplayDate(lastIso)} (${allAvailableDates.length} दिन)`;
+      } else {
+        document.getElementById("metaSubTitle").textContent = "कोई दिनांक उपलब्ध नहीं है।";
       }
 
       window.renderDashboard();
@@ -324,7 +375,10 @@
         return true;
       });
       const periodDays = Math.max(1, selectedRangeDates.length || 1);
-      document.getElementById("selectedDaysPill").textContent = `📅 अवधि: ${periodDays} दिन`;
+      const rangeLabel = fromDt && toDt
+        ? (fromDt === toDt ? formatDisplayDate(toDt) : `${formatDisplayDate(fromDt)} → ${formatDisplayDate(toDt)} (${periodDays} दिन)`)
+        : `${periodDays} दिन`;
+      document.getElementById("selectedDaysPill").textContent = `📅 ${rangeLabel}`;
 
       const dateFiltered = rawRows
         .filter(r => {
@@ -477,7 +531,6 @@
       }).join("");
     };
 
-    // Top 5 & Poor 5 Renderer with "Total TC (Avg: X.XX)" in Pill
     function renderTopPoorBoxes(sortedDescList, isBlockMode, periodDays) {
       const top5El = document.getElementById("top5List");
       const poor5El = document.getElementById("poor5List");
