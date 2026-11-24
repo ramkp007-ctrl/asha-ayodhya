@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>8-FRU Review Dashboard (HMIS) — NHM अयोध्या</title>
+  <title>8-FRU Review Dashboard — NHM Ayodhya</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -14,179 +14,155 @@
   <style>
     body {
       font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
-      background-color: #f4f6f9;
+      background-color: #f8fafc;
+      color: #0f172a;
     }
     @media print {
       .no-print { display: none !important; }
-      body { background: #fff !important; }
+      body { background: #ffffff !important; }
     }
   </style>
 </head>
-<body class="text-slate-800 min-h-screen antialiased">
+<body class="min-h-screen antialiased">
 
-  <!-- HEADER -->
-  <header class="bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-900 text-white shadow-lg border-b border-indigo-900/50">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
+  <!-- CLEAN EXECUTIVE HEADER -->
+  <header class="bg-slate-900 text-white border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-5 py-4 flex flex-wrap justify-between items-center gap-3">
       <div>
         <div class="flex items-center gap-2.5">
-          <h1 class="text-base sm:text-lg font-extrabold tracking-tight">🏥 FRU Review Dashboard (8 First Referral Units) — NHM अयोध्या</h1>
-          <span id="roleBadge" class="text-[10px] bg-indigo-400/20 text-indigo-200 border border-indigo-400/40 font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">DISTRICT</span>
+          <h1 class="text-base sm:text-lg font-extrabold tracking-tight">FRU Review (8 First Referral Units) — NHM Ayodhya</h1>
+          <span id="roleBadge" class="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold px-2.5 py-0.5 rounded-full uppercase">DISTRICT</span>
         </div>
-        <p id="metaSubTitle" class="text-xs text-slate-300 mt-1">डेटा लोड हो रहा है...</p>
+        <p id="metaSubTitle" class="text-xs text-slate-400 mt-0.5">Loading 8-FRU records...</p>
       </div>
-      <div class="flex flex-wrap items-center gap-2 no-print">
-        <a href="institutional-delivery.html"
-          class="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-extrabold rounded-xl shadow-sm transition">
+      <div class="flex items-center gap-2 no-print">
+        <a href="institutional-delivery.html" class="px-3.5 py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-xl transition">
           ← Total Institutional Delivery
         </a>
-        <button onclick="downloadFruExcel()"
-          class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-sm transition">
-          ⬇️ 8-FRU Excel
+        <button onclick="downloadFruExcel()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition">
+          ⬇️ Export 8-FRU Excel
         </button>
-        <button onclick="window.print()" class="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white border border-white/15 text-xs font-semibold rounded-xl transition">
+        <button onclick="window.print()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl transition">
           🖨️ Print
         </button>
-        <a href="portal.html" class="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-xl shadow-sm transition">
-          🏛️ Portal
+        <a href="portal.html" class="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition">
+          Portal
         </a>
       </div>
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto px-4 py-6 space-y-5">
+  <main class="max-w-7xl mx-auto px-5 py-6 space-y-6">
 
-    <!-- FILTERS BAR: MONTH + FRU SELECTOR + STATUS -->
-    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-3.5 no-print">
+    <!-- COMPACT FILTER BAR -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs grid grid-cols-1 sm:grid-cols-3 gap-3 no-print">
       <div>
-        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">📅 Month (माह चुनें)</label>
-        <select id="monthFilterSelect" onchange="renderFruDashboard()"
-          class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/70 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
-          <option value="ALL">सभी माह (All Months)</option>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Month</label>
+        <select id="monthFilterSelect" onchange="renderFruDashboard()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
+          <option value="ALL">All Months</option>
         </select>
       </div>
       <div>
-        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">🏥 Specific FRU चुनें</label>
-        <select id="fruFilterSelect" onchange="renderFruDashboard()"
-          class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/70 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
-          <option value="ALL">सभी 8 FRUs (All 8 FRUs)</option>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Select FRU</label>
+        <select id="fruFilterSelect" onchange="renderFruDashboard()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
+          <option value="ALL">All 8 FRUs</option>
         </select>
       </div>
       <div>
-        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">⚡ C-Section स्थिति</label>
-        <select id="statusFilterSelect" onchange="renderFruDashboard()"
-          class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/70 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
-          <option value="ALL">सभी FRUs (All)</option>
-          <option value="ACTIVE_CS">✅ केवल C-Section Active (&gt;0)</option>
-          <option value="ZERO_CS">⚠️ केवल Zero C-Section (0)</option>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">C-Section Status</label>
+        <select id="statusFilterSelect" onchange="renderFruDashboard()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
+          <option value="ALL">All 8 FRUs</option>
+          <option value="ACTIVE_CS">Active C-Section (&gt;0)</option>
+          <option value="ZERO_CS">Zero C-Section (0)</option>
         </select>
       </div>
     </div>
 
-    <!-- 5 FRU KPI CARDS -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
-      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-1 h-full bg-indigo-600"></div>
-        <div class="text-xs font-bold text-slate-500">कुल चिन्हित FRUs</div>
-        <div id="kpiFruTotal" class="text-2xl font-extrabold text-slate-900 mt-1">8</div>
-        <div id="kpiFruFunctional" class="text-[11px] font-semibold text-slate-500 mt-0.5">Active C-Sec: 0 | Zero: 0</div>
+    <!-- 4 ESSENTIAL KPI CARDS -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-xs font-semibold text-slate-500">Total FRU Deliveries (2.2)</div>
+        <div id="kpiFruDel" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">0</div>
+        <div id="kpiFruNormal" class="text-[11px] font-medium text-teal-700 mt-1">Normal Deliveries: 0</div>
       </div>
 
-      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-1 h-full bg-emerald-600"></div>
-        <div class="text-xs font-bold text-slate-500">कुल FRU Deliveries (2.2)</div>
-        <div id="kpiFruDel" class="text-2xl font-extrabold text-emerald-700 mt-1">0</div>
-        <div id="kpiFruNormal" class="text-[11px] font-medium text-slate-500 mt-0.5">Normal: 0</div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-xs font-semibold text-slate-500">Total FRU C-Section (3.1)</div>
+        <div id="kpiFruCs" class="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1">0</div>
+        <div id="kpiFruCsPct" class="text-[11px] font-medium text-amber-700 mt-1">C-Section Rate: 0.0%</div>
       </div>
 
-      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
-        <div class="text-xs font-bold text-slate-500">कुल FRU C-Section (3.1)</div>
-        <div id="kpiFruCs" class="text-2xl font-extrabold text-amber-700 mt-1">0</div>
-        <div id="kpiFruCsPct" class="text-[11px] font-bold text-amber-700 mt-0.5">C-Section दर: 0.0%</div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-xs font-semibold text-slate-500">Night C-Section (8PM–8AM)</div>
+        <div id="kpiFruNight" class="text-2xl sm:text-3xl font-extrabold text-indigo-700 mt-1">0</div>
+        <div id="kpiFruNightPct" class="text-[11px] font-medium text-indigo-600 mt-1">0.0% of C-Sections</div>
       </div>
 
-      <div class="bg-gradient-to-br from-indigo-50/90 via-white to-white p-4 rounded-2xl border border-indigo-200 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-1 h-full bg-indigo-600"></div>
-        <div class="text-xs font-extrabold text-indigo-950">Night C-Section (8PM–8AM)</div>
-        <div id="kpiFruNight" class="text-2xl font-extrabold text-indigo-700 mt-1">0</div>
-        <div id="kpiFruNightPct" class="text-[11px] font-bold text-indigo-600 mt-0.5">कुल C-Section का 0.0%</div>
-      </div>
-
-      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden col-span-2 sm:col-span-1">
-        <div class="absolute top-0 left-0 w-1 h-full bg-teal-600"></div>
-        <div class="text-xs font-bold text-slate-500">सर्वश्रेष्ठ C-Section FRU</div>
-        <div id="kpiTopFruName" class="text-base font-extrabold text-teal-800 mt-1 truncate">—</div>
-        <div id="kpiTopFruSub" class="text-[11px] font-medium text-teal-700 mt-0.5">—</div>
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-xs font-semibold text-slate-500">Functional C-Section FRUs</div>
+        <div id="kpiFruFunctional" class="text-2xl sm:text-3xl font-extrabold text-teal-700 mt-1">0 / 8</div>
+        <div id="kpiTopFruSub" class="text-[11px] font-medium text-slate-500 mt-1">Top: —</div>
       </div>
     </div>
 
-    <!-- 8 FRU PERFORMANCE CARDS (4x2 GRID) -->
-    <section class="space-y-2.5">
-      <div class="flex flex-wrap justify-between items-center gap-2">
-        <h2 class="text-sm font-extrabold text-slate-900">🏥 सभी 8 FRUs का इकाई-वार प्रदर्शन (C-Section एवं Night C-Section)</h2>
-        <span class="text-[11px] font-semibold text-slate-500">1. Rudauli • 2. Sohawal • 3. Bikapur • 4. Pura Bazar • 5. Milkipur • 6. Medical College • 7. DWH • 8. 100 Bed Kumarganj</span>
-      </div>
-      <div id="fruCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5"></div>
-    </section>
+    <!-- 8 FRU PERFORMANCE CARDS (4x2 CLEAN GRID) -->
+    <div id="fruCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
 
-    <!-- 8-FRU COMPARISON CHART + MONTH-WISE TREND -->
+    <!-- CHARTS: 8-FRU COMPARISON & MONTH-WISE TREND -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-      <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-        <h3 class="text-sm font-extrabold text-slate-800 mb-1">📊 8-FRU तुलनात्मक चार्ट (Total Deliveries vs C-Section vs Night C-Sec)</h3>
-        <p class="text-[11px] text-slate-500 mb-3">चयनित माह में प्रत्येक FRU की डिलीवरी और सिजेरियन स्थिति</p>
-        <div style="height: 310px;">
+      <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <h3 class="text-sm font-extrabold text-slate-900 mb-3">8-FRU Deliveries vs C-Section vs Night C-Section</h3>
+        <div style="height: 290px;">
           <canvas id="fruCompareChart"></canvas>
         </div>
       </div>
 
-      <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-        <h3 class="text-sm font-extrabold text-slate-800 mb-1">📅 Month-wise 8-FRU C-Section ट्रेंड</h3>
-        <p class="text-[11px] text-slate-500 mb-3">माह-वार कुल FRU C-Section एवं Night C-Section प्रगति</p>
-        <div style="height: 310px;">
+      <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <h3 class="text-sm font-extrabold text-slate-900 mb-3">Month-wise 8-FRU C-Section Trend</h3>
+        <div style="height: 290px;">
           <canvas id="fruMonthTrendChart"></canvas>
         </div>
       </div>
     </div>
 
-    <!-- TOP & BOTTOM FRUs (ONLY FRUs WITH DELIVERY > 0 IN AT LEAST ONE MONTH) -->
+    <!-- TOP & BOTTOM FRUs (ACTIVE FRUs ONLY) -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="bg-white rounded-2xl border border-emerald-200/80 shadow-sm overflow-hidden">
-        <div class="px-4 py-3 bg-gradient-to-r from-emerald-800 to-teal-700 text-white flex justify-between items-center">
-          <h3 class="text-xs font-extrabold tracking-wide">🏆 Top Performing FRUs (सर्वाधिक C-Section / Delivery)</h3>
-          <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold">Active Delivery FRUs</span>
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div class="px-4 py-3 bg-teal-800 text-white flex justify-between items-center">
+          <h3 class="text-xs font-extrabold tracking-wide">Top Performing FRUs</h3>
+          <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold">By C-Section &amp; Deliveries</span>
         </div>
         <div id="topFruList" class="divide-y divide-slate-100 p-2.5"></div>
       </div>
 
-      <div class="bg-white rounded-2xl border border-rose-200/80 shadow-sm overflow-hidden">
-        <div class="px-4 py-3 bg-gradient-to-r from-rose-800 to-rose-700 text-white flex justify-between items-center">
-          <h3 class="text-xs font-extrabold tracking-wide">⚠️ Focus Needed FRUs (न्यूनतम C-Section / Delivery)</h3>
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div class="px-4 py-3 bg-slate-800 text-white flex justify-between items-center">
+          <h3 class="text-xs font-extrabold tracking-wide">Lowest Performing FRUs</h3>
           <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold">Excludes All-Month 0</span>
         </div>
         <div id="bottomFruList" class="divide-y divide-slate-100 p-2.5"></div>
       </div>
     </div>
 
-    <!-- DETAILED 8-FRU REVIEW TABLE -->
-    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-      <div class="px-4 py-3.5 border-b border-slate-100 bg-indigo-950 text-white flex justify-between items-center">
-        <h2 class="text-sm font-extrabold">📋 विस्तृत 8-FRU समीक्षा तालिका (HMIS 2.2, 3.1 एवं 3.1.1)</h2>
-        <span id="tableBadge" class="text-xs font-bold bg-white/15 px-3 py-1 rounded-full">8 FRUs</span>
+    <!-- 8-FRU SUMMARY TABLE -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      <div class="px-4 py-3.5 border-b border-slate-100 flex justify-between items-center">
+        <h2 class="text-sm font-extrabold text-slate-900">8-FRU Summary Register (HMIS 2.2, 3.1 &amp; 3.1.1)</h2>
+        <span id="tableBadge" class="text-xs font-bold text-indigo-800 bg-indigo-50 px-3 py-1 rounded-full">8 FRUs</span>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-xs text-left border-collapse">
           <thead class="bg-slate-900 text-white">
             <tr>
-              <th class="p-3 font-bold">FRU #</th>
+              <th class="p-3 font-bold">#</th>
               <th class="p-3 font-bold">FRU Name</th>
-              <th class="p-3 font-bold">Matched HMIS Facility / Block</th>
-              <th class="p-3 font-bold text-right">Institutional Del. (2.2)</th>
+              <th class="p-3 font-bold">HMIS Facility / Block</th>
+              <th class="p-3 font-bold text-right">Inst. Del. (2.2)</th>
               <th class="p-3 font-bold text-right">Normal Del.</th>
               <th class="p-3 font-bold text-right">C-Section (3.1)</th>
-              <th class="p-3 font-bold text-right">C-Section %</th>
-              <th class="p-3 font-bold text-right">Night C-Sec (8PM–8AM)</th>
+              <th class="p-3 font-bold text-right">C-Sec %</th>
+              <th class="p-3 font-bold text-right">Night CS (8PM–8AM)</th>
               <th class="p-3 font-bold text-right">Night %</th>
-              <th class="p-3 font-bold text-center">Status</th>
             </tr>
           </thead>
           <tbody id="fruTableBody" class="divide-y divide-slate-100"></tbody>
@@ -221,54 +197,14 @@
     }
 
     const FRU_LIST = [
-      {
-        id: 1,
-        label: "Rudauli",
-        matchFacility: (f) => f.includes("RUDAULI") && f.includes("CHC"),
-        matchBlock: (b) => b.includes("RUDAULI")
-      },
-      {
-        id: 2,
-        label: "Sohawal",
-        matchFacility: (f) => f.includes("SOHAWAL") && f.includes("CHC"),
-        matchBlock: (b) => b.includes("SOHAWAL")
-      },
-      {
-        id: 3,
-        label: "Bikapur",
-        matchFacility: (f) => f.includes("BIKAPUR") && f.includes("CHC"),
-        matchBlock: (b) => b.includes("BIKAPUR")
-      },
-      {
-        id: 4,
-        label: "Pura Bazar",
-        matchFacility: (f) => (f.includes("PURA BAZAR") || f.includes("POORA BAZAR") || f.includes("PURABAZAR")) && f.includes("CHC"),
-        matchBlock: (b) => b.includes("PURA BAZAR") || b.includes("POORA BAZAR") || b.includes("PURABAZAR")
-      },
-      {
-        id: 5,
-        label: "Milkipur",
-        matchFacility: (f) => f.includes("MILKIPUR") && f.includes("CHC"),
-        matchBlock: (b) => b.includes("MILKIPUR")
-      },
-      {
-        id: 6,
-        label: "Medical College",
-        matchFacility: (f) => f.includes("MEDICAL COLLEGE") || f.includes("ASMC") || f.includes("GMC") || f.includes("DASHRATH"),
-        matchBlock: (b) => b.includes("MEDICAL COLLEGE") || b.includes("ASMC") || b.includes("GMC")
-      },
-      {
-        id: 7,
-        label: "District Women Hospital",
-        matchFacility: (f) => f.includes("DISTRICT WOMEN") || f.includes("DWH") || f.includes("WOMEN HOSPITAL") || f.includes("MAHILA CHIKITSALAYA") || f.includes("MAHILA HOSPITAL"),
-        matchBlock: (b) => b.includes("DWH") || b.includes("WOMEN HOSPITAL") || b.includes("MAHILA")
-      },
-      {
-        id: 8,
-        label: "100 Bed Kumarganj",
-        matchFacility: (f) => f.includes("KUMARGANJ") && (f.includes("100") || f.includes("BED") || f.includes("HOSPITAL")),
-        matchBlock: (b) => b.includes("KUMARGANJ")
-      }
+      { id: 1, label: "Rudauli", matchFacility: (f) => f.includes("RUDAULI") && f.includes("CHC"), matchBlock: (b) => b.includes("RUDAULI") },
+      { id: 2, label: "Sohawal", matchFacility: (f) => f.includes("SOHAWAL") && f.includes("CHC"), matchBlock: (b) => b.includes("SOHAWAL") },
+      { id: 3, label: "Bikapur", matchFacility: (f) => f.includes("BIKAPUR") && f.includes("CHC"), matchBlock: (b) => b.includes("BIKAPUR") },
+      { id: 4, label: "Pura Bazar", matchFacility: (f) => (f.includes("PURA BAZAR") || f.includes("POORA BAZAR") || f.includes("PURABAZAR")) && f.includes("CHC"), matchBlock: (b) => b.includes("PURA BAZAR") || b.includes("POORA BAZAR") || b.includes("PURABAZAR") },
+      { id: 5, label: "Milkipur", matchFacility: (f) => f.includes("MILKIPUR") && f.includes("CHC"), matchBlock: (b) => b.includes("MILKIPUR") },
+      { id: 6, label: "Medical College", matchFacility: (f) => f.includes("MEDICAL COLLEGE") || f.includes("ASMC") || f.includes("GMC") || f.includes("DASHRATH"), matchBlock: (b) => b.includes("MEDICAL COLLEGE") || b.includes("ASMC") || b.includes("GMC") },
+      { id: 7, label: "District Women Hospital", matchFacility: (f) => f.includes("DISTRICT WOMEN") || f.includes("DWH") || f.includes("WOMEN HOSPITAL") || f.includes("MAHILA CHIKITSALAYA") || f.includes("MAHILA HOSPITAL"), matchBlock: (b) => b.includes("DWH") || b.includes("WOMEN HOSPITAL") || b.includes("MAHILA") },
+      { id: 8, label: "100 Bed Kumarganj", matchFacility: (f) => f.includes("KUMARGANJ") && (f.includes("100") || f.includes("BED") || f.includes("HOSPITAL")), matchBlock: (b) => b.includes("KUMARGANJ") }
     ];
 
     let allRows = [];
@@ -307,14 +243,13 @@
 
     async function initFruPage() {
       const fruSel = document.getElementById("fruFilterSelect");
-      fruSel.innerHTML = `<option value="ALL">सभी 8 FRUs (All 8 FRUs)</option>` +
+      fruSel.innerHTML = `<option value="ALL">All 8 FRUs</option>` +
         FRU_LIST.map(f => `<option value="${f.id}">${f.id}. ${f.label}</option>`).join("");
 
       const snap = await get(dbRef);
       if (!snap.exists() || !snap.val().rows) {
         allRows = [];
-        document.getElementById("metaSubTitle").textContent =
-          "डेटा उपलब्ध नहीं है — पहले Master Admin (admin.html) से Institutional Delivery फ़ाइल अपलोड करें।";
+        document.getElementById("metaSubTitle").textContent = "No data available. Upload HMIS file in Master Admin.";
         window.renderFruDashboard();
         return;
       }
@@ -324,12 +259,12 @@
 
       const months = sortMonthsChronologically(Array.from(new Set(allRows.map(r => r.month).filter(Boolean))));
       const mSel = document.getElementById("monthFilterSelect");
-      mSel.innerHTML = `<option value="ALL">सभी माह (${months.length})</option>` +
+      mSel.innerHTML = `<option value="ALL">All Months (${months.length})</option>` +
         months.map(m => `<option value="${m}">${m}</option>`).join("");
       if (months.length) mSel.value = months[months.length - 1];
 
       document.getElementById("metaSubTitle").textContent =
-        `उपलब्ध माह: ${months.join(", ")} • कुल 8 FRUs • अंतिम अपडेट: ${data.updatedAt || ""}`;
+        `Months: ${months.join(", ")} • 8 Designated FRUs • Updated: ${data.updatedAt || ""}`;
 
       window.renderFruDashboard();
     }
@@ -342,8 +277,7 @@
       const everActiveFruIds = new Set();
       FRU_LIST.forEach(fru => {
         const allTimeRows = extractRowsForFru(fru, allRows);
-        const anyDel = allTimeRows.reduce((s, r) => s + (Number(r.instDel) || 0), 0);
-        if (anyDel > 0) everActiveFruIds.add(fru.id);
+        if (allTimeRows.reduce((s, r) => s + (Number(r.instDel) || 0), 0) > 0) everActiveFruIds.add(fru.id);
       });
 
       const monthRows = allRows.filter(r => selMonth === "ALL" || r.month === selMonth);
@@ -358,18 +292,7 @@
         const csPct = del > 0 ? ((cs / del) * 100).toFixed(1) : "0.0";
         const nightPct = cs > 0 ? ((night / cs) * 100).toFixed(1) : "0.0";
 
-        return {
-          id: fru.id,
-          name: fru.label,
-          facility: facilityLabel,
-          del,
-          normal,
-          cs,
-          csPct,
-          night,
-          nightPct,
-          everActive: everActiveFruIds.has(fru.id)
-        };
+        return { id: fru.id, name: fru.label, facility: facilityLabel, del, normal, cs, csPct, night, nightPct, everActive: everActiveFruIds.has(fru.id) };
       });
 
       const filteredFrus = allEightComputed.filter(f => {
@@ -382,7 +305,6 @@
       currentFruSummary = filteredFrus;
 
       const activeCsCount = filteredFrus.filter(f => f.cs > 0).length;
-      const zeroCsCount = filteredFrus.length - activeCsCount;
       const totDel = filteredFrus.reduce((s, f) => s + f.del, 0);
       const totNorm = filteredFrus.reduce((s, f) => s + f.normal, 0);
       const totCs = filteredFrus.reduce((s, f) => s + f.cs, 0);
@@ -390,50 +312,45 @@
 
       const csPct = totDel > 0 ? ((totCs / totDel) * 100).toFixed(1) : "0.0";
       const nightPct = totCs > 0 ? ((totNight / totCs) * 100).toFixed(1) : "0.0";
-
       const topByCs = [...filteredFrus].filter(f => f.cs > 0).sort((a, b) => b.cs - a.cs)[0];
 
-      document.getElementById("kpiFruTotal").textContent = filteredFrus.length;
-      document.getElementById("kpiFruFunctional").textContent = `Active C-Sec: ${activeCsCount} | Zero: ${zeroCsCount}`;
       document.getElementById("kpiFruDel").textContent = totDel.toLocaleString("en-IN");
-      document.getElementById("kpiFruNormal").textContent = `Normal Del: ${totNorm.toLocaleString("en-IN")}`;
+      document.getElementById("kpiFruNormal").textContent = `Normal Deliveries: ${totNorm.toLocaleString("en-IN")}`;
       document.getElementById("kpiFruCs").textContent = totCs.toLocaleString("en-IN");
-      document.getElementById("kpiFruCsPct").textContent = `C-Section दर: ${csPct}%`;
+      document.getElementById("kpiFruCsPct").textContent = `C-Section Rate: ${csPct}%`;
       document.getElementById("kpiFruNight").textContent = totNight.toLocaleString("en-IN");
-      document.getElementById("kpiFruNightPct").textContent = `कुल C-Section का ${nightPct}%`;
-      document.getElementById("kpiTopFruName").textContent = topByCs ? topByCs.name : "—";
-      document.getElementById("kpiTopFruSub").textContent = topByCs ? `${topByCs.cs} C-Sec (${topByCs.csPct}%)` : "कोई C-Section नहीं";
+      document.getElementById("kpiFruNightPct").textContent = `${nightPct}% of C-Sections`;
+      document.getElementById("kpiFruFunctional").textContent = `${activeCsCount} / ${filteredFrus.length}`;
+      document.getElementById("kpiTopFruSub").textContent = topByCs ? `Top: ${topByCs.name} (${topByCs.cs})` : "Top: —";
       document.getElementById("tableBadge").textContent = `${filteredFrus.length} FRUs`;
 
       document.getElementById("fruCardsGrid").innerHTML = filteredFrus.map(f => {
         const isFunctional = f.cs > 0;
-        const borderClass = isFunctional ? "border-emerald-300 bg-white" : "border-rose-300 bg-rose-50/40";
         const badge = isFunctional
-          ? `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-[10px] flex-shrink-0">Active C-Sec</span>`
-          : `<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-extrabold text-[10px] flex-shrink-0">0 C-Section</span>`;
+          ? `<span class="px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 font-bold text-[10px] flex-shrink-0">Active</span>`
+          : `<span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-bold text-[10px] flex-shrink-0">0 C-Sec</span>`;
 
         return `
-          <div class="p-4 rounded-2xl border ${borderClass} shadow-sm flex flex-col justify-between space-y-3">
+          <div class="p-4 rounded-2xl border border-slate-200/80 bg-white shadow-xs flex flex-col justify-between space-y-3">
             <div class="flex items-start justify-between gap-2">
               <div class="min-w-0">
-                <span class="text-[10px] font-extrabold text-indigo-700 uppercase">FRU #${f.id}</span>
-                <h3 class="text-base font-extrabold text-slate-900 leading-tight truncate">${f.name}</h3>
+                <span class="text-[10px] font-bold text-slate-400 uppercase">FRU #${f.id}</span>
+                <h3 class="text-sm font-extrabold text-slate-900 leading-tight truncate">${f.name}</h3>
                 <p class="text-[11px] text-slate-500 truncate" title="${f.facility}">${f.facility}</p>
               </div>
               ${badge}
             </div>
-
             <div class="grid grid-cols-3 gap-1.5 pt-2.5 border-t border-slate-100 text-center">
               <div class="bg-slate-50 rounded-xl p-2">
-                <div class="text-[10px] font-bold text-slate-500">Inst. Del</div>
+                <div class="text-[10px] font-semibold text-slate-500">Inst. Del</div>
                 <div class="text-sm font-extrabold text-slate-900">${f.del.toLocaleString("en-IN")}</div>
               </div>
-              <div class="bg-amber-50 rounded-xl p-2">
-                <div class="text-[10px] font-bold text-amber-800">C-Section</div>
+              <div class="bg-amber-50/70 rounded-xl p-2">
+                <div class="text-[10px] font-semibold text-amber-800">C-Sec</div>
                 <div class="text-sm font-extrabold text-amber-700">${f.cs} <span class="text-[10px]">(${f.csPct}%)</span></div>
               </div>
-              <div class="bg-indigo-50 rounded-xl p-2">
-                <div class="text-[10px] font-bold text-indigo-800">Night CS</div>
+              <div class="bg-indigo-50/70 rounded-xl p-2">
+                <div class="text-[10px] font-semibold text-indigo-800">Night</div>
                 <div class="text-sm font-extrabold text-indigo-700">${f.night} <span class="text-[10px]">(${f.nightPct}%)</span></div>
               </div>
             </div>
@@ -448,22 +365,20 @@
       const bottomList = eligibleFrus.filter(x => !topIds.has(x.id)).reverse().slice(0, half);
 
       const buildFruRankRow = (item, idx, isTop) => {
-        const pill = isTop
-          ? "bg-emerald-50 text-emerald-900 border border-emerald-200"
-          : (item.cs === 0 ? "bg-rose-50 text-rose-800 border border-rose-200" : "bg-amber-50 text-amber-900 border border-amber-200");
+        const pill = isTop ? "bg-teal-50 text-teal-900 border border-teal-200" : "bg-slate-100 text-slate-800 border border-slate-200";
         return `
           <div class="flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 rounded-xl text-xs">
             <div class="flex items-center gap-3 min-w-0">
-              <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-[11px] font-extrabold ${isTop ? 'bg-emerald-700 text-white' : 'bg-rose-700 text-white'}">
+              <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-[11px] font-extrabold ${isTop ? 'bg-teal-700 text-white' : 'bg-slate-700 text-white'}">
                 ${idx + 1}
               </span>
               <div class="truncate">
                 <div class="font-bold text-slate-900 truncate">${item.name}</div>
-                <div class="text-[11px] text-slate-500 truncate">Total Del: ${item.del} • Night CS: ${item.night}</div>
+                <div class="text-[11px] text-slate-500 truncate">Deliveries: ${item.del} • Night CS: ${item.night}</div>
               </div>
             </div>
             <span class="ml-2 flex-shrink-0 px-3 py-1 rounded-full font-extrabold text-xs ${pill}">
-              C-Sec: ${item.cs} <span class="font-semibold opacity-80">(${item.csPct}%)</span>
+              C-Sec: ${item.cs} <span class="font-semibold opacity-75">(${item.csPct}%)</span>
             </span>
           </div>
         `;
@@ -471,33 +386,25 @@
 
       document.getElementById("topFruList").innerHTML = topList.length
         ? topList.map((x, i) => buildFruRankRow(x, i, true)).join("")
-        : `<p class="p-4 text-xs text-slate-400 text-center">डेटा उपलब्ध नहीं</p>`;
+        : `<p class="p-4 text-xs text-slate-400 text-center">No active FRU records</p>`;
 
       document.getElementById("bottomFruList").innerHTML = bottomList.length
         ? bottomList.map((x, i) => buildFruRankRow(x, i, false)).join("")
-        : `<p class="p-4 text-xs text-slate-400 text-center">तुलना के लिए पर्याप्त सक्रिय FRU नहीं हैं</p>`;
+        : `<p class="p-4 text-xs text-slate-400 text-center">No additional active FRUs to compare</p>`;
 
-      document.getElementById("fruTableBody").innerHTML = filteredFrus.map(f => {
-        const isFunctional = f.cs > 0;
-        const badge = isFunctional
-          ? `<span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">Functional FRU</span>`
-          : `<span class="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-700 font-bold text-[10px]">0 C-Section</span>`;
-
-        return `
-          <tr class="hover:bg-indigo-50/40 transition ${!isFunctional ? 'bg-rose-50/25' : ''}">
-            <td class="p-3 font-extrabold text-indigo-900">${f.id}</td>
-            <td class="p-3 font-extrabold text-slate-900">${f.name}</td>
-            <td class="p-3 font-semibold text-slate-600">${f.facility}</td>
-            <td class="p-3 text-right font-extrabold text-emerald-800">${f.del.toLocaleString("en-IN")}</td>
-            <td class="p-3 text-right font-semibold text-slate-700">${f.normal.toLocaleString("en-IN")}</td>
-            <td class="p-3 text-right font-extrabold text-amber-700">${f.cs.toLocaleString("en-IN")}</td>
-            <td class="p-3 text-right font-bold text-slate-800">${f.csPct}%</td>
-            <td class="p-3 text-right font-extrabold text-indigo-700">${f.night.toLocaleString("en-IN")}</td>
-            <td class="p-3 text-right font-semibold text-indigo-600">${f.nightPct}%</td>
-            <td class="p-3 text-center">${badge}</td>
-          </tr>
-        `;
-      }).join("");
+      document.getElementById("fruTableBody").innerHTML = filteredFrus.map(f => `
+        <tr class="hover:bg-slate-50/90 transition">
+          <td class="p-3 font-bold text-slate-500">${f.id}</td>
+          <td class="p-3 font-extrabold text-slate-900">${f.name}</td>
+          <td class="p-3 text-slate-600">${f.facility}</td>
+          <td class="p-3 text-right font-extrabold text-teal-800">${f.del.toLocaleString("en-IN")}</td>
+          <td class="p-3 text-right font-semibold text-slate-700">${f.normal.toLocaleString("en-IN")}</td>
+          <td class="p-3 text-right font-extrabold text-amber-600">${f.cs.toLocaleString("en-IN")}</td>
+          <td class="p-3 text-right font-bold text-slate-800">${f.csPct}%</td>
+          <td class="p-3 text-right font-extrabold text-indigo-700">${f.night.toLocaleString("en-IN")}</td>
+          <td class="p-3 text-right font-semibold text-indigo-600">${f.nightPct}%</td>
+        </tr>
+      `).join("");
 
       renderCharts(filteredFrus, selFruId);
     };
@@ -511,9 +418,9 @@
         data: {
           labels: filteredFrus.map(f => f.name),
           datasets: [
-            { label: "Institutional Del. (2.2)", data: filteredFrus.map(f => f.del), backgroundColor: "#0d9488", borderRadius: 6, maxBarThickness: 28 },
-            { label: "C-Section (3.1)", data: filteredFrus.map(f => f.cs), backgroundColor: "#d97706", borderRadius: 6, maxBarThickness: 28 },
-            { label: "Night C-Section (3.1.1)", data: filteredFrus.map(f => f.night), backgroundColor: "#4f46e5", borderRadius: 6, maxBarThickness: 28 }
+            { label: "Inst. Del. (2.2)", data: filteredFrus.map(f => f.del), backgroundColor: "#0d9488", borderRadius: 6, maxBarThickness: 26 },
+            { label: "C-Section (3.1)", data: filteredFrus.map(f => f.cs), backgroundColor: "#d97706", borderRadius: 6, maxBarThickness: 26 },
+            { label: "Night C-Sec (3.1.1)", data: filteredFrus.map(f => f.night), backgroundColor: "#4338ca", borderRadius: 6, maxBarThickness: 26 }
           ]
         },
         options: {
@@ -521,11 +428,7 @@
           maintainAspectRatio: false,
           plugins: {
             legend: { position: "top", labels: { font: { size: 11, weight: "bold" } } },
-            datalabels: {
-              anchor: "end", align: "top", offset: 2, color: "#0f172a",
-              font: { weight: "bold", size: 10 },
-              formatter: v => v > 0 ? v : ""
-            }
+            datalabels: { anchor: "end", align: "top", offset: 2, color: "#0f172a", font: { weight: "bold", size: 10 }, formatter: v => v > 0 ? v : "" }
           },
           scales: {
             x: { grid: { display: false }, ticks: { font: { size: 10, weight: "bold" } } },
@@ -540,14 +443,13 @@
 
       const monthSeries = months.map(m => {
         const mRows = allRows.filter(r => r.month === m);
-        let del = 0, cs = 0, night = 0;
+        let cs = 0, night = 0;
         targetFrus.forEach(fru => {
           const matched = extractRowsForFru(fru, mRows);
-          del += matched.reduce((s, r) => s + (Number(r.instDel) || 0), 0);
           cs += matched.reduce((s, r) => s + (Number(r.cSection) || 0), 0);
           night += matched.reduce((s, r) => s + (Number(r.nightCs) || 0), 0);
         });
-        return { month: m, del, cs, night };
+        return { month: m, cs, night };
       });
 
       const ctx2 = document.getElementById("fruMonthTrendChart").getContext("2d");
@@ -558,8 +460,8 @@
         data: {
           labels: monthSeries.map(x => x.month),
           datasets: [
-            { label: "FRU C-Section (3.1)", data: monthSeries.map(x => x.cs), backgroundColor: "#d97706", borderRadius: 6, maxBarThickness: 36 },
-            { label: "Night C-Section (3.1.1)", data: monthSeries.map(x => x.night), backgroundColor: "#4f46e5", borderRadius: 6, maxBarThickness: 36 }
+            { label: "C-Section (3.1)", data: monthSeries.map(x => x.cs), backgroundColor: "#d97706", borderRadius: 6, maxBarThickness: 36 },
+            { label: "Night C-Sec (3.1.1)", data: monthSeries.map(x => x.night), backgroundColor: "#4338ca", borderRadius: 6, maxBarThickness: 36 }
           ]
         },
         options: {
@@ -567,11 +469,7 @@
           maintainAspectRatio: false,
           plugins: {
             legend: { position: "top", labels: { font: { size: 11, weight: "bold" } } },
-            datalabels: {
-              anchor: "end", align: "top", offset: 2, color: "#0f172a",
-              font: { weight: "bold", size: 10 },
-              formatter: v => v > 0 ? v : ""
-            }
+            datalabels: { anchor: "end", align: "top", offset: 2, color: "#0f172a", font: { weight: "bold", size: 10 }, formatter: v => v > 0 ? v : "" }
           },
           scales: {
             x: { grid: { display: false }, ticks: { font: { size: 11, weight: "bold" } } },
@@ -583,16 +481,16 @@
     }
 
     window.downloadFruExcel = function() {
-      if (!currentFruSummary.length) return alert("डाउनलोड करने के लिए FRU डेटा उपलब्ध नहीं है।");
+      if (!currentFruSummary.length) return alert("No FRU data to export.");
       const selMonth = document.getElementById("monthFilterSelect").value;
       const rows = currentFruSummary.map(f => ({
         "FRU #": f.id,
         "Month": selMonth,
         "FRU Name": f.name,
-        "Matched Facility": f.facility,
+        "HMIS Facility": f.facility,
         "Institutional Deliveries (2.2)": f.del,
         "Normal Deliveries": f.normal,
-        "C-Section Deliveries (3.1)": f.cs,
+        "C-Section (3.1)": f.cs,
         "C-Section %": `${f.csPct}%`,
         "Night C-Section 8PM-8AM (3.1.1)": f.night,
         "Night C-Section %": `${f.nightPct}%`
