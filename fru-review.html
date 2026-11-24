@@ -23,39 +23,39 @@
     }
   </style>
 </head>
-<body class="min-h-screen antialiased">
+<body class="min-h-screen antialiased overflow-x-hidden">
 
-  <!-- CLEAN EXECUTIVE HEADER -->
+  <!-- HEADER -->
   <header class="bg-slate-900 text-white border-b border-slate-800">
-    <div class="max-w-7xl mx-auto px-5 py-4 flex flex-wrap justify-between items-center gap-3">
-      <div>
-        <div class="flex items-center gap-2.5">
-          <h1 class="text-base sm:text-lg font-extrabold tracking-tight">FRU Review (8 First Referral Units) — NHM Ayodhya</h1>
+    <div class="max-w-7xl mx-auto px-3 sm:px-5 py-3.5 sm:py-4 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+      <div class="min-w-0">
+        <div class="flex flex-wrap items-center gap-2">
+          <h1 class="text-sm sm:text-lg font-extrabold tracking-tight">FRU Review (8 First Referral Units) — NHM Ayodhya</h1>
           <span id="roleBadge" class="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold px-2.5 py-0.5 rounded-full uppercase">DISTRICT</span>
         </div>
-        <p id="metaSubTitle" class="text-xs text-slate-400 mt-0.5">Loading 8-FRU records...</p>
+        <p id="metaSubTitle" class="text-[11px] sm:text-xs text-slate-400 mt-0.5 truncate">Loading 8-FRU records...</p>
       </div>
-      <div class="flex items-center gap-2 no-print">
-        <a href="institutional-delivery.html" class="px-3.5 py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-xl transition">
-          ← Total Institutional Delivery
+      <div class="flex flex-wrap items-center gap-2 no-print">
+        <a href="institutional-delivery.html" class="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-xl transition">
+          ← Inst. Delivery
         </a>
-        <button onclick="downloadFruExcel()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition">
-          ⬇️ Export 8-FRU Excel
+        <button onclick="downloadFruExcel()" class="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition">
+          ⬇️ Excel
         </button>
-        <button onclick="window.print()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl transition">
+        <button onclick="window.print()" class="hidden sm:inline-block px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl transition">
           🖨️ Print
         </button>
-        <a href="portal.html" class="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition">
+        <a href="portal.html" class="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition">
           Portal
         </a>
       </div>
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto px-5 py-6 space-y-6">
+  <main class="max-w-7xl mx-auto px-3 sm:px-5 py-4 sm:py-6 space-y-5">
 
-    <!-- COMPACT FILTER BAR -->
-    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs grid grid-cols-1 sm:grid-cols-3 gap-3 no-print">
+    <!-- MOBILE-RESPONSIVE FILTER BAR -->
+    <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 no-print">
       <div>
         <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Month</label>
         <select id="monthFilterSelect" onchange="renderFruDashboard()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
@@ -78,48 +78,47 @@
       </div>
     </div>
 
-    <!-- 4 ESSENTIAL KPI CARDS -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
-        <div class="text-xs font-semibold text-slate-500">Total FRU Deliveries (2.2)</div>
-        <div id="kpiFruDel" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">0</div>
-        <div id="kpiFruNormal" class="text-[11px] font-medium text-teal-700 mt-1">Normal Deliveries: 0</div>
+    <!-- 4 KPI CARDS -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-[11px] sm:text-xs font-semibold text-slate-500">Total FRU Deliveries (2.2)</div>
+        <div id="kpiFruDel" class="text-xl sm:text-3xl font-extrabold text-slate-900 mt-1">0</div>
+        <div id="kpiFruNormal" class="text-[10px] sm:text-[11px] font-medium text-teal-700 mt-1">Normal Deliveries: 0</div>
       </div>
 
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
-        <div class="text-xs font-semibold text-slate-500">Total FRU C-Section (3.1)</div>
-        <div id="kpiFruCs" class="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1">0</div>
-        <div id="kpiFruCsPct" class="text-[11px] font-medium text-amber-700 mt-1">C-Section Rate: 0.0%</div>
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-[11px] sm:text-xs font-semibold text-slate-500">Total FRU C-Section (3.1)</div>
+        <div id="kpiFruCs" class="text-xl sm:text-3xl font-extrabold text-amber-600 mt-1">0</div>
+        <div id="kpiFruCsPct" class="text-[10px] sm:text-[11px] font-medium text-amber-700 mt-1">C-Section Rate: 0.0%</div>
       </div>
 
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
-        <div class="text-xs font-semibold text-slate-500">Night C-Section (8PM–8AM)</div>
-        <div id="kpiFruNight" class="text-2xl sm:text-3xl font-extrabold text-indigo-700 mt-1">0</div>
-        <div id="kpiFruNightPct" class="text-[11px] font-medium text-indigo-600 mt-1">0.0% of C-Sections</div>
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-[11px] sm:text-xs font-semibold text-slate-500">Night C-Section (8PM–8AM)</div>
+        <div id="kpiFruNight" class="text-xl sm:text-3xl font-extrabold text-indigo-700 mt-1">0</div>
+        <div id="kpiFruNightPct" class="text-[10px] sm:text-[11px] font-medium text-indigo-600 mt-1">0.0% of C-Sections</div>
       </div>
 
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
-        <div class="text-xs font-semibold text-slate-500">Functional C-Section FRUs</div>
-        <div id="kpiFruFunctional" class="text-2xl sm:text-3xl font-extrabold text-teal-700 mt-1">0 / 8</div>
-        <div id="kpiTopFruSub" class="text-[11px] font-medium text-slate-500 mt-1">Top: —</div>
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="text-[11px] sm:text-xs font-semibold text-slate-500">Functional C-Section FRUs</div>
+        <div id="kpiFruFunctional" class="text-xl sm:text-3xl font-extrabold text-teal-700 mt-1">0 / 8</div>
+        <div id="kpiTopFruSub" class="text-[10px] sm:text-[11px] font-medium text-slate-500 mt-1 truncate">Top: —</div>
       </div>
     </div>
 
-    <!-- 8 FRU PERFORMANCE CARDS (4x2 CLEAN GRID) -->
-    <div id="fruCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
-
     <!-- CHARTS: 8-FRU COMPARISON & MONTH-WISE TREND -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-      <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+      <div class="lg:col-span-7 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
         <h3 class="text-sm font-extrabold text-slate-900 mb-3">8-FRU Deliveries vs C-Section vs Night C-Section</h3>
-        <div style="height: 290px;">
-          <canvas id="fruCompareChart"></canvas>
+        <div class="overflow-x-auto">
+          <div style="height: 270px; min-width: 480px;">
+            <canvas id="fruCompareChart"></canvas>
+          </div>
         </div>
       </div>
 
-      <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
-        <h3 class="text-sm font-extrabold text-slate-900 mb-3">Month-wise 8-FRU C-Section Trend</h3>
-        <div style="height: 290px;">
+      <div class="lg:col-span-5 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <h3 id="fruMonthTrendHeading" class="text-sm font-extrabold text-slate-900 mb-3">Month-wise 8-FRU C-Section Trend</h3>
+        <div style="height: 270px;">
           <canvas id="fruMonthTrendChart"></canvas>
         </div>
       </div>
@@ -128,30 +127,30 @@
     <!-- TOP & BOTTOM FRUs (ACTIVE FRUs ONLY) -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-        <div class="px-4 py-3 bg-teal-800 text-white flex justify-between items-center">
+        <div class="px-4 py-3 bg-teal-800 text-white flex justify-between items-center gap-2">
           <h3 class="text-xs font-extrabold tracking-wide">Top Performing FRUs</h3>
           <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold">By C-Section &amp; Deliveries</span>
         </div>
-        <div id="topFruList" class="divide-y divide-slate-100 p-2.5"></div>
+        <div id="topFruList" class="divide-y divide-slate-100 p-2 sm:p-2.5"></div>
       </div>
 
       <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-        <div class="px-4 py-3 bg-slate-800 text-white flex justify-between items-center">
+        <div class="px-4 py-3 bg-slate-800 text-white flex justify-between items-center gap-2">
           <h3 class="text-xs font-extrabold tracking-wide">Lowest Performing FRUs</h3>
           <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold">Excludes All-Month 0</span>
         </div>
-        <div id="bottomFruList" class="divide-y divide-slate-100 p-2.5"></div>
+        <div id="bottomFruList" class="divide-y divide-slate-100 p-2 sm:p-2.5"></div>
       </div>
     </div>
 
     <!-- 8-FRU SUMMARY TABLE -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-      <div class="px-4 py-3.5 border-b border-slate-100 flex justify-between items-center">
+      <div class="px-4 py-3.5 border-b border-slate-100 flex justify-between items-center gap-2">
         <h2 class="text-sm font-extrabold text-slate-900">8-FRU Summary Register (HMIS 2.2, 3.1 &amp; 3.1.1)</h2>
         <span id="tableBadge" class="text-xs font-bold text-indigo-800 bg-indigo-50 px-3 py-1 rounded-full">8 FRUs</span>
       </div>
       <div class="overflow-x-auto">
-        <table class="w-full text-xs text-left border-collapse">
+        <table class="w-full text-xs text-left border-collapse min-w-[680px]">
           <thead class="bg-slate-900 text-white">
             <tr>
               <th class="p-3 font-bold">#</th>
@@ -324,40 +323,6 @@
       document.getElementById("kpiTopFruSub").textContent = topByCs ? `Top: ${topByCs.name} (${topByCs.cs})` : "Top: —";
       document.getElementById("tableBadge").textContent = `${filteredFrus.length} FRUs`;
 
-      document.getElementById("fruCardsGrid").innerHTML = filteredFrus.map(f => {
-        const isFunctional = f.cs > 0;
-        const badge = isFunctional
-          ? `<span class="px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 font-bold text-[10px] flex-shrink-0">Active</span>`
-          : `<span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-bold text-[10px] flex-shrink-0">0 C-Sec</span>`;
-
-        return `
-          <div class="p-4 rounded-2xl border border-slate-200/80 bg-white shadow-xs flex flex-col justify-between space-y-3">
-            <div class="flex items-start justify-between gap-2">
-              <div class="min-w-0">
-                <span class="text-[10px] font-bold text-slate-400 uppercase">FRU #${f.id}</span>
-                <h3 class="text-sm font-extrabold text-slate-900 leading-tight truncate">${f.name}</h3>
-                <p class="text-[11px] text-slate-500 truncate" title="${f.facility}">${f.facility}</p>
-              </div>
-              ${badge}
-            </div>
-            <div class="grid grid-cols-3 gap-1.5 pt-2.5 border-t border-slate-100 text-center">
-              <div class="bg-slate-50 rounded-xl p-2">
-                <div class="text-[10px] font-semibold text-slate-500">Inst. Del</div>
-                <div class="text-sm font-extrabold text-slate-900">${f.del.toLocaleString("en-IN")}</div>
-              </div>
-              <div class="bg-amber-50/70 rounded-xl p-2">
-                <div class="text-[10px] font-semibold text-amber-800">C-Sec</div>
-                <div class="text-sm font-extrabold text-amber-700">${f.cs} <span class="text-[10px]">(${f.csPct}%)</span></div>
-              </div>
-              <div class="bg-indigo-50/70 rounded-xl p-2">
-                <div class="text-[10px] font-semibold text-indigo-800">Night</div>
-                <div class="text-sm font-extrabold text-indigo-700">${f.night} <span class="text-[10px]">(${f.nightPct}%)</span></div>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join("");
-
       const eligibleFrus = filteredFrus.filter(f => f.everActive).sort((a, b) => (b.cs - a.cs) || (b.del - a.del));
       const half = Math.min(4, Math.floor(eligibleFrus.length / 2));
       const topList = eligibleFrus.length === 1 ? eligibleFrus : eligibleFrus.slice(0, half);
@@ -367,8 +332,8 @@
       const buildFruRankRow = (item, idx, isTop) => {
         const pill = isTop ? "bg-teal-50 text-teal-900 border border-teal-200" : "bg-slate-100 text-slate-800 border border-slate-200";
         return `
-          <div class="flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 rounded-xl text-xs">
-            <div class="flex items-center gap-3 min-w-0">
+          <div class="flex items-center justify-between px-2.5 py-2.5 hover:bg-slate-50 rounded-xl text-xs gap-2">
+            <div class="flex items-center gap-2.5 min-w-0">
               <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-[11px] font-extrabold ${isTop ? 'bg-teal-700 text-white' : 'bg-slate-700 text-white'}">
                 ${idx + 1}
               </span>
@@ -377,7 +342,7 @@
                 <div class="text-[11px] text-slate-500 truncate">Deliveries: ${item.del} • Night CS: ${item.night}</div>
               </div>
             </div>
-            <span class="ml-2 flex-shrink-0 px-3 py-1 rounded-full font-extrabold text-xs ${pill}">
+            <span class="flex-shrink-0 px-2.5 py-1 rounded-full font-extrabold text-[11px] sm:text-xs ${pill}">
               C-Sec: ${item.cs} <span class="font-semibold opacity-75">(${item.csPct}%)</span>
             </span>
           </div>
@@ -393,13 +358,13 @@
         : `<p class="p-4 text-xs text-slate-400 text-center">No additional active FRUs to compare</p>`;
 
       document.getElementById("fruTableBody").innerHTML = filteredFrus.map(f => `
-        <tr class="hover:bg-slate-50/90 transition">
+        <tr class="hover:bg-slate-50/90 transition ${f.cs === 0 ? 'bg-amber-50/30' : ''}">
           <td class="p-3 font-bold text-slate-500">${f.id}</td>
           <td class="p-3 font-extrabold text-slate-900">${f.name}</td>
           <td class="p-3 text-slate-600">${f.facility}</td>
           <td class="p-3 text-right font-extrabold text-teal-800">${f.del.toLocaleString("en-IN")}</td>
           <td class="p-3 text-right font-semibold text-slate-700">${f.normal.toLocaleString("en-IN")}</td>
-          <td class="p-3 text-right font-extrabold text-amber-600">${f.cs.toLocaleString("en-IN")}</td>
+          <td class="p-3 text-right font-extrabold ${f.cs > 0 ? 'text-amber-600' : 'text-rose-600'}">${f.cs.toLocaleString("en-IN")}</td>
           <td class="p-3 text-right font-bold text-slate-800">${f.csPct}%</td>
           <td class="p-3 text-right font-extrabold text-indigo-700">${f.night.toLocaleString("en-IN")}</td>
           <td class="p-3 text-right font-semibold text-indigo-600">${f.nightPct}%</td>
@@ -418,9 +383,9 @@
         data: {
           labels: filteredFrus.map(f => f.name),
           datasets: [
-            { label: "Inst. Del. (2.2)", data: filteredFrus.map(f => f.del), backgroundColor: "#0d9488", borderRadius: 6, maxBarThickness: 26 },
-            { label: "C-Section (3.1)", data: filteredFrus.map(f => f.cs), backgroundColor: "#d97706", borderRadius: 6, maxBarThickness: 26 },
-            { label: "Night C-Sec (3.1.1)", data: filteredFrus.map(f => f.night), backgroundColor: "#4338ca", borderRadius: 6, maxBarThickness: 26 }
+            { label: "Inst. Del. (2.2)", data: filteredFrus.map(f => f.del), backgroundColor: "#0d9488", borderRadius: 6, maxBarThickness: 24 },
+            { label: "C-Section (3.1)", data: filteredFrus.map(f => f.cs), backgroundColor: "#d97706", borderRadius: 6, maxBarThickness: 24 },
+            { label: "Night C-Sec (3.1.1)", data: filteredFrus.map(f => f.night), backgroundColor: "#4338ca", borderRadius: 6, maxBarThickness: 24 }
           ]
         },
         options: {
@@ -438,7 +403,12 @@
         plugins: [ChartDataLabels]
       });
 
-      const targetFrus = selFruId === "ALL" ? FRU_LIST : FRU_LIST.filter(f => String(f.id) === String(selFruId));
+      const selectedFruObj = selFruId === "ALL" ? null : FRU_LIST.find(f => String(f.id) === String(selFruId));
+      document.getElementById("fruMonthTrendHeading").textContent = selectedFruObj
+        ? `Month-wise Trend — ${selectedFruObj.label}`
+        : "Month-wise 8-FRU C-Section Trend";
+
+      const targetFrus = selectedFruObj ? [selectedFruObj] : FRU_LIST;
       const months = sortMonthsChronologically(Array.from(new Set(allRows.map(r => r.month).filter(Boolean))));
 
       const monthSeries = months.map(m => {
@@ -490,7 +460,7 @@
         "HMIS Facility": f.facility,
         "Institutional Deliveries (2.2)": f.del,
         "Normal Deliveries": f.normal,
-        "C-Section (3.1)": f.cs,
+        "C-Section Deliveries (3.1)": f.cs,
         "C-Section %": `${f.csPct}%`,
         "Night C-Section 8PM-8AM (3.1.1)": f.night,
         "Night C-Section %": `${f.nightPct}%`
