@@ -152,11 +152,11 @@
               <span>• FRU Review (8 FRUs) ↗</span>
               <span class="text-[10px] bg-indigo-500/20 text-indigo-200 px-1.5 py-0.5 rounded font-bold">8 FRU</span>
             </a>
-            <button onclick="selectSubProgram('mh_delivery_ekavach')" id="nav_mh_delivery_ekavach"
-              class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-              <span>• Delivery Updation (EKAVACH)</span>
-              <span id="cnt_mh_delivery_ekavach" class="text-[10px] text-slate-400">—</span>
-            </button>
+            <a href="delivery-ekavach.html"
+              class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-amber-300 hover:bg-slate-800 hover:text-white font-semibold transition">
+              <span>• Delivery Updation (EKAVACH) ↗</span>
+              <span id="cnt_mh_delivery_ekavach" class="text-[10px] bg-amber-500/20 text-amber-200 px-1.5 py-0.5 rounded font-bold">—</span>
+            </a>
             <a href="anc-ekavach.html"
               class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-teal-300 hover:bg-slate-800 hover:text-white font-semibold transition">
               <span>• ANC Coverage (EKAVACH) ↗</span>
@@ -556,14 +556,6 @@
         dbNode: "jsy_portal",
         mode: "jsy"
       },
-      mh_delivery_ekavach: {
-        category: "1. Maternal Health",
-        badgeClass: "bg-amber-100 text-amber-800",
-        title: "Delivery Updation (EKAVACH) — समीक्षा",
-        sub: "e-Kavach पोर्टल पर आशा/ANM द्वारा प्रसव अपडेशन की ब्लॉक-वार प्रगति",
-        dbNode: "mh_delivery_ekavach",
-        mode: "generic"
-      },
       mh_anc_hmis: {
         category: "1. Maternal Health",
         badgeClass: "bg-amber-100 text-amber-800",
@@ -705,6 +697,11 @@
         const instRows = portalData.mh_inst_delivery?.rows || [];
         if (instRows.length > 0) {
           document.getElementById("cnt_mh_inst_delivery").textContent = `${instRows.length}`;
+        }
+
+        const delEkavachRows = portalData.mh_delivery_ekavach?.rows || [];
+        if (delEkavachRows.length > 0) {
+          document.getElementById("cnt_mh_delivery_ekavach").textContent = `${delEkavachRows.length}`;
         }
 
         const ancRows = portalData.mh_anc_ekavach?.rows || [];
