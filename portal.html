@@ -327,6 +327,10 @@
             <select id="wsDateFilter" onchange="renderActiveProgram()" class="hidden px-3 py-2 border border-indigo-200 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-900">
             </select>
 
+            <select id="wsCauseFilter" onchange="renderActiveProgram()" class="hidden px-3 py-2 border border-rose-200 rounded-xl text-xs font-bold bg-rose-50 text-rose-900">
+              <option value="ALL">🩺 Cause of Death: All</option>
+            </select>
+
             <select id="wsBlockFilter" onchange="renderActiveProgram()" class="px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50 text-slate-800">
               <option value="ALL">All 11 Blocks (जनपद अयोध्या)</option>
             </select>
@@ -374,6 +378,33 @@
             <div id="kpi4Label" class="text-xs font-bold text-slate-500">सुधार की आवश्यकता (Lowest)</div>
             <div id="kpi4Val" class="text-lg font-extrabold text-rose-600 mt-1 truncate">—</div>
             <div id="kpi4Sub" class="text-[11px] text-rose-600 mt-0.5">—</div>
+          </div>
+        </div>
+
+        <!-- MDSR CLINICAL ANALYSIS PANEL (CAUSE, PLACE & TIMING OF DEATH) -->
+        <div id="mdsrAnalysisGrid" class="hidden grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-white rounded-2xl border border-rose-200/80 shadow-sm overflow-hidden">
+            <div class="px-4 py-2.5 bg-rose-950 text-white flex justify-between items-center">
+              <h3 class="text-xs font-extrabold">🩺 मृत्यु का कारण (Cause of Death)</h3>
+              <span class="text-[10px] text-rose-200">Click to Filter</span>
+            </div>
+            <div id="mdsrCauseBox" class="p-3 space-y-2 text-xs"></div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-indigo-200/80 shadow-sm overflow-hidden">
+            <div class="px-4 py-2.5 bg-indigo-950 text-white flex justify-between items-center">
+              <h3 class="text-xs font-extrabold">🏥 मृत्यु का स्थान (Place of Death)</h3>
+              <span class="text-[10px] text-indigo-200">Facility / Transit / Home</span>
+            </div>
+            <div id="mdsrPlaceBox" class="p-3 space-y-2.5 text-xs"></div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-amber-200/80 shadow-sm overflow-hidden">
+            <div class="px-4 py-2.5 bg-amber-900 text-white flex justify-between items-center">
+              <h3 class="text-xs font-extrabold">⏱️ मृत्यु का समय (When Death Occurred)</h3>
+              <span class="text-[10px] text-amber-200">Stage Breakdown</span>
+            </div>
+            <div id="mdsrTimingBox" class="p-3 space-y-2.5 text-xs"></div>
           </div>
         </div>
 
@@ -570,8 +601,8 @@
       mh_maternal_death: {
         category: "1. Maternal Health",
         badgeClass: "bg-rose-100 text-rose-800",
-        title: "Maternal Death (MDSR) — मातृ मृत्यु रिपोर्टिंग समीक्षा",
-        sub: "ब्लॉक-वार रिपोर्ट की गई कुल मातृ मृत्यु (Death Report Count), स्थान, कारण एवं Audit Status",
+        title: "Maternal Death (MDSR) — मृत्यु कारण एवं ब्लॉकवार विश्लेषण",
+        sub: "मृत्यु के कारण (Cause), स्थान (Place), समय (Stage), Top/Bottom ब्लॉक व ऑडिट स्थिति",
         dbNode: "mh_maternal_death",
         mode: "mdsr"
       },
@@ -662,9 +693,9 @@
     }
 
     function getDeathCountColor(cnt) {
-      if (cnt >= 4) return "#be123c"; // High Death Alert (Rose)
-      if (cnt >= 2) return "#d97706"; // Moderate (Amber)
-      return "#0284c7";               // Low (Blue)
+      if (cnt >= 4) return "#be123c";
+      if (cnt >= 2) return "#d97706";
+      return "#0284c7";
     }
 
     function getRecordsForProgram(key) {
@@ -677,6 +708,13 @@
       if (meta.mode === "ncd") return mod.units || [];
       return mod.rows || mod.records || [];
     }
+
+    window.filterByCause = function(causeName) {
+      const causeSel = document.getElementById("wsCauseFilter");
+      if (!causeSel) return;
+      causeSel.value = (causeSel.value === causeName) ? "ALL" : causeName;
+      renderActiveProgram();
+    };
 
     async function initPortal() {
       try {
@@ -757,6 +795,17 @@
         fullMdsrBtn.classList.toggle("hidden", key !== "mh_maternal_death");
       }
 
+      const mdsrGrid = document.getElementById("mdsrAnalysisGrid");
+      if (mdsrGrid) {
+        if (key === "mh_maternal_death") {
+          mdsrGrid.classList.remove("hidden");
+          mdsrGrid.classList.add("grid");
+        } else {
+          mdsrGrid.classList.add("hidden");
+          mdsrGrid.classList.remove("grid");
+        }
+      }
+
       if (window.innerWidth < 1024 && !document.getElementById("leftSidebar").classList.contains("-translate-x-full")) {
         toggleSidebar();
       }
@@ -769,7 +818,6 @@
       document.getElementById("wsTitle").textContent = meta.title;
       document.getElementById("wsSubTitle").textContent = meta.sub;
 
-      // Update Legend & Chart Subtitle for MDSR (Death Report Count based) vs Percentage programs
       const legendBar = document.getElementById("wsLegendBar");
       const chartSub = document.getElementById("wsChartSub");
       if (meta.mode === "mdsr") {
@@ -799,16 +847,20 @@
       const records = getRecordsForProgram(key);
 
       const dateSel = document.getElementById("wsDateFilter");
+      const causeSel = document.getElementById("wsCauseFilter");
+
       if ((meta.mode === "jsy" || meta.mode === "abha") && records.length) {
         const dates = Array.from(new Set(records.map(r => r.date).filter(Boolean)));
         dateSel.innerHTML = dates.map(d => `<option value="${d}">📅 दिनांक: ${d}</option>`).join("");
         if (mod.latestDate && dates.includes(mod.latestDate)) dateSel.value = mod.latestDate;
         dateSel.classList.remove("hidden");
+        causeSel.classList.add("hidden");
       } else if (meta.mode === "asha" && (portalData.months || []).length) {
         const months = (portalData.months || []).slice().sort().reverse();
         dateSel.innerHTML = `<option value="ALL">📅 सभी माह (All Months)</option>` +
           months.map(m => `<option value="${m}">📅 माह: ${m}</option>`).join("");
         dateSel.classList.remove("hidden");
+        causeSel.classList.add("hidden");
       } else if (meta.mode === "mdsr") {
         dateSel.innerHTML = `
           <option value="ALL">📋 Audit Status: All</option>
@@ -816,8 +868,14 @@
           <option value="No">⚠️ Pending Audit (No)</option>
         `;
         dateSel.classList.remove("hidden");
+
+        const causes = Array.from(new Set(records.map(r => r.cause || "Not Specified"))).sort();
+        causeSel.innerHTML = `<option value="ALL">🩺 Cause of Death: All</option>` +
+          causes.map(c => `<option value="${c}">${c}</option>`).join("");
+        causeSel.classList.remove("hidden");
       } else {
         dateSel.classList.add("hidden");
+        causeSel.classList.add("hidden");
       }
 
       const blockField = meta.mode === "ncd" ? "unit" : (records[0] && "block" in records[0] ? "block" : Object.keys(records[0] || {})[0]);
@@ -840,6 +898,7 @@
       const meta = PROGRAMS[activeProg];
       let records = getRecordsForProgram(activeProg);
       const selDate = document.getElementById("wsDateFilter").value;
+      const selCause = document.getElementById("wsCauseFilter").value;
       const selBlk = document.getElementById("wsBlockFilter").value;
       const searchQ = document.getElementById("wsSearchInput").value.trim().toLowerCase();
 
@@ -858,8 +917,13 @@
 
       if ((meta.mode === "jsy" || meta.mode === "abha") && selDate) {
         records = records.filter(r => r.date === selDate);
-      } else if (meta.mode === "mdsr" && selDate && selDate !== "ALL") {
-        records = records.filter(r => String(r.audit || "").toLowerCase() === selDate.toLowerCase());
+      } else if (meta.mode === "mdsr") {
+        if (selDate && selDate !== "ALL") {
+          records = records.filter(r => String(r.audit || "").toLowerCase() === selDate.toLowerCase());
+        }
+        if (selCause && selCause !== "ALL") {
+          records = records.filter(r => (r.cause || "Not Specified") === selCause);
+        }
       }
 
       const blockField = meta.mode === "ncd" ? "unit" : ("block" in records[0] ? "block" : Object.keys(records[0])[0]);
@@ -872,7 +936,7 @@
       currentExportRows = filtered;
 
       let ranked = [];
-      let valueMode = "pct"; // "pct" | "currency" | "deaths"
+      let valueMode = "pct";
       let kpi1 = { label: "कुल रिकॉर्ड", val: filtered.length, sub: "" };
       let kpi2 = { label: "जनपद औसत", val: "0%", sub: "" };
       let kpi3LabelText = "सर्वश्रेष्ठ (Top)";
@@ -884,7 +948,6 @@
         kpi3LabelText = "सर्वाधिक मृत्यु रिपोर्ट (Highest)";
         kpi4LabelText = "न्यूनतम मृत्यु रिपोर्ट (Lowest)";
 
-        // Rank strictly by Total Maternal Deaths Reported (Count)
         const grp = new Map();
         filtered.forEach(r => {
           const b = r.block || "Other";
@@ -910,9 +973,12 @@
         const transitCnt = filtered.filter(r => r.place === "Transit").length;
         const homeCnt = filtered.filter(r => r.place === "Home").length;
 
+        const ages = filtered.map(r => Number(r.age)).filter(a => a > 0);
+        const avgAge = ages.length ? (ages.reduce((a, b) => a + b, 0) / ages.length).toFixed(1) : "--";
+
         kpi1 = {
           label: "कुल मातृ मृत्यु (Total Deaths)",
-          val: totDeaths,
+          val: `${totDeaths} (औसत आयु: ${avgAge} वर्ष)`,
           sub: `Facility: ${facilityCnt} | Transit: ${transitCnt} | Home: ${homeCnt}`
         };
         kpi2 = {
@@ -920,6 +986,74 @@
           val: `${audYes} / ${totDeaths} (${audPct}%)`,
           sub: `Audit Pending: ${audNo} मामले`
         };
+
+        // 1. Render Cause of Death Breakdown Box
+        const causeCounts = {};
+        filtered.forEach(r => {
+          const c = r.cause || "Not Specified";
+          causeCounts[c] = (causeCounts[c] || 0) + 1;
+        });
+        const sortedCauses = Object.entries(causeCounts).sort((a, b) => b[1] - a[1]);
+        document.getElementById("mdsrCauseBox").innerHTML = sortedCauses.length ? sortedCauses.map(([cause, cnt]) => {
+          const pct = totDeaths ? Math.round((cnt / totDeaths) * 100) : 0;
+          const isBlank = cause === "Not Specified";
+          const isSelected = selCause === cause;
+          return `
+            <div onclick="filterByCause('${cause.replace(/'/g, "\\'")}')"
+              class="cursor-pointer p-2 rounded-xl border transition ${isSelected ? 'bg-rose-100 border-rose-400' : 'hover:bg-slate-50 border-slate-100'}">
+              <div class="flex justify-between items-center mb-1">
+                <span class="font-bold ${isBlank ? 'text-slate-400 italic' : 'text-slate-900'}">${cause}</span>
+                <span class="font-extrabold ${isBlank ? 'text-slate-500' : 'text-rose-700'}">${cnt} (${pct}%)</span>
+              </div>
+              <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                <div class="${isBlank ? 'bg-slate-400' : 'bg-rose-600'} h-full rounded-full" style="width:${pct}%"></div>
+              </div>
+            </div>
+          `;
+        }).join("") : `<p class="text-slate-400">कोई डेटा नहीं</p>`;
+
+        // 2. Render Place of Death Breakdown Box
+        const placeRows = [
+          { label: "🏥 Health Facility", cnt: facilityCnt, bar: "bg-blue-600", txt: "text-blue-700" },
+          { label: "🚑 Transit (रेफरल के दौरान)", cnt: transitCnt, bar: "bg-purple-600", txt: "text-purple-700" },
+          { label: "🏠 Home (घर पर)", cnt: homeCnt, bar: "bg-slate-600", txt: "text-slate-700" }
+        ];
+        document.getElementById("mdsrPlaceBox").innerHTML = placeRows.map(p => {
+          const pct = totDeaths ? Math.round((p.cnt / totDeaths) * 100) : 0;
+          return `
+            <div class="p-2 rounded-xl bg-slate-50/70 border border-slate-100">
+              <div class="flex justify-between items-center mb-1">
+                <span class="font-bold text-slate-800">${p.label}</span>
+                <span class="font-extrabold ${p.txt}">${p.cnt} (${pct}%)</span>
+              </div>
+              <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                <div class="${p.bar} h-full rounded-full" style="width:${pct}%"></div>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        // 3. Render Timing / Stage Breakdown Box
+        const timingCounts = {};
+        filtered.forEach(r => {
+          const t = r.timing || "Not Specified";
+          timingCounts[t] = (timingCounts[t] || 0) + 1;
+        });
+        const sortedTimings = Object.entries(timingCounts).sort((a, b) => b[1] - a[1]);
+        document.getElementById("mdsrTimingBox").innerHTML = sortedTimings.length ? sortedTimings.map(([t, cnt]) => {
+          const pct = totDeaths ? Math.round((cnt / totDeaths) * 100) : 0;
+          return `
+            <div class="p-2 rounded-xl bg-amber-50/40 border border-amber-100">
+              <div class="flex justify-between items-center mb-1 gap-2">
+                <span class="font-bold text-slate-800 truncate" title="${t}">${t}</span>
+                <span class="font-extrabold text-amber-800 whitespace-nowrap">${cnt} (${pct}%)</span>
+              </div>
+              <div class="w-full bg-amber-100 h-1.5 rounded-full overflow-hidden">
+                <div class="bg-amber-600 h-full rounded-full" style="width:${pct}%"></div>
+              </div>
+            </div>
+          `;
+        }).join("") : `<p class="text-slate-400">कोई डेटा नहीं</p>`;
 
         tableHtml = `
           <table class="w-full text-xs text-left border-collapse">
