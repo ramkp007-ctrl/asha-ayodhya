@@ -13,7 +13,7 @@
 <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
 <div>
 <h1 class="text-lg md:text-xl font-bold">NHM अयोध्या — Master Data Uploader &amp; Control</h1>
-<p class="text-xs text-slate-300">ASHA Payment, JSY, ABHA, Institutional Delivery, e-Kavach Delivery, ANC, NCD, RBSK, QA, Tele Consultation</p>
+<p class="text-xs text-slate-300">ASHA Payment, JSY, ABHA, Institutional Delivery, e-Kavach Delivery, ANC, MDSR, NCD, RBSK, QA, Tele Consultation</p>
 </div>
 <div class="flex flex-wrap gap-2">
 <a href="officers-admin.html" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-xs font-bold rounded-lg">
@@ -105,11 +105,11 @@ ABHA डेटाबेस जाँचा जा रहा है...
 <section class="bg-white p-6 rounded-xl shadow-sm border border-rose-200 space-y-4">
 <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
 <div>
-<h2 class="text-base font-bold text-rose-950">4. अन्य कार्यक्रम डेटा अपलोड (e-Kavach Delivery, ANC, Institutional Delivery, NCD, QA, RBSK, Tele Consultation)</h2>
+<h2 class="text-base font-bold text-rose-950">4. अन्य कार्यक्रम डेटा अपलोड (e-Kavach Delivery, ANC, Institutional Delivery, MDSR, NCD, QA, RBSK, Tele Consultation)</h2>
 <p class="text-[11px] text-slate-500 mt-0.5">Program Review Portal के सभी मॉड्यूल के लिए मासिक/साप्ताहिक Excel (.xlsx) अपलोड करें</p>
 </div>
 <span class="text-[11px] bg-rose-50 text-rose-800 border border-rose-200 px-2.5 py-1 rounded-lg font-bold">
-7 Programs Active
+8 Programs Active
 </span>
 </div>
 
@@ -120,6 +120,7 @@ ABHA डेटाबेस जाँचा जा रहा है...
 <option value="mh_delivery_ekavach">🚚 Delivery Updation (e-Kavach — eKAVACH Delivery_DD-MM-YYYY.xlsx)</option>
 <option value="mh_anc_ekavach">🤰 ANC Coverage (e-Kavach — ANC-Ekavach_DD-MM-YYYY.xlsx)</option>
 <option value="mh_inst_delivery">🏥 Institutional Delivery &amp; C-Section (HMIS — Apr 26 आदि)</option>
+<option value="mdsr">🩺 MDSR — Maternal Death Surveillance &amp; Response (MDSR DD-MM-YYYY.xlsx)</option>
 <option value="ncd_screening">❤️ NCD Screening (Composite Scoring &amp; ANM/CHO/MO Status)</option>
 <option value="quality_assurance">✅ Quality Assurance (NQAS / Kayakalp / LaQshya)</option>
 <option value="rbsk">👶 RBSK (Mobile Health Team &amp; Child Screening)</option>
@@ -153,9 +154,14 @@ class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:ro
 💡 <strong>Delivery Updation (e-Kavach):</strong> सीधे <b>eKAVACH Delivery_24-11-2026.xlsx</b> फ़ाइल चुनें। कॉलम: <b>Block Name, Facility, Public Facility, Private Facility, Institutional Deliveries, Home Deliveries, Out of State Facility, Total No. of Deliveries</b> स्वतः पढ़कर सेव हो जाएंगे।
 </div>
 
-<button id="uploadNewProgramBtn" class="w-full py-2.5 bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold rounded-lg shadow">
+<div class="flex flex-wrap gap-3">
+<button id="uploadNewProgramBtn" class="flex-1 py-2.5 bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold rounded-lg shadow">
 चयनित कार्यक्रम का डेटा अपलोड करें ↑
 </button>
+<a href="mdsr-dashboard.html" id="openMdsrBtn" class="hidden px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-lg shadow flex items-center gap-1.5">
+📊 MDSR डैशबोर्ड खोलें →
+</a>
+</div>
 
 <div id="newProgramStatus" class="p-3 bg-slate-50 rounded-lg text-xs text-slate-700 border border-slate-200 space-y-1">
 नए कार्यक्रमों का डेटाबेस जाँचा जा रहा है...
@@ -247,11 +253,32 @@ return "";
 }
 
 function formatExcelDate(val) {
+if (val instanceof Date && !isNaN(val)) {
+return `${String(val.getDate()).padStart(2, "0")}-${String(val.getMonth() + 1).padStart(2, "0")}-${val.getFullYear()}`;
+}
 if (typeof val === "number" && val > 30000) {
 const d = new Date((val - 25569) * 86400 * 1000);
 return `${String(d.getUTCDate()).padStart(2, "0")}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCFullYear()).slice(-2)}`;
 }
 return String(val || "").trim();
+}
+
+function formatFullDateCell(val) {
+if (val instanceof Date && !isNaN(val)) {
+return `${String(val.getDate()).padStart(2, "0")}-${String(val.getMonth() + 1).padStart(2, "0")}-${val.getFullYear()}`;
+}
+if (typeof val === "number" && val > 30000) {
+const d = new Date((val - 25569) * 86400 * 1000);
+return `${String(d.getUTCDate()).padStart(2, "0")}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${d.getUTCFullYear()}`;
+}
+const str = String(val || "").trim().split(" ")[0];
+if (!str) return "-";
+// Convert YYYY-MM-DD to DD-MM-YYYY
+const isoMatch = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+if (isoMatch) {
+return `${isoMatch[3].padStart(2, "0")}-${isoMatch[2].padStart(2, "0")}-${isoMatch[1]}`;
+}
+return str;
 }
 
 function parseAmount(raw) {
@@ -447,6 +474,11 @@ const instTxt = instRows.length
 ? `✅ <strong>Institutional Delivery:</strong> ${instRows.length} रिकॉर्ड (${instMonths || d.mh_inst_delivery.fileName})`
 : "⚪ <strong>Institutional Delivery:</strong> डेटा प्रतीक्षित";
 
+const mdsrRecords = d.mdsr?.records || [];
+const mdsrTxt = mdsrRecords.length
+? `✅ <strong>MDSR (Maternal Death):</strong> ${mdsrRecords.length} मामले (${d.mdsr.updatedAt || d.mdsr.fileName})`
+: "⚪ <strong>MDSR (Maternal Death):</strong> डेटा प्रतीक्षित";
+
 const ncdTxt = d.ncd_screening?.units
 ? `✅ <strong>NCD Screening:</strong> ${d.ncd_screening.units.length} इकाइयां (${d.ncd_screening.reportTitle || "Updated"})`
 : "⚪ <strong>NCD Screening:</strong> डिफ़ॉल्ट डेटा सक्रिय";
@@ -471,6 +503,7 @@ document.getElementById("newProgramStatus").innerHTML = `
 <div>${delEkavachTxt}</div>
 <div>${ancTxt}</div>
 <div>${instTxt}</div>
+<div>${mdsrTxt}</div>
 <div>${ncdTxt}</div>
 <div>${qaTxt}</div>
 <div>${rbskTxt}</div>
@@ -605,6 +638,7 @@ const PROGRAM_HINTS = {
 mh_delivery_ekavach: "💡 <strong>Delivery Updation (e-Kavach):</strong> सीधे <b>eKAVACH Delivery_24-11-2026.xlsx</b> फ़ाइल चुनें। कॉलम: <b>Block Name, Facility, Public Facility, Private Facility, Institutional Deliveries, Home Deliveries, Out of State Facility, Total No. of Deliveries</b> स्वतः पढ़कर सेव हो जाएंगे।",
 mh_anc_ekavach: "💡 <strong>ANC Coverage (e-Kavach):</strong> सीधे <b>ANC-Ekavach_24-11-2026.xlsx</b> फ़ाइल चुनें। कॉलम: <b>Block, Location, ANC Registration, 1st Trimester, ANC Services, 4+ ANC, Hb&lt;11, Hb&lt;7, HRP Identification</b> स्वतः पढ़कर सेव हो जाएंगे।",
 mh_inst_delivery: "💡 <strong>Institutional Delivery (HMIS):</strong> सीधे HMIS Excel फ़ाइल (जैसे <b>Apr 26.xlsx</b>) चुनें।",
+mdsr: "💡 <strong>MDSR (Maternal Death Surveillance &amp; Response):</strong> सीधे पोर्टल से डाउनलोड की गई <b>MDSR 24-06-2026.xlsx</b> फ़ाइल चुनें। Row 4 हेडर, डुप्लीकेट Facility कॉलम, मिश्रित तारीखें और Audit Status स्वतः साफ़ होकर सेव होंगे।",
 ncd_screening: "💡 <strong>NCD Screening:</strong> सीधे <b>'Composite'</b> शीट वाली Excel फ़ाइल चुनें।",
 quality_assurance: "💡 <strong>Quality Assurance:</strong> NQAS Excel फ़ाइल चुनें।",
 rbsk: "💡 <strong>RBSK:</strong> ब्लॉक-वार MHT विजिट, आंगनवाड़ी व स्कूल स्क्रीनिंग की Excel शीट चुनें।",
@@ -615,10 +649,16 @@ document.getElementById("newProgramSelect").addEventListener("change", (e) => {
 const val = e.target.value;
 document.getElementById("newProgramHint").innerHTML = PROGRAM_HINTS[val] || "";
 const dateWrap = document.getElementById("teleDateWrap");
+const mdsrLinkBtn = document.getElementById("openMdsrBtn");
 if (val === "tele_consultation") {
 dateWrap.classList.remove("hidden");
 } else {
 dateWrap.classList.add("hidden");
+}
+if (val === "mdsr") {
+mdsrLinkBtn.classList.remove("hidden");
+} else {
+mdsrLinkBtn.classList.add("hidden");
 }
 });
 
@@ -652,6 +692,80 @@ btn.disabled = true;
 btn.textContent = "प्रोसेस एवं अपलोड हो रहा है...";
 
 try {
+if (prog === "mdsr") {
+const dateMatch = file.name.match(/(\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4})/);
+const dateLabel = dateMatch ? dateMatch[1] : new Date().toLocaleDateString("en-GB").replace(/\//g, "-");
+
+const buf = await file.arrayBuffer();
+const wb = XLSX.read(buf, { type: "array", cellDates: true });
+const sheetName = wb.SheetNames.includes("MDSR Report") ? "MDSR Report" : wb.SheetNames[0];
+const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: "" });
+
+// Locate header row dynamically (Row 4 / index 3 in MDSR Excel)
+let headerIdx = rows.findIndex(r =>
+r.some(cell => String(cell).trim().toLowerCase() === "block") &&
+r.some(cell => String(cell).trim().toLowerCase().includes("deceased"))
+);
+if (headerIdx === -1) headerIdx = 3;
+
+const mdsrRecords = [];
+for (let i = headerIdx + 1; i < rows.length; i++) {
+const r = rows[i];
+const blockRaw = String(r[1] || "").trim();
+const nameRaw = String(r[2] || "").trim();
+if (!blockRaw && !nameRaw) continue;
+if (blockRaw.toUpperCase() === "TOTAL") continue;
+
+let blockClean = blockRaw;
+if (blockClean.toLowerCase() === "masodwal") blockClean = "Masodha";
+if (blockClean.toLowerCase() === "poorabazar") blockClean = "Pura Bazar";
+
+let causeClean = String(r[8] || "").trim() || "Not Specified";
+if (causeClean.toLowerCase() === "cordiac arrest") causeClean = "Cardiac Arrest";
+if (causeClean.toLowerCase() === "obstract labour") causeClean = "Obstructed Labour";
+
+const auditRaw = String(r[15] || "").trim().toLowerCase();
+const auditClean = (auditRaw === "yes" || auditRaw === "y") ? "Yes" : "No";
+
+mdsrRecords.push({
+sno: Number(r[0]) || (mdsrRecords.length + 1),
+block: blockClean,
+name: nameRaw || "Unknown",
+age: Number(r[3]) || 0,
+husband: String(r[4] || "-").trim(),
+deathDate: formatFullDateCell(r[5]),
+place: String(r[6] || "Not Specified").trim(),
+facility: String(r[7] || "Not Specified").trim(),
+cause: causeClean,
+reviewer: String(r[9] || "-").trim(),
+submittedBy: String(r[10] || "-").trim(),
+reportDate: formatFullDateCell(r[11]),
+timing: String(r[12] || "Not Specified").trim(),
+designation: String(r[13] || "-").trim(),
+reportingPerson: String(r[14] || "-").trim(),
+audit: auditClean
+});
+}
+
+if (!mdsrRecords.length) {
+throw new Error("फ़ाइल में वैध MDSR रिकॉर्ड (Block एवं Deceased Name) नहीं मिला।");
+}
+
+const auditYesCount = mdsrRecords.filter(x => x.audit === "Yes").length;
+const auditNoCount = mdsrRecords.length - auditYesCount;
+
+await set(child(rootRef, "mdsr"), {
+updatedAt: dateLabel,
+fileName: file.name,
+totalCases: mdsrRecords.length,
+records: mdsrRecords
+});
+
+refreshStatus();
+alert(`✅ MDSR (Maternal Death Surveillance) अपलोड सफल!\nफ़ाइल: ${file.name}\nकुल मामले: ${mdsrRecords.length}\nAudited (Yes): ${auditYesCount} | Pending (No): ${auditNoCount}`);
+return;
+}
+
 if (prog === "mh_delivery_ekavach") {
 const dateMatch = file.name.match(/(\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4})/);
 const dateLabel = dateMatch ? dateMatch[1] : file.name.replace(/\.[^.]+$/, "").trim();
