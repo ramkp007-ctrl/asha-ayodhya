@@ -27,39 +27,39 @@
 
   <!-- HEADER -->
   <header class="bg-slate-900 text-white border-b border-slate-800">
-    <div class="max-w-7xl mx-auto px-3 sm:px-5 py-3.5 sm:py-4 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
       <div class="min-w-0">
         <div class="flex flex-wrap items-center gap-2">
-          <h1 class="text-sm sm:text-lg font-extrabold tracking-tight">ANC Coverage Review (e-Kavach) — NHM Ayodhya</h1>
+          <h1 class="text-base sm:text-lg font-extrabold tracking-tight">ANC Coverage Review (e-Kavach) — NHM Ayodhya</h1>
           <span id="roleBadge" class="text-[10px] bg-teal-500/20 text-teal-300 border border-teal-500/30 font-bold px-2.5 py-0.5 rounded-full uppercase">DISTRICT</span>
         </div>
-        <p id="metaSubTitle" class="text-[11px] sm:text-xs text-slate-400 mt-0.5 truncate">Loading e-Kavach ANC records...</p>
+        <p id="metaSubTitle" class="text-xs text-slate-400 mt-0.5">Loading e-Kavach ANC records...</p>
       </div>
       <div class="flex flex-wrap items-center gap-2 no-print">
         <button onclick="document.getElementById('uploadDrawer').classList.toggle('hidden')"
-          class="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-xl transition">
+          class="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-xl transition">
           ⬆️ Upload Excel
         </button>
         <button onclick="downloadAncExcel()"
-          class="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-xl transition">
+          class="px-3.5 py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-xl transition">
           ⬇️ Export
         </button>
         <button onclick="window.print()"
-          class="hidden sm:inline-block px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl transition">
+          class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl transition">
           🖨️ Print
         </button>
         <a href="portal.html"
-          class="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition">
+          class="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition">
           ← Portal
         </a>
       </div>
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto px-3 sm:px-5 py-4 sm:py-6 space-y-5">
+  <main class="max-w-7xl mx-auto px-4 py-5 space-y-5">
 
     <!-- COLLAPSIBLE UPLOAD BAR -->
-    <section id="uploadDrawer" class="hidden bg-white p-4 sm:p-5 rounded-2xl border-2 border-teal-300 shadow-sm space-y-3 no-print">
+    <section id="uploadDrawer" class="hidden bg-white p-5 rounded-2xl border-2 border-teal-300 shadow-sm space-y-3 no-print">
       <div class="flex justify-between items-center border-b border-slate-100 pb-2">
         <div>
           <h2 class="text-sm font-extrabold text-slate-900">Upload ANC e-Kavach Excel (.xlsx)</h2>
@@ -77,8 +77,8 @@
       </div>
     </section>
 
-    <!-- MOBILE-RESPONSIVE FILTER BAR -->
-    <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3 no-print">
+    <!-- UNIFIED FILTER BAR (SAME CONTROLS ON PC & MOBILE) -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 no-print">
       <div>
         <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Report Date</label>
         <select id="dateFilterSelect" onchange="renderDashboard()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/60 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
@@ -115,36 +115,36 @@
       </div>
     </div>
 
-    <!-- 5 CORE KPI CARDS -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+    <!-- 5 KPI CARDS (IDENTICAL DATA & STRUCTURE ON ALL DEVICES) -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
       <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
         <div class="text-[11px] font-semibold text-slate-500">Total ANC Registration</div>
         <div id="kpiAncReg" class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1">0</div>
-        <div id="kpiAncServSub" class="text-[10px] sm:text-[11px] font-medium text-teal-700 mt-1">ANC Services: 0 (0.0%)</div>
+        <div id="kpiAncServSub" class="text-[11px] font-medium text-teal-700 mt-1">ANC Services: 0 (0.0%)</div>
       </div>
 
       <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
         <div class="text-[11px] font-semibold text-slate-500">1st Trimester Registration</div>
         <div id="kpiFirstTri" class="text-xl sm:text-2xl font-extrabold text-teal-700 mt-1">0</div>
-        <div id="kpiFirstTriPct" class="text-[10px] sm:text-[11px] font-bold text-teal-700 mt-1">0.0% of ANC Reg.</div>
+        <div id="kpiFirstTriPct" class="text-[11px] font-bold text-teal-700 mt-1">0.0% of ANC Reg.</div>
       </div>
 
       <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
         <div class="text-[11px] font-semibold text-slate-500">4 or More ANC Checkups</div>
         <div id="kpiFourAnc" class="text-xl sm:text-2xl font-extrabold text-indigo-700 mt-1">0</div>
-        <div id="kpiFourAncPct" class="text-[10px] sm:text-[11px] font-bold text-indigo-600 mt-1">0.0% of ANC Reg.</div>
+        <div id="kpiFourAncPct" class="text-[11px] font-bold text-indigo-600 mt-1">0.0% of ANC Reg.</div>
       </div>
 
       <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
-        <div class="text-[11px] font-semibold text-slate-500">Anemia (Hb&lt;11 / Severe Hb&lt;7)</div>
+        <div class="text-[11px] font-semibold text-slate-500">Anemia (Hb&lt;11 / Hb&lt;7)</div>
         <div id="kpiHb11" class="text-xl sm:text-2xl font-extrabold text-amber-600 mt-1">0</div>
-        <div id="kpiHb7Sub" class="text-[10px] sm:text-[11px] font-bold text-rose-600 mt-1">Severe Anemia (Hb&lt;7): 0</div>
+        <div id="kpiHb7Sub" class="text-[11px] font-bold text-rose-600 mt-1">Severe (Hb&lt;7): 0</div>
       </div>
 
       <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs col-span-2 sm:col-span-1">
         <div class="text-[11px] font-semibold text-slate-500">HRP Identification</div>
         <div id="kpiHrp" class="text-xl sm:text-2xl font-extrabold text-rose-700 mt-1">0</div>
-        <div id="kpiHrpPct" class="text-[10px] sm:text-[11px] font-medium text-slate-500 mt-1">0.0% of ANC Reg.</div>
+        <div id="kpiHrpPct" class="text-[11px] font-medium text-slate-500 mt-1">0.0% of ANC Reg.</div>
       </div>
     </div>
 
@@ -155,7 +155,7 @@
           <h3 id="top5Title" class="text-xs font-extrabold tracking-wide truncate">Top 5 Blocks (1st Trimester %)</h3>
           <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold flex-shrink-0">Best Performers</span>
         </div>
-        <div id="top5List" class="divide-y divide-slate-100 p-2 sm:p-2.5"></div>
+        <div id="top5List" class="divide-y divide-slate-100 p-2.5"></div>
       </div>
 
       <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
@@ -163,11 +163,11 @@
           <h3 id="poor5Title" class="text-xs font-extrabold tracking-wide truncate">Bottom 5 Blocks (Needs Focus)</h3>
           <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold flex-shrink-0">Active Reg. Only</span>
         </div>
-        <div id="poor5List" class="divide-y divide-slate-100 p-2 sm:p-2.5"></div>
+        <div id="poor5List" class="divide-y divide-slate-100 p-2.5"></div>
       </div>
     </div>
 
-    <!-- THRESHOLD COLOR-CODED BAR CHART -->
+    <!-- CHART (MIN-WIDTH ENFORCED SO MOBILE SHOWS ALL 12 BLOCKS & LABELS EXACTLY LIKE PC) -->
     <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
       <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
         <div>
@@ -178,8 +178,8 @@
           ← All Blocks
         </button>
       </div>
-      <div class="overflow-x-auto">
-        <div id="chartInnerBox" style="height: 290px; min-width: 100%;">
+      <div class="overflow-x-auto pb-1">
+        <div id="chartInnerBox" style="height: 300px; min-width: 680px; width: 100%;">
           <canvas id="ancBarChart"></canvas>
         </div>
       </div>
@@ -396,7 +396,6 @@
 
       renderedRows = finalRows;
 
-      // KPIs
       const sumReg = finalRows.reduce((s, r) => s + (Number(r.ancReg) || 0), 0);
       const sum1st = finalRows.reduce((s, r) => s + (Number(r.firstTri) || 0), 0);
       const sumServ = finalRows.reduce((s, r) => s + (Number(r.ancServ) || 0), 0);
@@ -417,7 +416,7 @@
       document.getElementById("kpiFourAnc").textContent = sum4Anc.toLocaleString("en-IN");
       document.getElementById("kpiFourAncPct").textContent = `${pct4Anc}% of ANC Reg.`;
       document.getElementById("kpiHb11").textContent = sumHb11.toLocaleString("en-IN");
-      document.getElementById("kpiHb7Sub").textContent = `Severe Anemia (Hb<7): ${sumHb7.toLocaleString("en-IN")}`;
+      document.getElementById("kpiHb7Sub").textContent = `Severe (Hb<7): ${sumHb7.toLocaleString("en-IN")}`;
       document.getElementById("kpiHrp").textContent = sumHrp.toLocaleString("en-IN");
       document.getElementById("kpiHrpPct").textContent = `${pctHrp}% of ANC Reg.`;
       document.getElementById("tableCountBadge").textContent = `${finalRows.length} Locations`;
@@ -455,10 +454,10 @@
 
         document.getElementById("top5Title").textContent = `Top 5 Blocks (${metricLabel})`;
         document.getElementById("poor5Title").textContent = `Bottom 5 Blocks (${metricLabel})`;
-        renderTopPoorBoxes(rankedBlocks, selMetric);
+        renderTopPoorBoxes(rankedBlocks);
 
         document.getElementById("chartMainTitle").textContent = `Block-wise ${metricLabel}`;
-        document.getElementById("chartSubHint").textContent = "Tap any block bar to drill down into sub-centers";
+        document.getElementById("chartSubHint").textContent = "Tap any block bar to drill down into sub-centers • Green (>85%), Amber (80–85%), Rose (<80%)";
         resetBtn.classList.add("hidden");
 
         renderChart(
@@ -483,7 +482,7 @@
 
         document.getElementById("top5Title").textContent = `Top 5 Locations — ${selBlock}`;
         document.getElementById("poor5Title").textContent = `Bottom 5 Locations — ${selBlock}`;
-        renderTopPoorBoxes(rankedLocs, selMetric);
+        renderTopPoorBoxes(rankedLocs);
 
         document.getElementById("chartMainTitle").textContent = `${selBlock} — Sub-Center ${metricLabel} (${rankedLocs.length})`;
         document.getElementById("chartSubHint").textContent = "Locations with active ANC registrations";
@@ -497,7 +496,6 @@
         );
       }
 
-      // Table sorted by selected metric descending
       const sortedTableRows = [...finalRows].sort((a, b) => computeMetrics(b)[selMetric] - computeMetrics(a)[selMetric]);
       const tbody = document.getElementById("ancTableBody");
       if (!sortedTableRows.length) {
@@ -530,7 +528,7 @@
       }).join("");
     };
 
-    function renderTopPoorBoxes(sortedDesc, metricKey) {
+    function renderTopPoorBoxes(sortedDesc) {
       const topEl = document.getElementById("top5List");
       const poorEl = document.getElementById("poor5List");
       if (!sortedDesc.length) {
@@ -574,7 +572,8 @@
       if (chartInstance) chartInstance.destroy();
 
       const innerBox = document.getElementById("chartInnerBox");
-      innerBox.style.width = (!isBlockLevel && labels.length > 10) ? `${labels.length * 48}px` : "100%";
+      innerBox.style.minWidth = isBlockLevel ? "680px" : `${Math.max(680, labels.length * 48)}px`;
+      innerBox.style.width = "100%";
 
       chartInstance = new Chart(ctx, {
         type: "bar",
@@ -605,7 +604,15 @@
             }
           },
           scales: {
-            x: { grid: { display: false }, ticks: { font: { size: 10, weight: "bold" }, maxRotation: 45, minRotation: isBlockLevel ? 20 : 40 } },
+            x: {
+              grid: { display: false },
+              ticks: {
+                autoSkip: false,
+                font: { size: 10, weight: "bold" },
+                maxRotation: 35,
+                minRotation: 25
+              }
+            },
             y: { beginAtZero: true, grid: { color: "#f1f5f9" }, suggestedMax: Math.max(...values, 20) * 1.18 }
           }
         },
