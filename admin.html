@@ -13,7 +13,7 @@
 <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
 <div>
 <h1 class="text-lg md:text-xl font-bold">NHM अयोध्या — Master Data Uploader &amp; Control</h1>
-<p class="text-xs text-slate-300">ASHA Payment, JSY, ABHA, Institutional Delivery, NCD, RBSK, QA, Tele Consultation एवं अधिकारी प्रबंधन</p>
+<p class="text-xs text-slate-300">ASHA Payment, JSY, ABHA, Institutional Delivery, ANC, NCD, RBSK, QA, Tele Consultation एवं अधिकारी प्रबंधन</p>
 </div>
 <div class="flex flex-wrap gap-2">
 <a href="officers-admin.html" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-xs font-bold rounded-lg">
@@ -68,7 +68,7 @@ ASHA भुगतान डेटा रीसेट करें
 
 <!-- SECTION 2 & 3: JSY PAYMENT & ABHA PROGRESS UPLOADERS -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<!-- JSY Uploader (File Name = Date) -->
+<!-- JSY Uploader -->
 <section class="bg-white p-6 rounded-xl shadow-sm border border-indigo-200 space-y-4">
 <div class="border-b pb-3">
 <h2 class="text-base font-bold text-indigo-950">2. JSY भुगतान पाइपलाइन डेटा अपलोड</h2>
@@ -101,15 +101,15 @@ ABHA डेटाबेस जाँचा जा रहा है...
 </section>
 </div>
 
-<!-- SECTION 4: PROGRAMS UPLOADER (INSTITUTIONAL DELIVERY, NCD, QUALITY ASSURANCE, RBSK, TELE CONSULTATION) -->
+<!-- SECTION 4: OTHER PROGRAMS UPLOADER -->
 <section class="bg-white p-6 rounded-xl shadow-sm border border-rose-200 space-y-4">
 <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
 <div>
-<h2 class="text-base font-bold text-rose-950">4. अन्य कार्यक्रम डेटा अपलोड (Institutional Delivery, NCD, Quality Assurance, RBSK, Tele Consultation)</h2>
+<h2 class="text-base font-bold text-rose-950">4. अन्य कार्यक्रम डेटा अपलोड (Institutional Delivery, ANC, NCD, QA, RBSK, Tele Consultation)</h2>
 <p class="text-[11px] text-slate-500 mt-0.5">Program Review Portal के सभी मॉड्यूल के लिए मासिक/साप्ताहिक Excel (.xlsx) अपलोड करें</p>
 </div>
 <span class="text-[11px] bg-rose-50 text-rose-800 border border-rose-200 px-2.5 py-1 rounded-lg font-bold">
-5 Programs Active
+6 Programs Active
 </span>
 </div>
 
@@ -117,7 +117,8 @@ ABHA डेटाबेस जाँचा जा रहा है...
 <div>
 <label class="block text-xs font-bold text-slate-700 mb-1">कार्यक्रम चुनें (Select Program)</label>
 <select id="newProgramSelect" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold bg-slate-50 focus:border-rose-700 focus:outline-none">
-<option value="mh_inst_delivery">🤰 Institutional Delivery &amp; C-Section (HMIS — Apr 26 आदि)</option>
+<option value="mh_anc_ekavach">🤰 ANC Coverage (e-Kavach — ANC-Ekavach_DD-MM-YYYY.xlsx)</option>
+<option value="mh_inst_delivery">🏥 Institutional Delivery &amp; C-Section (HMIS — Apr 26 आदि)</option>
 <option value="ncd_screening">❤️ NCD Screening (Composite Scoring &amp; ANM/CHO/MO Status)</option>
 <option value="quality_assurance">✅ Quality Assurance (NQAS / Kayakalp / LaQshya)</option>
 <option value="rbsk">👶 RBSK (Mobile Health Team &amp; Child Screening)</option>
@@ -126,13 +127,13 @@ ABHA डेटाबेस जाँचा जा रहा है...
 </div>
 
 <div>
-<label class="block text-xs font-bold text-slate-700 mb-1">Excel / CSV फ़ाइल चुनें (एक या एकाधिक माह)</label>
+<label class="block text-xs font-bold text-slate-700 mb-1">Excel / CSV फ़ाइल चुनें (एक या एकाधिक)</label>
 <input type="file" id="newProgramFile" accept=".xlsx,.xls,.csv" multiple
 class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-rose-50 file:text-rose-800 hover:file:bg-rose-100" />
 </div>
 </div>
 
-<!-- Tele Consultation Options (Role & File's Own Date) -->
+<!-- Tele Consultation Options -->
 <div id="teleDateWrap" class="hidden p-3.5 bg-sky-50 border border-sky-200 rounded-lg grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
 <div>
 <label for="teleRoleSelect" class="block text-xs font-bold text-sky-950 mb-1">🩺 डेटा श्रेणी चुनें (CHO / MO)</label>
@@ -148,7 +149,7 @@ class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:ro
 </div>
 
 <div id="newProgramHint" class="p-2.5 bg-rose-50/50 border border-rose-200/80 rounded-lg text-[11px] text-slate-700">
-💡 <strong>Institutional Delivery (HMIS):</strong> सीधे HMIS Excel फ़ाइल (जैसे <b>Apr 26.xlsx</b>) चुनें। कॉलम: <b>Month, Block Name, Facility Type, Facility Name, Ownership, 2.2 Institutional Deliveries, 3.1 C-Section, 3.1.1 Night C-Section</b> स्वतः पढ़कर सेव हो जाएंगे।
+💡 <strong>ANC Coverage (e-Kavach):</strong> सीधे <b>ANC-Ekavach_24-11-2026.xlsx</b> फ़ाइल चुनें। कॉलम: <b>Block, Location, ANC Registration, 1st Trimester, ANC Services, 4+ ANC, Hb&lt;11, Hb&lt;7, HRP Identification</b> स्वतः पढ़कर सेव हो जाएंगे।
 </div>
 
 <button id="uploadNewProgramBtn" class="w-full py-2.5 bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold rounded-lg shadow">
@@ -429,6 +430,11 @@ document.getElementById("abhaStatus").innerHTML = `✅ <strong>ABHA सक्र
 document.getElementById("abhaStatus").textContent = "अभी कोई ABHA डेटा अपलोड नहीं है।";
 }
 
+const ancRows = d.mh_anc_ekavach?.rows || [];
+const ancTxt = ancRows.length
+? `✅ <strong>ANC (e-Kavach):</strong> ${ancRows.length} इकाइयां (${d.mh_anc_ekavach.latestDate || d.mh_anc_ekavach.fileName})`
+: "⚪ <strong>ANC (e-Kavach):</strong> डेटा प्रतीक्षित";
+
 const instRows = d.mh_inst_delivery?.rows || [];
 const instMonths = Array.from(new Set(instRows.map(r => r.month).filter(Boolean))).join(", ");
 const instTxt = instRows.length
@@ -456,6 +462,7 @@ const teleTxt = teleSummary
 
 document.getElementById("newProgramStatus").innerHTML = `
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[11px]">
+<div>${ancTxt}</div>
 <div>${instTxt}</div>
 <div>${ncdTxt}</div>
 <div>${qaTxt}</div>
@@ -588,6 +595,7 @@ alert(`✅ अपलोड सफल!\nदिनांक: ${fileDateLabel}\nक
 
 // 4. SECTION 4 UPLOADER
 const PROGRAM_HINTS = {
+mh_anc_ekavach: "💡 <strong>ANC Coverage (e-Kavach):</strong> सीधे <b>ANC-Ekavach_24-11-2026.xlsx</b> फ़ाइल चुनें। कॉलम: <b>Block, Location, ANC Registration, 1st Trimester, ANC Services, 4+ ANC, Hb&lt;11, Hb&lt;7, HRP Identification</b> स्वतः पढ़कर सेव हो जाएंगे।",
 mh_inst_delivery: "💡 <strong>Institutional Delivery (HMIS):</strong> सीधे HMIS Excel फ़ाइल (जैसे <b>Apr 26.xlsx</b>) चुनें। कॉलम: <b>Month, Block Name, Facility Type, Facility Name, Ownership, 2.2 Institutional Deliveries, 3.1 C-Section, 3.1.1 Night C-Section</b> स्वतः पढ़कर सेव हो जाएंगे।",
 ncd_screening: "💡 <strong>NCD Screening:</strong> सीधे <b>'Composite'</b> शीट वाली Excel फ़ाइल (जैसे 18-11-2026.xlsx) चुनें। यह सभी 11 ब्लॉकों + Urban DHQ, रेफर (%) और ANM/CHO/MO लॉगिन स्टेटस को स्वतः अपडेट कर देगी।",
 quality_assurance: "💡 <strong>Quality Assurance:</strong> NQAS Excel फ़ाइल (जैसे NQAS 18-11-2026.xlsx) चुनें। ब्लॉक नाम व सर्टिफिकेशन स्टेटस स्वतः साफ़ होकर सेव होंगे।",
@@ -636,6 +644,55 @@ btn.disabled = true;
 btn.textContent = "प्रोसेस एवं अपलोड हो रहा है...";
 
 try {
+if (prog === "mh_anc_ekavach") {
+const dateMatch = file.name.match(/(\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4})/);
+const dateLabel = dateMatch ? dateMatch[1] : file.name.replace(/\.[^.]+$/, "").trim();
+
+const buf = await file.arrayBuffer();
+const wb = XLSX.read(buf, { type: "array", raw: true });
+const rawJson = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: 0 });
+
+const parsed = rawJson.map(r => {
+const clean = {};
+for (const [k, v] of Object.entries(r)) {
+clean[String(k).replace(/\s+/g, " ").trim().toUpperCase()] = v;
+}
+const block = String(clean["BLOCK"] || "").trim();
+const location = String(clean["LOCATION"] || clean["SC"] || clean["SUB CENTER"] || "").trim();
+const ancReg = Number(clean["ANC REGISTRATION"] || 0) || 0;
+const firstTri = Number(clean["ANC REGISTRATION IN 1ST TRIMESTER"] || 0) || 0;
+const ancServ = Number(clean["PW RECEIVED ANC SERVICES"] || 0) || 0;
+const fourAnc = Number(clean["PW RECEIVED 4 OR MORE ANC"] || 0) || 0;
+const hb11 = Number(clean["PW HAVING HB<11"] || 0) || 0;
+const hb7 = Number(clean["PW HAVING HB<7"] || 0) || 0;
+const hrp = Number(clean["HRP IDENTIFICATION"] || 0) || 0;
+
+return { date: dateLabel, block, location, ancReg, firstTri, ancServ, fourAnc, hb11, hb7, hrp };
+}).filter(x => x.block && x.location && x.block.toUpperCase() !== "TOTAL");
+
+if (!parsed.length) throw new Error("फ़ाइल में वैध Block और Location कॉलम नहीं मिला।");
+
+const ancRef = child(rootRef, "mh_anc_ekavach");
+const prevSnap = await get(ancRef);
+const prevRows = prevSnap.exists() && Array.isArray(prevSnap.val().rows) ? prevSnap.val().rows : [];
+const keptOld = prevRows.filter(r => r && r.date !== dateLabel);
+const merged = [...keptOld, ...parsed];
+
+const sumReg = parsed.reduce((s, x) => s + x.ancReg, 0);
+const sum1st = parsed.reduce((s, x) => s + x.firstTri, 0);
+
+await set(ancRef, {
+updatedAt: new Date().toLocaleString("hi-IN"),
+latestDate: dateLabel,
+fileName: file.name,
+rows: merged
+});
+
+refreshStatus();
+alert(`✅ ANC Coverage (e-Kavach) अपलोड सफल!\nदिनांक: ${dateLabel}\nकुल इकाइयां: ${parsed.length}\nकुल ANC पंजीकरण: ${sumReg.toLocaleString("en-IN")} | 1st Tri: ${sum1st.toLocaleString("en-IN")}`);
+return;
+}
+
 if (prog === "mh_inst_delivery") {
 let incomingRecords = [];
 for (const f of files) {
