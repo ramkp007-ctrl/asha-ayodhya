@@ -142,11 +142,11 @@
               <span>• JSY Payment</span>
               <span id="cnt_jsy" class="text-[10px] text-amber-300 font-bold">—</span>
             </button>
-            <button onclick="selectSubProgram('mh_inst_delivery')" id="nav_mh_inst_delivery"
-              class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-              <span>• Institutional Delivery (HMIS)</span>
-              <span id="cnt_mh_inst_delivery" class="text-[10px] text-emerald-300 font-bold">—</span>
-            </button>
+            <a href="institutional-delivery.html"
+              class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-emerald-300 hover:bg-slate-800 hover:text-white font-semibold transition">
+              <span>• Institutional Delivery (HMIS) ↗</span>
+              <span id="cnt_mh_inst_delivery" class="text-[10px] bg-emerald-500/20 text-emerald-200 px-1.5 py-0.5 rounded font-bold">—</span>
+            </a>
             <a href="fru-review.html"
               class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-indigo-300 hover:bg-slate-800 hover:text-white font-semibold transition">
               <span>• FRU Review (8 FRUs) ↗</span>
@@ -157,11 +157,11 @@
               <span>• Delivery Updation (EKAVACH)</span>
               <span id="cnt_mh_delivery_ekavach" class="text-[10px] text-slate-400">—</span>
             </button>
-            <button onclick="selectSubProgram('mh_anc_ekavach')" id="nav_mh_anc_ekavach"
-              class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-              <span>• ANC Coverage (EKAVACH)</span>
-              <span id="cnt_mh_anc_ekavach" class="text-[10px] text-slate-400">—</span>
-            </button>
+            <a href="anc-ekavach.html"
+              class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-teal-300 hover:bg-slate-800 hover:text-white font-semibold transition">
+              <span>• ANC Coverage (EKAVACH) ↗</span>
+              <span id="cnt_mh_anc_ekavach" class="text-[10px] bg-teal-500/20 text-teal-200 px-1.5 py-0.5 rounded font-bold">—</span>
+            </a>
             <button onclick="selectSubProgram('mh_anc_hmis')" id="nav_mh_anc_hmis"
               class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
               <span>• ANC Coverage (HMIS)</span>
@@ -306,15 +306,6 @@
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
-            <!-- Quick FRU & Detailed Institutional Delivery Links (Shown when Institutional Delivery is active) -->
-            <a id="wsFruLinkBtn" href="fru-review.html"
-              class="hidden no-print px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold rounded-xl shadow-xs transition">
-              🏥 FRU Review (8 FRUs) ↗
-            </a>
-            <a id="wsFullInstLinkBtn" href="institutional-delivery.html"
-              class="hidden no-print px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-xs transition">
-              📊 Full Delivery View ↗
-            </a>
             <span id="wsUpdatedBadge" class="text-[11px] font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full border border-slate-200">
               अपडेट: —
             </span>
@@ -333,10 +324,6 @@
             <select id="wsDateFilter" onchange="renderActiveProgram()" class="hidden px-3 py-2 border border-indigo-200 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-900">
             </select>
 
-            <select id="wsOwnerFilter" onchange="renderActiveProgram()" class="hidden px-3 py-2 border border-amber-200 rounded-xl text-xs font-bold bg-amber-50 text-amber-950">
-              <option value="ALL">🏢 Public + Private (सभी)</option>
-            </select>
-
             <select id="wsBlockFilter" onchange="renderActiveProgram()" class="px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50 text-slate-800">
               <option value="ALL">All 11 Blocks (जनपद अयोध्या)</option>
             </select>
@@ -349,7 +336,7 @@
             </button>
           </div>
 
-          <div id="wsLegendBox" class="flex items-center gap-3 text-[11px] font-bold">
+          <div class="flex items-center gap-3 text-[11px] font-bold">
             <span class="flex items-center gap-1 text-emerald-700"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> &gt;85% Best</span>
             <span class="flex items-center gap-1 text-amber-600"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> 80–85% Moderate</span>
             <span class="flex items-center gap-1 text-rose-600"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> &lt;80% Focus</span>
@@ -387,36 +374,6 @@
           </div>
         </div>
 
-        <!-- MONTH-WISE INSTITUTIONAL DELIVERY & C-SECTION TREND CARD (AUTO-SHOWN FOR INSTITUTIONAL DELIVERY) -->
-        <section id="instMonthTrendSection" class="hidden bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-          <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-100 pb-2.5">
-            <div>
-              <h3 class="text-sm font-extrabold text-slate-900">📅 Month-wise Institutional Delivery एवं C-Section समीक्षा</h3>
-              <p class="text-[11px] text-slate-500">माह-वार कुल Institutional Deliveries (2.2), C-Section (3.1), C-Section % और Night C-Section (8PM–8AM)</p>
-            </div>
-            <span id="instMonthBadge" class="text-xs font-bold bg-teal-50 text-teal-800 border border-teal-200 px-3 py-1 rounded-full">0 माह</span>
-          </div>
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-            <div class="lg:col-span-7" style="height: 240px;">
-              <canvas id="instMonthTrendChart"></canvas>
-            </div>
-            <div class="lg:col-span-5 overflow-x-auto border border-slate-200 rounded-xl">
-              <table class="w-full text-xs text-left border-collapse">
-                <thead class="bg-slate-900 text-white">
-                  <tr>
-                    <th class="p-2.5 font-bold">Month</th>
-                    <th class="p-2.5 font-bold text-right">Inst. Del</th>
-                    <th class="p-2.5 font-bold text-right">C-Sec</th>
-                    <th class="p-2.5 font-bold text-right">C-Sec %</th>
-                    <th class="p-2.5 font-bold text-right">Night CS</th>
-                  </tr>
-                </thead>
-                <tbody id="instMonthTableBody" class="divide-y divide-slate-100"></tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
         <!-- NON-OVERLAPPING TOP & POOR COMPARISON BOXES -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="bg-white rounded-2xl border border-emerald-200/80 shadow-sm overflow-hidden">
@@ -436,7 +393,7 @@
           </div>
         </div>
 
-        <!-- DATA-LABELED CHART -->
+        <!-- THRESHOLD COLOR-CODED DATA-LABELED CHART -->
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
             <div>
@@ -590,20 +547,6 @@
       return Object.values(entry).filter(w => w && typeof w === "object");
     }
 
-    const MONTH_ORDER = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
-    function sortMonthsChronologically(list) {
-      return [...list].sort((a, b) => {
-        const parseM = (s) => {
-          const m = String(s || "").trim().match(/^([A-Za-z]{3})[-/\s]?(\d{2,4})$/);
-          if (!m) return 999999;
-          const mon = MONTH_ORDER[m[1].toLowerCase()] || 0;
-          const yr = m[2].length === 2 ? 2000 + Number(m[2]) : Number(m[2]);
-          return yr * 100 + mon;
-        };
-        return parseM(a) - parseM(b);
-      });
-    }
-
     const PROGRAMS = {
       jsy: {
         category: "1. Maternal Health",
@@ -613,28 +556,12 @@
         dbNode: "jsy_portal",
         mode: "jsy"
       },
-      mh_inst_delivery: {
-        category: "1. Maternal Health",
-        badgeClass: "bg-emerald-100 text-emerald-800",
-        title: "Institutional Delivery & C-Section (HMIS) — समीक्षा",
-        sub: "माह-वार व ब्लॉक-वार कुल संस्थागत प्रसव (2.2), C-Section (3.1) एवं Night C-Section (8PM–8AM) प्रगति",
-        dbNode: "mh_inst_delivery",
-        mode: "inst_del"
-      },
       mh_delivery_ekavach: {
         category: "1. Maternal Health",
         badgeClass: "bg-amber-100 text-amber-800",
         title: "Delivery Updation (EKAVACH) — समीक्षा",
         sub: "e-Kavach पोर्टल पर आशा/ANM द्वारा प्रसव अपडेशन की ब्लॉक-वार प्रगति",
         dbNode: "mh_delivery_ekavach",
-        mode: "generic"
-      },
-      mh_anc_ekavach: {
-        category: "1. Maternal Health",
-        badgeClass: "bg-amber-100 text-amber-800",
-        title: "ANC Coverage (EKAVACH) — समीक्षा",
-        sub: "e-Kavach पोर्टल पर ANC पंजीकरण, जांच एवं HRP ट्रैकिंग प्रगति",
-        dbNode: "mh_anc_ekavach",
         mode: "generic"
       },
       mh_anc_hmis: {
@@ -732,7 +659,6 @@
     let activeProg = "jsy";
     let currentExportRows = [];
     let wsChart = null;
-    let instMonthChart = null;
 
     function getThresholdColor(pct) {
       if (pct > 85) return "#059669";
@@ -776,6 +702,16 @@
           document.getElementById("cnt_asha").textContent = flatAshaWorkers.length.toLocaleString("en-IN");
         }
 
+        const instRows = portalData.mh_inst_delivery?.rows || [];
+        if (instRows.length > 0) {
+          document.getElementById("cnt_mh_inst_delivery").textContent = `${instRows.length}`;
+        }
+
+        const ancRows = portalData.mh_anc_ekavach?.rows || [];
+        if (ancRows.length > 0) {
+          document.getElementById("cnt_mh_anc_ekavach").textContent = `${ancRows.length}`;
+        }
+
         const choRows = portalData.tele_cho?.rows || [];
         const moRows = portalData.tele_mo?.rows || [];
         const choTc = choRows.reduce((s, r) => s + (Number(r.tc) || 0), 0);
@@ -815,14 +751,6 @@
       }
 
       const meta = PROGRAMS[key];
-      const isInst = meta.mode === "inst_del";
-
-      // Toggle Institutional Delivery special buttons & sections
-      document.getElementById("wsFruLinkBtn").classList.toggle("hidden", !isInst);
-      document.getElementById("wsFullInstLinkBtn").classList.toggle("hidden", !isInst);
-      document.getElementById("instMonthTrendSection").classList.toggle("hidden", !isInst);
-      document.getElementById("wsLegendBox").classList.toggle("hidden", isInst);
-
       const catEl = document.getElementById("wsCategoryPill");
       catEl.textContent = meta.category;
       catEl.className = `text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${meta.badgeClass}`;
@@ -841,34 +769,18 @@
       const records = getRecordsForProgram(key);
 
       const dateSel = document.getElementById("wsDateFilter");
-      const ownerSel = document.getElementById("wsOwnerFilter");
-
-      if (isInst && records.length) {
-        const months = sortMonthsChronologically(Array.from(new Set(records.map(r => r.month).filter(Boolean))));
-        dateSel.innerHTML = `<option value="ALL">📅 सभी माह (${months.length})</option>` +
-          months.map(m => `<option value="${m}">📅 माह: ${m}</option>`).join("");
-        if (months.length) dateSel.value = months[months.length - 1];
-        dateSel.classList.remove("hidden");
-
-        const owners = Array.from(new Set(records.map(r => r.ownership).filter(Boolean))).sort();
-        ownerSel.innerHTML = `<option value="ALL">🏢 Public + Private (सभी)</option>` +
-          owners.map(o => `<option value="${o}">🏢 ${o}</option>`).join("");
-        ownerSel.classList.remove("hidden");
-      } else if ((meta.mode === "jsy" || meta.mode === "abha") && records.length) {
+      if ((meta.mode === "jsy" || meta.mode === "abha") && records.length) {
         const dates = Array.from(new Set(records.map(r => r.date).filter(Boolean)));
         dateSel.innerHTML = dates.map(d => `<option value="${d}">📅 दिनांक: ${d}</option>`).join("");
         if (mod.latestDate && dates.includes(mod.latestDate)) dateSel.value = mod.latestDate;
         dateSel.classList.remove("hidden");
-        ownerSel.classList.add("hidden");
       } else if (meta.mode === "asha" && (portalData.months || []).length) {
         const months = (portalData.months || []).slice().sort().reverse();
         dateSel.innerHTML = `<option value="ALL">📅 सभी माह (All Months)</option>` +
           months.map(m => `<option value="${m}">📅 माह: ${m}</option>`).join("");
         dateSel.classList.remove("hidden");
-        ownerSel.classList.add("hidden");
       } else {
         dateSel.classList.add("hidden");
-        ownerSel.classList.add("hidden");
       }
 
       const blockField = meta.mode === "ncd" ? "unit" : (records[0] && "block" in records[0] ? "block" : Object.keys(records[0] || {})[0]);
@@ -887,78 +799,10 @@
       renderActiveProgram();
     };
 
-    function renderInstMonthTrend(allInstRows, selBlk, selOwner, searchQ) {
-      const scoped = allInstRows.filter(r => {
-        if (selBlk !== "ALL" && String(r.block || "").trim().toLowerCase() !== selBlk.toLowerCase()) return false;
-        if (selOwner !== "ALL" && r.ownership !== selOwner) return false;
-        if (searchQ && !Object.values(r).join(" ").toLowerCase().includes(searchQ)) return false;
-        return true;
-      });
-
-      const mMap = new Map();
-      scoped.forEach(r => {
-        const m = r.month || "Unknown";
-        if (!mMap.has(m)) mMap.set(m, { month: m, del: 0, cs: 0, night: 0 });
-        const st = mMap.get(m);
-        st.del += Number(r.instDel) || 0;
-        st.cs += Number(r.cSection) || 0;
-        st.night += Number(r.nightCs) || 0;
-      });
-
-      const ordered = sortMonthsChronologically(Array.from(mMap.keys())).map(k => mMap.get(k));
-      document.getElementById("instMonthBadge").textContent = `${ordered.length} माह`;
-
-      document.getElementById("instMonthTableBody").innerHTML = ordered.map(m => {
-        const cPct = m.del > 0 ? ((m.cs / m.del) * 100).toFixed(1) : "0.0";
-        return `
-          <tr class="hover:bg-slate-50">
-            <td class="p-2.5 font-extrabold text-slate-900">${m.month}</td>
-            <td class="p-2.5 text-right font-extrabold text-emerald-800">${m.del.toLocaleString("en-IN")}</td>
-            <td class="p-2.5 text-right font-bold text-amber-700">${m.cs.toLocaleString("en-IN")}</td>
-            <td class="p-2.5 text-right font-semibold text-slate-700">${cPct}%</td>
-            <td class="p-2.5 text-right font-bold text-indigo-700">${m.night.toLocaleString("en-IN")}</td>
-          </tr>
-        `;
-      }).join("");
-
-      const ctx = document.getElementById("instMonthTrendChart").getContext("2d");
-      if (instMonthChart) instMonthChart.destroy();
-      instMonthChart = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: ordered.map(x => x.month),
-          datasets: [
-            { label: "Institutional Del. (2.2)", data: ordered.map(x => x.del), backgroundColor: "#0d9488", borderRadius: 6, maxBarThickness: 36 },
-            { label: "C-Section (3.1)", data: ordered.map(x => x.cs), backgroundColor: "#d97706", borderRadius: 6, maxBarThickness: 36 },
-            { label: "Night C-Sec (3.1.1)", data: ordered.map(x => x.night), backgroundColor: "#4f46e5", borderRadius: 6, maxBarThickness: 36 }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: "top", labels: { font: { size: 11, weight: "bold" } } },
-            datalabels: {
-              anchor: "end", align: "top", color: "#0f172a",
-              font: { weight: "bold", size: 10 },
-              formatter: v => v > 0 ? v.toLocaleString("en-IN") : ""
-            }
-          },
-          scales: {
-            x: { grid: { display: false }, ticks: { font: { size: 11, weight: "bold" } } },
-            y: { beginAtZero: true, grid: { color: "#f1f5f9" }, suggestedMax: Math.max(...ordered.map(x => x.del), 10) * 1.2 }
-          }
-        },
-        plugins: [ChartDataLabels]
-      });
-    }
-
     window.renderActiveProgram = function() {
       const meta = PROGRAMS[activeProg];
-      const allProgRecords = getRecordsForProgram(activeProg);
-      let records = [...allProgRecords];
+      let records = getRecordsForProgram(activeProg);
       const selDate = document.getElementById("wsDateFilter").value;
-      const selOwner = document.getElementById("wsOwnerFilter").value;
       const selBlk = document.getElementById("wsBlockFilter").value;
       const searchQ = document.getElementById("wsSearchInput").value.trim().toLowerCase();
 
@@ -975,11 +819,7 @@
         return;
       }
 
-      if (meta.mode === "inst_del") {
-        renderInstMonthTrend(allProgRecords, selBlk, selOwner, searchQ);
-        if (selDate && selDate !== "ALL") records = records.filter(r => r.month === selDate);
-        if (selOwner && selOwner !== "ALL") records = records.filter(r => r.ownership === selOwner);
-      } else if ((meta.mode === "jsy" || meta.mode === "abha") && selDate) {
+      if ((meta.mode === "jsy" || meta.mode === "abha") && selDate) {
         records = records.filter(r => r.date === selDate);
       }
 
@@ -993,136 +833,13 @@
       currentExportRows = filtered;
 
       let ranked = [];
-      let secondarySeries = null;
-      let valMode = "pct"; // "pct" | "currency" | "count"
+      let isCurrencyMode = false;
       let kpi1 = { label: "कुल रिकॉर्ड", val: filtered.length, sub: "" };
       let kpi2 = { label: "जनपद औसत", val: "0%", sub: "" };
       let tableHtml = "";
 
-      if (meta.mode === "inst_del") {
-        valMode = "count";
-        // Strict Active Rule: Only facilities with delivery > 0 in AT LEAST ONE month qualify for Top/Bottom
-        const everActiveFacKeys = new Set();
-        allProgRecords.forEach(r => {
-          if ((Number(r.instDel) || 0) > 0) {
-            everActiveFacKeys.add(`${String(r.block || "").trim().toUpperCase()}|||${String(r.facilityName || "").trim().toUpperCase()}`);
-          }
-        });
-
-        const facMap = new Map();
-        filtered.forEach(r => {
-          const fKey = `${String(r.block || "").trim().toUpperCase()}|||${String(r.facilityName || "").trim().toUpperCase()}`;
-          if (!everActiveFacKeys.has(fKey)) return;
-          if (!facMap.has(fKey)) {
-            facMap.set(fKey, {
-              name: r.facilityName,
-              block: r.block,
-              del: 0,
-              cs: 0,
-              night: 0,
-              subText: `${r.block} • ${r.ownership || "Public"}`
-            });
-          }
-          const st = facMap.get(fKey);
-          st.del += Number(r.instDel) || 0;
-          st.cs += Number(r.cSection) || 0;
-          st.night += Number(r.nightCs) || 0;
-        });
-
-        ranked = Array.from(facMap.values()).map(f => {
-          const cPct = f.del > 0 ? ((f.cs / f.del) * 100).toFixed(1) : "0.0";
-          return {
-            name: f.name,
-            val: f.del,
-            cs: f.cs,
-            subText: `${f.block} • C-Sec: ${f.cs} (${cPct}%)`
-          };
-        }).sort((a, b) => b.val - a.val);
-
-        // Chart data: Block-wise if ALL blocks, else Facility-wise
-        if (selBlk === "ALL") {
-          const blkMap = new Map();
-          filtered.forEach(r => {
-            const b = r.block || "Other";
-            if (!blkMap.has(b)) blkMap.set(b, { name: b, del: 0, cs: 0 });
-            const st = blkMap.get(b);
-            st.del += Number(r.instDel) || 0;
-            st.cs += Number(r.cSection) || 0;
-          });
-          const blkSorted = Array.from(blkMap.values()).sort((a, b) => b.del - a.del);
-          secondarySeries = {
-            labels: blkSorted.map(x => x.name),
-            delVals: blkSorted.map(x => x.del),
-            csVals: blkSorted.map(x => x.cs)
-          };
-        } else {
-          secondarySeries = {
-            labels: ranked.map(x => x.name),
-            delVals: ranked.map(x => x.val),
-            csVals: ranked.map(x => x.cs)
-          };
-        }
-
-        const totDel = filtered.reduce((s, r) => s + (Number(r.instDel) || 0), 0);
-        const totCs = filtered.reduce((s, r) => s + (Number(r.cSection) || 0), 0);
-        const totNight = filtered.reduce((s, r) => s + (Number(r.nightCs) || 0), 0);
-        const pubDel = filtered.filter(r => /public|govt/i.test(r.ownership)).reduce((s, r) => s + (Number(r.instDel) || 0), 0);
-        const pvtDel = filtered.filter(r => /private|pvt/i.test(r.ownership)).reduce((s, r) => s + (Number(r.instDel) || 0), 0);
-        const csPct = totDel > 0 ? ((totCs / totDel) * 100).toFixed(1) : "0.0";
-        const nightPct = totCs > 0 ? ((totNight / totCs) * 100).toFixed(1) : "0.0";
-
-        kpi1 = {
-          label: "कुल Institutional Deliveries (2.2)",
-          val: totDel.toLocaleString("en-IN"),
-          sub: `Public: ${pubDel.toLocaleString("en-IN")} | Private: ${pvtDel.toLocaleString("en-IN")}`
-        };
-        kpi2 = {
-          label: "कुल C-Section (3.1) एवं Night CS",
-          val: `${totCs.toLocaleString("en-IN")} (${csPct}%)`,
-          sub: `Night (8PM–8AM): ${totNight.toLocaleString("en-IN")} (${nightPct}%)`
-        };
-
-        const sortedRows = [...filtered].sort((a, b) => (Number(b.instDel) || 0) - (Number(a.instDel) || 0));
-        currentExportRows = sortedRows.map((r, i) => ({
-          "SN": i + 1, "Month": r.month, "Block Name": r.block, "Facility Type": r.facilityType,
-          "Facility Name": r.facilityName, "Ownership": r.ownership,
-          "Institutional Deliveries (2.2)": r.instDel, "C-Section (3.1)": r.cSection, "Night C-Section (3.1.1)": r.nightCs
-        }));
-
-        tableHtml = `
-          <table class="w-full text-xs text-left border-collapse">
-            <thead class="bg-slate-900 text-white sticky top-0">
-              <tr>
-                <th class="p-3">#</th><th class="p-3">Month</th><th class="p-3">Block</th>
-                <th class="p-3">Type</th><th class="p-3">Facility Name</th><th class="p-3">Ownership</th>
-                <th class="p-3 text-right">Inst. Del (2.2)</th><th class="p-3 text-right">C-Section (3.1)</th>
-                <th class="p-3 text-right">C-Sec %</th><th class="p-3 text-right">Night CS (3.1.1)</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              ${sortedRows.map((r, i) => {
-                const del = Number(r.instDel) || 0;
-                const cs = Number(r.cSection) || 0;
-                const night = Number(r.nightCs) || 0;
-                const cPct = del > 0 ? ((cs / del) * 100).toFixed(1) : "0.0";
-                return `<tr class="hover:bg-slate-50 ${del === 0 ? 'bg-rose-50/25' : ''}">
-                  <td class="p-3 text-slate-400">${i + 1}</td>
-                  <td class="p-3 font-semibold text-slate-600">${r.month}</td>
-                  <td class="p-3 font-bold">${r.block}</td>
-                  <td class="p-3">${r.facilityType || "-"}</td>
-                  <td class="p-3 font-bold text-slate-900">${r.facilityName}</td>
-                  <td class="p-3">${r.ownership || "Public"}</td>
-                  <td class="p-3 text-right font-extrabold text-emerald-800">${del.toLocaleString("en-IN")}</td>
-                  <td class="p-3 text-right font-bold text-amber-700">${cs.toLocaleString("en-IN")}</td>
-                  <td class="p-3 text-right font-semibold">${cPct}%</td>
-                  <td class="p-3 text-right font-bold text-indigo-700">${night.toLocaleString("en-IN")}</td>
-                </tr>`;
-              }).join("")}
-            </tbody>
-          </table>`;
-
-      } else if (meta.mode === "asha") {
-        valMode = "currency";
+      if (meta.mode === "asha") {
+        isCurrencyMode = true;
         const ashaComputed = filtered.map(w => {
           let amt = 0;
           if (!selDate || selDate === "ALL") {
@@ -1424,11 +1141,7 @@
           </table>`;
       }
 
-      const fmtVal = (v) => {
-        if (valMode === "currency") return `₹${Number(v).toLocaleString("en-IN")}`;
-        if (valMode === "count") return `${Number(v).toLocaleString("en-IN")} Del.`;
-        return `${v}%`;
-      };
+      const fmtVal = (v) => isCurrencyMode ? `₹${Number(v).toLocaleString("en-IN")}` : `${v}%`;
 
       document.getElementById("kpi1Label").textContent = kpi1.label;
       document.getElementById("kpi1Val").textContent = kpi1.val;
@@ -1445,9 +1158,7 @@
       document.getElementById("kpi4Sub").textContent = last ? `${fmtVal(last.val)} (${last.subText})` : "—";
 
       const isAllBlocks = selBlk === "ALL";
-      const entityLabel = meta.mode === "inst_del"
-        ? (isAllBlocks ? "Facilities (Active)" : `Facilities (${selBlk})`)
-        : (isAllBlocks ? "Blocks" : (meta.mode === "asha" ? `Sub-Centers (${selBlk})` : `Facilities (${selBlk})`));
+      const entityLabel = isAllBlocks ? "Blocks" : (meta.mode === "asha" ? `Sub-Centers (${selBlk})` : `Facilities (${selBlk})`);
 
       const halfCount = Math.min(5, Math.floor(ranked.length / 2));
       const topList = ranked.length === 1 ? ranked : ranked.slice(0, halfCount);
@@ -1457,7 +1168,7 @@
       document.getElementById("wsPoor5Title").textContent = `⚠️ Poor ${poorList.length} ${entityLabel} (न्यूनतम प्रदर्शन)`;
 
       const renderBox = (list, isTop) => {
-        if (!list.length) return `<p class="p-4 text-xs text-slate-400">तुलना के लिए पर्याप्त सक्रिय इकाइयां नहीं हैं।</p>`;
+        if (!list.length) return `<p class="p-4 text-xs text-slate-400">तुलना के लिए पर्याप्त इकाइयां नहीं हैं।</p>`;
         return list.map((item, idx) => `
           <div class="flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 rounded-xl text-xs">
             <div class="flex items-center gap-2.5 min-w-0">
@@ -1482,78 +1193,39 @@
       const ctx = document.getElementById("wsBarChart").getContext("2d");
       if (wsChart) wsChart.destroy();
       const box = document.getElementById("wsChartBox");
+      box.style.width = ranked.length > 14 ? `${ranked.length * 52}px` : "100%";
 
-      if (meta.mode === "inst_del" && secondarySeries) {
-        document.getElementById("wsChartTitle").textContent = isAllBlocks
-          ? "📊 ब्लॉक-वार Institutional Deliveries एवं C-Section तुलना (Top से Bottom)"
-          : `📊 ${selBlk} की Active Facilities — Institutional Deliveries बनाम C-Section`;
-        document.getElementById("wsChartSub").textContent = "हरा: कुल Institutional Deliveries (2.2) | नारंगी: कुल C-Section Deliveries (3.1)";
-        box.style.width = secondarySeries.labels.length > 14 ? `${secondarySeries.labels.length * 56}px` : "100%";
-
-        wsChart = new Chart(ctx, {
-          type: "bar",
-          data: {
-            labels: secondarySeries.labels,
-            datasets: [
-              { label: "Institutional Deliveries (2.2)", data: secondarySeries.delVals, backgroundColor: "#059669", borderRadius: 6, maxBarThickness: 34 },
-              { label: "C-Section Deliveries (3.1)", data: secondarySeries.csVals, backgroundColor: "#d97706", borderRadius: 6, maxBarThickness: 34 }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: true, position: "top", labels: { font: { size: 11, weight: "bold" } } },
-              datalabels: {
-                anchor: "end", align: "top", color: "#0f172a",
-                font: { weight: "bold", size: 10 },
-                formatter: v => v > 0 ? Number(v).toLocaleString("en-IN") : ""
-              }
-            },
-            scales: {
-              x: { grid: { display: false }, ticks: { font: { size: 10, weight: "bold" } } },
-              y: { beginAtZero: true, grid: { color: "#f1f5f9" }, suggestedMax: Math.max(...secondarySeries.delVals, 10) * 1.18 }
+      wsChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ranked.map(r => r.name),
+          datasets: [{
+            data: ranked.map(r => r.val),
+            backgroundColor: ranked.map(r => isCurrencyMode ? "#0d9488" : getThresholdColor(r.val)),
+            borderRadius: 6,
+            maxBarThickness: 38
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              anchor: "end",
+              align: "top",
+              color: "#0f172a",
+              font: { weight: "bold", size: 11 },
+              formatter: v => isCurrencyMode ? `₹${Number(v).toLocaleString("en-IN")}` : `${v}%`
             }
           },
-          plugins: [ChartDataLabels]
-        });
-      } else {
-        document.getElementById("wsChartTitle").textContent = "📊 तुलनात्मक चार्ट (Top से Bottom)";
-        document.getElementById("wsChartSub").textContent = "QGIS कलर कोड: हरा (>85%), पीला (80–85%), लाल (<80%)";
-        box.style.width = ranked.length > 14 ? `${ranked.length * 52}px` : "100%";
-
-        wsChart = new Chart(ctx, {
-          type: "bar",
-          data: {
-            labels: ranked.map(r => r.name),
-            datasets: [{
-              data: ranked.map(r => r.val),
-              backgroundColor: ranked.map(r => valMode === "currency" ? "#0d9488" : getThresholdColor(r.val)),
-              borderRadius: 6,
-              maxBarThickness: 38
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false },
-              datalabels: {
-                anchor: "end",
-                align: "top",
-                color: "#0f172a",
-                font: { weight: "bold", size: 11 },
-                formatter: v => valMode === "currency" ? `₹${Number(v).toLocaleString("en-IN")}` : `${v}%`
-              }
-            },
-            scales: {
-              x: { grid: { display: false }, ticks: { font: { size: 10, weight: "bold" } } },
-              y: { beginAtZero: true, grid: { color: "#f1f5f9" }, suggestedMax: Math.max(...ranked.map(r => r.val), 10) * 1.18 }
-            }
-          },
-          plugins: [ChartDataLabels]
-        });
-      }
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 10, weight: "bold" } } },
+            y: { beginAtZero: true, grid: { color: "#f1f5f9" }, suggestedMax: Math.max(...ranked.map(r => r.val), 10) * 1.18 }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
 
       document.getElementById("wsRowCount").textContent = `${filtered.length} Rows`;
       document.getElementById("wsTableContainer").innerHTML = tableHtml;
