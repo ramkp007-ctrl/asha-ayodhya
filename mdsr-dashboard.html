@@ -15,10 +15,6 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- Firebase Compat SDK (Matching NHM Ayodhya Portal) -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
     body {
@@ -55,19 +51,19 @@
         <div>
           <div class="flex items-center gap-2">
             <span class="bg-amber-400 text-rose-950 text-[11px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">NHM Ayodhya</span>
-            <span id="lastUpdatedBadge" class="text-xs text-rose-200 font-medium">Loading data...</span>
+            <span id="lastUpdatedBadge" class="text-xs text-rose-200 font-medium">डेटा लोड हो रहा है...</span>
           </div>
           <h1 class="text-lg sm:text-xl font-extrabold tracking-tight mt-0.5">
-            MDSR — Maternal Death Surveillance & Response
+            MDSR — Maternal Death Surveillance &amp; Response
           </h1>
         </div>
       </div>
 
       <div class="flex items-center gap-2 no-print">
-        <button onclick="toggleUploadPanel()" class="bg-amber-400 hover:bg-amber-300 text-rose-950 font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow flex items-center gap-1.5 transition">
+        <a href="admin.html" class="bg-amber-400 hover:bg-amber-300 text-rose-950 font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow flex items-center gap-1.5 transition">
           <i data-lucide="upload-cloud" class="w-4 h-4"></i>
-          <span>Upload MDSR Excel</span>
-        </button>
+          <span>Admin Upload</span>
+        </a>
         <button onclick="window.print()" class="bg-white/15 hover:bg-white/25 text-white font-semibold text-xs sm:text-sm px-3 py-2 rounded-xl flex items-center gap-1.5 transition">
           <i data-lucide="printer" class="w-4 h-4"></i>
           <span class="hidden sm:inline">Print</span>
@@ -75,33 +71,6 @@
       </div>
     </div>
   </header>
-
-  <!-- Admin Excel Upload Drawer (Hidden by default unless ?admin=1 or clicked) -->
-  <section id="uploadPanel" class="hidden max-w-7xl mx-auto px-4 pt-5 no-print">
-    <div class="bg-rose-50 border-2 border-dashed border-rose-300 rounded-2xl p-5">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 class="text-base font-bold text-rose-950 flex items-center gap-2">
-            <i data-lucide="file-spreadsheet" class="w-5 h-5 text-rose-700"></i>
-            Admin MDSR Excel Uploader (.xlsx / .xls)
-          </h2>
-          <p class="text-xs text-slate-600 mt-1">
-            पोर्टल से डाउनलोड की गई <code class="bg-white px-1.5 py-0.5 rounded border">MDSR DD-MM-YYYY.xlsx</code> फ़ाइल चुनें। यह स्वतः Row 4 हेडर, डुप्लीकेट कॉलम और तारीखों को साफ़ करके Firebase पर सेव करेगा।
-          </p>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2.5">
-          <input type="file" id="mdsrFileInput" accept=".xlsx,.xls,.csv"
-            class="block text-xs text-slate-700 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-rose-700 file:text-white hover:file:bg-rose-800 cursor-pointer bg-white rounded-xl border border-rose-200 p-1" />
-          <button onclick="saveCurrentToFirebase()" id="syncBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow flex items-center gap-1.5 transition">
-            <i data-lucide="database" class="w-4 h-4"></i>
-            <span>Sync to Firebase</span>
-          </button>
-        </div>
-      </div>
-      <div id="uploadStatus" class="text-xs font-semibold mt-3 hidden"></div>
-    </div>
-  </section>
 
   <!-- Main Content -->
   <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
@@ -113,30 +82,30 @@
           <i data-lucide="filter" class="w-4 h-4 text-rose-700"></i> Filters:
         </div>
 
-        <select id="filterBlock" onchange="applyFilters()" class="bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm font-semibold rounded-xl px-3 py-2 focus:ring-2 focus:ring-rose-500 outline-none">
+        <select id="filterBlock" class="bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm font-semibold rounded-xl px-3 py-2 focus:ring-2 focus:ring-rose-500 outline-none">
           <option value="ALL">All Blocks (समस्त ब्लॉक)</option>
         </select>
 
-        <select id="filterAudit" onchange="applyFilters()" class="bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm font-semibold rounded-xl px-3 py-2 focus:ring-2 focus:ring-rose-500 outline-none">
+        <select id="filterAudit" class="bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm font-semibold rounded-xl px-3 py-2 focus:ring-2 focus:ring-rose-500 outline-none">
           <option value="ALL">Audit Status: All</option>
           <option value="Yes">Audited (Yes)</option>
           <option value="No">Pending Audit (No)</option>
         </select>
 
-        <select id="filterPlace" onchange="applyFilters()" class="bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm font-semibold rounded-xl px-3 py-2 focus:ring-2 focus:ring-rose-500 outline-none">
+        <select id="filterPlace" class="bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm font-semibold rounded-xl px-3 py-2 focus:ring-2 focus:ring-rose-500 outline-none">
           <option value="ALL">Place of Death: All</option>
           <option value="Health Facility">Health Facility</option>
           <option value="Transit">Transit</option>
           <option value="Home">Home</option>
         </select>
 
-        <select id="filterTiming" onchange="applyFilters()" class="bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm font-semibold rounded-xl px-3 py-2 focus:ring-2 focus:ring-rose-500 outline-none">
+        <select id="filterTiming" class="bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm font-semibold rounded-xl px-3 py-2 focus:ring-2 focus:ring-rose-500 outline-none">
           <option value="ALL">Timing: All</option>
         </select>
       </div>
 
       <div class="flex items-center gap-2">
-        <button onclick="resetFilters()" class="text-xs font-bold text-rose-700 hover:bg-rose-50 px-3 py-2 rounded-xl border border-rose-200 transition">
+        <button id="resetFilterBtn" class="text-xs font-bold text-rose-700 hover:bg-rose-50 px-3 py-2 rounded-xl border border-rose-200 transition">
           Reset Filters
         </button>
       </div>
@@ -183,20 +152,16 @@
 
     <!-- Charts Grid Row 1 -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-      <!-- Block-wise Bar Chart -->
       <div class="glass-card rounded-2xl p-5 lg:col-span-2">
-        <div class="flex items-center justify-between mb-3">
-          <div>
-            <h3 class="text-sm sm:text-base font-bold text-slate-800">Block-wise Maternal Deaths & Audit Status</h3>
-            <p class="text-xs text-slate-500">ब्लॉकवार कुल मातृ मृत्यु एवं ऑडिट की स्थिति</p>
-          </div>
+        <div class="mb-3">
+          <h3 class="text-sm sm:text-base font-bold text-slate-800">Block-wise Maternal Deaths &amp; Audit Status</h3>
+          <p class="text-xs text-slate-500">ब्लॉकवार कुल मातृ मृत्यु एवं ऑडिट की स्थिति</p>
         </div>
         <div class="h-72">
           <canvas id="blockChart"></canvas>
         </div>
       </div>
 
-      <!-- Place of Death Doughnut -->
       <div class="glass-card rounded-2xl p-5">
         <div class="mb-3">
           <h3 class="text-sm sm:text-base font-bold text-slate-800">Place of Death Distribution</h3>
@@ -210,7 +175,6 @@
 
     <!-- Charts Grid Row 2 -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-      <!-- Cause of Death -->
       <div class="glass-card rounded-2xl p-5">
         <div class="mb-3">
           <h3 class="text-sm sm:text-base font-bold text-slate-800">Cause of Death Analysis</h3>
@@ -221,7 +185,6 @@
         </div>
       </div>
 
-      <!-- Timing of Death -->
       <div class="glass-card rounded-2xl p-5">
         <div class="mb-3">
           <h3 class="text-sm sm:text-base font-bold text-slate-800">When Death Occurred (Stage)</h3>
@@ -235,11 +198,9 @@
 
     <!-- Block Summary Table -->
     <div class="glass-card rounded-2xl overflow-hidden">
-      <div class="p-4 sm:p-5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 bg-slate-50/70">
-        <div>
-          <h3 class="text-sm sm:text-base font-bold text-slate-800">Block-wise MDSR Performance Summary</h3>
-          <p class="text-xs text-slate-500">किसी भी ब्लॉक पर क्लिक करके नीचे केस लिस्ट फ़िल्टर करें</p>
-        </div>
+      <div class="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/70">
+        <h3 class="text-sm sm:text-base font-bold text-slate-800">Block-wise MDSR Performance Summary</h3>
+        <p class="text-xs text-slate-500">किसी भी ब्लॉक पर क्लिक करके नीचे केस लिस्ट फ़िल्टर करें</p>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse text-xs sm:text-sm">
@@ -268,7 +229,7 @@
           <p class="text-xs text-slate-500">प्रत्येक मातृ मृत्यु का विस्तृत विवरण एवं ऑडिट स्थिति</p>
         </div>
         <div class="relative w-full sm:w-64 no-print">
-          <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Search name, husband, facility..."
+          <input type="text" id="searchInput" placeholder="Search name, husband, facility..."
             class="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-xs focus:ring-2 focus:ring-rose-500 outline-none" />
           <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
         </div>
@@ -280,10 +241,10 @@
             <tr class="bg-slate-800 text-white text-[11px] uppercase tracking-wider">
               <th class="py-3 px-3">S.No</th>
               <th class="py-3 px-3">Block</th>
-              <th class="py-3 px-3">Deceased & Husband</th>
+              <th class="py-3 px-3">Deceased &amp; Husband</th>
               <th class="py-3 px-2 text-center">Age</th>
               <th class="py-3 px-3">Death Date</th>
-              <th class="py-3 px-3">Place & Facility</th>
+              <th class="py-3 px-3">Place &amp; Facility</th>
               <th class="py-3 px-3">When Occurred</th>
               <th class="py-3 px-3">Cause of Death</th>
               <th class="py-3 px-3">Reporting Person</th>
@@ -297,47 +258,46 @@
 
   </main>
 
-  <script>
-    // Register ChartDataLabels
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
     Chart.register(ChartDataLabels);
 
-    // ==========================================
-    // 1. FIREBASE CONFIGURATION (NHM Ayodhya)
-    // ==========================================
-    // NOTE: Apne portal.html / admin.html wala firebaseConfig yahan paste karein
     const firebaseConfig = {
-      databaseURL: "https://asha-ayodhya-default-rtdb.firebaseio.com"
+      apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
+      authDomain: "asha-payment.firebaseapp.com",
+      databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "asha-payment",
+      storageBucket: "asha-payment.firebasestorage.app",
+      messagingSenderId: "117935142167",
+      appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
+      measurementId: "G-43YGRC5CKL"
     };
 
-    let db = null;
-    try {
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
-      db = firebase.database();
-    } catch (e) {
-      console.warn("Firebase init skipped/offline:", e);
-    }
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const mdsrRef = ref(db, "asha_portal_v2/mdsr");
 
-    // Default Loaded Dataset (From MDSR 24-06-2026.xlsx so dashboard works immediately)
+    // Fallback Snapshot from MDSR 24-06-2026.xlsx until first Admin Upload
     let rawRecords = [
       { sno: 1, block: "Milkipur", name: "POONAM", age: 27, husband: "Dileep kumar", deathDate: "08-04-2026", place: "Transit", facility: "Transit", cause: "Not Specified", reviewer: "Dr. R. P.", submittedBy: "FNO fnomilki3519", reportDate: "08-06-2026", timing: "During pregnancy", designation: "Doctor", reportingPerson: "Dr. pooja", audit: "Yes" },
-      { sno: 2, block: "Amaniganj", name: "Afsana", age: 35, husband: "Rahman ali", deathDate: "01-05-2026", place: "Health Facility", facility: "Care Hospital Ayodhya", cause: "Infection, Sepsis", reviewer: "Dr Madan Barnwal", submittedBy: "FNO fnoamani3513", reportDate: "19-05-2026", timing: "During pregnancy", designation: "FNO", reportingPerson: "Dr Shilpi Singh", audit: "Yes" },
+      { sno: 2, block: "Amaniganj", name: "Afsana", age: 35, husband: "Rahman ali", deathDate: "01-05-2026", place: "Health Facility", facility: "Care Hospital Ayodhya", cause: "Infection,Sepsis", reviewer: "Dr Madan Barnwal", submittedBy: "FNO fnoamani3513", reportDate: "19-05-2026", timing: "During pregnancy", designation: "FNO", reportingPerson: "Dr Shilpi Singh", audit: "Yes" },
       { sno: 3, block: "Amaniganj", name: "Anju", age: 24, husband: "Shukh ram", deathDate: "10-04-2026", place: "Health Facility", facility: "DWH", cause: "Obstructed Labour", reviewer: "Dr Madan Barnwal", submittedBy: "FNO fnoamani3513", reportDate: "19-05-2026", timing: "During delivery", designation: "Doctor", reportingPerson: "Dr Shilpi Singh", audit: "Yes" },
-      { sno: 4, block: "Bikapur", name: "Bhanmati", age: 32, husband: "Akhilesh", deathDate: "05-05-2026", place: "Health Facility", facility: "District Hospital Sultanpur", cause: "PPH", reviewer: "Dr. Kailas", submittedBy: "BMO bmobikap1383", reportDate: "20-05-2026", timing: "Within 42 days after delivery", designation: "ASHA", reportingPerson: "Sunita", audit: "Yes" },
+      { sno: 4, block: "Bikapur", name: "Bhanmati", age: 32, husband: "Akhilesh", deathDate: "05-05-2026", place: "Health Facility", facility: "Distric Hospital Sultanpur", cause: "PPH", reviewer: "Dr. Kailas", submittedBy: "BMO bmobikap1383", reportDate: "20-05-2026", timing: "Within 42 days after delivery", designation: "ASHA", reportingPerson: "Sunita", audit: "Yes" },
       { sno: 5, block: "Rudauli", name: "Seema", age: 30, husband: "SUBHAS", deathDate: "28-05-2026", place: "Transit", facility: "Transit", cause: "High BP", reviewer: "Dr. PK Gupta", submittedBy: "BMO bmorudau1392", reportDate: "08-06-2026", timing: "During pregnancy", designation: "BMO", reportingPerson: "ANITA", audit: "Yes" },
-      { sno: 6, block: "Tarun", name: "Monika", age: 28, husband: "laxman", deathDate: "25-05-2026", place: "Health Facility", facility: "Medical College Ayodhya", cause: "Cardiac Arrest", reviewer: "Dr. Santos", submittedBy: "FNO fnotarun3522", reportDate: "27-06-2026", timing: "During delivery", designation: "FNO", reportingPerson: "ranu pathak", audit: "Yes" },
-      { sno: 7, block: "Poorabazar", name: "Puja", age: 28, husband: "ROHIT", deathDate: "02-05-2026", place: "Transit", facility: "Transit", cause: "PPH", reviewer: "Dr. Hemant", submittedBy: "FNO fnopura 3520", reportDate: "18-06-2026", timing: "Within 42 days after delivery", designation: "FNO", reportingPerson: "uma pathak", audit: "Yes" },
+      { sno: 6, block: "Tarun", name: "Monika", age: 28, husband: "laxman", deathDate: "25-05-2026", place: "Health Facility", facility: "Medical Colledge Ayodhya", cause: "Cardiac Arrest", reviewer: "Dr. Santos", submittedBy: "FNO fnotarun3522", reportDate: "27-06-2026", timing: "During delivery", designation: "FNO", reportingPerson: "ranu pathak", audit: "Yes" },
+      { sno: 7, block: "Pura Bazar", name: "Puja", age: 28, husband: "ROHIT", deathDate: "02-05-2026", place: "Transit", facility: "Transit", cause: "PPH", reviewer: "Dr. Hemant", submittedBy: "FNO fnopura 3520", reportDate: "18-06-2026", timing: "Within 42 days after delivery", designation: "FNO", reportingPerson: "uma pathak", audit: "Yes" },
       { sno: 8, block: "Milkipur", name: "Nitu", age: 28, husband: "rohit", deathDate: "13-06-2026", place: "Health Facility", facility: "Not Specified", cause: "Not Specified", reviewer: "Dr. R. P.", submittedBy: "FNO fnomilki3519", reportDate: "20-06-2026", timing: "Within 42 days after delivery", designation: "Doctor", reportingPerson: "Dr Anand Sinha", audit: "No" },
       { sno: 9, block: "Mayabazar", name: "NISHA", age: 19, husband: "VINOD", deathDate: "20-06-2026", place: "Health Facility", facility: "Mayabazar", cause: "PPH", reviewer: "Dr Sanjeev", submittedBy: "FNO fnomaya 3518", reportDate: "23-06-2026", timing: "Within 42 days after delivery", designation: "FNO", reportingPerson: "PUSHP LATA", audit: "Yes" },
-      { sno: 10, block: "Bikapur", name: "Zahida", age: 20, husband: "Dil Bahar", deathDate: "22-05-2026", place: "Health Facility", facility: "Not Specified", cause: "Not Specified", reviewer: "Dr. Kailas", submittedBy: "BMO bmobikap1383", reportDate: "18-07-2026", timing: "During abortion or within 6 weeks after abortion", designation: "BMO", reportingPerson: "Dev Prakash Verma (HEO)", audit: "Yes" },
-      { sno: 11, block: "Bikapur", name: "Suman", age: 28, husband: "Ranjeet Yadav", deathDate: "09-06-2026", place: "Home", facility: "Home", cause: "Not Specified", reviewer: "Dr. Kailas", submittedBy: "BMO bmobikap1383", reportDate: "18-07-2026", timing: "During pregnancy", designation: "BMO", reportingPerson: "Dev Prakash Verma (HEO)", audit: "Yes" },
+      { sno: 10, block: "Bikapur", name: "Zahida", age: 20, husband: "Dil Bahar", deathDate: "22-05-2026", place: "Health Facility", facility: "Not Specified", cause: "Not Specified", reviewer: "Dr. Kailas", submittedBy: "BMO bmobikap1383", reportDate: "18-07-2026", timing: "During abortion or within 6 weeks after abortion", designation: "BMO", reportingPerson: "Dev Prakash Verma (Heo)", audit: "Yes" },
+      { sno: 11, block: "Bikapur", name: "Suman", age: 28, husband: "Ranjeet Yadav", deathDate: "09-06-2026", place: "Home", facility: "Not Specified", cause: "Not Specified", reviewer: "Dr. Kailas", submittedBy: "BMO bmobikap1383", reportDate: "18-07-2026", timing: "During pregnancy", designation: "BMO", reportingPerson: "Dev Prakash Verma (HEO)", audit: "Yes" },
       { sno: 12, block: "Mawai", name: "SARUN", age: 28, husband: "SIRTAJ ALI", deathDate: "27-07-2026", place: "Health Facility", facility: "Home Delivery", cause: "PPH", reviewer: "Dr. Ravikant verma", submittedBy: "FNO fnomawai3517", reportDate: "24-08-2026", timing: "Within 42 days after delivery", designation: "FNO", reportingPerson: "XYZ", audit: "Yes" },
       { sno: 13, block: "Rudauli", name: "POONAM", age: 26, husband: "RAM KUMAR MAURYA", deathDate: "29-07-2026", place: "Transit", facility: "Transit", cause: "Cardiac Arrest", reviewer: "Dr. PK Gupta", submittedBy: "BMO bmorudau1392", reportDate: "24-08-2026", timing: "During delivery", designation: "BMO", reportingPerson: "ASHA KUMARI", audit: "Yes" },
       { sno: 14, block: "Masodha", name: "SULEKHA", age: 32, husband: "SACHIN", deathDate: "28-06-2026", place: "Health Facility", facility: "Not Specified", cause: "Not Specified", reviewer: "-", submittedBy: "-", reportDate: "09-10-2026", timing: "Within 42 days after delivery", designation: "-", reportingPerson: "Dr Saurabh Gupta", audit: "No" },
       { sno: 15, block: "Sohawal", name: "Sunita", age: 27, husband: "Anuj", deathDate: "09-09-2026", place: "Health Facility", facility: "Not Specified", cause: "Not Specified", reviewer: "-", submittedBy: "-", reportDate: "14-09-2026", timing: "Within 42 days after delivery", designation: "-", reportingPerson: "-", audit: "No" },
       { sno: 16, block: "Rudauli", name: "Mahnoor", age: 28, husband: "Jakir Ali", deathDate: "14-06-2026", place: "Transit", facility: "Transit", cause: "Eclampsia", reviewer: "-", submittedBy: "-", reportDate: "24-09-2026", timing: "Within 42 days after delivery", designation: "-", reportingPerson: "Dr R.K Shukal", audit: "No" },
-      { sno: 17, block: "Rudauli", name: "Sharma", age: 29, husband: "Ramesh Chandra", deathDate: "24-06-2026", place: "Home", facility: "Home", cause: "Not Specified", reviewer: "-", submittedBy: "-", reportDate: "07-10-2026", timing: "Within 42 days after delivery", designation: "-", reportingPerson: "Dr R.K Shukal", audit: "Yes" },
+      { sno: 17, block: "Rudauli", name: "Sharma", age: 29, husband: "Ramesh Chandra", deathDate: "24-06-2026", place: "Home", facility: "Not Specified", cause: "Not Specified", reviewer: "-", submittedBy: "-", reportDate: "07-10-2026", timing: "Within 42 days after delivery", designation: "-", reportingPerson: "Dr R.K Shukal", audit: "Yes" },
       { sno: 18, block: "Tarun", name: "Anuradha", age: 30, husband: "Vishwas", deathDate: "28-09-2026", place: "Transit", facility: "Charak Hospital Lko", cause: "Cardiac Arrest", reviewer: "-", submittedBy: "-", reportDate: "30-09-2026", timing: "During delivery", designation: "-", reportingPerson: "Dr Anshuman Gupta", audit: "No" },
       { sno: 19, block: "Tarun", name: "Khushbu", age: 31, husband: "Chandra Bhushan", deathDate: "03-10-2026", place: "Health Facility", facility: "Sultanpur DWH", cause: "Cardiac Arrest", reviewer: "-", submittedBy: "-", reportDate: "09-10-2026", timing: "Within 42 days after delivery", designation: "-", reportingPerson: "Dr Anshuman Gupta", audit: "No" },
       { sno: 20, block: "Rudauli", name: "Ruma", age: 27, husband: "Rajit Ram", deathDate: "15-10-2026", place: "Transit", facility: "Transit", cause: "Not Specified", reviewer: "-", submittedBy: "-", reportDate: "23-10-2026", timing: "During delivery", designation: "-", reportingPerson: "Dr R.K Shukal", audit: "No" },
@@ -346,214 +306,31 @@
 
     let charts = {};
 
-    // ==========================================
-    // 2. EXCEL PARSER FOR MDSR FILE FORMAT
-    // ==========================================
-    document.getElementById('mdsrFileInput').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        try {
-          const data = new Uint8Array(evt.target.result);
-          const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-          const sheetName = workbook.SheetNames.includes('MDSR Report') ? 'MDSR Report' : workbook.SheetNames[0];
-          const sheet = workbook.Sheets[sheetName];
-
-          // Read as 2D array to handle blank top rows & duplicate 'Facility Name' headers cleanly
-          const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
-
-          // Dynamically locate the header row containing "Block" and "Deceased Name"
-          let headerIdx = rows.findIndex(r =>
-            r.some(cell => String(cell).trim().toLowerCase() === 'block') &&
-            r.some(cell => String(cell).trim().toLowerCase().includes('deceased'))
-          );
-          if (headerIdx === -1) headerIdx = 3; // Default Row 4 (index 3)
-
-          const parsed = [];
-          for (let i = headerIdx + 1; i < rows.length; i++) {
-            const r = rows[i];
-            const blockRaw = String(r[1] || "").trim();
-            const nameRaw = String(r[2] || "").trim();
-            if (!blockRaw && !nameRaw) continue; // Skip blank rows
-
-            // Normalize common spelling typos from portal exports
-            let blockClean = blockRaw;
-            if (blockClean.toLowerCase() === 'masodwal') blockClean = 'Masodha';
-            if (blockClean.toLowerCase() === 'poorabazar') blockClean = 'Pura Bazar';
-
-            let causeClean = String(r[8] || "").trim() || "Not Specified";
-            if (causeClean.toLowerCase() === 'cordiac arrest') causeClean = 'Cardiac Arrest';
-            if (causeClean.toLowerCase() === 'obstract labour') causeClean = 'Obstructed Labour';
-
-            let auditRaw = String(r[15] || "").trim().toLowerCase();
-            let auditClean = (auditRaw === 'yes' || auditRaw === 'y') ? 'Yes' : 'No';
-
-            parsed.push({
-              sno: Number(r[0]) || (parsed.length + 1),
-              block: blockClean,
-              name: nameRaw || "Unknown",
-              age: Number(r[3]) || 0,
-              husband: String(r[4] || "-").trim(),
-              deathDate: formatExcelDate(r[5]),
-              place: String(r[6] || "Not Specified").trim(),
-              facility: String(r[7] || "Not Specified").trim(),
-              cause: causeClean,
-              reviewer: String(r[9] || "-").trim(),
-              submittedBy: String(r[10] || "-").trim(),
-              reportDate: formatExcelDate(r[11]),
-              timing: String(r[12] || "Not Specified").trim(),
-              designation: String(r[13] || "-").trim(),
-              reportingPerson: String(r[14] || "-").trim(),
-              audit: auditClean
-            });
-          }
-
-          if (parsed.length === 0) {
-            showStatus("फ़ाइल में कोई वैध MDSR डेटा नहीं मिला।", "text-red-700");
-            return;
-          }
-
-          rawRecords = parsed;
-          document.getElementById('lastUpdatedBadge').textContent = `Loaded: ${file.name} (${parsed.length} Cases)`;
-          showStatus(`सफलतापूर्वक ${parsed.length} मातृ मृत्यु रिकॉर्ड लोड किए गए। अब 'Sync to Firebase' दबाएं।`, "text-emerald-700");
-          populateFilters();
-          applyFilters();
-        } catch (err) {
-          console.error(err);
-          showStatus("Excel पढ़ने में त्रुटि: " + err.message, "text-red-700");
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    });
-
-    function formatExcelDate(val) {
-      if (!val) return "-";
-      if (val instanceof Date && !isNaN(val)) {
-        const dd = String(val.getDate()).padStart(2, '0');
-        const mm = String(val.getMonth() + 1).padStart(2, '0');
-        const yyyy = val.getFullYear();
-        return `${dd}-${mm}-${yyyy}`;
-      }
-      return String(val).trim().split(' ')[0];
-    }
-
-    function showStatus(msg, colorClass) {
-      const el = document.getElementById('uploadStatus');
-      el.textContent = msg;
-      el.className = `text-xs font-bold mt-3 ${colorClass}`;
-      el.classList.remove('hidden');
-    }
-
-    function toggleUploadPanel() {
-      document.getElementById('uploadPanel').classList.toggle('hidden');
-    }
-
-    // ==========================================
-    // 3. FIREBASE SYNC & REALTIME FETCH
-    // ==========================================
-    function saveCurrentToFirebase() {
-      if (!db) {
-        showStatus("Firebase कनेक्ट नहीं है। कृपया सही databaseURL जांचें।", "text-red-700");
-        return;
-      }
-      const btn = document.getElementById('syncBtn');
-      btn.disabled = true;
-      btn.innerHTML = `<span>Syncing...</span>`;
-
-      const now = new Date();
-      const dateStr = `${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`;
-
-      // Sanitize undefined values before Firebase .set()
-      const cleanPayload = JSON.parse(JSON.stringify({
-        updatedAt: dateStr,
-        totalCases: rawRecords.length,
-        records: rawRecords
-      }));
-
-      db.ref('asha_portal_v2/mdsr').set(cleanPayload)
-        .then(() => {
-          showStatus(`Firebase पर ${rawRecords.length} MDSR रिकॉर्ड सफलतापूर्वक सेव हो गए!`, "text-emerald-700");
-          document.getElementById('lastUpdatedBadge').textContent = `Updated: ${dateStr}`;
-        })
-        .catch(err => {
-          showStatus("Firebase Error: " + err.message, "text-red-700");
-        })
-        .finally(() => {
-          btn.disabled = false;
-          btn.innerHTML = `<i data-lucide="database" class="w-4 h-4"></i><span>Sync to Firebase</span>`;
-          lucide.createIcons();
-        });
-    }
-
-    function loadFromFirebase() {
-      if (!db) {
-        document.getElementById('lastUpdatedBadge').textContent = "Snapshot: 24-06-2026 (21 Cases)";
-        populateFilters();
-        applyFilters();
-        return;
-      }
-      db.ref('asha_portal_v2/mdsr').once('value').then(snap => {
-        const val = snap.val();
-        if (val && Array.isArray(val.records) && val.records.length > 0) {
-          rawRecords = val.records;
-          document.getElementById('lastUpdatedBadge').textContent = `Updated: ${val.updatedAt || 'Latest'}`;
-        } else {
-          document.getElementById('lastUpdatedBadge').textContent = "Snapshot: 24-06-2026 (21 Cases)";
-        }
-        populateFilters();
-        applyFilters();
-      }).catch(() => {
-        document.getElementById('lastUpdatedBadge').textContent = "Snapshot: 24-06-2026 (21 Cases)";
-        populateFilters();
-        applyFilters();
-      });
-    }
-
-    // ==========================================
-    // 4. FILTERING & DASHBOARD RENDERING
-    // ==========================================
     function populateFilters() {
-      const blockSel = document.getElementById('filterBlock');
-      const timingSel = document.getElementById('filterTiming');
+      const blockSel = document.getElementById("filterBlock");
+      const timingSel = document.getElementById("filterTiming");
 
       const blocks = [...new Set(rawRecords.map(r => r.block).filter(Boolean))].sort();
       blockSel.innerHTML = `<option value="ALL">All Blocks (${blocks.length})</option>` +
-        blocks.map(b => `<option value="${b}">${b}</option>`).join('');
+        blocks.map(b => `<option value="${b}">${b}</option>`).join("");
 
       const timings = [...new Set(rawRecords.map(r => r.timing).filter(Boolean))].sort();
       timingSel.innerHTML = `<option value="ALL">Timing: All</option>` +
-        timings.map(t => `<option value="${t}">${t}</option>`).join('');
-    }
-
-    function resetFilters() {
-      document.getElementById('filterBlock').value = 'ALL';
-      document.getElementById('filterAudit').value = 'ALL';
-      document.getElementById('filterPlace').value = 'ALL';
-      document.getElementById('filterTiming').value = 'ALL';
-      document.getElementById('searchInput').value = '';
-      applyFilters();
-    }
-
-    function filterByBlockClick(blockName) {
-      const sel = document.getElementById('filterBlock');
-      sel.value = (sel.value === blockName) ? 'ALL' : blockName;
-      applyFilters();
+        timings.map(t => `<option value="${t}">${t}</option>`).join("");
     }
 
     function applyFilters() {
-      const fBlock = document.getElementById('filterBlock').value;
-      const fAudit = document.getElementById('filterAudit').value;
-      const fPlace = document.getElementById('filterPlace').value;
-      const fTiming = document.getElementById('filterTiming').value;
-      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      const fBlock = document.getElementById("filterBlock").value;
+      const fAudit = document.getElementById("filterAudit").value;
+      const fPlace = document.getElementById("filterPlace").value;
+      const fTiming = document.getElementById("filterTiming").value;
+      const query = document.getElementById("searchInput").value.trim().toLowerCase();
 
       const filtered = rawRecords.filter(r => {
-        if (fBlock !== 'ALL' && r.block !== fBlock) return false;
-        if (fAudit !== 'ALL' && r.audit !== fAudit) return false;
-        if (fPlace !== 'ALL' && r.place !== fPlace) return false;
-        if (fTiming !== 'ALL' && r.timing !== fTiming) return false;
+        if (fBlock !== "ALL" && r.block !== fBlock) return false;
+        if (fAudit !== "ALL" && r.audit !== fAudit) return false;
+        if (fPlace !== "ALL" && r.place !== fPlace) return false;
+        if (fTiming !== "ALL" && r.timing !== fTiming) return false;
         if (query) {
           const hay = `${r.block} ${r.name} ${r.husband} ${r.facility} ${r.cause} ${r.reportingPerson}`.toLowerCase();
           if (!hay.includes(query)) return false;
@@ -569,60 +346,59 @@
 
     function updateKPIs(data) {
       const total = data.length;
-      const auditYes = data.filter(d => d.audit === 'Yes').length;
-      const auditNo = data.filter(d => d.audit !== 'Yes').length;
-      const facility = data.filter(d => d.place === 'Health Facility').length;
-      const transit = data.filter(d => d.place === 'Transit').length;
-      const home = data.filter(d => d.place === 'Home').length;
+      const auditYes = data.filter(d => d.audit === "Yes").length;
+      const auditNo = data.filter(d => d.audit !== "Yes").length;
+      const facility = data.filter(d => d.place === "Health Facility").length;
+      const transit = data.filter(d => d.place === "Transit").length;
+      const home = data.filter(d => d.place === "Home").length;
 
       const validAges = data.map(d => Number(d.age)).filter(a => a > 0);
-      const avgAge = validAges.length ? (validAges.reduce((a, b) => a + b, 0) / validAges.length).toFixed(1) : '--';
+      const avgAge = validAges.length ? (validAges.reduce((a, b) => a + b, 0) / validAges.length).toFixed(1) : "--";
 
-      document.getElementById('kpiTotal').textContent = total;
-      document.getElementById('kpiAvgAge').textContent = `Avg Age: ${avgAge} yrs`;
+      document.getElementById("kpiTotal").textContent = total;
+      document.getElementById("kpiAvgAge").textContent = `Avg Age: ${avgAge} yrs`;
 
-      document.getElementById('kpiAuditYes').textContent = auditYes;
-      document.getElementById('kpiAuditPct').textContent = total ? `${Math.round((auditYes / total) * 100)}% Audited` : '0% Audited';
+      document.getElementById("kpiAuditYes").textContent = auditYes;
+      document.getElementById("kpiAuditPct").textContent = total ? `${Math.round((auditYes / total) * 100)}% Audited` : "0% Audited";
 
-      document.getElementById('kpiAuditNo').textContent = auditNo;
+      document.getElementById("kpiAuditNo").textContent = auditNo;
 
-      document.getElementById('kpiFacility').textContent = facility;
-      document.getElementById('kpiFacilityPct').textContent = total ? `${Math.round((facility / total) * 100)}% of total` : '0%';
+      document.getElementById("kpiFacility").textContent = facility;
+      document.getElementById("kpiFacilityPct").textContent = total ? `${Math.round((facility / total) * 100)}% of total` : "0%";
 
-      document.getElementById('kpiTransit').textContent = transit;
-      document.getElementById('kpiTransitPct').textContent = total ? `${Math.round((transit / total) * 100)}% in transit` : '0%';
+      document.getElementById("kpiTransit").textContent = transit;
+      document.getElementById("kpiTransitPct").textContent = total ? `${Math.round((transit / total) * 100)}% in transit` : "0%";
 
-      document.getElementById('kpiHome').textContent = home;
-      document.getElementById('kpiHomePct').textContent = total ? `${Math.round((home / total) * 100)}% at home` : '0%';
+      document.getElementById("kpiHome").textContent = home;
+      document.getElementById("kpiHomePct").textContent = total ? `${Math.round((home / total) * 100)}% at home` : "0%";
     }
 
     function updateCharts(data) {
-      // 1. Block-wise Stacked Bar (Audited vs Pending)
       const blockMap = {};
       data.forEach(d => {
         if (!blockMap[d.block]) blockMap[d.block] = { yes: 0, no: 0, total: 0 };
         blockMap[d.block].total++;
-        if (d.audit === 'Yes') blockMap[d.block].yes++;
+        if (d.audit === "Yes") blockMap[d.block].yes++;
         else blockMap[d.block].no++;
       });
       const sortedBlocks = Object.keys(blockMap).sort((a, b) => blockMap[b].total - blockMap[a].total);
 
       if (charts.blockChart) charts.blockChart.destroy();
-      charts.blockChart = new Chart(document.getElementById('blockChart'), {
-        type: 'bar',
+      charts.blockChart = new Chart(document.getElementById("blockChart"), {
+        type: "bar",
         data: {
           labels: sortedBlocks,
           datasets: [
             {
-              label: 'Audited (Yes)',
+              label: "Audited (Yes)",
               data: sortedBlocks.map(b => blockMap[b].yes),
-              backgroundColor: '#10b981',
+              backgroundColor: "#10b981",
               borderRadius: 4
             },
             {
-              label: 'Audit Pending (No)',
+              label: "Audit Pending (No)",
               data: sortedBlocks.map(b => blockMap[b].no),
-              backgroundColor: '#f59e0b',
+              backgroundColor: "#f59e0b",
               borderRadius: 4
             }
           ]
@@ -635,44 +411,43 @@
             y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } }
           },
           plugins: {
-            legend: { position: 'top' },
+            legend: { position: "top" },
             datalabels: {
-              color: '#fff',
-              font: { weight: 'bold', size: 11 },
-              formatter: v => v > 0 ? v : ''
+              color: "#fff",
+              font: { weight: "bold", size: 11 },
+              formatter: v => v > 0 ? v : ""
             }
           }
         }
       });
 
-      // 2. Place of Death Doughnut
       const placeCounts = {
-        'Health Facility': data.filter(d => d.place === 'Health Facility').length,
-        'Transit': data.filter(d => d.place === 'Transit').length,
-        'Home': data.filter(d => d.place === 'Home').length
+        "Health Facility": data.filter(d => d.place === "Health Facility").length,
+        "Transit": data.filter(d => d.place === "Transit").length,
+        "Home": data.filter(d => d.place === "Home").length
       };
       if (charts.placeChart) charts.placeChart.destroy();
-      charts.placeChart = new Chart(document.getElementById('placeChart'), {
-        type: 'doughnut',
+      charts.placeChart = new Chart(document.getElementById("placeChart"), {
+        type: "doughnut",
         data: {
           labels: Object.keys(placeCounts),
           datasets: [{
             data: Object.values(placeCounts),
-            backgroundColor: ['#2563eb', '#9333ea', '#475569'],
+            backgroundColor: ["#2563eb", "#9333ea", "#475569"],
             borderWidth: 2
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          cutout: '58%',
+          cutout: "58%",
           plugins: {
-            legend: { position: 'bottom' },
+            legend: { position: "bottom" },
             datalabels: {
-              color: '#fff',
-              font: { weight: 'bold', size: 12 },
+              color: "#fff",
+              font: { weight: "bold", size: 12 },
               formatter: (val, ctx) => {
-                if (!val) return '';
+                if (!val) return "";
                 const sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
                 return `${val} (${Math.round((val / sum) * 100)}%)`;
               }
@@ -681,28 +456,27 @@
         }
       });
 
-      // 3. Cause of Death Horizontal Bar
       const causeMap = {};
       data.forEach(d => {
-        const c = d.cause || 'Not Specified';
+        const c = d.cause || "Not Specified";
         causeMap[c] = (causeMap[c] || 0) + 1;
       });
       const sortedCauses = Object.keys(causeMap).sort((a, b) => causeMap[b] - causeMap[a]);
 
       if (charts.causeChart) charts.causeChart.destroy();
-      charts.causeChart = new Chart(document.getElementById('causeChart'), {
-        type: 'bar',
+      charts.causeChart = new Chart(document.getElementById("causeChart"), {
+        type: "bar",
         data: {
           labels: sortedCauses,
           datasets: [{
-            label: 'Deaths',
+            label: "Deaths",
             data: sortedCauses.map(c => causeMap[c]),
-            backgroundColor: sortedCauses.map(c => c === 'Not Specified' ? '#94a3b8' : '#be123c'),
+            backgroundColor: sortedCauses.map(c => c === "Not Specified" ? "#94a3b8" : "#be123c"),
             borderRadius: 6
           }]
         },
         options: {
-          indexAxis: 'y',
+          indexAxis: "y",
           responsive: true,
           maintainAspectRatio: false,
           scales: {
@@ -712,37 +486,36 @@
           plugins: {
             legend: { display: false },
             datalabels: {
-              anchor: 'end',
-              align: 'end',
-              color: '#1e293b',
-              font: { weight: 'bold', size: 11 }
+              anchor: "end",
+              align: "end",
+              color: "#1e293b",
+              font: { weight: "bold", size: 11 }
             }
           }
         }
       });
 
-      // 4. Timing of Death Bar
       const timingMap = {};
       data.forEach(d => {
-        const t = d.timing || 'Not Specified';
+        const t = d.timing || "Not Specified";
         timingMap[t] = (timingMap[t] || 0) + 1;
       });
       const sortedTimings = Object.keys(timingMap).sort((a, b) => timingMap[b] - timingMap[a]);
 
       if (charts.timingChart) charts.timingChart.destroy();
-      charts.timingChart = new Chart(document.getElementById('timingChart'), {
-        type: 'bar',
+      charts.timingChart = new Chart(document.getElementById("timingChart"), {
+        type: "bar",
         data: {
-          labels: sortedTimings.map(t => t.length > 26 ? t.slice(0, 24) + '...' : t),
+          labels: sortedTimings.map(t => t.length > 26 ? t.slice(0, 24) + "..." : t),
           datasets: [{
-            label: 'Cases',
+            label: "Cases",
             data: sortedTimings.map(t => timingMap[t]),
-            backgroundColor: '#0284c7',
+            backgroundColor: "#0284c7",
             borderRadius: 6
           }]
         },
         options: {
-          indexAxis: 'y',
+          indexAxis: "y",
           responsive: true,
           maintainAspectRatio: false,
           scales: {
@@ -752,10 +525,10 @@
           plugins: {
             legend: { display: false },
             datalabels: {
-              anchor: 'end',
-              align: 'end',
-              color: '#1e293b',
-              font: { weight: 'bold', size: 11 }
+              anchor: "end",
+              align: "end",
+              color: "#1e293b",
+              font: { weight: "bold", size: 11 }
             }
           }
         }
@@ -769,16 +542,16 @@
           map[d.block] = { total: 0, facility: 0, transit: 0, home: 0, yes: 0, no: 0 };
         }
         map[d.block].total++;
-        if (d.place === 'Health Facility') map[d.block].facility++;
-        else if (d.place === 'Transit') map[d.block].transit++;
-        else if (d.place === 'Home') map[d.block].home++;
+        if (d.place === "Health Facility") map[d.block].facility++;
+        else if (d.place === "Transit") map[d.block].transit++;
+        else if (d.place === "Home") map[d.block].home++;
 
-        if (d.audit === 'Yes') map[d.block].yes++;
+        if (d.audit === "Yes") map[d.block].yes++;
         else map[d.block].no++;
       });
 
       const blocks = Object.keys(map).sort((a, b) => map[b].total - map[a].total);
-      const tbody = document.getElementById('blockSummaryBody');
+      const tbody = document.getElementById("blockSummaryBody");
 
       if (!blocks.length) {
         tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400">No records match current filters</td></tr>`;
@@ -788,9 +561,9 @@
       tbody.innerHTML = blocks.map(b => {
         const s = map[b];
         const pct = Math.round((s.yes / s.total) * 100);
-        const badgeColor = pct === 100 ? 'bg-emerald-100 text-emerald-800' : (pct >= 50 ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800');
+        const badgeColor = pct === 100 ? "bg-emerald-100 text-emerald-800" : (pct >= 50 ? "bg-amber-100 text-amber-800" : "bg-rose-100 text-rose-800");
         return `
-          <tr onclick="filterByBlockClick('${b}')" class="hover:bg-rose-50/70 cursor-pointer transition">
+          <tr data-block="${b}" class="block-row hover:bg-rose-50/70 cursor-pointer transition">
             <td class="py-2.5 px-4 font-bold text-slate-800">${b}</td>
             <td class="py-2.5 px-3 text-center font-extrabold text-rose-800">${s.total}</td>
             <td class="py-2.5 px-3 text-center text-blue-700 font-semibold">${s.facility}</td>
@@ -803,12 +576,21 @@
             </td>
           </tr>
         `;
-      }).join('');
+      }).join("");
+
+      tbody.querySelectorAll(".block-row").forEach(tr => {
+        tr.addEventListener("click", () => {
+          const blk = tr.getAttribute("data-block");
+          const sel = document.getElementById("filterBlock");
+          sel.value = (sel.value === blk) ? "ALL" : blk;
+          applyFilters();
+        });
+      });
     }
 
     function renderCaseTable(data) {
-      document.getElementById('caseCountLabel').textContent = data.length;
-      const tbody = document.getElementById('caseTableBody');
+      document.getElementById("caseCountLabel").textContent = data.length;
+      const tbody = document.getElementById("caseTableBody");
 
       if (!data.length) {
         tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-slate-400">कोई केस नहीं मिला</td></tr>`;
@@ -816,13 +598,13 @@
       }
 
       tbody.innerHTML = data.map((r, idx) => {
-        const auditBadge = r.audit === 'Yes'
+        const auditBadge = r.audit === "Yes"
           ? `<span class="bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full font-bold text-[11px]">Yes</span>`
           : `<span class="bg-rose-100 text-rose-800 px-2.5 py-0.5 rounded-full font-bold text-[11px]">No</span>`;
 
-        const placeBadge = r.place === 'Transit'
+        const placeBadge = r.place === "Transit"
           ? `<span class="text-purple-700 font-bold">Transit</span>`
-          : (r.place === 'Home' ? `<span class="text-slate-700 font-bold">Home</span>` : `<span class="text-blue-700 font-bold">Health Facility</span>`);
+          : (r.place === "Home" ? `<span class="text-slate-700 font-bold">Home</span>` : `<span class="text-blue-700 font-bold">Health Facility</span>`);
 
         return `
           <tr class="hover:bg-slate-50">
@@ -832,7 +614,7 @@
               <div class="font-bold text-slate-900">${r.name}</div>
               <div class="text-[11px] text-slate-500">W/o ${r.husband}</div>
             </td>
-            <td class="py-2.5 px-2 text-center font-semibold">${r.age || '-'}</td>
+            <td class="py-2.5 px-2 text-center font-semibold">${r.age || "-"}</td>
             <td class="py-2.5 px-3 font-medium text-slate-700 whitespace-nowrap">${r.deathDate}</td>
             <td class="py-2.5 px-3">
               <div>${placeBadge}</div>
@@ -840,26 +622,48 @@
             </td>
             <td class="py-2.5 px-3 text-slate-700">${r.timing}</td>
             <td class="py-2.5 px-3">
-              <span class="font-semibold ${r.cause === 'Not Specified' ? 'text-slate-400 italic' : 'text-rose-800'}">${r.cause}</span>
+              <span class="font-semibold ${r.cause === "Not Specified" ? "text-slate-400 italic" : "text-rose-800"}">${r.cause}</span>
             </td>
             <td class="py-2.5 px-3">
               <div class="font-medium text-slate-800">${r.reportingPerson}</div>
-              <div class="text-[11px] text-slate-400">${r.designation !== '-' ? r.designation : ''}</div>
+              <div class="text-[11px] text-slate-400">${r.designation !== "-" ? r.designation : ""}</div>
             </td>
             <td class="py-2.5 px-3 text-center">${auditBadge}</td>
           </tr>
         `;
-      }).join('');
+      }).join("");
     }
 
-    // Initialize Page
-    window.addEventListener('DOMContentLoaded', () => {
-      lucide.createIcons();
-      // Auto-open upload drawer if opened via admin link (?admin=1)
-      if (new URLSearchParams(window.location.search).get('admin') === '1') {
-        document.getElementById('uploadPanel').classList.remove('hidden');
+    // Attach Filter Listeners
+    ["filterBlock", "filterAudit", "filterPlace", "filterTiming"].forEach(id => {
+      document.getElementById(id).addEventListener("change", applyFilters);
+    });
+    document.getElementById("searchInput").addEventListener("keyup", applyFilters);
+    document.getElementById("resetFilterBtn").addEventListener("click", () => {
+      document.getElementById("filterBlock").value = "ALL";
+      document.getElementById("filterAudit").value = "ALL";
+      document.getElementById("filterPlace").value = "ALL";
+      document.getElementById("filterTiming").value = "ALL";
+      document.getElementById("searchInput").value = "";
+      applyFilters();
+    });
+
+    // Realtime Firebase Listener
+    lucide.createIcons();
+    onValue(mdsrRef, (snap) => {
+      const val = snap.val();
+      if (val && Array.isArray(val.records) && val.records.length > 0) {
+        rawRecords = val.records;
+        document.getElementById("lastUpdatedBadge").textContent = `Updated: ${val.updatedAt || "Latest"} (${rawRecords.length} Cases)`;
+      } else {
+        document.getElementById("lastUpdatedBadge").textContent = "Snapshot: 24-06-2026 (21 Cases)";
       }
-      loadFromFirebase();
+      populateFilters();
+      applyFilters();
+    }, () => {
+      document.getElementById("lastUpdatedBadge").textContent = "Snapshot: 24-06-2026 (21 Cases)";
+      populateFilters();
+      applyFilters();
     });
   </script>
 </body>
