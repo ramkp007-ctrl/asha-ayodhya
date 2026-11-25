@@ -339,7 +339,7 @@
             </button>
           </div>
 
-          <div class="flex items-center gap-3 text-[11px] font-bold">
+          <div id="wsLegendBar" class="flex items-center gap-3 text-[11px] font-bold">
             <span class="flex items-center gap-1 text-emerald-700"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> &gt;85% Best</span>
             <span class="flex items-center gap-1 text-amber-600"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> 80–85% Moderate</span>
             <span class="flex items-center gap-1 text-rose-600"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> &lt;80% Focus</span>
@@ -382,7 +382,7 @@
           <div class="bg-white rounded-2xl border border-emerald-200/80 shadow-sm overflow-hidden">
             <div class="px-4 py-3 bg-gradient-to-r from-emerald-800 to-teal-700 text-white flex justify-between items-center">
               <h3 id="wsTop5Title" class="text-xs font-extrabold tracking-wide">🏆 Top 5 Blocks (सर्वश्रेष्ठ प्रदर्शन)</h3>
-              <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold">Best Performers</span>
+              <span id="wsTop5Badge" class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold">Best Performers</span>
             </div>
             <div id="wsTop5List" class="divide-y divide-slate-100 p-2.5"></div>
           </div>
@@ -390,7 +390,7 @@
           <div class="bg-white rounded-2xl border border-rose-200/80 shadow-sm overflow-hidden">
             <div class="px-4 py-3 bg-gradient-to-r from-rose-800 to-rose-700 text-white flex justify-between items-center">
               <h3 id="wsPoor5Title" class="text-xs font-extrabold tracking-wide">⚠️ Poor 5 Blocks (न्यूनतम प्रदर्शन)</h3>
-              <span class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold">Needs Focus</span>
+              <span id="wsPoor5Badge" class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold">Needs Focus</span>
             </div>
             <div id="wsPoor5List" class="divide-y divide-slate-100 p-2.5"></div>
           </div>
@@ -570,8 +570,8 @@
       mh_maternal_death: {
         category: "1. Maternal Health",
         badgeClass: "bg-rose-100 text-rose-800",
-        title: "Maternal Death (MDSR) — मातृ मृत्यु एवं ऑडिट समीक्षा",
-        sub: "ब्लॉक-वार मातृ मृत्यु, मृत्यु का स्थान (Facility / Transit / Home), कारण एवं Audit Status",
+        title: "Maternal Death (MDSR) — मातृ मृत्यु रिपोर्टिंग समीक्षा",
+        sub: "ब्लॉक-वार रिपोर्ट की गई कुल मातृ मृत्यु (Death Report Count), स्थान, कारण एवं Audit Status",
         dbNode: "mh_maternal_death",
         mode: "mdsr"
       },
@@ -659,6 +659,12 @@
       if (pct > 85) return "#059669";
       if (pct >= 80) return "#d97706";
       return "#e11d48";
+    }
+
+    function getDeathCountColor(cnt) {
+      if (cnt >= 4) return "#be123c"; // High Death Alert (Rose)
+      if (cnt >= 2) return "#d97706"; // Moderate (Amber)
+      return "#0284c7";               // Low (Blue)
     }
 
     function getRecordsForProgram(key) {
@@ -763,6 +769,25 @@
       document.getElementById("wsTitle").textContent = meta.title;
       document.getElementById("wsSubTitle").textContent = meta.sub;
 
+      // Update Legend & Chart Subtitle for MDSR (Death Report Count based) vs Percentage programs
+      const legendBar = document.getElementById("wsLegendBar");
+      const chartSub = document.getElementById("wsChartSub");
+      if (meta.mode === "mdsr") {
+        legendBar.innerHTML = `
+          <span class="flex items-center gap-1 text-rose-700"><span class="w-2.5 h-2.5 rounded-full bg-rose-700 inline-block"></span> ≥4 Deaths (High)</span>
+          <span class="flex items-center gap-1 text-amber-600"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> 2–3 Deaths</span>
+          <span class="flex items-center gap-1 text-sky-700"><span class="w-2.5 h-2.5 rounded-full bg-sky-600 inline-block"></span> 1 Death</span>
+        `;
+        chartSub.textContent = "ब्लॉक-वार कुल मातृ मृत्यु रिपोर्ट संख्या (अधिकतम से न्यूनतम मृत्यु के क्रम में)";
+      } else {
+        legendBar.innerHTML = `
+          <span class="flex items-center gap-1 text-emerald-700"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> &gt;85% Best</span>
+          <span class="flex items-center gap-1 text-amber-600"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> 80–85% Moderate</span>
+          <span class="flex items-center gap-1 text-rose-600"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> &lt;80% Focus</span>
+        `;
+        chartSub.textContent = "QGIS कलर कोड: हरा (>85%), पीला (80–85%), लाल (<80%)";
+      }
+
       const mod = portalData[meta.dbNode] || {};
       if (meta.mode === "asha") {
         const months = (portalData.months || []).join(", ");
@@ -847,13 +872,19 @@
       currentExportRows = filtered;
 
       let ranked = [];
-      let isCurrencyMode = false;
+      let valueMode = "pct"; // "pct" | "currency" | "deaths"
       let kpi1 = { label: "कुल रिकॉर्ड", val: filtered.length, sub: "" };
       let kpi2 = { label: "जनपद औसत", val: "0%", sub: "" };
+      let kpi3LabelText = "सर्वश्रेष्ठ (Top)";
+      let kpi4LabelText = "सुधार की आवश्यकता (Lowest)";
       let tableHtml = "";
 
       if (meta.mode === "mdsr") {
-        // Group by Block for Audit % & Death counts
+        valueMode = "deaths";
+        kpi3LabelText = "सर्वाधिक मृत्यु रिपोर्ट (Highest)";
+        kpi4LabelText = "न्यूनतम मृत्यु रिपोर्ट (Lowest)";
+
+        // Rank strictly by Total Maternal Deaths Reported (Count)
         const grp = new Map();
         filtered.forEach(r => {
           const b = r.block || "Other";
@@ -867,8 +898,8 @@
 
         ranked = Array.from(grp.values()).map(g => ({
           name: g.name,
-          val: g.total > 0 ? Number(((g.yes / g.total) * 100).toFixed(1)) : 0,
-          subText: `कुल मृत्यु: ${g.total} | Audited: ${g.yes} | Pending: ${g.no}`
+          val: g.total,
+          subText: `Audited: ${g.yes} | Pending: ${g.no} | Transit: ${g.transit}`
         })).sort((a, b) => b.val - a.val || a.name.localeCompare(b.name));
 
         const totDeaths = filtered.length;
@@ -880,13 +911,13 @@
         const homeCnt = filtered.filter(r => r.place === "Home").length;
 
         kpi1 = {
-          label: "कुल मातृ मृत्यु (Maternal Deaths)",
+          label: "कुल मातृ मृत्यु (Total Deaths)",
           val: totDeaths,
           sub: `Facility: ${facilityCnt} | Transit: ${transitCnt} | Home: ${homeCnt}`
         };
         kpi2 = {
-          label: "MDSR ऑडिट पूर्ण (Audit %)",
-          val: `${audPct}% (${audYes}/${totDeaths})`,
+          label: "MDSR ऑडिट स्थिति (Audit)",
+          val: `${audYes} / ${totDeaths} (${audPct}%)`,
           sub: `Audit Pending: ${audNo} मामले`
         };
 
@@ -940,7 +971,7 @@
           </table>`;
 
       } else if (meta.mode === "asha") {
-        isCurrencyMode = true;
+        valueMode = "currency";
         const ashaComputed = filtered.map(w => {
           let amt = 0;
           if (!selDate || selDate === "ALL") {
@@ -1242,7 +1273,11 @@
           </table>`;
       }
 
-      const fmtVal = (v) => isCurrencyMode ? `₹${Number(v).toLocaleString("en-IN")}` : `${v}%`;
+      const fmtVal = (v) => {
+        if (valueMode === "currency") return `₹${Number(v).toLocaleString("en-IN")}`;
+        if (valueMode === "deaths") return `${v} ${Number(v) === 1 ? "Death" : "Deaths"}`;
+        return `${v}%`;
+      };
 
       document.getElementById("kpi1Label").textContent = kpi1.label;
       document.getElementById("kpi1Val").textContent = kpi1.val;
@@ -1252,9 +1287,12 @@
       document.getElementById("kpi2Val").textContent = kpi2.val;
       document.getElementById("kpi2Sub").textContent = kpi2.sub;
 
+      document.getElementById("kpi3Label").textContent = kpi3LabelText;
       document.getElementById("kpi3Val").textContent = ranked[0] ? ranked[0].name : "—";
       document.getElementById("kpi3Sub").textContent = ranked[0] ? `${fmtVal(ranked[0].val)} (${ranked[0].subText})` : "—";
+
       const last = ranked[ranked.length - 1];
+      document.getElementById("kpi4Label").textContent = kpi4LabelText;
       document.getElementById("kpi4Val").textContent = last ? last.name : "—";
       document.getElementById("kpi4Sub").textContent = last ? `${fmtVal(last.val)} (${last.subText})` : "—";
 
@@ -1265,27 +1303,45 @@
       const topList = ranked.length === 1 ? ranked : ranked.slice(0, halfCount);
       const poorList = ranked.length <= 1 ? [] : ranked.slice(ranked.length - halfCount).reverse();
 
-      document.getElementById("wsTop5Title").textContent = `🏆 Top ${topList.length} ${entityLabel} (सर्वश्रेष्ठ प्रदर्शन)`;
-      document.getElementById("wsPoor5Title").textContent = `⚠️ Poor ${poorList.length} ${entityLabel} (न्यूनतम प्रदर्शन)`;
+      if (valueMode === "deaths") {
+        document.getElementById("wsTop5Title").textContent = `🔺 Top ${topList.length} ${entityLabel} (सर्वाधिक मातृ मृत्यु रिपोर्ट)`;
+        document.getElementById("wsTop5Badge").textContent = "Highest Deaths";
+        document.getElementById("wsPoor5Title").textContent = `🔻 Bottom ${poorList.length} ${entityLabel} (न्यूनतम मातृ मृत्यु रिपोर्ट)`;
+        document.getElementById("wsPoor5Badge").textContent = "Lowest Deaths";
+      } else {
+        document.getElementById("wsTop5Title").textContent = `🏆 Top ${topList.length} ${entityLabel} (सर्वश्रेष्ठ प्रदर्शन)`;
+        document.getElementById("wsTop5Badge").textContent = "Best Performers";
+        document.getElementById("wsPoor5Title").textContent = `⚠️ Poor ${poorList.length} ${entityLabel} (न्यूनतम प्रदर्शन)`;
+        document.getElementById("wsPoor5Badge").textContent = "Needs Focus";
+      }
 
-      const renderBox = (list, isTop) => {
+      const renderBox = (list, isFirstBox) => {
         if (!list.length) return `<p class="p-4 text-xs text-slate-400">तुलना के लिए पर्याप्त इकाइयां नहीं हैं।</p>`;
-        return list.map((item, idx) => `
-          <div class="flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 rounded-xl text-xs">
-            <div class="flex items-center gap-2.5 min-w-0">
-              <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-[11px] font-extrabold ${isTop ? 'bg-emerald-700 text-white' : 'bg-rose-700 text-white'}">
-                ${idx + 1}
-              </span>
-              <div class="truncate">
-                <div class="font-bold text-slate-900 truncate">${item.name}</div>
-                <div class="text-[10px] text-slate-500 truncate">${item.subText}</div>
+        return list.map((item, idx) => {
+          const badgeColors = valueMode === "deaths"
+            ? (isFirstBox ? "bg-rose-700 text-white" : "bg-emerald-700 text-white")
+            : (isFirstBox ? "bg-emerald-700 text-white" : "bg-rose-700 text-white");
+          const pillColors = valueMode === "deaths"
+            ? (isFirstBox ? "bg-rose-50 text-rose-800 border border-rose-200" : "bg-emerald-50 text-emerald-800 border border-emerald-200")
+            : (isFirstBox ? "bg-emerald-50 text-emerald-800 border border-emerald-200" : "bg-rose-50 text-rose-800 border border-rose-200");
+
+          return `
+            <div class="flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 rounded-xl text-xs">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-[11px] font-extrabold ${badgeColors}">
+                  ${idx + 1}
+                </span>
+                <div class="truncate">
+                  <div class="font-bold text-slate-900 truncate">${item.name}</div>
+                  <div class="text-[10px] text-slate-500 truncate">${item.subText}</div>
+                </div>
               </div>
+              <span class="ml-2 px-3 py-1 rounded-full font-extrabold text-xs ${pillColors}">
+                ${fmtVal(item.val)}
+              </span>
             </div>
-            <span class="ml-2 px-3 py-1 rounded-full font-extrabold text-xs ${isTop ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}">
-              ${fmtVal(item.val)}
-            </span>
-          </div>
-        `).join("");
+          `;
+        }).join("");
       };
 
       document.getElementById("wsTop5List").innerHTML = renderBox(topList, true);
@@ -1302,7 +1358,11 @@
           labels: ranked.map(r => r.name),
           datasets: [{
             data: ranked.map(r => r.val),
-            backgroundColor: ranked.map(r => isCurrencyMode ? "#0d9488" : getThresholdColor(r.val)),
+            backgroundColor: ranked.map(r => {
+              if (valueMode === "currency") return "#0d9488";
+              if (valueMode === "deaths") return getDeathCountColor(r.val);
+              return getThresholdColor(r.val);
+            }),
             borderRadius: 6,
             maxBarThickness: 38
           }]
@@ -1317,12 +1377,21 @@
               align: "top",
               color: "#0f172a",
               font: { weight: "bold", size: 11 },
-              formatter: v => isCurrencyMode ? `₹${Number(v).toLocaleString("en-IN")}` : `${v}%`
+              formatter: v => {
+                if (valueMode === "currency") return `₹${Number(v).toLocaleString("en-IN")}`;
+                if (valueMode === "deaths") return `${v}`;
+                return `${v}%`;
+              }
             }
           },
           scales: {
             x: { grid: { display: false }, ticks: { font: { size: 10, weight: "bold" } } },
-            y: { beginAtZero: true, grid: { color: "#f1f5f9" }, suggestedMax: Math.max(...ranked.map(r => r.val), 10) * 1.18 }
+            y: {
+              beginAtZero: true,
+              grid: { color: "#f1f5f9" },
+              ticks: valueMode === "deaths" ? { stepSize: 1 } : {},
+              suggestedMax: Math.max(...ranked.map(r => r.val), 5) * 1.18
+            }
           }
         },
         plugins: [ChartDataLabels]
