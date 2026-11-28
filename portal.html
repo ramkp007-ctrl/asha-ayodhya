@@ -1,471 +1,269 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Program Review Portal — NHM अयोध्या</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <title>Program Review Portal • NHM Ayodhya</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <!-- Firebase Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
-    body {
-      font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
-      background-color: #f1f5f9;
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; color: #0f172a; }
+    .module-card {
+      background: #ffffff;
+      border-radius: 18px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+      transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .nav-sub-btn.active {
-      background: linear-gradient(90deg, #0d9488 0%, #0f766e 100%);
+    .module-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.09);
+    }
+    .tab-active {
+      background: #1e1b4b;
       color: #ffffff;
-      font-weight: 700;
-      box-shadow: 0 4px 12px -2px rgba(13, 148, 136, 0.4);
-    }
-    #leftSidebar {
-      transition: width 0.25s ease, transform 0.25s ease, opacity 0.2s ease;
-    }
-    @media (min-width: 1024px) {
-      #leftSidebar.sidebar-collapsed {
-        width: 0 !important;
-        overflow: hidden !important;
-        border-right-width: 0 !important;
-        opacity: 0;
-        pointer-events: none;
-      }
-    }
-    @media print {
-      .no-print { display: none !important; }
-      body { background: #fff !important; }
-      main { margin-left: 0 !important; }
+      border-color: #1e1b4b;
     }
   </style>
 </head>
-<body class="text-slate-800 min-h-screen antialiased">
+<body class="min-h-screen flex flex-col">
 
-  <!-- OFFICER LOGIN MODAL GATE -->
-  <div id="loginOverlay" class="fixed inset-0 z-50 bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950 flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
-      <div class="bg-gradient-to-r from-slate-900 to-teal-900 px-6 py-5 text-white flex items-center gap-3.5">
-        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center text-slate-950 font-black text-sm shadow">
-          NHM
+  <!-- Top Header -->
+  <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white sticky top-0 z-30 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-xl font-extrabold shadow-md">
+          🏥
         </div>
         <div>
-          <h2 class="text-base font-extrabold tracking-tight">अधिकारी लॉगिन — NHM अयोध्या</h2>
-          <p class="text-xs text-teal-200 mt-0.5">Program Review Portal (District &amp; Block Access)</p>
-        </div>
-      </div>
-
-      <form id="officerLoginForm" class="p-6 space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">👮 Officer ID / Mobile / Username</label>
-          <input type="text" id="loginUserId" required placeholder="अधिकारी ID दर्ज करें"
-            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-500" />
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">🔑 Password / PIN</label>
-          <input type="password" id="loginPassword" required placeholder="पासवर्ड दर्ज करें"
-            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-500" />
-        </div>
-
-        <div id="loginErrorMsg" class="hidden p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold"></div>
-
-        <button type="submit" id="loginSubmitBtn"
-          class="w-full py-3 bg-teal-700 hover:bg-teal-800 text-white text-xs font-extrabold rounded-xl shadow-md transition">
-          🔐 पोर्टल में लॉगिन करें →
-        </button>
-
-        <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-[11px] text-slate-500">
-          <a href="index.html" class="font-bold text-teal-700 hover:underline">← ASHA Worker Login</a>
-          <a href="admin.html" class="font-bold text-slate-600 hover:underline">Master Admin</a>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- MAIN PORTAL SHELL -->
-  <div id="portalAppShell" class="hidden min-h-screen flex flex-col lg:flex-row">
-
-    <!-- MOBILE TOP BAR -->
-    <div class="lg:hidden sticky top-0 z-30 bg-slate-950 text-white px-4 py-3 flex items-center justify-between shadow-md no-print">
-      <div class="flex items-center gap-2.5">
-        <span class="px-2 py-1 rounded-lg bg-teal-500 text-slate-950 font-black text-xs">NHM</span>
-        <span class="font-extrabold text-sm">Program Review Portal — अयोध्या</span>
-      </div>
-      <button onclick="toggleSidebar()" class="px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-xs font-bold">
-        ▶ Programs
-      </button>
-    </div>
-
-    <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-950/60 z-30 hidden lg:hidden no-print"></div>
-
-    <!-- LEFT COLLAPSIBLE SIDEBAR -->
-    <aside id="leftSidebar" class="fixed lg:sticky top-0 left-0 z-40 h-screen w-72 bg-slate-950 text-slate-100 flex flex-col border-r border-slate-800/80 transform -translate-x-full lg:translate-x-0 flex-shrink-0 no-print">
-      
-      <div class="p-4 bg-gradient-to-r from-slate-950 to-teal-950 border-b border-slate-800 flex items-center justify-between gap-2">
-        <div class="flex items-center gap-2.5 min-w-0">
-          <div class="w-9 h-9 flex-shrink-0 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center text-slate-950 font-black text-xs shadow">
-            UP
-          </div>
-          <div class="truncate">
-            <h1 class="text-sm font-extrabold tracking-tight text-white leading-tight truncate">NHM अयोध्या</h1>
-            <p class="text-[11px] text-teal-300 font-semibold truncate">Program Review Portal</p>
-          </div>
-        </div>
-        <button onclick="toggleSidebar()" title="साइडबार छिपाएं"
-          class="w-8 h-8 flex-shrink-0 rounded-xl bg-white/10 hover:bg-teal-500 hover:text-slate-950 border border-white/15 flex items-center justify-center text-sm font-black text-teal-200 transition">
-          ◀
-        </button>
-      </div>
-
-      <div class="px-4 py-2 bg-slate-900/70 border-b border-slate-800/80 flex items-center justify-between gap-2">
-        <span id="roleBadge" class="text-[10px] bg-teal-400/15 text-teal-300 border border-teal-400/30 font-extrabold px-2.5 py-0.5 rounded-full uppercase truncate">
-          DISTRICT LEVEL
-        </span>
-        <span id="officerNameBadge" class="text-[10px] text-slate-400 font-semibold truncate">Officer</span>
-      </div>
-
-      <!-- 5-PROGRAM COLLAPSIBLE NAVIGATION TREE -->
-      <nav class="flex-1 overflow-y-auto p-3 space-y-1.5 text-xs">
-
-        <!-- 1. MATERNAL HEALTH -->
-        <div class="rounded-xl bg-slate-900/40 border border-slate-800/60 overflow-hidden">
-          <button onclick="toggleAccordion('grp_maternal', 'arr_maternal')"
-            class="w-full flex items-center justify-between px-3 py-2.5 font-extrabold text-amber-300 hover:bg-slate-800/60 transition">
-            <span class="flex items-center gap-2">1. Maternal Health</span>
-            <span id="arr_maternal" class="text-[10px] transition-transform duration-200">▼</span>
-          </button>
-          <div id="grp_maternal" class="px-2 pb-2 space-y-1">
-            <button onclick="selectSubProgram('jsy')" id="nav_jsy"
-              class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-              <span>• JSY Payment</span>
-              <span id="cnt_jsy" class="text-[10px] text-amber-300 font-bold">—</span>
-            </button>
-            <a href="institutional-delivery.html"
-              class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-emerald-300 hover:bg-slate-800 hover:text-white font-semibold transition">
-              <span>• Institutional Delivery (HMIS) ↗</span>
-              <span id="cnt_mh_inst_delivery" class="text-[10px] bg-emerald-500/20 text-emerald-200 px-1.5 py-0.5 rounded font-bold">—</span>
-            </a>
-            <a href="fru-review.html"
-              class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-indigo-300 hover:bg-slate-800 hover:text-white font-semibold transition">
-              <span>• FRU Review (8 FRUs) ↗</span>
-              <span class="text-[10px] bg-indigo-500/20 text-indigo-200 px-1.5 py-0.5 rounded font-bold">8 FRU</span>
-            </a>
-            <a href="delivery-ekavach.html"
-              class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-amber-300 hover:bg-slate-800 hover:text-white font-semibold transition">
-              <span>• Delivery Updation (EKAVACH) ↗</span>
-              <span id="cnt_mh_delivery_ekavach" class="text-[10px] bg-amber-500/20 text-amber-200 px-1.5 py-0.5 rounded font-bold">—</span>
-            </a>
-            <a href="anc-ekavach.html"
-              class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-teal-300 hover:bg-slate-800 hover:text-white font-semibold transition">
-              <span>• ANC Coverage (EKAVACH) ↗</span>
-              <span id="cnt_mh_anc_ekavach" class="text-[10px] bg-teal-500/20 text-teal-200 px-1.5 py-0.5 rounded font-bold">—</span>
-            </a>
-            <button onclick="selectSubProgram('mh_anc_hmis')" id="nav_mh_anc_hmis"
-              class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-              <span>• ANC Coverage (HMIS)</span>
-              <span id="cnt_mh_anc_hmis" class="text-[10px] text-slate-400">—</span>
-            </button>
-            <button onclick="selectSubProgram('mh_maternal_death')" id="nav_mh_maternal_death"
-              class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-rose-200 hover:bg-slate-800 hover:text-white transition text-left">
-              <span>• Maternal Death (MDSR)</span>
-              <span id="cnt_mh_maternal_death" class="text-[10px] bg-rose-500/25 text-rose-200 px-1.5 py-0.5 rounded font-bold">—</span>
-            </button>
-            <button onclick="selectSubProgram('mh_child_death')" id="nav_mh_child_death"
-              class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-              <span>• Child Death</span>
-              <span id="cnt_mh_child_death" class="text-[10px] text-slate-400">—</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- 2. COMMUNITY PROCESS -->
-        <div class="rounded-xl bg-slate-900/40 border border-slate-800/60 overflow-hidden">
-          <button onclick="toggleAccordion('grp_community', 'arr_community')"
-            class="w-full flex items-center justify-between px-3 py-2.5 font-extrabold text-sky-300 hover:bg-slate-800/60 transition">
-            <span class="flex items-center gap-2">2. Community Process</span>
-            <span id="arr_community" class="text-[10px] transition-transform duration-200">▼</span>
-          </button>
-          <div id="grp_community" class="px-2 pb-2 space-y-1">
-            <a href="tele-dashboard.html?tab=tele_cho"
-              class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-indigo-300 hover:bg-slate-800 hover:text-white font-semibold transition">
-              <span>• Tele Consultation (CHO) ↗</span>
-              <span id="cnt_tele_cho" class="text-[10px] bg-indigo-500/20 text-indigo-200 px-1.5 py-0.5 rounded font-bold">LIVE</span>
-            </a>
-            <a href="tele-dashboard.html?tab=tele_mo"
-              class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-indigo-300 hover:bg-slate-800 hover:text-white font-semibold transition">
-              <span>• Tele Consultation (MO) ↗</span>
-              <span id="cnt_tele_mo" class="text-[10px] bg-indigo-500/20 text-indigo-200 px-1.5 py-0.5 rounded font-bold">LIVE</span>
-            </a>
-            <button onclick="selectSubProgram('asha')" id="nav_asha"
-              class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-              <span>• ASHA Payment</span>
-              <span id="cnt_asha" class="text-[10px] text-teal-300 font-bold">2,232</span>
-            </button>
-            <button onclick="selectSubProgram('abha')" id="nav_abha"
-              class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-              <span>• ABHA ID</span>
-              <span id="cnt_abha" class="text-[10px] text-sky-300 font-bold">—</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- 3. RBSK -->
-        <button onclick="selectSubProgram('rbsk')" id="nav_rbsk"
-          class="nav-sub-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/40 border border-slate-800/60 font-extrabold text-purple-300 hover:bg-slate-800 hover:text-white transition text-left">
-          <span>3. RBSK</span>
-          <span id="cnt_rbsk" class="text-[10px] text-slate-400">—</span>
-        </button>
-
-        <!-- 4. QUALITY ASSURANCE -->
-        <div class="rounded-xl bg-slate-900/40 border border-slate-800/60 overflow-hidden">
-          <button onclick="toggleAccordion('grp_qa', 'arr_qa')"
-            class="w-full flex items-center justify-between px-3 py-2.5 font-extrabold text-emerald-300 hover:bg-slate-800/60 transition">
-            <span class="flex items-center gap-2">4. Quality Assurance</span>
-            <span id="arr_qa" class="text-[10px] transition-transform duration-200">▼</span>
-          </button>
-          <div id="grp_qa" class="px-2 pb-2 space-y-1">
-            <button onclick="selectSubProgram('qa')" id="nav_qa"
-              class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-              <span>• NQAS Certification</span>
-              <span id="cnt_qa" class="text-[10px] text-emerald-400 font-bold">—</span>
-            </button>
-            <button onclick="selectSubProgram('qa_kayakalp')" id="nav_qa_kayakalp"
-              class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-              <span>• KAYAKALP</span>
-              <span id="cnt_qa_kayakalp" class="text-[10px] text-slate-400">—</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- 5. NCD -->
-        <div class="rounded-xl bg-slate-900/40 border border-slate-800/60 overflow-hidden">
-          <button onclick="toggleAccordion('grp_ncd', 'arr_ncd')"
-            class="w-full flex items-center justify-between px-3 py-2.5 font-extrabold text-rose-300 hover:bg-slate-800/60 transition">
-            <span class="flex items-center gap-2">5. NCD</span>
-            <span id="arr_ncd" class="text-[10px] transition-transform duration-200">▼</span>
-          </button>
-          <div id="grp_ncd" class="px-2 pb-2 space-y-1">
-            <button onclick="selectSubProgram('ncd')" id="nav_ncd"
-              class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-              <span>• Composite Score</span>
-              <span id="cnt_ncd" class="text-[10px] text-rose-300 font-bold">—</span>
-            </button>
-            <button onclick="selectSubProgram('ncd_mo_exam')" id="nav_ncd_mo_exam"
-              class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-              <span>• MO Examination</span>
-              <span id="cnt_ncd_mo_exam" class="text-[10px] text-slate-400">—</span>
-            </button>
-            <button onclick="selectSubProgram('ncd_facility_progress')" id="nav_ncd_facility_progress"
-              class="nav-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition text-left">
-              <span>• Facilitywise Progress</span>
-              <span id="cnt_ncd_facility_progress" class="text-[10px] text-slate-400">—</span>
-            </button>
-          </div>
-        </div>
-
-      </nav>
-
-      <!-- Sidebar Bottom Quick Links -->
-      <div class="p-3 border-t border-slate-800 space-y-2">
-        <a href="admin.html" class="w-full flex items-center justify-center gap-1.5 py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-extrabold rounded-xl shadow transition">
-          ⚙️ Master Admin Upload
-        </a>
-        <a href="index.html" class="w-full flex items-center justify-center gap-1.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-teal-300 text-xs font-bold rounded-xl transition">
-          👩‍⚕️ ASHA Worker Portal ↗
-        </a>
-        <button onclick="logoutPortal()" class="w-full py-1.5 bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white text-xs font-bold rounded-xl transition">
-          Logout
-        </button>
-      </div>
-    </aside>
-
-    <!-- RIGHT MAIN CONTENT AREA -->
-    <div class="flex-1 flex flex-col min-w-0">
-
-      <!-- SUB-HEADER BAR -->
-      <header class="bg-white border-b border-slate-200/90 px-4 sm:px-6 py-4 shadow-xs">
-        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
-          <div class="flex items-center gap-3">
-            <button id="expandSidebarBtn" onclick="toggleSidebar()" title="साइडबार खोलें"
-              class="hidden no-print px-3 py-2 rounded-xl bg-slate-900 hover:bg-teal-700 text-white text-xs font-extrabold shadow-sm flex items-center gap-1.5 transition">
-              <span>▶</span>
-              <span>Programs</span>
-            </button>
-
-            <div>
-              <div class="flex flex-wrap items-center gap-2">
-                <span id="wsCategoryPill" class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">
-                  1. Maternal Health
-                </span>
-                <h2 id="wsTitle" class="text-base sm:text-xl font-extrabold text-slate-900">JSY Payment — ब्लॉक एवं इकाई-वार समीक्षा</h2>
-              </div>
-              <p id="wsSubTitle" class="text-xs text-slate-500 mt-0.5">संस्थागत प्रसव सत्यापन, MOIC स्वीकृति एवं भुगतान प्रगति</p>
-            </div>
-          </div>
-
-          <div class="flex flex-wrap items-center gap-2">
-            <a href="mdsr-dashboard.html" id="wsFullMdsrLink" class="hidden no-print px-3.5 py-1.5 bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold rounded-xl shadow-sm transition">
-              📊 Full MDSR Dashboard ↗
-            </a>
-            <span id="wsUpdatedBadge" class="text-[11px] font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full border border-slate-200">
-              अपडेट: —
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-xl font-extrabold tracking-tight">Program Review Portal</h1>
+            <span class="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+              NHM Ayodhya
             </span>
-            <button onclick="window.print()" class="no-print px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition">
-              🖨️ Print
-            </button>
           </div>
+          <p class="text-[11px] text-slate-300">District Health Society • 11 Rural Blocks, Urban Unit & 8 FRUs</p>
         </div>
-      </header>
+      </div>
 
-      <main class="max-w-7xl mx-auto px-4 sm:px-6 py-5 space-y-5 flex-1 w-full">
-
-        <!-- FILTER & THRESHOLD LEGEND BAR -->
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-sm flex flex-wrap justify-between items-center gap-3 no-print">
-          <div class="flex flex-wrap items-center gap-2.5">
-            <select id="wsDateFilter" onchange="renderActiveProgram()" class="hidden px-3 py-2 border border-indigo-200 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-900">
-            </select>
-
-            <select id="wsCauseFilter" onchange="renderActiveProgram()" class="hidden px-3 py-2 border border-rose-200 rounded-xl text-xs font-bold bg-rose-50 text-rose-900">
-              <option value="ALL">🩺 Cause of Death: All</option>
-            </select>
-
-            <select id="wsBlockFilter" onchange="renderActiveProgram()" class="px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50 text-slate-800">
-              <option value="ALL">All 11 Blocks (जनपद अयोध्या)</option>
-            </select>
-
-            <input type="text" id="wsSearchInput" oninput="renderActiveProgram()" placeholder="🔍 ब्लॉक, इकाई या नाम खोजें..."
-              class="px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 w-52" />
-
-            <button onclick="exportActiveExcel()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition">
-              ⬇️ Excel (.xlsx)
-            </button>
-          </div>
-
-          <div id="wsLegendBar" class="flex items-center gap-3 text-[11px] font-bold">
-            <span class="flex items-center gap-1 text-emerald-700"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> &gt;85% Best</span>
-            <span class="flex items-center gap-1 text-amber-600"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> 80–85% Moderate</span>
-            <span class="flex items-center gap-1 text-rose-600"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> &lt;80% Focus</span>
-          </div>
-        </div>
-
-        <!-- 4 DYNAMIC KPI CARDS -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 h-full bg-teal-600"></div>
-            <div id="kpi1Label" class="text-xs font-bold text-slate-500">कुल इकाइयां / Blocks</div>
-            <div id="kpi1Val" class="text-2xl font-extrabold text-slate-900 mt-1">0</div>
-            <div id="kpi1Sub" class="text-[11px] text-slate-500 mt-0.5">—</div>
-          </div>
-
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 h-full bg-indigo-600"></div>
-            <div id="kpi2Label" class="text-xs font-bold text-slate-500">जनपद औसत / कुल प्रगति</div>
-            <div id="kpi2Val" class="text-2xl font-extrabold text-indigo-700 mt-1">0</div>
-            <div id="kpi2Sub" class="text-[11px] text-indigo-600 mt-0.5">—</div>
-          </div>
-
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
-            <div id="kpi3Label" class="text-xs font-bold text-slate-500">सर्वश्रेष्ठ (Top)</div>
-            <div id="kpi3Val" class="text-lg font-extrabold text-emerald-700 mt-1 truncate">—</div>
-            <div id="kpi3Sub" class="text-[11px] text-emerald-600 mt-0.5">—</div>
-          </div>
-
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 h-full bg-rose-500"></div>
-            <div id="kpi4Label" class="text-xs font-bold text-slate-500">सुधार की आवश्यकता (Lowest)</div>
-            <div id="kpi4Val" class="text-lg font-extrabold text-rose-600 mt-1 truncate">—</div>
-            <div id="kpi4Sub" class="text-[11px] text-rose-600 mt-0.5">—</div>
-          </div>
-        </div>
-
-        <!-- MDSR CLINICAL ANALYSIS PANEL (CAUSE, PLACE & TIMING OF DEATH) -->
-        <div id="mdsrAnalysisGrid" class="hidden grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="bg-white rounded-2xl border border-rose-200/80 shadow-sm overflow-hidden">
-            <div class="px-4 py-2.5 bg-rose-950 text-white flex justify-between items-center">
-              <h3 class="text-xs font-extrabold">🩺 मृत्यु का कारण (Cause of Death)</h3>
-              <span class="text-[10px] text-rose-200">Click to Filter</span>
-            </div>
-            <div id="mdsrCauseBox" class="p-3 space-y-2 text-xs"></div>
-          </div>
-
-          <div class="bg-white rounded-2xl border border-indigo-200/80 shadow-sm overflow-hidden">
-            <div class="px-4 py-2.5 bg-indigo-950 text-white flex justify-between items-center">
-              <h3 class="text-xs font-extrabold">🏥 मृत्यु का स्थान (Place of Death)</h3>
-              <span class="text-[10px] text-indigo-200">Facility / Transit / Home</span>
-            </div>
-            <div id="mdsrPlaceBox" class="p-3 space-y-2.5 text-xs"></div>
-          </div>
-
-          <div class="bg-white rounded-2xl border border-amber-200/80 shadow-sm overflow-hidden">
-            <div class="px-4 py-2.5 bg-amber-900 text-white flex justify-between items-center">
-              <h3 class="text-xs font-extrabold">⏱️ मृत्यु का समय (When Death Occurred)</h3>
-              <span class="text-[10px] text-amber-200">Stage Breakdown</span>
-            </div>
-            <div id="mdsrTimingBox" class="p-3 space-y-2.5 text-xs"></div>
-          </div>
-        </div>
-
-        <!-- NON-OVERLAPPING TOP & POOR COMPARISON BOXES -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="bg-white rounded-2xl border border-emerald-200/80 shadow-sm overflow-hidden">
-            <div class="px-4 py-3 bg-gradient-to-r from-emerald-800 to-teal-700 text-white flex justify-between items-center">
-              <h3 id="wsTop5Title" class="text-xs font-extrabold tracking-wide">🏆 Top 5 Blocks (सर्वश्रेष्ठ प्रदर्शन)</h3>
-              <span id="wsTop5Badge" class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold">Best Performers</span>
-            </div>
-            <div id="wsTop5List" class="divide-y divide-slate-100 p-2.5"></div>
-          </div>
-
-          <div class="bg-white rounded-2xl border border-rose-200/80 shadow-sm overflow-hidden">
-            <div class="px-4 py-3 bg-gradient-to-r from-rose-800 to-rose-700 text-white flex justify-between items-center">
-              <h3 id="wsPoor5Title" class="text-xs font-extrabold tracking-wide">⚠️ Poor 5 Blocks (न्यूनतम प्रदर्शन)</h3>
-              <span id="wsPoor5Badge" class="text-[10px] bg-white/15 px-2.5 py-0.5 rounded-full font-semibold">Needs Focus</span>
-            </div>
-            <div id="wsPoor5List" class="divide-y divide-slate-100 p-2.5"></div>
-          </div>
-        </div>
-
-        <!-- THRESHOLD COLOR-CODED DATA-LABELED CHART -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
-            <div>
-              <h3 id="wsChartTitle" class="text-sm font-extrabold text-slate-800">📊 तुलनात्मक चार्ट (Top से Bottom)</h3>
-              <p id="wsChartSub" class="text-[11px] text-slate-500">QGIS कलर कोड: हरा (&gt;85%), पीला (80–85%), लाल (&lt;80%)</p>
-            </div>
-          </div>
-          <div class="overflow-x-auto">
-            <div id="wsChartBox" style="height: 300px; min-width: 100%;">
-              <canvas id="wsBarChart"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- DETAILED DATA TABLE -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-            <h3 id="wsTableTitle" class="text-sm font-extrabold text-slate-800">📋 विस्तृत ब्लॉक एवं इकाई-वार तालिका</h3>
-            <span id="wsRowCount" class="text-xs font-bold text-teal-800 bg-teal-50 px-3 py-1 rounded-full border border-teal-200">0 Rows</span>
-          </div>
-          <div id="wsTableContainer" class="overflow-x-auto max-h-[460px]"></div>
-        </div>
-
-      </main>
-
-      <footer class="bg-white border-t border-slate-200 py-4 px-6 mt-8">
-        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2 text-xs text-slate-500">
-          <span>© 2026 <b>National Health Mission (NHM), Ayodhya</b> — District Program Management Unit</span>
-          <span>Threshold Rules: <b class="text-emerald-700">&gt;85% Green</b> • <b class="text-amber-600">80–85% Yellow</b> • <b class="text-rose-600">&lt;80% Red</b></span>
-        </div>
-      </footer>
+      <div class="flex items-center gap-2">
+        <a href="officers-admin.html" class="bg-white/10 hover:bg-white/20 border border-white/15 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+          👨‍⚕️ Officers Roster
+        </a>
+        <a href="admin.html" class="bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-xl text-xs font-extrabold shadow transition flex items-center gap-1.5">
+          ⚙️ Admin Uploader
+        </a>
+      </div>
     </div>
-  </div>
+  </header>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+  <main class="max-w-7xl mx-auto px-4 pt-6 pb-12 flex-1 w-full space-y-6">
 
+    <!-- Quick District Overview Strip -->
+    <section class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <p class="text-[11px] font-bold text-slate-400 uppercase">Total Dashboard Modules</p>
+        <h2 class="text-2xl font-extrabold text-slate-900 mt-1">11 Active</h2>
+        <p class="text-[11px] text-emerald-600 font-semibold mt-0.5">● Live Firebase Sync</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <p class="text-[11px] font-bold text-slate-400 uppercase">Reported Child Deaths</p>
+        <h2 id="topCdrVal" class="text-2xl font-extrabold text-rose-600 mt-1">--</h2>
+        <p id="topCdrSub" class="text-[11px] text-slate-500 mt-0.5">Syncing CDR...</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <p class="text-[11px] font-bold text-slate-400 uppercase">ASHA Profiles Tracked</p>
+        <h2 id="topAshaVal" class="text-2xl font-extrabold text-emerald-700 mt-1">--</h2>
+        <p id="topAshaSub" class="text-[11px] text-slate-500 mt-0.5">Syncing ASHA...</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <p class="text-[11px] font-bold text-slate-400 uppercase">Coverage Units</p>
+        <h2 class="text-2xl font-extrabold text-indigo-700 mt-1">12 + 8 FRU</h2>
+        <p class="text-[11px] text-slate-500 mt-0.5">11 Blocks + Urban Ayodhya</p>
+      </div>
+    </section>
+
+    <!-- Search & Category Filter Bar -->
+    <section class="flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-2" id="categoryTabs">
+        <button onclick="filterModules('ALL', this)" class="tab-active px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-300 transition">All Programs (11)</button>
+        <button onclick="filterModules('RMNCH', this)" class="bg-white text-slate-700 hover:bg-slate-100 px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-300 transition">Maternal & Child (CDR/MDSR/ANC/Del)</button>
+        <button onclick="filterModules('PAYMENT', this)" class="bg-white text-slate-700 hover:bg-slate-100 px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-300 transition">Payments (ASHA / JSY)</button>
+        <button onclick="filterModules('DIGITAL', this)" class="bg-white text-slate-700 hover:bg-slate-100 px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-300 transition">Digital, Screening & QA</button>
+      </div>
+
+      <input type="text" id="moduleSearch" placeholder="Search module (e.g., CDR, ASHA, Tele, QA)..." class="bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-xs w-full sm:w-64 focus:outline-none focus:border-indigo-600" />
+    </section>
+
+    <!-- Program Cards Grid -->
+    <section id="modulesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+      <!-- 1. Child Death Review (CDR) -->
+      <a href="cdr-dashboard.html" data-cat="RMNCH" data-tags="cdr child death review neonatal infant mortality" class="module-card p-5 border-t-4 border-t-rose-600 block group">
+        <div class="flex items-center justify-between mb-3">
+          <span class="w-11 h-11 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl">👶</span>
+          <span id="badge_cdr" class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200">Loading...</span>
+        </div>
+        <h3 class="font-extrabold text-slate-900 text-base group-hover:text-rose-700 transition">Child Death Review (CDR)</h3>
+        <p class="text-xs text-slate-500 mt-1">Age-wise (0–28d, 29d–1y, 1–5y), Place of Death, Forms & Reporting Delay Audit</p>
+        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+          <span id="upd_cdr" class="text-slate-400">Syncing...</span>
+          <span class="font-bold text-rose-600 group-hover:translate-x-0.5 transition">Open Dashboard →</span>
+        </div>
+      </a>
+
+      <!-- 2. Maternal Death Surveillance (MDSR) -->
+      <a href="mdsr-dashboard.html" data-cat="RMNCH" data-tags="mdsr maternal death review pregnancy mortality" class="module-card p-5 border-t-4 border-t-purple-600 block group">
+        <div class="flex items-center justify-between mb-3">
+          <span class="w-11 h-11 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center text-xl">🤰</span>
+          <span id="badge_mdsr" class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200">Loading...</span>
+        </div>
+        <h3 class="font-extrabold text-slate-900 text-base group-hover:text-purple-700 transition">Maternal Death (MDSR)</h3>
+        <p class="text-xs text-slate-500 mt-1">Block-wise Maternal Mortality, Facility vs Home Deaths & Cause Analytics</p>
+        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+          <span id="upd_mdsr" class="text-slate-400">Syncing...</span>
+          <span class="font-bold text-purple-600 group-hover:translate-x-0.5 transition">Open Dashboard →</span>
+        </div>
+      </a>
+
+      <!-- 3. ASHA Incentive Payment -->
+      <a href="index.html" data-cat="PAYMENT" data-tags="asha incentive payment voucher headwise" class="module-card p-5 border-t-4 border-t-emerald-600 block group">
+        <div class="flex items-center justify-between mb-3">
+          <span class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl">💰</span>
+          <span id="badge_asha_payments" class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Loading...</span>
+        </div>
+        <h3 class="font-extrabold text-slate-900 text-base group-hover:text-emerald-700 transition">ASHA Incentive Payment</h3>
+        <p class="text-xs text-slate-500 mt-1">Worker-wise, Block & Sub-Center Head-wise Monthly Incentive Tracker</p>
+        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+          <span id="upd_asha_payments" class="text-slate-400">Syncing...</span>
+          <span class="font-bold text-emerald-600 group-hover:translate-x-0.5 transition">Open Dashboard →</span>
+        </div>
+      </a>
+
+      <!-- 4. JSY Payment -->
+      <a href="jsy-dashboard.html" data-cat="PAYMENT" data-tags="jsy janani suraksha yojana beneficiary payment" class="module-card p-5 border-t-4 border-t-amber-500 block group">
+        <div class="flex items-center justify-between mb-3">
+          <span class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl">🏥</span>
+          <span id="badge_jsy" class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">Loading...</span>
+        </div>
+        <h3 class="font-extrabold text-slate-900 text-base group-hover:text-amber-700 transition">JSY Payment Progress</h3>
+        <p class="text-xs text-slate-500 mt-1">Beneficiary & ASHA JSY Disbursement, Pending Claims & Block Ranking</p>
+        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+          <span id="upd_jsy" class="text-slate-400">Syncing...</span>
+          <span class="font-bold text-amber-700 group-hover:translate-x-0.5 transition">Open Dashboard →</span>
+        </div>
+      </a>
+
+      <!-- 5. ABHA ID Progress -->
+      <a href="abha-dashboard.html" data-cat="DIGITAL" data-tags="abha abdm health id scan share" class="module-card p-5 border-t-4 border-t-blue-600 block group">
+        <div class="flex items-center justify-between mb-3">
+          <span class="w-11 h-11 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-xl">🆔</span>
+          <span id="badge_abha" class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Loading...</span>
+        </div>
+        <h3 class="font-extrabold text-slate-900 text-base group-hover:text-blue-700 transition">ABHA ID & Scan-Share</h3>
+        <p class="text-xs text-slate-500 mt-1">Facility-wise ABHA Creation, OPD Token Generation & Achievement %</p>
+        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+          <span id="upd_abha" class="text-slate-400">Syncing...</span>
+          <span class="font-bold text-blue-600 group-hover:translate-x-0.5 transition">Open Dashboard →</span>
+        </div>
+      </a>
+
+      <!-- 6. eSanjeevani Teleconsultation -->
+      <a href="teleconsultation-dashboard.html" data-cat="DIGITAL" data-tags="teleconsultation esanjeevani cho mo hub spoke" class="module-card p-5 border-t-4 border-t-cyan-600 block group">
+        <div class="flex items-center justify-between mb-3">
+          <span class="w-11 h-11 rounded-2xl bg-cyan-100 text-cyan-600 flex items-center justify-center text-xl">📱</span>
+          <span id="badge_teleconsultation" class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-cyan-50 text-cyan-700 border border-cyan-200">Loading...</span>
+        </div>
+        <h3 class="font-extrabold text-slate-900 text-base group-hover:text-cyan-700 transition">eSanjeevani Tele-Consult</h3>
+        <p class="text-xs text-slate-500 mt-1">CHO Spoke & MO Hub Daily Consultations, Active Users & Top/Poor 5 Blocks</p>
+        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+          <span id="upd_teleconsultation" class="text-slate-400">Syncing...</span>
+          <span class="font-bold text-cyan-700 group-hover:translate-x-0.5 transition">Open Dashboard →</span>
+        </div>
+      </a>
+
+      <!-- 7. Institutional Delivery & FRU -->
+      <a href="delivery-dashboard.html" data-cat="RMNCH" data-tags="institutional delivery c-section fru hmis ekavach" class="module-card p-5 border-t-4 border-t-indigo-600 block group">
+        <div class="flex items-center justify-between mb-3">
+          <span class="w-11 h-11 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl">🏨</span>
+          <span id="badge_institutional_delivery" class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">Loading...</span>
+        </div>
+        <h3 class="font-extrabold text-slate-900 text-base group-hover:text-indigo-700 transition">Institutional Delivery & FRU</h3>
+        <p class="text-xs text-slate-500 mt-1">HMIS vs e-Kavach Deliveries, C-Section Rate & 8 FRU Performance</p>
+        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+          <span id="upd_institutional_delivery" class="text-slate-400">Syncing...</span>
+          <span class="font-bold text-indigo-600 group-hover:translate-x-0.5 transition">Open Dashboard →</span>
+        </div>
+      </a>
+
+      <!-- 8. ANC & High Risk Pregnancy -->
+      <a href="anc-dashboard.html" data-cat="RMNCH" data-tags="anc antenatal care hrp high risk pregnancy pmsma" class="module-card p-5 border-t-4 border-t-pink-600 block group">
+        <div class="flex items-center justify-between mb-3">
+          <span class="w-11 h-11 rounded-2xl bg-pink-100 text-pink-600 flex items-center justify-center text-xl">🩺</span>
+          <span id="badge_anc" class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-pink-50 text-pink-700 border border-pink-200">Loading...</span>
+        </div>
+        <h3 class="font-extrabold text-slate-900 text-base group-hover:text-pink-700 transition">ANC & HRP Tracking</h3>
+        <p class="text-xs text-slate-500 mt-1">1st Trimester Registration, 4+ ANC Checkups & PMSMA HRP Follow-up</p>
+        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+          <span id="upd_anc" class="text-slate-400">Syncing...</span>
+          <span class="font-bold text-pink-600 group-hover:translate-x-0.5 transition">Open Dashboard →</span>
+        </div>
+      </a>
+
+      <!-- 9. NCD Screening -->
+      <a href="ncd-dashboard.html" data-cat="DIGITAL" data-tags="ncd hypertension diabetes oral breast cervical cbac" class="module-card p-5 border-t-4 border-t-red-500 block group">
+        <div class="flex items-center justify-between mb-3">
+          <span class="w-11 h-11 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center text-xl">❤️</span>
+          <span id="badge_ncd" class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-200">Loading...</span>
+        </div>
+        <h3 class="font-extrabold text-slate-900 text-base group-hover:text-red-700 transition">NCD Portal Screening</h3>
+        <p class="text-xs text-slate-500 mt-1">CBAC, HTN, Diabetes, Cancer Screening, Referral % & ANM/CHO/MO Status</p>
+        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+          <span id="upd_ncd" class="text-slate-400">Syncing...</span>
+          <span class="font-bold text-red-600 group-hover:translate-x-0.5 transition">Open Dashboard →</span>
+        </div>
+      </a>
+
+      <!-- 10. RBSK Mobile Health Teams -->
+      <a href="rbsk-dashboard.html" data-cat="DIGITAL" data-tags="rbsk school anganwadi mobile health team 4d" class="module-card p-5 border-t-4 border-t-teal-600 block group">
+        <div class="flex items-center justify-between mb-3">
+          <span class="w-11 h-11 rounded-2xl bg-teal-100 text-teal-600 flex items-center justify-center text-xl">🎒</span>
+          <span id="badge_rbsk" class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-teal-50 text-teal-700 border border-teal-200">Loading...</span>
+        </div>
+        <h3 class="font-extrabold text-slate-900 text-base group-hover:text-teal-700 transition">RBSK Child Screening</h3>
+        <p class="text-xs text-slate-500 mt-1">School & Anganwadi Microplan Coverage, 4D Defects & DEIC Referrals</p>
+        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+          <span id="upd_rbsk" class="text-slate-400">Syncing...</span>
+          <span class="font-bold text-teal-700 group-hover:translate-x-0.5 transition">Open Dashboard →</span>
+        </div>
+      </a>
+
+      <!-- 11. Quality Assurance (QA) -->
+      <a href="qa-dashboard.html" data-cat="DIGITAL" data-tags="qa quality assurance nqas kayakalp laqshya musqan" class="module-card p-5 border-t-4 border-t-violet-600 block group">
+        <div class="flex items-center justify-between mb-3">
+          <span class="w-11 h-11 rounded-2xl bg-violet-100 text-violet-600 flex items-center justify-center text-xl">🏅</span>
+          <span id="badge_qa" class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-violet-50 text-violet-700 border border-violet-200">Loading...</span>
+        </div>
+        <h3 class="font-extrabold text-slate-900 text-base group-hover:text-violet-700 transition">Quality Assurance (QA)</h3>
+        <p class="text-xs text-slate-500 mt-1">NQAS Certified, Conditional & Deferred Units, Kayakalp & LaQshya Tracker</p>
+        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+          <span id="upd_qa" class="text-slate-400">Syncing...</span>
+          <span class="font-bold text-violet-700 group-hover:translate-x-0.5 transition">Open Dashboard →</span>
+        </div>
+      </a>
+
+    </section>
+  </main>
+
+  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+    National Health Mission (NHM) • District Program Management Unit, Ayodhya, Uttar Pradesh
+  </footer>
+
+  <script>
+    // Exact Firebase Configuration for NHM Ayodhya Portal
     const firebaseConfig = {
       apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
       authDomain: "asha-payment.firebaseapp.com",
@@ -473,1078 +271,81 @@
       projectId: "asha-payment",
       storageBucket: "asha-payment.firebasestorage.app",
       messagingSenderId: "117935142167",
-      appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
-      measurementId: "G-43YGRC5CKL"
+      appId: "1:117935142167:web:e1d5bb9da9f567594eb352"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    let savedOfficer = JSON.parse(sessionStorage.getItem("nhm_ayodhya_officer") || "null");
+    // Live Firebase Listeners for Every Module Card
+    const MODULES = [
+      { key: 'cdr', unit: 'Deaths' },
+      { key: 'mdsr', unit: 'Records' },
+      { key: 'asha_payments', unit: 'ASHAs' },
+      { key: 'jsy', unit: 'Records' },
+      { key: 'abha', unit: 'Rows' },
+      { key: 'teleconsultation', unit: 'Records' },
+      { key: 'institutional_delivery', unit: 'Records' },
+      { key: 'anc', unit: 'Records' },
+      { key: 'ncd', unit: 'Records' },
+      { key: 'rbsk', unit: 'Records' },
+      { key: 'qa', unit: 'Units' }
+    ];
 
-    function unlockPortal(officer) {
-      savedOfficer = officer;
-      sessionStorage.setItem("nhm_ayodhya_officer", JSON.stringify(officer));
-      document.getElementById("loginOverlay").classList.add("hidden");
-      document.getElementById("portalAppShell").classList.remove("hidden");
+    MODULES.forEach(m => {
+      db.ref(`asha_portal_v2/${m.key}`).on('value', snap => {
+        const val = snap.val();
+        const badgeEl = document.getElementById(`badge_${m.key}`);
+        const updEl = document.getElementById(`upd_${m.key}`);
 
-      document.getElementById("roleBadge").textContent =
-        officer.role === "DISTRICT" ? "DISTRICT LEVEL" : `BLOCK: ${officer.block}`;
-      document.getElementById("officerNameBadge").textContent = officer.name || officer.id || "Officer";
-
-      initPortal();
-    }
-
-    document.getElementById("officerLoginForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const uid = document.getElementById("loginUserId").value.trim();
-      const pwd = document.getElementById("loginPassword").value.trim();
-      const errEl = document.getElementById("loginErrorMsg");
-      const btn = document.getElementById("loginSubmitBtn");
-
-      errEl.classList.add("hidden");
-      btn.disabled = true;
-      btn.textContent = "सत्यापन हो रहा है...";
-
-      try {
-        const offSnap = await get(ref(db, "asha_portal_v2/officers"));
-        let matchedOfficer = null;
-
-        if (offSnap.exists()) {
-          const officersObj = offSnap.val() || {};
-          for (const [key, o] of Object.entries(officersObj)) {
-            const candidateIds = [key, o.id, o.userId, o.mobile, o.username].filter(Boolean).map(x => String(x).trim().toLowerCase());
-            const storedPwd = String(o.password || o.pin || o.pass || "").trim();
-            if (candidateIds.includes(uid.toLowerCase()) && storedPwd === pwd) {
-              matchedOfficer = {
-                id: o.id || key,
-                name: o.name || key,
-                role: (o.role || (o.block && o.block.toUpperCase() !== "ALL" && o.block.toUpperCase() !== "DISTRICT" ? "BLOCK" : "DISTRICT")).toUpperCase(),
-                block: o.block || ""
-              };
-              break;
-            }
-          }
+        if (!val) {
+          if (badgeEl) badgeEl.textContent = 'No Data';
+          if (updEl) updEl.textContent = 'Pending upload';
+          return;
         }
 
-        if (!matchedOfficer && uid.toLowerCase() === "admin" && pwd === "nhm@2026") {
-          matchedOfficer = { id: "admin", name: "District Admin", role: "DISTRICT", block: "ALL" };
-        }
+        const count = val.totalDeaths ?? val.count ?? (val.records ? Object.keys(val.records).length : 0);
+        const updated = val.updatedAt || 'Synced';
 
-        if (matchedOfficer) {
-          unlockPortal(matchedOfficer);
-        } else {
-          errEl.textContent = "❌ गलत Officer ID या Password। कृपया पुनः प्रयास करें।";
-          errEl.classList.remove("hidden");
+        if (badgeEl) badgeEl.textContent = `${count} ${m.unit}`;
+        if (updEl) updEl.textContent = `Updated: ${updated}`;
+
+        // Update Top Summary Strip for CDR & ASHA
+        if (m.key === 'cdr') {
+          document.getElementById('topCdrVal').textContent = count;
+          document.getElementById('topCdrSub').textContent = `Updated: ${updated}`;
         }
-      } catch (err) {
-        errEl.textContent = "❌ सर्वर त्रुटि: " + err.message;
-        errEl.classList.remove("hidden");
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "🔐 पोर्टल में लॉगिन करें →";
-      }
+        if (m.key === 'asha_payments') {
+          document.getElementById('topAshaVal').textContent = count;
+          document.getElementById('topAshaSub').textContent = `Updated: ${updated}`;
+        }
+      });
     });
 
-    window.logoutPortal = function() {
-      sessionStorage.removeItem("nhm_ayodhya_officer");
-      window.location.reload();
-    };
-
-    window.toggleAccordion = function(menuId, arrowId) {
-      const menu = document.getElementById(menuId);
-      const arrow = document.getElementById(arrowId);
-      menu.classList.toggle("hidden");
-      arrow.classList.toggle("-rotate-90");
-    };
-
-    window.toggleSidebar = function() {
-      const sb = document.getElementById("leftSidebar");
-      const bd = document.getElementById("sidebarBackdrop");
-      const expandBtn = document.getElementById("expandSidebarBtn");
-
-      if (window.innerWidth >= 1024) {
-        const isCollapsed = sb.classList.toggle("sidebar-collapsed");
-        if (expandBtn) {
-          expandBtn.classList.toggle("hidden", !isCollapsed);
-        }
-      } else {
-        sb.classList.toggle("-translate-x-full");
-        bd.classList.toggle("hidden");
-      }
-    };
-
-    function toWorkerList(entry) {
-      if (!entry || typeof entry !== "object") return [];
-      if (Array.isArray(entry)) return entry.filter(w => w && typeof w === "object");
-      if ("n" in entry || "p" in entry || "id" in entry) return [entry];
-      return Object.values(entry).filter(w => w && typeof w === "object");
-    }
-
-    const PROGRAMS = {
-      jsy: {
-        category: "1. Maternal Health",
-        badgeClass: "bg-amber-100 text-amber-800",
-        title: "JSY Payment — ब्लॉक एवं इकाई-वार समीक्षा",
-        sub: "जननी सुरक्षा योजना संस्थागत प्रसव सत्यापन, MOIC स्वीकृति एवं भुगतान प्रतिशत",
-        dbNode: "jsy_portal",
-        mode: "jsy"
-      },
-      mh_anc_hmis: {
-        category: "1. Maternal Health",
-        badgeClass: "bg-amber-100 text-amber-800",
-        title: "ANC Coverage (HMIS) — समीक्षा",
-        sub: "HMIS रिपोर्ट के अनुसार प्रथम तिमाही एवं 4+ ANC कवरेज प्रतिशत",
-        dbNode: "mh_anc_hmis",
-        mode: "generic"
-      },
-      mh_maternal_death: {
-        category: "1. Maternal Health",
-        badgeClass: "bg-rose-100 text-rose-800",
-        title: "Maternal Death (MDSR) — मृत्यु कारण एवं ब्लॉकवार विश्लेषण",
-        sub: "मृत्यु के कारण (Cause), स्थान (Place), समय (Stage), Top/Bottom ब्लॉक व ऑडिट स्थिति",
-        dbNode: "mh_maternal_death",
-        mode: "mdsr"
-      },
-      mh_child_death: {
-        category: "1. Maternal Health",
-        badgeClass: "bg-rose-100 text-rose-800",
-        title: "Child Death (CDR) — समीक्षा",
-        sub: "शिशु मृत्यु रिपोर्टिंग एवं ब्लॉक-वार समीक्षा विवरण",
-        dbNode: "mh_child_death",
-        mode: "generic"
-      },
-      asha: {
-        category: "2. Community Process",
-        badgeClass: "bg-teal-100 text-teal-800",
-        title: "ASHA Payment — ब्लॉक एवं आशा-वार प्रोत्साहन राशि समीक्षा",
-        sub: "माह-वार प्रोत्साहन भुगतान, औसत भुगतान प्रति आशा एवं शून्य भुगतान (Zero Paid) सूची",
-        dbNode: "workers",
-        mode: "asha"
-      },
-      abha: {
-        category: "2. Community Process",
-        badgeClass: "bg-sky-100 text-sky-800",
-        title: "ABHA ID — ब्लॉक एवं आशा क्षेत्र-वार समीक्षा",
-        sub: "जनसंख्या लक्ष्य के सापेक्ष निर्मित ABHA ID प्रतिशत",
-        dbNode: "abha_portal",
-        mode: "abha"
-      },
-      rbsk: {
-        category: "3. RBSK",
-        badgeClass: "bg-purple-100 text-purple-800",
-        title: "RBSK — राष्ट्रीय बाल स्वास्थ्य कार्यक्रम समीक्षा",
-        sub: "मोबाइल हेल्थ टीम विज़िट, आंगनवाड़ी व स्कूल स्क्रीनिंग एवं DEIC रेफरल प्रगति",
-        dbNode: "rbsk",
-        mode: "generic"
-      },
-      qa: {
-        category: "4. Quality Assurance",
-        badgeClass: "bg-emerald-100 text-emerald-800",
-        title: "NQAS Certification — प्रमाणीकरण समीक्षा",
-        sub: "Quality Certified, Conditional एवं Deferred स्वास्थ्य इकाइयों का ब्लॉक-वार विवरण",
-        dbNode: "quality_assurance",
-        mode: "qa"
-      },
-      qa_kayakalp: {
-        category: "4. Quality Assurance",
-        badgeClass: "bg-emerald-100 text-emerald-800",
-        title: "KAYAKALP — स्वच्छता एवं गुणवत्ता समीक्षा",
-        sub: "कायाकल्प मूल्यांकन स्कोर एवं प्रमाणित स्वास्थ्य इकाइयों की प्रगति",
-        dbNode: "qa_kayakalp",
-        mode: "generic"
-      },
-      ncd: {
-        category: "5. NCD",
-        badgeClass: "bg-rose-100 text-rose-800",
-        title: "NCD Composite Score — समग्र स्कोर समीक्षा",
-        sub: "NP-NCD कार्यक्रम के अंतर्गत ब्लॉक-वार Composite Score, HTN/DM व ANM/CHO/MO लॉगिन",
-        dbNode: "ncd_screening",
-        mode: "ncd"
-      },
-      ncd_mo_exam: {
-        category: "5. NCD",
-        badgeClass: "bg-rose-100 text-rose-800",
-        title: "NCD MO Examination — चिकित्साधिकारी परीक्षण समीक्षा",
-        sub: "रेफर किए गए उच्च-जोखिम मरीजों का MO द्वारा परीक्षण एवं उपचार प्रगति",
-        dbNode: "ncd_mo_exam",
-        mode: "generic"
-      },
-      ncd_facility_progress: {
-        category: "5. NCD",
-        badgeClass: "bg-rose-100 text-rose-800",
-        title: "NCD Facilitywise Progress — इकाई-वार प्रगति",
-        sub: "उपकेन्द्र / HWC / PHC वार 30+ स्क्रीनिंग एवं लॉगिन प्रगति",
-        dbNode: "ncd_facility_progress",
-        mode: "generic"
-      }
-    };
-
-    let portalData = {};
-    let flatAshaWorkers = [];
-    let activeProg = "jsy";
-    let currentExportRows = [];
-    let wsChart = null;
-
-    function getThresholdColor(pct) {
-      if (pct > 85) return "#059669";
-      if (pct >= 80) return "#d97706";
-      return "#e11d48";
-    }
-
-    function getDeathCountColor(cnt) {
-      if (cnt >= 4) return "#be123c";
-      if (cnt >= 2) return "#d97706";
-      return "#0284c7";
-    }
-
-    function getRecordsForProgram(key) {
-      const meta = PROGRAMS[key];
-      if (!meta) return [];
-      if (meta.mode === "asha") return flatAshaWorkers;
-      const mod = portalData[meta.dbNode];
-      if (!mod) return [];
-      if (meta.mode === "jsy" || meta.mode === "abha") return mod.records || [];
-      if (meta.mode === "ncd") return mod.units || [];
-      return mod.rows || mod.records || [];
-    }
-
-    window.filterByCause = function(causeName) {
-      const causeSel = document.getElementById("wsCauseFilter");
-      if (!causeSel) return;
-      causeSel.value = (causeSel.value === causeName) ? "ALL" : causeName;
-      renderActiveProgram();
-    };
-
-    async function initPortal() {
-      try {
-        const snap = await get(ref(db, "asha_portal_v2"));
-        if (snap.exists()) {
-          portalData = snap.val() || {};
-        }
-
-        flatAshaWorkers = [];
-        for (const entry of Object.values(portalData.workers || {})) {
-          toWorkerList(entry).forEach(w => {
-            flatAshaWorkers.push({
-              id: w.id || "",
-              name: w.n || "Unknown",
-              block: (w.b || "Other").trim(),
-              sc: (w.s || "-").trim(),
-              village: (w.v || "-").trim(),
-              total: Number(w.t) || 0,
-              p: w.p || {}
-            });
-          });
-        }
-        if (flatAshaWorkers.length > 0) {
-          document.getElementById("cnt_asha").textContent = flatAshaWorkers.length.toLocaleString("en-IN");
-        }
-
-        const instRows = portalData.mh_inst_delivery?.rows || [];
-        if (instRows.length > 0) {
-          document.getElementById("cnt_mh_inst_delivery").textContent = `${instRows.length}`;
-        }
-
-        const delEkavachRows = portalData.mh_delivery_ekavach?.rows || [];
-        if (delEkavachRows.length > 0) {
-          document.getElementById("cnt_mh_delivery_ekavach").textContent = `${delEkavachRows.length}`;
-        }
-
-        const ancRows = portalData.mh_anc_ekavach?.rows || [];
-        if (ancRows.length > 0) {
-          document.getElementById("cnt_mh_anc_ekavach").textContent = `${ancRows.length}`;
-        }
-
-        const choRows = portalData.tele_cho?.rows || [];
-        const moRows = portalData.tele_mo?.rows || [];
-        const choTc = choRows.reduce((s, r) => s + (Number(r.tc) || 0), 0);
-        const moTc = moRows.reduce((s, r) => s + (Number(r.tc) || 0), 0);
-        if (choTc > 0) document.getElementById("cnt_tele_cho").textContent = `${choTc.toLocaleString("en-IN")}`;
-        if (moTc > 0) document.getElementById("cnt_tele_mo").textContent = `${moTc.toLocaleString("en-IN")}`;
-
-        Object.keys(PROGRAMS).forEach(k => {
-          if (k === "asha") return;
-          const list = getRecordsForProgram(k);
-          const cntEl = document.getElementById(`cnt_${k}`);
-          if (cntEl && list.length) {
-            if (k === "qa") {
-              const cert = list.filter(x => x.status === "Quality Certified").length;
-              cntEl.textContent = `${cert}/${list.length}`;
-            } else {
-              cntEl.textContent = `${list.length}`;
-            }
-          }
-        });
-
-        selectSubProgram("jsy");
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    window.selectSubProgram = function(key) {
-      activeProg = key;
-
-      document.querySelectorAll(".nav-sub-btn").forEach(btn => btn.classList.remove("active"));
-      const activeBtn = document.getElementById(`nav_${key}`);
-      if (activeBtn) activeBtn.classList.add("active");
-
-      const fullMdsrBtn = document.getElementById("wsFullMdsrLink");
-      if (fullMdsrBtn) {
-        fullMdsrBtn.classList.toggle("hidden", key !== "mh_maternal_death");
-      }
-
-      const mdsrGrid = document.getElementById("mdsrAnalysisGrid");
-      if (mdsrGrid) {
-        if (key === "mh_maternal_death") {
-          mdsrGrid.classList.remove("hidden");
-          mdsrGrid.classList.add("grid");
-        } else {
-          mdsrGrid.classList.add("hidden");
-          mdsrGrid.classList.remove("grid");
-        }
-      }
-
-      if (window.innerWidth < 1024 && !document.getElementById("leftSidebar").classList.contains("-translate-x-full")) {
-        toggleSidebar();
-      }
-
-      const meta = PROGRAMS[key];
-      const catEl = document.getElementById("wsCategoryPill");
-      catEl.textContent = meta.category;
-      catEl.className = `text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${meta.badgeClass}`;
-
-      document.getElementById("wsTitle").textContent = meta.title;
-      document.getElementById("wsSubTitle").textContent = meta.sub;
-
-      const legendBar = document.getElementById("wsLegendBar");
-      const chartSub = document.getElementById("wsChartSub");
-      if (meta.mode === "mdsr") {
-        legendBar.innerHTML = `
-          <span class="flex items-center gap-1 text-rose-700"><span class="w-2.5 h-2.5 rounded-full bg-rose-700 inline-block"></span> ≥4 Deaths (High)</span>
-          <span class="flex items-center gap-1 text-amber-600"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> 2–3 Deaths</span>
-          <span class="flex items-center gap-1 text-sky-700"><span class="w-2.5 h-2.5 rounded-full bg-sky-600 inline-block"></span> 1 Death</span>
-        `;
-        chartSub.textContent = "ब्लॉक-वार कुल मातृ मृत्यु रिपोर्ट संख्या (अधिकतम से न्यूनतम मृत्यु के क्रम में)";
-      } else {
-        legendBar.innerHTML = `
-          <span class="flex items-center gap-1 text-emerald-700"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> &gt;85% Best</span>
-          <span class="flex items-center gap-1 text-amber-600"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> 80–85% Moderate</span>
-          <span class="flex items-center gap-1 text-rose-600"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> &lt;80% Focus</span>
-        `;
-        chartSub.textContent = "QGIS कलर कोड: हरा (>85%), पीला (80–85%), लाल (<80%)";
-      }
-
-      const mod = portalData[meta.dbNode] || {};
-      if (meta.mode === "asha") {
-        const months = (portalData.months || []).join(", ");
-        document.getElementById("wsUpdatedBadge").textContent = months ? `माह: ${months}` : "ASHA Portal Live";
-      } else {
-        document.getElementById("wsUpdatedBadge").textContent = `अपडेट: ${mod.updatedAt || "N/A"}`;
-      }
-
-      const records = getRecordsForProgram(key);
-
-      const dateSel = document.getElementById("wsDateFilter");
-      const causeSel = document.getElementById("wsCauseFilter");
-
-      if ((meta.mode === "jsy" || meta.mode === "abha") && records.length) {
-        const dates = Array.from(new Set(records.map(r => r.date).filter(Boolean)));
-        dateSel.innerHTML = dates.map(d => `<option value="${d}">📅 दिनांक: ${d}</option>`).join("");
-        if (mod.latestDate && dates.includes(mod.latestDate)) dateSel.value = mod.latestDate;
-        dateSel.classList.remove("hidden");
-        causeSel.classList.add("hidden");
-      } else if (meta.mode === "asha" && (portalData.months || []).length) {
-        const months = (portalData.months || []).slice().sort().reverse();
-        dateSel.innerHTML = `<option value="ALL">📅 सभी माह (All Months)</option>` +
-          months.map(m => `<option value="${m}">📅 माह: ${m}</option>`).join("");
-        dateSel.classList.remove("hidden");
-        causeSel.classList.add("hidden");
-      } else if (meta.mode === "mdsr") {
-        dateSel.innerHTML = `
-          <option value="ALL">📋 Audit Status: All</option>
-          <option value="Yes">✅ Audited (Yes)</option>
-          <option value="No">⚠️ Pending Audit (No)</option>
-        `;
-        dateSel.classList.remove("hidden");
-
-        const causes = Array.from(new Set(records.map(r => r.cause || "Not Specified"))).sort();
-        causeSel.innerHTML = `<option value="ALL">🩺 Cause of Death: All</option>` +
-          causes.map(c => `<option value="${c}">${c}</option>`).join("");
-        causeSel.classList.remove("hidden");
-      } else {
-        dateSel.classList.add("hidden");
-        causeSel.classList.add("hidden");
-      }
-
-      const blockField = meta.mode === "ncd" ? "unit" : (records[0] && "block" in records[0] ? "block" : Object.keys(records[0] || {})[0]);
-      const blocks = Array.from(new Set(records.map(r => String(r[blockField] || "").trim()).filter(Boolean))).sort();
-
-      const sel = document.getElementById("wsBlockFilter");
-      sel.disabled = false;
-      sel.innerHTML = `<option value="ALL">All ${blocks.length || 11} ${meta.mode === "ncd" ? "Units / Blocks" : "Blocks (जनपद अयोध्या)"}</option>` +
-        blocks.map(b => `<option value="${b}">${b}</option>`).join("");
-
-      if (savedOfficer && savedOfficer.role !== "DISTRICT" && savedOfficer.block) {
-        const m = blocks.find(b => b.toLowerCase() === savedOfficer.block.toLowerCase());
-        if (m) { sel.value = m; sel.disabled = true; }
-      }
-
-      renderActiveProgram();
-    };
-
-    window.renderActiveProgram = function() {
-      const meta = PROGRAMS[activeProg];
-      let records = getRecordsForProgram(activeProg);
-      const selDate = document.getElementById("wsDateFilter").value;
-      const selCause = document.getElementById("wsCauseFilter").value;
-      const selBlk = document.getElementById("wsBlockFilter").value;
-      const searchQ = document.getElementById("wsSearchInput").value.trim().toLowerCase();
-
-      if (!records.length) {
-        document.getElementById("kpi1Val").textContent = "0";
-        document.getElementById("kpi2Val").textContent = "—";
-        document.getElementById("kpi3Val").textContent = "—";
-        document.getElementById("kpi4Val").textContent = "—";
-        document.getElementById("wsTop5List").innerHTML = `<p class="p-4 text-xs text-slate-400">इस सब-प्रोग्राम की रिपोर्ट <b>admin.html</b> से अपलोड करें।</p>`;
-        document.getElementById("wsPoor5List").innerHTML = `<p class="p-4 text-xs text-slate-400">डेटा अपलोड होते ही विवरण स्वतः दिखने लगेगा।</p>`;
-        document.getElementById("wsTableContainer").innerHTML = `<p class="p-8 text-center text-xs text-slate-500">अभी <b>${meta.title}</b> के लिए डेटा अपलोड नहीं किया गया है।</p>`;
-        document.getElementById("wsRowCount").textContent = "0 Rows";
-        if (wsChart) wsChart.destroy();
-        return;
-      }
-
-      if ((meta.mode === "jsy" || meta.mode === "abha") && selDate) {
-        records = records.filter(r => r.date === selDate);
-      } else if (meta.mode === "mdsr") {
-        if (selDate && selDate !== "ALL") {
-          records = records.filter(r => String(r.audit || "").toLowerCase() === selDate.toLowerCase());
-        }
-        if (selCause && selCause !== "ALL") {
-          records = records.filter(r => (r.cause || "Not Specified") === selCause);
-        }
-      }
-
-      const blockField = meta.mode === "ncd" ? "unit" : ("block" in records[0] ? "block" : Object.keys(records[0])[0]);
-      const filtered = records.filter(r => {
-        const b = String(r[blockField] || "").trim();
-        if (selBlk !== "ALL" && b.toLowerCase() !== selBlk.toLowerCase()) return false;
-        if (searchQ && !Object.values(r).join(" ").toLowerCase().includes(searchQ)) return false;
-        return true;
+    // Category Filter
+    let activeCat = 'ALL';
+    function filterModules(cat, btn) {
+      activeCat = cat;
+      document.querySelectorAll('#categoryTabs button').forEach(b => {
+        b.classList.remove('tab-active');
+        b.classList.add('bg-white', 'text-slate-700');
       });
-      currentExportRows = filtered;
+      btn.classList.add('tab-active');
+      btn.classList.remove('bg-white', 'text-slate-700');
+      applyFilters();
+    }
 
-      let ranked = [];
-      let valueMode = "pct";
-      let kpi1 = { label: "कुल रिकॉर्ड", val: filtered.length, sub: "" };
-      let kpi2 = { label: "जनपद औसत", val: "0%", sub: "" };
-      let kpi3LabelText = "सर्वश्रेष्ठ (Top)";
-      let kpi4LabelText = "सुधार की आवश्यकता (Lowest)";
-      let tableHtml = "";
+    document.getElementById('moduleSearch').addEventListener('input', applyFilters);
 
-      if (meta.mode === "mdsr") {
-        valueMode = "deaths";
-        kpi3LabelText = "सर्वाधिक मृत्यु रिपोर्ट (Highest)";
-        kpi4LabelText = "न्यूनतम मृत्यु रिपोर्ट (Lowest)";
-
-        const grp = new Map();
-        filtered.forEach(r => {
-          const b = r.block || "Other";
-          if (!grp.has(b)) grp.set(b, { name: b, total: 0, yes: 0, no: 0, transit: 0 });
-          const g = grp.get(b);
-          g.total += 1;
-          if (r.audit === "Yes") g.yes += 1;
-          else g.no += 1;
-          if (r.place === "Transit") g.transit += 1;
-        });
-
-        ranked = Array.from(grp.values()).map(g => ({
-          name: g.name,
-          val: g.total,
-          subText: `Audited: ${g.yes} | Pending: ${g.no} | Transit: ${g.transit}`
-        })).sort((a, b) => b.val - a.val || a.name.localeCompare(b.name));
-
-        const totDeaths = filtered.length;
-        const audYes = filtered.filter(r => r.audit === "Yes").length;
-        const audNo = totDeaths - audYes;
-        const audPct = totDeaths > 0 ? ((audYes / totDeaths) * 100).toFixed(1) : "0.0";
-        const facilityCnt = filtered.filter(r => r.place === "Health Facility").length;
-        const transitCnt = filtered.filter(r => r.place === "Transit").length;
-        const homeCnt = filtered.filter(r => r.place === "Home").length;
-
-        const ages = filtered.map(r => Number(r.age)).filter(a => a > 0);
-        const avgAge = ages.length ? (ages.reduce((a, b) => a + b, 0) / ages.length).toFixed(1) : "--";
-
-        kpi1 = {
-          label: "कुल मातृ मृत्यु (Total Deaths)",
-          val: `${totDeaths} (औसत आयु: ${avgAge} वर्ष)`,
-          sub: `Facility: ${facilityCnt} | Transit: ${transitCnt} | Home: ${homeCnt}`
-        };
-        kpi2 = {
-          label: "MDSR ऑडिट स्थिति (Audit)",
-          val: `${audYes} / ${totDeaths} (${audPct}%)`,
-          sub: `Audit Pending: ${audNo} मामले`
-        };
-
-        // 1. Render Cause of Death Breakdown Box
-        const causeCounts = {};
-        filtered.forEach(r => {
-          const c = r.cause || "Not Specified";
-          causeCounts[c] = (causeCounts[c] || 0) + 1;
-        });
-        const sortedCauses = Object.entries(causeCounts).sort((a, b) => b[1] - a[1]);
-        document.getElementById("mdsrCauseBox").innerHTML = sortedCauses.length ? sortedCauses.map(([cause, cnt]) => {
-          const pct = totDeaths ? Math.round((cnt / totDeaths) * 100) : 0;
-          const isBlank = cause === "Not Specified";
-          const isSelected = selCause === cause;
-          return `
-            <div onclick="filterByCause('${cause.replace(/'/g, "\\'")}')"
-              class="cursor-pointer p-2 rounded-xl border transition ${isSelected ? 'bg-rose-100 border-rose-400' : 'hover:bg-slate-50 border-slate-100'}">
-              <div class="flex justify-between items-center mb-1">
-                <span class="font-bold ${isBlank ? 'text-slate-400 italic' : 'text-slate-900'}">${cause}</span>
-                <span class="font-extrabold ${isBlank ? 'text-slate-500' : 'text-rose-700'}">${cnt} (${pct}%)</span>
-              </div>
-              <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                <div class="${isBlank ? 'bg-slate-400' : 'bg-rose-600'} h-full rounded-full" style="width:${pct}%"></div>
-              </div>
-            </div>
-          `;
-        }).join("") : `<p class="text-slate-400">कोई डेटा नहीं</p>`;
-
-        // 2. Render Place of Death Breakdown Box
-        const placeRows = [
-          { label: "🏥 Health Facility", cnt: facilityCnt, bar: "bg-blue-600", txt: "text-blue-700" },
-          { label: "🚑 Transit (रेफरल के दौरान)", cnt: transitCnt, bar: "bg-purple-600", txt: "text-purple-700" },
-          { label: "🏠 Home (घर पर)", cnt: homeCnt, bar: "bg-slate-600", txt: "text-slate-700" }
-        ];
-        document.getElementById("mdsrPlaceBox").innerHTML = placeRows.map(p => {
-          const pct = totDeaths ? Math.round((p.cnt / totDeaths) * 100) : 0;
-          return `
-            <div class="p-2 rounded-xl bg-slate-50/70 border border-slate-100">
-              <div class="flex justify-between items-center mb-1">
-                <span class="font-bold text-slate-800">${p.label}</span>
-                <span class="font-extrabold ${p.txt}">${p.cnt} (${pct}%)</span>
-              </div>
-              <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                <div class="${p.bar} h-full rounded-full" style="width:${pct}%"></div>
-              </div>
-            </div>
-          `;
-        }).join("");
-
-        // 3. Render Timing / Stage Breakdown Box
-        const timingCounts = {};
-        filtered.forEach(r => {
-          const t = r.timing || "Not Specified";
-          timingCounts[t] = (timingCounts[t] || 0) + 1;
-        });
-        const sortedTimings = Object.entries(timingCounts).sort((a, b) => b[1] - a[1]);
-        document.getElementById("mdsrTimingBox").innerHTML = sortedTimings.length ? sortedTimings.map(([t, cnt]) => {
-          const pct = totDeaths ? Math.round((cnt / totDeaths) * 100) : 0;
-          return `
-            <div class="p-2 rounded-xl bg-amber-50/40 border border-amber-100">
-              <div class="flex justify-between items-center mb-1 gap-2">
-                <span class="font-bold text-slate-800 truncate" title="${t}">${t}</span>
-                <span class="font-extrabold text-amber-800 whitespace-nowrap">${cnt} (${pct}%)</span>
-              </div>
-              <div class="w-full bg-amber-100 h-1.5 rounded-full overflow-hidden">
-                <div class="bg-amber-600 h-full rounded-full" style="width:${pct}%"></div>
-              </div>
-            </div>
-          `;
-        }).join("") : `<p class="text-slate-400">कोई डेटा नहीं</p>`;
-
-        tableHtml = `
-          <table class="w-full text-xs text-left border-collapse">
-            <thead class="bg-slate-900 text-white sticky top-0">
-              <tr>
-                <th class="p-3">S.No</th>
-                <th class="p-3">Block</th>
-                <th class="p-3">Deceased &amp; Husband</th>
-                <th class="p-3 text-center">Age</th>
-                <th class="p-3">Death Date</th>
-                <th class="p-3">Place &amp; Facility</th>
-                <th class="p-3">When Occurred</th>
-                <th class="p-3">Cause of Death</th>
-                <th class="p-3">Reporting Person</th>
-                <th class="p-3 text-center">Audit Status</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              ${filtered.map((r, i) => {
-                const badge = r.audit === "Yes"
-                  ? "bg-emerald-100 text-emerald-800"
-                  : "bg-rose-100 text-rose-800";
-                const placeColor = r.place === "Transit"
-                  ? "text-purple-700 font-bold"
-                  : (r.place === "Home" ? "text-slate-700 font-bold" : "text-blue-700 font-bold");
-                return `<tr class="hover:bg-slate-50">
-                  <td class="p-3 text-slate-400 font-semibold">${r.sno || i + 1}</td>
-                  <td class="p-3 font-bold text-slate-900">${r.block}</td>
-                  <td class="p-3">
-                    <div class="font-bold text-slate-900">${r.name}</div>
-                    <div class="text-[10px] text-slate-500">W/o ${r.husband || "-"}</div>
-                  </td>
-                  <td class="p-3 text-center font-semibold">${r.age || "-"}</td>
-                  <td class="p-3 whitespace-nowrap">${r.deathDate || "-"}</td>
-                  <td class="p-3">
-                    <div class="${placeColor}">${r.place || "-"}</div>
-                    <div class="text-[10px] text-slate-500">${r.facility || "-"}</div>
-                  </td>
-                  <td class="p-3">${r.timing || "-"}</td>
-                  <td class="p-3 font-semibold ${r.cause === 'Not Specified' ? 'text-slate-400 italic' : 'text-rose-800'}">${r.cause || "-"}</td>
-                  <td class="p-3">
-                    <div class="font-medium text-slate-800">${r.reportingPerson || "-"}</div>
-                    <div class="text-[10px] text-slate-400">${r.designation && r.designation !== '-' ? r.designation : ''}</div>
-                  </td>
-                  <td class="p-3 text-center"><span class="px-2.5 py-0.5 rounded-full font-bold text-[10px] ${badge}">${r.audit}</span></td>
-                </tr>`;
-              }).join("")}
-            </tbody>
-          </table>`;
-
-      } else if (meta.mode === "asha") {
-        valueMode = "currency";
-        const ashaComputed = filtered.map(w => {
-          let amt = 0;
-          if (!selDate || selDate === "ALL") {
-            amt = w.total;
-          } else {
-            for (const hMap of Object.values(w.p || {})) {
-              amt += Number(hMap[selDate]) || 0;
-            }
-          }
-          return { ...w, periodAmt: amt };
-        });
-        currentExportRows = ashaComputed.map(w => ({
-          "ASHA ID": w.id, "ASHA Name": w.name, "Block": w.block,
-          "Sub Center": w.sc, "Village": w.village, "Paid Amount (Rs)": w.periodAmt
-        }));
-
-        const grp = new Map();
-        ashaComputed.forEach(w => {
-          const key = selBlk === "ALL" ? w.block : (w.sc || w.name);
-          if (!grp.has(key)) grp.set(key, { name: key, sumAmt: 0, count: 0, paidCount: 0 });
-          const g = grp.get(key);
-          g.sumAmt += w.periodAmt;
-          g.count += 1;
-          if (w.periodAmt > 0) g.paidCount += 1;
-        });
-
-        ranked = Array.from(grp.values()).map(g => ({
-          name: g.name,
-          val: g.count > 0 ? Math.round(g.sumAmt / g.count) : 0,
-          subText: `कुल: ₹${Math.round(g.sumAmt).toLocaleString("en-IN")} (${g.paidCount}/${g.count} Paid)`
-        })).sort((a, b) => b.val - a.val);
-
-        const totalPaidRs = ashaComputed.reduce((s, w) => s + w.periodAmt, 0);
-        const paidAshas = ashaComputed.filter(w => w.periodAmt > 0).length;
-        const zeroAshas = ashaComputed.length - paidAshas;
-        const avgPerAsha = ashaComputed.length ? Math.round(totalPaidRs / ashaComputed.length) : 0;
-
-        kpi1 = { label: "कुल आशा कार्यकर्ता", val: ashaComputed.length.toLocaleString("en-IN"), sub: `Paid: ${paidAshas} | Zero: ${zeroAshas}` };
-        kpi2 = { label: "कुल भुगतान राशि", val: `₹${Math.round(totalPaidRs).toLocaleString("en-IN")}`, sub: `औसत प्रति आशा: ₹${avgPerAsha.toLocaleString("en-IN")}` };
-
-        const sortedAshas = [...ashaComputed].sort((a, b) => b.periodAmt - a.periodAmt);
-        tableHtml = `
-          <table class="w-full text-xs text-left border-collapse">
-            <thead class="bg-slate-900 text-white sticky top-0">
-              <tr>
-                <th class="p-3">#</th><th class="p-3">ASHA ID</th><th class="p-3">ASHA Name</th>
-                <th class="p-3">Block</th><th class="p-3">Sub Center</th><th class="p-3">Village</th>
-                <th class="p-3 text-right">Paid Amount (₹)</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              ${sortedAshas.slice(0, 400).map((w, i) => `
-                <tr class="hover:bg-slate-50 ${w.periodAmt === 0 ? 'bg-rose-50/30' : ''}">
-                  <td class="p-3 text-slate-400">${i + 1}</td>
-                  <td class="p-3 font-mono font-bold text-slate-700">${w.id}</td>
-                  <td class="p-3 font-bold text-slate-900">${w.name}</td>
-                  <td class="p-3">${w.block}</td>
-                  <td class="p-3">${w.sc}</td>
-                  <td class="p-3">${w.village}</td>
-                  <td class="p-3 text-right font-extrabold ${w.periodAmt === 0 ? 'text-rose-600' : 'text-teal-700'}">₹${Math.round(w.periodAmt).toLocaleString("en-IN")}</td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>`;
-
-      } else if (meta.mode === "jsy") {
-        const grp = new Map();
-        filtered.forEach(r => {
-          const key = selBlk === "ALL" ? r.block : r.facility;
-          if (!grp.has(key)) grp.set(key, { name: key, del: 0, moic: 0, pay: 0, count: 0 });
-          const g = grp.get(key);
-          g.del += Number(r.del) || 0;
-          g.moic += Number(r.moic) || 0;
-          g.pay += Number(r.pay) || 0;
-          g.count += 1;
-        });
-        ranked = Array.from(grp.values()).map(g => ({
-          name: g.name,
-          val: g.del > 0 ? Number(((g.pay / g.del) * 100).toFixed(1)) : 0,
-          subText: `प्रसव: ${g.del} | भुगतान: ${g.pay}`
-        })).sort((a, b) => b.val - a.val);
-
-        const totDel = filtered.reduce((s, r) => s + (Number(r.del) || 0), 0);
-        const totPay = filtered.reduce((s, r) => s + (Number(r.pay) || 0), 0);
-        const totMoic = filtered.reduce((s, r) => s + (Number(r.moic) || 0), 0);
-        const pct = totDel > 0 ? ((totPay / totDel) * 100).toFixed(1) : "0.0";
-
-        kpi1 = { label: "कुल प्रसव (Deliveries)", val: totDel.toLocaleString("en-IN"), sub: `MOIC स्वीकृत: ${totMoic.toLocaleString("en-IN")}` };
-        kpi2 = { label: "JSY भुगतान प्रतिशत", val: `${pct}%`, sub: `कुल भुगतान: ${totPay.toLocaleString("en-IN")}` };
-
-        tableHtml = `
-          <table class="w-full text-xs text-left border-collapse">
-            <thead class="bg-slate-900 text-white sticky top-0">
-              <tr>
-                <th class="p-3">#</th><th class="p-3">Block</th><th class="p-3">Facility</th>
-                <th class="p-3 text-right">Deliveries</th><th class="p-3 text-right">JSY Verified</th>
-                <th class="p-3 text-right">MOIC Approved</th><th class="p-3 text-right">Payments</th>
-                <th class="p-3 text-right">Payment %</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              ${filtered.map((r, i) => {
-                const p = r.del > 0 ? ((r.pay / r.del) * 100).toFixed(1) : "0.0";
-                const clr = p > 85 ? "text-emerald-700" : (p >= 80 ? "text-amber-600" : "text-rose-600");
-                return `<tr class="hover:bg-slate-50">
-                  <td class="p-3 text-slate-400">${i + 1}</td>
-                  <td class="p-3 font-semibold">${r.block}</td>
-                  <td class="p-3 font-bold text-slate-900">${r.facility}</td>
-                  <td class="p-3 text-right">${r.del}</td>
-                  <td class="p-3 text-right">${r.jsy}</td>
-                  <td class="p-3 text-right">${r.moic}</td>
-                  <td class="p-3 text-right font-bold">${r.pay}</td>
-                  <td class="p-3 text-right font-extrabold ${clr}">${p}%</td>
-                </tr>`;
-              }).join("")}
-            </tbody>
-          </table>`;
-
-      } else if (meta.mode === "abha") {
-        const grp = new Map();
-        filtered.forEach(r => {
-          const key = selBlk === "ALL" ? r.block : (r.sc || r.ashaName);
-          if (!grp.has(key)) grp.set(key, { name: key, pop: 0, created: 0 });
-          const g = grp.get(key);
-          g.pop += Number(r.pop) || 0;
-          g.created += Number(r.created) || 0;
-        });
-        ranked = Array.from(grp.values()).map(g => ({
-          name: g.name,
-          val: g.pop > 0 ? Number(((g.created / g.pop) * 100).toFixed(1)) : 0,
-          subText: `निर्मित: ${g.created.toLocaleString("en-IN")} / ${g.pop.toLocaleString("en-IN")}`
-        })).sort((a, b) => b.val - a.val);
-
-        const totPop = filtered.reduce((s, r) => s + (Number(r.pop) || 0), 0);
-        const totCr = filtered.reduce((s, r) => s + (Number(r.created) || 0), 0);
-        const pct = totPop > 0 ? ((totCr / totPop) * 100).toFixed(1) : "0.0";
-
-        kpi1 = { label: "लक्षित जनसंख्या", val: totPop.toLocaleString("en-IN"), sub: `${filtered.length} आशा क्षेत्र` };
-        kpi2 = { label: "ABHA उपलब्धि %", val: `${pct}%`, sub: `निर्मित ABHA: ${totCr.toLocaleString("en-IN")}` };
-
-        tableHtml = `
-          <table class="w-full text-xs text-left border-collapse">
-            <thead class="bg-slate-900 text-white sticky top-0">
-              <tr>
-                <th class="p-3">#</th><th class="p-3">Block</th><th class="p-3">SC / Sub-Center</th>
-                <th class="p-3">ASHA Name</th><th class="p-3 text-right">Population</th>
-                <th class="p-3 text-right">ABHA Created</th><th class="p-3 text-right">Progress %</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              ${filtered.slice(0, 300).map((r, i) => {
-                const p = r.pop > 0 ? ((r.created / r.pop) * 100).toFixed(1) : "0.0";
-                return `<tr class="hover:bg-slate-50">
-                  <td class="p-3 text-slate-400">${i + 1}</td>
-                  <td class="p-3 font-semibold">${r.block}</td>
-                  <td class="p-3">${r.sc}</td>
-                  <td class="p-3 font-bold">${r.ashaName}</td>
-                  <td class="p-3 text-right">${r.pop}</td>
-                  <td class="p-3 text-right font-bold text-sky-800">${r.created}</td>
-                  <td class="p-3 text-right font-extrabold">${p}%</td>
-                </tr>`;
-              }).join("")}
-            </tbody>
-          </table>`;
-
-      } else if (meta.mode === "ncd") {
-        ranked = filtered.map(u => ({
-          name: u.unit,
-          val: Number(u.score) || 0,
-          subText: `HTN: ${u.htnPct}% | DM: ${u.dmPct}%`
-        })).sort((a, b) => b.val - a.val);
-
-        const distScore = portalData.ncd_screening?.district?.score ??
-          (ranked.length ? (ranked.reduce((s, x) => s + x.val, 0) / ranked.length).toFixed(1) : "0.0");
-        const totHtn = filtered.reduce((s, u) => s + (Number(u.htn) || 0), 0);
-        const totDm = filtered.reduce((s, u) => s + (Number(u.dm) || 0), 0);
-
-        kpi1 = { label: "कुल इकाइयां / Blocks", val: filtered.length, sub: `HTN: ${totHtn.toLocaleString("en-IN")} | DM: ${totDm.toLocaleString("en-IN")}` };
-        kpi2 = { label: "Composite Score", val: `${distScore}%`, sub: "जनपद समग्र स्कोर" };
-
-        tableHtml = `
-          <table class="w-full text-xs text-left border-collapse">
-            <thead class="bg-slate-900 text-white sticky top-0">
-              <tr>
-                <th class="p-3">Rank</th><th class="p-3">Block / Unit</th><th class="p-3 text-right">30+ Pop</th>
-                <th class="p-3 text-right">HTN %</th><th class="p-3 text-right">DM %</th>
-                <th class="p-3 text-right">ANM %</th><th class="p-3 text-right">CHO %</th>
-                <th class="p-3 text-right">MO %</th><th class="p-3 text-right">Composite Score</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              ${filtered.map(u => `
-                <tr class="hover:bg-slate-50">
-                  <td class="p-3 font-bold text-slate-500">${u.rank}</td>
-                  <td class="p-3 font-extrabold text-slate-900">${u.unit}</td>
-                  <td class="p-3 text-right">${(u.pop30 || 0).toLocaleString("en-IN")}</td>
-                  <td class="p-3 text-right">${u.htnPct}%</td>
-                  <td class="p-3 text-right">${u.dmPct}%</td>
-                  <td class="p-3 text-right font-semibold text-teal-700">${u.anmPct}%</td>
-                  <td class="p-3 text-right font-semibold text-indigo-700">${u.choPct}%</td>
-                  <td class="p-3 text-right font-semibold text-amber-700">${u.moPct}%</td>
-                  <td class="p-3 text-right font-extrabold text-rose-700">${u.score}%</td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>`;
-
-      } else if (meta.mode === "qa") {
-        const grp = new Map();
-        filtered.forEach(r => {
-          const b = r.block || "Other";
-          if (!grp.has(b)) grp.set(b, { name: b, total: 0, cert: 0, cond: 0, def: 0 });
-          const g = grp.get(b);
-          g.total += 1;
-          if (r.status === "Quality Certified") g.cert += 1;
-          else if (r.status === "Conditional") g.cond += 1;
-          else g.def += 1;
-        });
-
-        ranked = Array.from(grp.values()).map(g => ({
-          name: g.name,
-          val: g.total > 0 ? Number(((g.cert / g.total) * 100).toFixed(1)) : 0,
-          subText: `Certified: ${g.cert} | Cond: ${g.cond} | Def: ${g.def}`
-        })).sort((a, b) => b.val - a.val);
-
-        const certAll = filtered.filter(r => r.status === "Quality Certified").length;
-        const condAll = filtered.filter(r => r.status === "Conditional").length;
-        const defAll = filtered.filter(r => r.status === "Deferred").length;
-
-        kpi1 = { label: "कुल मूल्यांकित इकाइयां", val: filtered.length, sub: `Cond: ${condAll} | Deferred: ${defAll}` };
-        kpi2 = { label: "Quality Certified", val: `${certAll} (${filtered.length ? ((certAll / filtered.length) * 100).toFixed(1) : 0}%)`, sub: "पूर्णतः प्रमाणित इकाइयां" };
-
-        tableHtml = `
-          <table class="w-full text-xs text-left border-collapse">
-            <thead class="bg-slate-900 text-white sticky top-0">
-              <tr>
-                <th class="p-3">SN</th><th class="p-3">Block</th><th class="p-3">Facility Name</th>
-                <th class="p-3">Type</th><th class="p-3 text-center">Packages</th>
-                <th class="p-3">Status</th><th class="p-3">Date</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              ${filtered.map((r, i) => {
-                const badge = r.status === "Quality Certified"
-                  ? "bg-emerald-100 text-emerald-800"
-                  : (r.status === "Conditional" ? "bg-amber-100 text-amber-800" : "bg-rose-100 text-rose-800");
-                return `<tr class="hover:bg-slate-50">
-                  <td class="p-3 text-slate-400">${i + 1}</td>
-                  <td class="p-3 font-semibold">${r.block}</td>
-                  <td class="p-3 font-bold text-slate-900">${r.facility}</td>
-                  <td class="p-3">${r.type}</td>
-                  <td class="p-3 text-center">${r.packages}</td>
-                  <td class="p-3"><span class="px-2.5 py-0.5 rounded-full font-bold text-[10px] ${badge}">${r.status}</span></td>
-                  <td class="p-3 text-slate-500">${r.date}</td>
-                </tr>`;
-              }).join("")}
-            </tbody>
-          </table>`;
-
-      } else {
-        const keys = Object.keys(filtered[0]);
-        const blkK = keys.find(k => /block/i.test(k)) || keys[0];
-        const numK = keys.find(k => /%|pct|percent|ach|rate|score|total|count|death/i.test(k))
-          || keys.find(k => typeof filtered[0][k] === "number" && k !== blkK)
-          || keys[keys.length - 1];
-
-        const grp = new Map();
-        filtered.forEach(r => {
-          const name = String(r[blkK] || "Other").trim();
-          const v = parseFloat(String(r[numK] ?? 0).replace(/[^0-9.-]/g, "")) || 0;
-          if (!grp.has(name)) grp.set(name, { name, sum: 0, count: 0 });
-          const g = grp.get(name);
-          g.sum += v; g.count += 1;
-        });
-
-        ranked = Array.from(grp.values()).map(g => ({
-          name: g.name,
-          val: Number((g.sum / g.count).toFixed(1)),
-          subText: `इकाइयां: ${g.count}`
-        })).sort((a, b) => b.val - a.val);
-
-        const avg = ranked.length ? (ranked.reduce((s, x) => s + x.val, 0) / ranked.length).toFixed(1) : "0.0";
-        kpi1 = { label: "कुल पंक्तियां (Rows)", val: filtered.length, sub: `${ranked.length} Blocks/Units` };
-        kpi2 = { label: `औसत (${numK})`, val: avg, sub: "ब्लॉक-वार औसत" };
-
-        tableHtml = `
-          <table class="w-full text-xs text-left border-collapse">
-            <thead class="bg-slate-900 text-white sticky top-0">
-              <tr><th class="p-3">#</th>${keys.map(k => `<th class="p-3 uppercase">${k}</th>`).join("")}</tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              ${filtered.map((r, i) => `
-                <tr class="hover:bg-slate-50">
-                  <td class="p-3 text-slate-400">${i + 1}</td>
-                  ${keys.map(k => `<td class="p-3 text-slate-700 font-medium">${r[k] ?? "-"}</td>`).join("")}
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>`;
-      }
-
-      const fmtVal = (v) => {
-        if (valueMode === "currency") return `₹${Number(v).toLocaleString("en-IN")}`;
-        if (valueMode === "deaths") return `${v} ${Number(v) === 1 ? "Death" : "Deaths"}`;
-        return `${v}%`;
-      };
-
-      document.getElementById("kpi1Label").textContent = kpi1.label;
-      document.getElementById("kpi1Val").textContent = kpi1.val;
-      document.getElementById("kpi1Sub").textContent = kpi1.sub;
-
-      document.getElementById("kpi2Label").textContent = kpi2.label;
-      document.getElementById("kpi2Val").textContent = kpi2.val;
-      document.getElementById("kpi2Sub").textContent = kpi2.sub;
-
-      document.getElementById("kpi3Label").textContent = kpi3LabelText;
-      document.getElementById("kpi3Val").textContent = ranked[0] ? ranked[0].name : "—";
-      document.getElementById("kpi3Sub").textContent = ranked[0] ? `${fmtVal(ranked[0].val)} (${ranked[0].subText})` : "—";
-
-      const last = ranked[ranked.length - 1];
-      document.getElementById("kpi4Label").textContent = kpi4LabelText;
-      document.getElementById("kpi4Val").textContent = last ? last.name : "—";
-      document.getElementById("kpi4Sub").textContent = last ? `${fmtVal(last.val)} (${last.subText})` : "—";
-
-      const isAllBlocks = selBlk === "ALL";
-      const entityLabel = isAllBlocks ? "Blocks" : (meta.mode === "asha" ? `Sub-Centers (${selBlk})` : `Facilities (${selBlk})`);
-
-      const halfCount = Math.min(5, Math.floor(ranked.length / 2));
-      const topList = ranked.length === 1 ? ranked : ranked.slice(0, halfCount);
-      const poorList = ranked.length <= 1 ? [] : ranked.slice(ranked.length - halfCount).reverse();
-
-      if (valueMode === "deaths") {
-        document.getElementById("wsTop5Title").textContent = `🔺 Top ${topList.length} ${entityLabel} (सर्वाधिक मातृ मृत्यु रिपोर्ट)`;
-        document.getElementById("wsTop5Badge").textContent = "Highest Deaths";
-        document.getElementById("wsPoor5Title").textContent = `🔻 Bottom ${poorList.length} ${entityLabel} (न्यूनतम मातृ मृत्यु रिपोर्ट)`;
-        document.getElementById("wsPoor5Badge").textContent = "Lowest Deaths";
-      } else {
-        document.getElementById("wsTop5Title").textContent = `🏆 Top ${topList.length} ${entityLabel} (सर्वश्रेष्ठ प्रदर्शन)`;
-        document.getElementById("wsTop5Badge").textContent = "Best Performers";
-        document.getElementById("wsPoor5Title").textContent = `⚠️ Poor ${poorList.length} ${entityLabel} (न्यूनतम प्रदर्शन)`;
-        document.getElementById("wsPoor5Badge").textContent = "Needs Focus";
-      }
-
-      const renderBox = (list, isFirstBox) => {
-        if (!list.length) return `<p class="p-4 text-xs text-slate-400">तुलना के लिए पर्याप्त इकाइयां नहीं हैं।</p>`;
-        return list.map((item, idx) => {
-          const badgeColors = valueMode === "deaths"
-            ? (isFirstBox ? "bg-rose-700 text-white" : "bg-emerald-700 text-white")
-            : (isFirstBox ? "bg-emerald-700 text-white" : "bg-rose-700 text-white");
-          const pillColors = valueMode === "deaths"
-            ? (isFirstBox ? "bg-rose-50 text-rose-800 border border-rose-200" : "bg-emerald-50 text-emerald-800 border border-emerald-200")
-            : (isFirstBox ? "bg-emerald-50 text-emerald-800 border border-emerald-200" : "bg-rose-50 text-rose-800 border border-rose-200");
-
-          return `
-            <div class="flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 rounded-xl text-xs">
-              <div class="flex items-center gap-2.5 min-w-0">
-                <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-[11px] font-extrabold ${badgeColors}">
-                  ${idx + 1}
-                </span>
-                <div class="truncate">
-                  <div class="font-bold text-slate-900 truncate">${item.name}</div>
-                  <div class="text-[10px] text-slate-500 truncate">${item.subText}</div>
-                </div>
-              </div>
-              <span class="ml-2 px-3 py-1 rounded-full font-extrabold text-xs ${pillColors}">
-                ${fmtVal(item.val)}
-              </span>
-            </div>
-          `;
-        }).join("");
-      };
-
-      document.getElementById("wsTop5List").innerHTML = renderBox(topList, true);
-      document.getElementById("wsPoor5List").innerHTML = renderBox(poorList, false);
-
-      const ctx = document.getElementById("wsBarChart").getContext("2d");
-      if (wsChart) wsChart.destroy();
-      const box = document.getElementById("wsChartBox");
-      box.style.width = ranked.length > 14 ? `${ranked.length * 52}px` : "100%";
-
-      wsChart = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: ranked.map(r => r.name),
-          datasets: [{
-            data: ranked.map(r => r.val),
-            backgroundColor: ranked.map(r => {
-              if (valueMode === "currency") return "#0d9488";
-              if (valueMode === "deaths") return getDeathCountColor(r.val);
-              return getThresholdColor(r.val);
-            }),
-            borderRadius: 6,
-            maxBarThickness: 38
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            datalabels: {
-              anchor: "end",
-              align: "top",
-              color: "#0f172a",
-              font: { weight: "bold", size: 11 },
-              formatter: v => {
-                if (valueMode === "currency") return `₹${Number(v).toLocaleString("en-IN")}`;
-                if (valueMode === "deaths") return `${v}`;
-                return `${v}%`;
-              }
-            }
-          },
-          scales: {
-            x: { grid: { display: false }, ticks: { font: { size: 10, weight: "bold" } } },
-            y: {
-              beginAtZero: true,
-              grid: { color: "#f1f5f9" },
-              ticks: valueMode === "deaths" ? { stepSize: 1 } : {},
-              suggestedMax: Math.max(...ranked.map(r => r.val), 5) * 1.18
-            }
-          }
-        },
-        plugins: [ChartDataLabels]
+    function applyFilters() {
+      const q = document.getElementById('moduleSearch').value.trim().toLowerCase();
+      document.querySelectorAll('#modulesGrid a.module-card').forEach(card => {
+        const cardCat = card.getAttribute('data-cat');
+        const tags = (card.getAttribute('data-tags') + ' ' + card.textContent).toLowerCase();
+        const matchCat = activeCat === 'ALL' || cardCat === activeCat;
+        const matchText = !q || tags.includes(q);
+        card.style.display = (matchCat && matchText) ? 'block' : 'none';
       });
-
-      document.getElementById("wsRowCount").textContent = `${filtered.length} Rows`;
-      document.getElementById("wsTableContainer").innerHTML = tableHtml;
-    };
-
-    window.exportActiveExcel = function() {
-      if (!currentExportRows.length) return alert("डाउनलोड करने के लिए डेटा उपलब्ध नहीं है।");
-      const ws = XLSX.utils.json_to_sheet(currentExportRows);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, activeProg.toUpperCase());
-      XLSX.writeFile(wb, `NHM_Ayodhya_${activeProg.toUpperCase()}.xlsx`);
-    };
-
-    if (savedOfficer) {
-      unlockPortal(savedOfficer);
     }
   </script>
 </body>
