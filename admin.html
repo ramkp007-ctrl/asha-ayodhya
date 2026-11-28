@@ -136,7 +136,8 @@ class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:ro
 </div>
 
 <!-- Tele Consultation Options -->
-<div id="teleDateWrap" class="hidden p-3.5 bg-sky-50 border border-sky-200 rounded-lg grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+<div id="teleDateWrap" class="hidden p-3.5 bg-sky-50 border border-sky-200 rounded-lg space-y-3">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
 <div>
 <label for="teleRoleSelect" class="block text-xs font-bold text-sky-950 mb-1">🩺 डेटा श्रेणी चुनें (CHO / MO)</label>
 <select id="teleRoleSelect" class="w-full px-3 py-1.5 border border-sky-300 rounded-lg text-xs font-bold bg-white text-slate-800">
@@ -145,8 +146,12 @@ class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:ro
 </select>
 </div>
 <div>
-<label for="teleReportDate" class="block text-xs font-bold text-sky-950 mb-1">📅 फ़ाइल की रिपोर्ट दिनांक (फ़ाइल के नाम से स्वतः आएगी)</label>
+<label for="teleReportDate" class="block text-xs font-bold text-sky-950 mb-1">📅 फ़ाइल की रिपोर्ट दिनांक (एक फ़ाइल के लिए, या नाम से स्वतः)</label>
 <input type="date" id="teleReportDate" class="w-full px-3 py-1.5 border border-sky-300 rounded-lg text-xs font-bold bg-white text-slate-800" />
+</div>
+</div>
+<div class="text-[11px] text-sky-900 bg-white/80 px-3 py-1.5 rounded border border-sky-200">
+🔄 <strong>मासिक चक्र नियम (21 से 20 तारीख):</strong> एक चक्र (21 तारीख से अगले माह की 20 तारीख) की सभी पुरानी फ़ाइलें सुरक्षित रहेंगी और नई फ़ाइल जुड़ती जाएगी। अगली 21 तारीख का डेटा अपलोड होते ही पिछला चक्र स्वतः हट जाएगा।
 </div>
 </div>
 
@@ -224,6 +229,47 @@ const yyyy = m[3].length === 2 ? `20${m[3]}` : m[3];
 return { iso: `${yyyy}-${mm}-${dd}`, ddmmyyyy: `${dd}-${mm}-${yyyy}` };
 }
 return null;
+}
+
+// 21 तारीख से अगली 20 तारीख का चक्र निकालने वाला फ़ंक्शन
+function get21To20Cycle(isoDateStr) {
+const parts = String(isoDateStr || "").split("-").map(Number);
+if (parts.length !== 3 || !parts[0] || !parts[1] || !parts[2]) return null;
+const [year, month, day] = parts;
+
+let startYear = year;
+let startMonth = month;
+let endYear = year;
+let endMonth = month;
+
+if (day >= 21) {
+// वर्तमान माह की 21 से अगले माह की 20 तक
+endMonth = month + 1;
+if (endMonth > 12) {
+endMonth = 1;
+endYear = year + 1;
+}
+} else {
+// पिछले माह की 21 से वर्तमान माह की 20 तक
+startMonth = month - 1;
+if (startMonth < 1) {
+startMonth = 12;
+startYear = year - 1;
+}
+}
+
+const sMM = String(startMonth).padStart(2, "0");
+const eMM = String(endMonth).padStart(2, "0");
+const startIso = `${startYear}-${sMM}-21`;
+const endIso = `${endYear}-${eMM}-20`;
+const label = `21-${sMM}-${startYear} से 20-${eMM}-${endYear}`;
+
+return {
+id: `${startIso}_to_${endIso}`,
+startIso,
+endIso,
+label
+};
 }
 
 function formatHmisMonthLabel(raw) {
@@ -490,8 +536,8 @@ const rbskTxt = d.rbsk?.rows
 
 const choDates = Array.isArray(d.tele_cho?.availableDates) ? d.tele_cho.availableDates.filter(Boolean) : [];
 const moDates = Array.isArray(d.tele_mo?.availableDates) ? d.tele_mo.availableDates.filter(Boolean) : [];
-const choTxt = choDates.length ? `CHO: ${d.tele_cho.latestDate || choDates[choDates.length - 1]}` : "";
-const moTxt = moDates.length ? `MO: ${d.tele_mo.latestDate || moDates[moDates.length - 1]}` : "";
+const choTxt = choDates.length ? `CHO: ${choDates.length} दिन (${d.tele_cho.cycleLabel || (d.tele_cho.latestDate || choDates[choDates.length - 1])})` : "";
+const moTxt = moDates.length ? `MO: ${moDates.length} दिन (${d.tele_mo.cycleLabel || (d.tele_mo.latestDate || moDates[moDates.length - 1])})` : "";
 const teleSummary = [choTxt, moTxt].filter(Boolean).join(" | ");
 const teleTxt = teleSummary
 ? `✅ <strong>Tele Consultation:</strong> ${teleSummary}`
@@ -641,7 +687,7 @@ mh_maternal_death: "💡 <strong>Maternal Death / MDSR:</strong> सीधे �
 ncd_screening: "💡 <strong>NCD Screening:</strong> सीधे <b>'Composite'</b> शीट वाली Excel फ़ाइल चुनें।",
 quality_assurance: "💡 <strong>Quality Assurance:</strong> NQAS Excel फ़ाइल चुनें।",
 rbsk: "💡 <strong>RBSK:</strong> ब्लॉक-वार MHT विजिट, आंगनवाड़ी व स्कूल स्क्रीनिंग की Excel शीट चुनें।",
-tele_consultation: "💡 <strong>Tele Consultation:</strong> CHO के लिए <b>CHO_DD-MM-YYYY.xlsx</b> और MO के लिए <b>MOTC_DD-MM-YYYY.xlsx</b> अपलोड करें।"
+tele_consultation: "💡 <strong>Tele Consultation (21 से 20 मासिक चक्र):</strong> CHO के लिए <b>CHO_DD-MM-YYYY.xlsx</b> और MO के लिए <b>MOTC_DD-MM-YYYY.xlsx</b> अपलोड करें। एक ही चक्र (21 से 20 तारीख) की सभी पुरानी फ़ाइलें सुरक्षित रहेंगी और नई फ़ाइल जुड़ती जाएगी।"
 };
 
 document.getElementById("newProgramSelect").addEventListener("change", (e) => {
@@ -700,7 +746,6 @@ const wb = XLSX.read(buf, { type: "array", cellDates: true });
 const sheetName = wb.SheetNames.includes("MDSR Report") ? "MDSR Report" : wb.SheetNames[0];
 const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: "" });
 
-// Dynamically locate header row containing "Block" and "Deceased Name" (Row 4 / index 3)
 let headerIdx = rows.findIndex(r =>
 r.some(cell => String(cell).trim().toLowerCase() === "block") &&
 r.some(cell => String(cell).trim().toLowerCase().includes("deceased"))
@@ -753,7 +798,6 @@ throw new Error("फ़ाइल में वैध MDSR रिकॉर्ड 
 const auditYesCount = mdsrRows.filter(x => x.audit === "Yes").length;
 const auditNoCount = mdsrRows.length - auditYesCount;
 
-// Save directly to asha_portal_v2/mh_maternal_death (matching portal.html!)
 await set(child(rootRef, "mh_maternal_death"), {
 updatedAt: dateLabel,
 fileName: file.name,
@@ -930,6 +974,136 @@ alert(`✅ Institutional Delivery (HMIS) अपलोड सफल!\nमाह: 
 return;
 }
 
+if (prog === "tele_consultation") {
+let teleRole = document.getElementById("teleRoleSelect")?.value || "tele_cho";
+const manualSelectedIso = document.getElementById("teleReportDate")?.value;
+let allIncomingRows = [];
+let totalUploadedTC = 0;
+const uploadedDatesSet = new Set();
+
+// एक या एक से अधिक सभी चुनी गई फ़ाइलों को प्रोसेस करें
+for (const f of files) {
+const fBuf = await f.arrayBuffer();
+const fWb = XLSX.read(fBuf, { type: "array", raw: false });
+const firstSheet = fWb.Sheets[fWb.SheetNames[0]];
+const rawJson = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+
+const parsedFromFile = parseFlexibleDate(f.name);
+let parsedDate = parsedFromFile || (files.length === 1 && manualSelectedIso ? parseFlexibleDate(manualSelectedIso) : null);
+
+if (!parsedDate && rawJson.length > 0) {
+const rowDateRaw = rawJson[0]["Date"] || rawJson[0]["DATE"] || rawJson[0]["Report Date"] || "";
+parsedDate = parseFlexibleDate(rowDateRaw);
+}
+
+if (!parsedDate || !parsedDate.iso) {
+throw new Error(`फ़ाइल "${f.name}" में दिनांक नहीं मिली! कृपया फ़ाइल के नाम में दिनांक रखें (जैसे CHO_28-11-2026.xlsx) या ऊपर दिनांक चुनें।`);
+}
+
+if (rawJson.length > 0) {
+const headersUpper = Object.keys(rawJson[0]).map(k => k.trim().toUpperCase());
+if (headersUpper.includes("MO NAME") || headersUpper.includes("DOCTOR NAME")) {
+teleRole = "tele_mo";
+const roleSel = document.getElementById("teleRoleSelect");
+if (roleSel) roleSel.value = "tele_mo";
+}
+}
+
+const isoDate = parsedDate.iso;
+const displayDate = parsedDate.ddmmyyyy;
+uploadedDatesSet.add(isoDate);
+
+const parsedRows = rawJson.map(row => {
+const upperMap = {};
+for (const [k, v] of Object.entries(row)) {
+const trimmedKey = String(k || "COL").replace(/[.#$\[\]\/\\]/g, "_").replace(/\s+/g, " ").trim() || "COL";
+upperMap[trimmedKey.toUpperCase()] = v === undefined || v === null ? "" : (typeof v === "string" ? v.trim() : v);
+}
+
+const block = String(upperMap["BLOCK"] || upperMap["BLOCK NAME"] || "").trim();
+const facility = String(upperMap["FACILITY NAME"] || upperMap["FACILITY"] || upperMap["HWC"] || "").trim();
+const user = String(upperMap["MO NAME"] || upperMap["USER NAME"] || upperMap["CHO NAME"] || upperMap["DOCTOR NAME"] || upperMap["NAME"] || "").trim();
+const tc = Number(String(upperMap["TELE CONSULTATION"] || upperMap["TOTAL TELECONSULTATION"] || upperMap["TELECONSULTATION"] || upperMap["TC"] || 0).replace(/,/g, "")) || 0;
+
+totalUploadedTC += tc;
+return { isoDate, date: displayDate, block, facility, user, tc };
+}).filter(r => r.block && r.block.toUpperCase() !== "TOTAL");
+
+allIncomingRows = allIncomingRows.concat(parsedRows);
+}
+
+if (allIncomingRows.length === 0) {
+throw new Error("फ़ाइल में वैध Block / Tele Consultation डेटा नहीं मिला।");
+}
+
+// नवीनतम अपलोड की गई तारीख के आधार पर सक्रिय 21-से-20 चक्र निर्धारित करें
+const sortedIncomingIso = Array.from(uploadedDatesSet).sort();
+const latestIncomingIso = sortedIncomingIso[sortedIncomingIso.length - 1];
+const activeCycle = get21To20Cycle(latestIncomingIso);
+
+// केवल सक्रिय 21-से-20 चक्र के भीतर आने वाली नई पंक्तियां रखें
+const validIncomingRows = allIncomingRows.filter(
+r => r.isoDate >= activeCycle.startIso && r.isoDate <= activeCycle.endIso
+);
+const validIncomingIsoSet = new Set(validIncomingRows.map(r => r.isoDate));
+
+const roleRef = child(rootRef, teleRole);
+const roleSnap = await get(roleRef);
+const prevRoleData = roleSnap.exists() ? roleSnap.val() : {};
+
+// पुराने डेटा से केवल वही रिकॉर्ड रखें जो:
+// 1. वर्तमान सक्रिय 21-से-20 चक्र के अंदर हैं (पिछले चक्र का डेटा स्वतः हट जाएगा), और
+// 2. अभी अपलोड की जा रही तारीखों के डुप्लीकेट नहीं हैं
+const existingRows = (Array.isArray(prevRoleData.rows) ? prevRoleData.rows : [])
+.map(r => {
+if (!r) return null;
+const p = parseFlexibleDate(r.isoDate || r.date || r.Date);
+if (!p) return null;
+return {
+isoDate: p.iso,
+date: p.ddmmyyyy,
+block: String(r.block || r.Block || "").trim(),
+facility: String(r.facility || r["Facility Name"] || "").trim(),
+user: String(r.user || r.userName || r["MO Name"] || r["User Name"] || "").trim(),
+tc: Number(r.tc ?? r["Tele Consultation"] ?? 0) || 0
+};
+})
+.filter(r =>
+r &&
+r.block &&
+r.isoDate >= activeCycle.startIso &&
+r.isoDate <= activeCycle.endIso &&
+!validIncomingIsoSet.has(r.isoDate)
+);
+
+const mergedRows = [...existingRows, ...validIncomingRows];
+const validDatesSet = new Set(mergedRows.map(r => r.isoDate).filter(Boolean));
+const sortedIsoDates = Array.from(validDatesSet).sort();
+const finalLatestIso = sortedIsoDates[sortedIsoDates.length - 1] || latestIncomingIso;
+const finalLatestDisplay = parseFlexibleDate(finalLatestIso)?.ddmmyyyy || "";
+
+await set(roleRef, {
+updatedAt: finalLatestDisplay,
+latestDate: finalLatestDisplay,
+latestIsoDate: finalLatestIso,
+cycleId: activeCycle.id,
+cycleStartIso: activeCycle.startIso,
+cycleEndIso: activeCycle.endIso,
+cycleLabel: activeCycle.label,
+availableDates: sortedIsoDates,
+rows: mergedRows
+});
+
+refreshStatus();
+alert(
+`✅ ${teleRole === "tele_cho" ? "CHO" : "MO"} Tele Consultation अपलोड सफल!\n` +
+`📅 सक्रिय मासिक चक्र: ${activeCycle.label}\n` +
+`📂 इस चक्र में सुरक्षित कुल दिन: ${sortedIsoDates.length} दिन\n` +
+`📊 अभी अपलोड हुए रिकॉर्ड: ${validIncomingRows.length} (TC: ${totalUploadedTC.toLocaleString("en-IN")})`
+);
+return;
+}
+
 const buffer = await file.arrayBuffer();
 const wb = XLSX.read(buffer, { type: "array", raw: false });
 
@@ -1069,95 +1243,6 @@ rows: cleanRows
 
 refreshStatus();
 alert(`✅ Quality Assurance (NQAS) अपलोड सफल!\nफ़ाइल: ${file.name}\nकुल स्वास्थ्य इकाइयां: ${cleanRows.length}`);
-
-} else if (prog === "tele_consultation") {
-const firstSheet = wb.Sheets[wb.SheetNames[0]];
-const rawJson = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
-
-const parsedFromFile = parseFlexibleDate(file.name);
-const selectedIso = document.getElementById("teleReportDate")?.value;
-let parsedDate = selectedIso ? parseFlexibleDate(selectedIso) : parsedFromFile;
-
-if (!parsedDate && rawJson.length > 0) {
-const rowDateRaw = rawJson[0]["Date"] || rawJson[0]["DATE"] || rawJson[0]["Report Date"] || "";
-parsedDate = parseFlexibleDate(rowDateRaw);
-}
-
-if (!parsedDate || !parsedDate.iso) {
-btn.disabled = false;
-btn.textContent = "चयनित कार्यक्रम का डेटा अपलोड करें ↑";
-return alert("फ़ाइल के नाम में दिनांक नहीं मिली! कृपया ऊपर 'फ़ाइल की रिपोर्ट दिनांक' बॉक्स में इस फ़ाइल की सही दिनांक चुनें और फिर अपलोड करें।");
-}
-
-const isoDate = parsedDate.iso;
-const displayDate = parsedDate.ddmmyyyy;
-
-let teleRole = document.getElementById("teleRoleSelect")?.value || "tele_cho";
-if (rawJson.length > 0) {
-const headersUpper = Object.keys(rawJson[0]).map(k => k.trim().toUpperCase());
-if (headersUpper.includes("MO NAME") || headersUpper.includes("DOCTOR NAME")) {
-teleRole = "tele_mo";
-const roleSel = document.getElementById("teleRoleSelect");
-if (roleSel) roleSel.value = "tele_mo";
-}
-}
-
-let totalTC = 0;
-const newRows = rawJson.map(row => {
-const upperMap = {};
-for (const [k, v] of Object.entries(row)) {
-const trimmedKey = String(k || "COL").replace(/[.#$\[\]\/\\]/g, "_").replace(/\s+/g, " ").trim() || "COL";
-upperMap[trimmedKey.toUpperCase()] = v === undefined || v === null ? "" : (typeof v === "string" ? v.trim() : v);
-}
-
-const block = String(upperMap["BLOCK"] || upperMap["BLOCK NAME"] || "").trim();
-const facility = String(upperMap["FACILITY NAME"] || upperMap["FACILITY"] || upperMap["HWC"] || "").trim();
-const user = String(upperMap["MO NAME"] || upperMap["USER NAME"] || upperMap["CHO NAME"] || upperMap["DOCTOR NAME"] || upperMap["NAME"] || "").trim();
-const tc = Number(String(upperMap["TELE CONSULTATION"] || upperMap["TOTAL TELECONSULTATION"] || upperMap["TELECONSULTATION"] || upperMap["TC"] || 0).replace(/,/g, "")) || 0;
-
-totalTC += tc;
-
-return { isoDate, date: displayDate, block, facility, user, tc };
-}).filter(r => r.block && r.block.toUpperCase() !== "TOTAL");
-
-if (newRows.length === 0) {
-throw new Error("फ़ाइल में वैध Block / Tele Consultation डेटा नहीं मिला।");
-}
-
-const roleRef = child(rootRef, teleRole);
-const roleSnap = await get(roleRef);
-const prevRoleData = roleSnap.exists() ? roleSnap.val() : {};
-
-const existingRows = (Array.isArray(prevRoleData.rows) ? prevRoleData.rows : [])
-.map(r => {
-if (!r) return null;
-const p = parseFlexibleDate(r.isoDate || r.date || r.Date);
-if (!p) return null;
-return {
-isoDate: p.iso,
-date: p.ddmmyyyy,
-block: String(r.block || r.Block || "").trim(),
-facility: String(r.facility || r["Facility Name"] || "").trim(),
-user: String(r.user || r.userName || r["MO Name"] || r["User Name"] || "").trim(),
-tc: Number(r.tc ?? r["Tele Consultation"] ?? 0) || 0
-};
-})
-.filter(r => r && r.block && r.isoDate !== isoDate);
-
-const mergedRows = [...existingRows, ...newRows];
-const validDatesSet = new Set(mergedRows.map(r => r.isoDate).filter(Boolean));
-const sortedIsoDates = Array.from(validDatesSet).sort();
-
-await set(roleRef, {
-updatedAt: displayDate,
-latestDate: displayDate,
-latestIsoDate: isoDate,
-availableDates: sortedIsoDates,
-rows: mergedRows
-});
-
-refreshStatus();
-alert(`✅ ${teleRole === "tele_cho" ? "CHO" : "MO"} Tele Consultation अपलोड सफल!\nफ़ाइल दिनांक: ${displayDate}\nकुल रिकॉर्ड: ${newRows.length}\nकुल Tele Consultation: ${totalTC.toLocaleString("en-IN")}`);
 
 } else {
 const firstSheet = wb.Sheets[wb.SheetNames[0]];
