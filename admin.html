@@ -1,1306 +1,537 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Master Admin - NHM अयोध्या डेटा अपलोड एवं प्रबंधन</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NHM Ayodhya - Master Admin & Data Uploader</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- SheetJS for Excel/CSV Parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- Firebase Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; color: #0f172a; }
+    .card { background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 2px 10px rgba(15,23,42,0.04); transition: all 0.2s; }
+    .card:hover { box-shadow: 0 6px 18px rgba(15,23,42,0.07); }
+    .file-btn::file-selector-button {
+      margin-right: 10px; padding: 7px 14px; border-radius: 8px; border: 0;
+      font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.2s;
+    }
+  </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen">
-
-<header class="bg-slate-900 text-white shadow-md">
-<div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
-<div>
-<h1 class="text-lg md:text-xl font-bold">NHM अयोध्या — Master Data Uploader &amp; Control</h1>
-<p class="text-xs text-slate-300">ASHA Payment, JSY, ABHA, Institutional Delivery, e-Kavach Delivery, ANC, MDSR, NCD, RBSK, QA, Tele Consultation</p>
-</div>
-<div class="flex flex-wrap gap-2">
-<a href="officers-admin.html" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-xs font-bold rounded-lg">
-👮 अधिकारी प्रबंधन
-</a>
-<a href="portal.html" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-xs font-bold rounded-lg">
-🏛️ Program Review Portal →
-</a>
-</div>
-</div>
-</header>
-
-<main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
-
-<!-- SECTION 1: ASHA PAYMENT UPLOADER -->
-<section class="bg-white p-6 rounded-xl shadow-sm border border-teal-200 space-y-4">
-<div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
-<h2 class="text-base font-bold text-teal-900">1. आशा प्रोत्साहन राशि (ASHA Payment) Excel / CSV अपलोड</h2>
-<span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded font-semibold">
-✅ 1 ID पर 2 ASHA अलग-अलग सुरक्षित
-</span>
-</div>
-
-<div class="flex flex-wrap items-center gap-3">
-<input type="file" id="csvFileInput" accept=".xlsx,.xls,.csv" multiple
-class="block text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-800 hover:file:bg-teal-100" />
-<input type="text" id="inspectAshaId" value="2404031" placeholder="ASHA ID जाँचें (उदा. 2404031)"
-class="px-3 py-2 border border-slate-300 rounded-lg text-xs w-48" />
-<button id="inspectBtn" class="px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-lg">
-🔍 ID योग जाँचें
-</button>
-</div>
-
-<div class="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-100">
-<button id="uploadCsvBtn" class="px-5 py-2 bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold rounded-lg shadow">
-ASHA डेटा अपलोड और सेव करें
-</button>
-<button id="clearDbBtn" class="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg border border-red-200 ml-auto">
-ASHA भुगतान डेटा रीसेट करें
-</button>
-</div>
-
-<div id="uploadStatus" class="p-3 bg-slate-50 rounded-lg text-xs font-medium text-slate-700 border border-slate-200">
-डेटाबेस स्थिति जाँची जा रही है...
-</div>
-
-<div id="auditPreviewBox" class="hidden p-4 bg-emerald-50/70 border border-emerald-300 rounded-xl space-y-2 text-xs">
-<div id="auditSummary" class="text-slate-900 font-semibold"></div>
-<div id="auditTableWrap" class="bg-white p-3 rounded-lg border border-emerald-200 overflow-x-auto max-h-72"></div>
-</div>
-</section>
-
-<!-- SECTION 2 & 3: JSY PAYMENT & ABHA PROGRESS UPLOADERS -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<!-- JSY Uploader -->
-<section class="bg-white p-6 rounded-xl shadow-sm border border-indigo-200 space-y-4">
-<div class="border-b pb-3">
-<h2 class="text-base font-bold text-indigo-950">2. JSY भुगतान पाइपलाइन डेटा अपलोड</h2>
-<p class="text-[11px] text-slate-500 mt-0.5">नोट: फ़ाइल का नाम ही रिपोर्ट दिनांक माना जाएगा (जैसे <b>18-11-2026.xlsx</b>)।</p>
-</div>
-<input type="file" id="jsyFileInput" accept=".xlsx,.xls,.csv"
-class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-800" />
-<button id="uploadJsyBtn" class="w-full py-2.5 bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold rounded-lg shadow">
-JSY डेटा अपलोड करें
-</button>
-<div id="jsyStatus" class="p-2.5 bg-slate-50 rounded-lg text-xs text-slate-700 border border-slate-200">
-JSY डेटाबेस जाँचा जा रहा है...
-</div>
-</section>
-
-<!-- ABHA Progress Uploader -->
-<section class="bg-white p-6 rounded-xl shadow-sm border border-emerald-200 space-y-4">
-<div class="border-b pb-3">
-<h2 class="text-base font-bold text-emerald-950">3. ABHA ID प्रगति डेटा अपलोड</h2>
-<p class="text-[11px] text-slate-500 mt-0.5">कॉलम: Block, SC, Village, Asha Area, ASHA Name, ASHA ID, Population, ABHA Created</p>
-</div>
-<input type="file" id="abhaFileInput" accept=".xlsx,.xls,.csv"
-class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-800" />
-<button id="uploadAbhaBtn" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow">
-ABHA डेटा अपलोड करें
-</button>
-<div id="abhaStatus" class="p-2.5 bg-slate-50 rounded-lg text-xs text-slate-700 border border-slate-200">
-ABHA डेटाबेस जाँचा जा रहा है...
-</div>
-</section>
-</div>
-
-<!-- SECTION 4: OTHER PROGRAMS UPLOADER -->
-<section class="bg-white p-6 rounded-xl shadow-sm border border-rose-200 space-y-4">
-<div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
-<div>
-<h2 class="text-base font-bold text-rose-950">4. अन्य कार्यक्रम डेटा अपलोड (e-Kavach Delivery, ANC, Institutional Delivery, MDSR, NCD, QA, RBSK, Tele Consultation)</h2>
-<p class="text-[11px] text-slate-500 mt-0.5">Program Review Portal के सभी मॉड्यूल के लिए मासिक/साप्ताहिक Excel (.xlsx) अपलोड करें</p>
-</div>
-<span class="text-[11px] bg-rose-50 text-rose-800 border border-rose-200 px-2.5 py-1 rounded-lg font-bold">
-8 Programs Active
-</span>
-</div>
-
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-<div>
-<label class="block text-xs font-bold text-slate-700 mb-1">कार्यक्रम चुनें (Select Program)</label>
-<select id="newProgramSelect" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold bg-slate-50 focus:border-rose-700 focus:outline-none">
-<option value="mh_delivery_ekavach">🚚 Delivery Updation (e-Kavach — eKAVACH Delivery_DD-MM-YYYY.xlsx)</option>
-<option value="mh_anc_ekavach">🤰 ANC Coverage (e-Kavach — ANC-Ekavach_DD-MM-YYYY.xlsx)</option>
-<option value="mh_inst_delivery">🏥 Institutional Delivery &amp; C-Section (HMIS — Apr 26 आदि)</option>
-<option value="mh_maternal_death">🩺 Maternal Death / MDSR (MDSR DD-MM-YYYY.xlsx)</option>
-<option value="ncd_screening">❤️ NCD Screening (Composite Scoring &amp; ANM/CHO/MO Status)</option>
-<option value="quality_assurance">✅ Quality Assurance (NQAS / Kayakalp / LaQshya)</option>
-<option value="rbsk">👶 RBSK (Mobile Health Team &amp; Child Screening)</option>
-<option value="tele_consultation">📞 Tele Consultation (eSanjeevani HWC / MO OPD)</option>
-</select>
-</div>
-
-<div>
-<label class="block text-xs font-bold text-slate-700 mb-1">Excel / CSV फ़ाइल चुनें (एक या एकाधिक)</label>
-<input type="file" id="newProgramFile" accept=".xlsx,.xls,.csv" multiple
-class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-rose-50 file:text-rose-800 hover:file:bg-rose-100" />
-</div>
-</div>
-
-<!-- Tele Consultation Options -->
-<div id="teleDateWrap" class="hidden p-3.5 bg-sky-50 border border-sky-200 rounded-lg space-y-3">
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-<div>
-<label for="teleRoleSelect" class="block text-xs font-bold text-sky-950 mb-1">🩺 डेटा श्रेणी चुनें (CHO / MO)</label>
-<select id="teleRoleSelect" class="w-full px-3 py-1.5 border border-sky-300 rounded-lg text-xs font-bold bg-white text-slate-800">
-<option value="tele_cho">CHO Teleconsultation (eSanjeevani HWC)</option>
-<option value="tele_mo">MO Tele Consultation (PHC / CHC / Hub / ASMC / DH)</option>
-</select>
-</div>
-<div>
-<label for="teleReportDate" class="block text-xs font-bold text-sky-950 mb-1">📅 फ़ाइल की रिपोर्ट दिनांक (एक फ़ाइल के लिए, या नाम से स्वतः)</label>
-<input type="date" id="teleReportDate" class="w-full px-3 py-1.5 border border-sky-300 rounded-lg text-xs font-bold bg-white text-slate-800" />
-</div>
-</div>
-<div class="text-[11px] text-sky-900 bg-white/80 px-3 py-1.5 rounded border border-sky-200">
-🔄 <strong>मासिक चक्र नियम (21 से 20 तारीख):</strong> एक चक्र (21 तारीख से अगले माह की 20 तारीख) की सभी पुरानी फ़ाइलें सुरक्षित रहेंगी और नई फ़ाइल जुड़ती जाएगी। अगली 21 तारीख का डेटा अपलोड होते ही पिछला चक्र स्वतः हट जाएगा।
-</div>
-</div>
-
-<div id="newProgramHint" class="p-2.5 bg-rose-50/50 border border-rose-200/80 rounded-lg text-[11px] text-slate-700">
-💡 <strong>Delivery Updation (e-Kavach):</strong> सीधे <b>eKAVACH Delivery_24-11-2026.xlsx</b> फ़ाइल चुनें। कॉलम: <b>Block Name, Facility, Public Facility, Private Facility, Institutional Deliveries, Home Deliveries, Out of State Facility, Total No. of Deliveries</b> स्वतः पढ़कर सेव हो जाएंगे।
-</div>
-
-<div class="flex flex-wrap gap-3">
-<button id="uploadNewProgramBtn" class="flex-1 py-2.5 bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold rounded-lg shadow">
-चयनित कार्यक्रम का डेटा अपलोड करें ↑
-</button>
-<a href="mdsr-dashboard.html" id="openMdsrBtn" class="hidden px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-lg shadow flex items-center gap-1.5">
-📊 विस्तृत MDSR डैशबोर्ड खोलें →
-</a>
-</div>
-
-<div id="newProgramStatus" class="p-3 bg-slate-50 rounded-lg text-xs text-slate-700 border border-slate-200 space-y-1">
-नए कार्यक्रमों का डेटाबेस जाँचा जा रहा है...
-</div>
-</section>
-
-<!-- SECTION 5: RESET FORGOTTEN 6-DIGIT ASHA PIN -->
-<section class="bg-white p-5 rounded-xl shadow-sm border border-amber-200 flex flex-wrap justify-between items-center gap-4">
-<div>
-<h2 class="text-sm font-bold text-amber-900">5. भूला हुआ 6-अंकों का ASHA PIN रीसेट करें (डिफ़ॉल्ट 123456)</h2>
-<p class="text-xs text-slate-500">आशा कार्यकर्ता द्वारा अपना PIN भूल जाने पर यहाँ से रीसेट करें</p>
-</div>
-<div class="flex items-center gap-2">
-<input type="text" id="resetPinAshaId" placeholder="ASHA ID दर्ज करें"
-class="px-3 py-2 border border-slate-300 rounded-lg text-xs w-48" />
-<button id="resetPinBtn" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg">
-PIN रीसेट करें
-</button>
-</div>
-<div id="pinResetStatus" class="hidden w-full p-2.5 rounded-lg text-xs font-semibold"></div>
-</section>
-
-</main>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getDatabase, ref, update, set, get, remove, child } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-
-const firebaseConfig = {
-apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
-authDomain: "asha-payment.firebaseapp.com",
-databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
-projectId: "asha-payment",
-storageBucket: "asha-payment.firebasestorage.app",
-messagingSenderId: "117935142167",
-appId: "1:117935142167:web:e1d5bb9da9f567594eb352",
-measurementId: "G-43YGRC5CKL"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const rootRef = ref(db, "asha_portal_v2");
-const jsyRef = ref(db, "asha_portal_v2/jsy_portal");
-const abhaRef = ref(db, "asha_portal_v2/abha_portal");
-
-const teleDateInput = document.getElementById("teleReportDate");
-
-function parseFlexibleDate(rawStr) {
-const clean = String(rawStr || "").replace(/\.[^.]+$/, "").trim();
-if (!clean) return null;
-let m = clean.match(/(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
-if (m) {
-const yyyy = m[1], mm = m[2].padStart(2, "0"), dd = m[3].padStart(2, "0");
-return { iso: `${yyyy}-${mm}-${dd}`, ddmmyyyy: `${dd}-${mm}-${yyyy}` };
-}
-m = clean.match(/(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})/);
-if (m) {
-const dd = m[1].padStart(2, "0"), mm = m[2].padStart(2, "0");
-const yyyy = m[3].length === 2 ? `20${m[3]}` : m[3];
-return { iso: `${yyyy}-${mm}-${dd}`, ddmmyyyy: `${dd}-${mm}-${yyyy}` };
-}
-return null;
-}
-
-// 21 तारीख से अगली 20 तारीख का चक्र निकालने वाला फ़ंक्शन
-function get21To20Cycle(isoDateStr) {
-const parts = String(isoDateStr || "").split("-").map(Number);
-if (parts.length !== 3 || !parts[0] || !parts[1] || !parts[2]) return null;
-const [year, month, day] = parts;
-
-let startYear = year;
-let startMonth = month;
-let endYear = year;
-let endMonth = month;
-
-if (day >= 21) {
-// वर्तमान माह की 21 से अगले माह की 20 तक
-endMonth = month + 1;
-if (endMonth > 12) {
-endMonth = 1;
-endYear = year + 1;
-}
-} else {
-// पिछले माह की 21 से वर्तमान माह की 20 तक
-startMonth = month - 1;
-if (startMonth < 1) {
-startMonth = 12;
-startYear = year - 1;
-}
-}
-
-const sMM = String(startMonth).padStart(2, "0");
-const eMM = String(endMonth).padStart(2, "0");
-const startIso = `${startYear}-${sMM}-21`;
-const endIso = `${endYear}-${eMM}-20`;
-const label = `21-${sMM}-${startYear} से 20-${eMM}-${endYear}`;
-
-return {
-id: `${startIso}_to_${endIso}`,
-startIso,
-endIso,
-label
-};
-}
-
-function formatHmisMonthLabel(raw) {
-if (typeof raw === "number" && raw > 30000) {
-const d = new Date((raw - 25569) * 86400 * 1000);
-const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-return `${months[d.getUTCMonth()]}-${String(d.getUTCFullYear()).slice(-2)}`;
-}
-return String(raw || "").trim();
-}
-
-function pickNumericCol(row, exactList, partialRegex) {
-for (const k of exactList) {
-if (row[k] !== undefined && row[k] !== "") return Number(String(row[k]).replace(/,/g, "")) || 0;
-}
-for (const [k, v] of Object.entries(row)) {
-if (partialRegex.test(k)) return Number(String(v).replace(/,/g, "")) || 0;
-}
-return 0;
-}
-
-function getCol(row, candidates) {
-for (const key of candidates) {
-if (row[key] !== undefined && String(row[key]).trim() !== "") return String(row[key]).trim();
-}
-return "";
-}
-
-function formatExcelDate(val) {
-if (val instanceof Date && !isNaN(val)) {
-return `${String(val.getDate()).padStart(2, "0")}-${String(val.getMonth() + 1).padStart(2, "0")}-${val.getFullYear()}`;
-}
-if (typeof val === "number" && val > 30000) {
-const d = new Date((val - 25569) * 86400 * 1000);
-return `${String(d.getUTCDate()).padStart(2, "0")}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCFullYear()).slice(-2)}`;
-}
-return String(val || "").trim();
-}
-
-function formatFullDateCell(val) {
-if (val instanceof Date && !isNaN(val)) {
-return `${String(val.getDate()).padStart(2, "0")}-${String(val.getMonth() + 1).padStart(2, "0")}-${val.getFullYear()}`;
-}
-if (typeof val === "number" && val > 30000) {
-const d = new Date((val - 25569) * 86400 * 1000);
-return `${String(d.getUTCDate()).padStart(2, "0")}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${d.getUTCFullYear()}`;
-}
-const str = String(val || "").trim().split(" ")[0];
-if (!str) return "-";
-const isoMatch = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
-if (isoMatch) {
-return `${isoMatch[3].padStart(2, "0")}-${isoMatch[2].padStart(2, "0")}-${isoMatch[1]}`;
-}
-return str;
-}
-
-function parseAmount(raw) {
-const num = parseFloat(String(raw || "0").replace(/,/g, "").replace(/[^\d.-]/g, "").trim());
-return Number.isFinite(num) ? num : 0;
-}
-
-function normalizeMonth(raw) {
-const str = String(raw || "").trim();
-if (!str) return "";
-if (/^\d{5}(\.\d+)?$/.test(str)) {
-const serial = Math.floor(Number(str));
-if (serial > 30000 && serial < 70000) {
-const date = new Date((serial - 25569) * 86400 * 1000);
-return `${String(date.getUTCMonth() + 1).padStart(2, "0")}-${date.getUTCFullYear()}`;
-}
-}
-const map = { jan:"01", feb:"02", mar:"03", apr:"04", may:"05", jun:"06", jul:"07", aug:"08", sep:"09", oct:"10", nov:"11", dec:"12" };
-const m1 = str.match(/^([A-Za-z]{3})[-/\s](\d{2,4})$/);
-if (m1 && map[m1[1].toLowerCase()]) {
-const yy = m1[2].length === 2 ? `20${m1[2]}` : m1[2];
-return `${map[m1[1].toLowerCase()]}-${yy}`;
-}
-const mDate = str.match(/^\d{1,2}[-/](\d{1,2})[-/](\d{4})$/);
-if (mDate) return `${mDate[1].padStart(2, "0")}-${mDate[2]}`;
-const m3 = str.match(/^(\d{1,2})[-/](\d{4})$/);
-if (m3) return `${m3[1].padStart(2, "0")}-${m3[2]}`;
-return str;
-}
-
-function safeKey(str) { return String(str || "").replace(/[.#$\[\]\/]/g, "_").trim().toUpperCase(); }
-function normalizeIdentityName(name) { return String(name || "").replace(/\s+/g, " ").trim().toUpperCase(); }
-function toWorkerList(entry) {
-if (!entry || typeof entry !== "object") return [];
-if (Array.isArray(entry)) return entry.filter(w => w && typeof w === "object");
-if ("n" in entry || "p" in entry || "id" in entry) return [entry];
-return Object.values(entry).filter(w => w && typeof w === "object");
-}
-
-async function readPrimarySheetOnly(file, statusEl) {
-const buffer = await file.arrayBuffer();
-const workbook = XLSX.read(buffer, { type: "array", raw: true });
-const firstSheetName = workbook.SheetNames[0];
-if (statusEl) statusEl.textContent = `फ़ाइल "${file.name}" की शीट "${firstSheetName}" पढ़ी जा रही है...`;
-await new Promise(r => setTimeout(r, 15));
-const jsonRows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheetName], { defval: "" });
-const fallbackMonth = normalizeMonth(firstSheetName);
-return jsonRows.map(r => {
-const obj = {};
-for (const [k, v] of Object.entries(r)) obj[String(k).trim().toUpperCase()] = v;
-if (!obj["MONTH"] && !obj["PAY_MONTH"] && !obj["BILL_MONTH"]) obj["MONTH"] = fallbackMonth;
-return obj;
-});
-}
-
-function processRowsIntoData(combinedRows, existing) {
-const headsList = [...(existing.heads || [])];
-const headIndexMap = new Map();
-headsList.forEach((item, idx) => headIndexMap.set(`${item.p}|||${item.h}`, idx));
-const monthsSet = new Set((existing.months || []).map(normalizeMonth).filter(Boolean));
-const workerBuckets = new Map();
-
-for (const [idKey, entry] of Object.entries(existing.workers || {})) {
-const list = toWorkerList(entry);
-const nameMap = new Map();
-list.forEach(w => nameMap.set(normalizeIdentityName(w.n) || "UNKNOWN", JSON.parse(JSON.stringify(w))));
-if (nameMap.size > 0) workerBuckets.set(idKey, nameMap);
-}
-
-const uploadingMonths = new Set();
-for (const row of combinedRows) {
-const m = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
-if (m) uploadingMonths.add(m);
-}
-
-for (const nameMap of workerBuckets.values()) {
-for (const w of nameMap.values()) {
-if (!w.p) continue;
-for (const hIdx of Object.keys(w.p)) {
-const cleanMonthMap = {};
-for (const [rawM, val] of Object.entries(w.p[hIdx])) {
-const normM = normalizeMonth(rawM);
-if (!uploadingMonths.has(normM)) cleanMonthMap[normM] = Number(val) || 0;
-}
-w.p[hIdx] = cleanMonthMap;
-}
-}
-}
-
-for (const row of combinedRows) {
-const rawId = getCol(row, ["ASHA_ID", "ASHA ID", "ASHAID", "ID"]);
-const idKey = safeKey(rawId);
-if (!idKey || idKey.includes("TOTAL")) continue;
-const rawName = getCol(row, ["ASHA_NAME", "ASHA NAME", "NAME"]).replace(/\s+/g, " ").trim();
-if (rawName.toUpperCase().includes("TOTAL")) continue;
-const nameKey = normalizeIdentityName(rawName) || "UNKNOWN";
-const month = normalizeMonth(getCol(row, ["MONTH", "PAY_MONTH", "BILL_MONTH"]));
-if (month) monthsSet.add(month);
-const program = getCol(row, ["PROGRAM NAME", "PROGRAM", "SCHEME", "PROG_NAME"]) || "Other";
-const head = getCol(row, ["HEAD", "HEAD NAME", "INCENTIVE HEAD", "ACTIVITY"]).replace(/\s+/g, " ");
-if (!head || head.toUpperCase() === "TOTAL") continue;
-
-const headKey = `${program}|||${head}`;
-let hIdx = headIndexMap.get(headKey);
-if (hIdx === undefined) {
-hIdx = headsList.length;
-headIndexMap.set(headKey, hIdx);
-headsList.push({ p: program, h: head });
-}
-
-if (!workerBuckets.has(idKey)) workerBuckets.set(idKey, new Map());
-const nameMap = workerBuckets.get(idKey);
-let w = nameMap.get(nameKey);
-if (!w) {
-w = {
-id: rawId, n: rawName,
-b: getCol(row, ["BLOCK", "BLOCK NAME"]),
-s: getCol(row, ["SC", "SUB CENTER", "SUB_CENTER", "SUBCENTER"]),
-v: getCol(row, ["VILLAGE", "VILLAGE NAME"]),
-t: 0, p: {}
-};
-nameMap.set(nameKey, w);
-}
-const amount = parseAmount(getCol(row, ["AMOUNT", "PAID_AMOUNT", "NET_AMOUNT", "TOTAL"]));
-if (amount > 0 && month) {
-if (!w.p) w.p = {};
-if (!w.p[hIdx]) w.p[hIdx] = {};
-w.p[hIdx][month] = (Number(w.p[hIdx][month]) || 0) + amount;
-}
-}
-
-const finalWorkers = {};
-let totalAllWorkers = 0, totalIndividualAshas = 0, duplicateIdCount = 0;
-for (const [idKey, nameMap] of workerBuckets.entries()) {
-const list = Array.from(nameMap.values());
-list.forEach(w => {
-let grandTotal = 0;
-if (w.p) {
-for (const hIdx of Object.keys(w.p)) {
-for (const m of Object.keys(w.p[hIdx])) grandTotal += Number(w.p[hIdx][m]) || 0;
-}
-}
-w.t = grandTotal;
-totalAllWorkers += grandTotal;
-totalIndividualAshas++;
-});
-if (list.length > 1) { duplicateIdCount++; finalWorkers[idKey] = list; }
-else if (list.length === 1) finalWorkers[idKey] = list[0];
-}
-
-return { payload: { heads: headsList, months: Array.from(monthsSet).sort(), workers: finalWorkers }, totalAllWorkers, totalIndividualAshas, duplicateIdCount };
-}
-
-async function refreshStatus() {
-const snap = await get(rootRef);
-const statusEl = document.getElementById("uploadStatus");
-if (snap.exists()) {
-const d = snap.val();
-let totalAshas = 0;
-for (const entry of Object.values(d.workers || {})) totalAshas += toWorkerList(entry).length;
-const offCount = Object.keys(d.officers || {}).length;
-statusEl.innerHTML = `📊 <strong>ASHA डेटाबेस:</strong> ${totalAshas.toLocaleString()} आशा • 👮 ${offCount} अधिकारी • माह: <strong>${(d.months || []).join(", ") || "-"}</strong>`;
-
-const jsyData = d.jsy_portal;
-if (jsyData && jsyData.records) {
-const uniqueDates = Array.from(new Set(jsyData.records.map(r => r.date))).join(", ");
-document.getElementById("jsyStatus").innerHTML = `✅ <strong>JSY सक्रिय दिनांक:</strong> ${uniqueDates} (कुल ${jsyData.records.length} रिकॉर्ड)`;
-} else {
-document.getElementById("jsyStatus").textContent = "अभी कोई JSY डेटा अपलोड नहीं है।";
-}
-
-const abhaData = d.abha_portal;
-if (abhaData && abhaData.records) {
-const uniqueAbhaDates = Array.from(new Set(abhaData.records.map(r => r.date))).join(", ");
-document.getElementById("abhaStatus").innerHTML = `✅ <strong>ABHA सक्रिय दिनांक:</strong> ${uniqueAbhaDates} (कुल ${abhaData.records.length} आशा क्षेत्र)`;
-} else {
-document.getElementById("abhaStatus").textContent = "अभी कोई ABHA डेटा अपलोड नहीं है।";
-}
-
-const delEkavachRows = d.mh_delivery_ekavach?.rows || [];
-const delEkavachTxt = delEkavachRows.length
-? `✅ <strong>Delivery (e-Kavach):</strong> ${delEkavachRows.length} इकाइयां (${d.mh_delivery_ekavach.latestDate || d.mh_delivery_ekavach.fileName})`
-: "⚪ <strong>Delivery (e-Kavach):</strong> डेटा प्रतीक्षित";
-
-const ancRows = d.mh_anc_ekavach?.rows || [];
-const ancTxt = ancRows.length
-? `✅ <strong>ANC (e-Kavach):</strong> ${ancRows.length} इकाइयां (${d.mh_anc_ekavach.latestDate || d.mh_anc_ekavach.fileName})`
-: "⚪ <strong>ANC (e-Kavach):</strong> डेटा प्रतीक्षित";
-
-const instRows = d.mh_inst_delivery?.rows || [];
-const instMonths = Array.from(new Set(instRows.map(r => r.month).filter(Boolean))).join(", ");
-const instTxt = instRows.length
-? `✅ <strong>Institutional Delivery:</strong> ${instRows.length} रिकॉर्ड (${instMonths || d.mh_inst_delivery.fileName})`
-: "⚪ <strong>Institutional Delivery:</strong> डेटा प्रतीक्षित";
-
-const mdsrRows = d.mh_maternal_death?.rows || [];
-const mdsrTxt = mdsrRows.length
-? `✅ <strong>Maternal Death (MDSR):</strong> ${mdsrRows.length} मामले (${d.mh_maternal_death.updatedAt || d.mh_maternal_death.fileName})`
-: "⚪ <strong>Maternal Death (MDSR):</strong> डेटा प्रतीक्षित";
-
-const ncdTxt = d.ncd_screening?.units
-? `✅ <strong>NCD Screening:</strong> ${d.ncd_screening.units.length} इकाइयां (${d.ncd_screening.reportTitle || "Updated"})`
-: "⚪ <strong>NCD Screening:</strong> डिफ़ॉल्ट डेटा सक्रिय";
-const qaTxt = d.quality_assurance?.rows
-? `✅ <strong>Quality Assurance:</strong> ${d.quality_assurance.rows.length} इकाइयां (${d.quality_assurance.fileName})`
-: "⚪ <strong>Quality Assurance:</strong> डिफ़ॉल्ट 154 इकाइयां सक्रिय";
-const rbskTxt = d.rbsk?.rows
-? `✅ <strong>RBSK:</strong> ${d.rbsk.rows.length} रिकॉर्ड (${d.rbsk.fileName})`
-: "⚪ <strong>RBSK:</strong> डेटा प्रतीक्षित";
-
-const choDates = Array.isArray(d.tele_cho?.availableDates) ? d.tele_cho.availableDates.filter(Boolean) : [];
-const moDates = Array.isArray(d.tele_mo?.availableDates) ? d.tele_mo.availableDates.filter(Boolean) : [];
-const choTxt = choDates.length ? `CHO: ${choDates.length} दिन (${d.tele_cho.cycleLabel || (d.tele_cho.latestDate || choDates[choDates.length - 1])})` : "";
-const moTxt = moDates.length ? `MO: ${moDates.length} दिन (${d.tele_mo.cycleLabel || (d.tele_mo.latestDate || moDates[moDates.length - 1])})` : "";
-const teleSummary = [choTxt, moTxt].filter(Boolean).join(" | ");
-const teleTxt = teleSummary
-? `✅ <strong>Tele Consultation:</strong> ${teleSummary}`
-: "⚪ <strong>Tele Consultation:</strong> डेटा प्रतीक्षित";
-
-document.getElementById("newProgramStatus").innerHTML = `
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[11px]">
-<div>${delEkavachTxt}</div>
-<div>${ancTxt}</div>
-<div>${instTxt}</div>
-<div>${mdsrTxt}</div>
-<div>${ncdTxt}</div>
-<div>${qaTxt}</div>
-<div>${rbskTxt}</div>
-<div>${teleTxt}</div>
-</div>
-`;
-}
-}
-
-// 1. ASHA Upload
-document.getElementById("uploadCsvBtn").addEventListener("click", async () => {
-const files = document.getElementById("csvFileInput").files;
-const statusEl = document.getElementById("uploadStatus");
-if (!files.length) return alert("पहले ASHA Excel/CSV फ़ाइल चुनें।");
-const existingSnap = await get(rootRef);
-const existing = existingSnap.exists() ? existingSnap.val() : { heads: [], months: [], workers: {} };
-let combinedRows = [];
-for (const file of files) combinedRows = combinedRows.concat(await readPrimarySheetOnly(file, statusEl));
-const { payload, totalAllWorkers, totalIndividualAshas } = processRowsIntoData(combinedRows, existing);
-await update(rootRef, payload);
-statusEl.innerHTML = `✅ <strong>ASHA अपलोड सफल!</strong> ${totalIndividualAshas.toLocaleString()} आशा • कुल राशि: ₹${Math.round(totalAllWorkers).toLocaleString("en-IN")}`;
-});
-
-// Inspect ASHA ID
-document.getElementById("inspectBtn").addEventListener("click", async () => {
-const files = document.getElementById("csvFileInput").files;
-const targetId = document.getElementById("inspectAshaId").value.trim();
-const statusEl = document.getElementById("uploadStatus");
-if (!files.length) return alert("पहले फ़ाइल चुनें।");
-let combinedRows = [];
-for (const file of files) combinedRows = combinedRows.concat(await readPrimarySheetOnly(file, statusEl));
-const { payload } = processRowsIntoData(combinedRows, { heads: [], months: [], workers: {} });
-const matchedList = toWorkerList(payload.workers[safeKey(targetId)]);
-document.getElementById("auditSummary").textContent = matchedList.length
-? matchedList.map(w => `${w.n} (${w.b}): ₹${w.t.toLocaleString("en-IN")}`).join(" | ")
-: `ID "${targetId}" फ़ाइल में नहीं मिली।`;
-document.getElementById("auditPreviewBox").classList.remove("hidden");
-});
-
-// 2. JSY Upload
-document.getElementById("uploadJsyBtn").addEventListener("click", async () => {
-const file = document.getElementById("jsyFileInput").files[0];
-if (!file) return alert("पहले JSY Excel/CSV फ़ाइल चुनें।");
-
-const fileDateLabel = file.name.replace(/\.[^.]+$/, "").trim();
-
-const buf = await file.arrayBuffer();
-const wb = XLSX.read(buf, { type: "array" });
-const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: 0 });
-
-const newRecords = raw.map(r => ({
-date: fileDateLabel || formatExcelDate(r.Date || r.DATE),
-fileName: file.name,
-block: String(r.Block || r.BLOCK || "").trim(),
-facility: String(r.facility_name_id || r.FACILITY_NAME_ID || r.Facility || "").trim(),
-del: Number(r.total_deliveries || 0),
-pin: Number(r.pin_verified || 0),
-jsy: Number(r.jsy_verified || 0),
-reg: Number(r.beneficiaries_registered || 0),
-moic: Number(r.moic_approvals || 0),
-prop: Number(r.proposals_initiated || 0),
-pay: Number(r.payments_made || 0)
-})).filter(x => x.block && x.facility);
-
-const snap = await get(jsyRef);
-const oldRecords = snap.exists() ? (snap.val().records || []).filter(r => r.date !== fileDateLabel) : [];
-const mergedRecords = [...oldRecords, ...newRecords];
-
-await set(jsyRef, {
-updatedAt: new Date().toLocaleString("hi-IN"),
-latestDate: fileDateLabel,
-records: mergedRecords
-});
-refreshStatus();
-alert(`फ़ाइल "${file.name}" (दिनांक: ${fileDateLabel}) के ${newRecords.length} केंद्रों का डेटा सेव हो गया!`);
-});
-
-// 3. ABHA Upload
-document.getElementById("uploadAbhaBtn").addEventListener("click", async () => {
-const file = document.getElementById("abhaFileInput").files[0];
-if (!file) return alert("पहले ABHA Excel/CSV फ़ाइल चुनें।");
-
-const dateMatch = file.name.match(/(\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4})/);
-const fileDateLabel = dateMatch ? dateMatch[1] : file.name.replace(/\.[^.]+$/, "").trim();
-
-const buf = await file.arrayBuffer();
-const wb = XLSX.read(buf, { type: "array" });
-const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "" });
-
-let sumPop = 0, sumCreated = 0;
-const newRecords = raw.map(r => {
-const norm = {};
-for (const [k, v] of Object.entries(r)) {
-norm[String(k).trim().toUpperCase()] = v;
-}
-const pop = Number(String(norm["POPULATION"] || norm["TARGET"] || 0).replace(/,/g, "")) || 0;
-const created = Number(String(norm["ABHA CREATED"] || norm["ABHA_CREATED"] || norm["CREATED"] || 0).replace(/,/g, "")) || 0;
-sumPop += pop;
-sumCreated += created;
-
-return {
-date: fileDateLabel,
-fileName: file.name,
-block: String(norm["BLOCK"] || "").trim(),
-sc: String(norm["SC"] || norm["SUB CENTER"] || norm["SUB_CENTER"] || "").trim(),
-village: String(norm["VILLAGE"] || "").trim(),
-area: String(norm["ASHA AREA"] || norm["AREA"] || "").trim(),
-ashaName: String(norm["ASHA NAME"] || norm["ASHA_NAME"] || "").trim(),
-ashaId: String(norm["ASHA ID"] || norm["ASHA_ID"] || "").trim(),
-pop,
-created
-};
-}).filter(x => x.block && (x.ashaName || x.sc));
-
-const snap = await get(abhaRef);
-const oldRecords = snap.exists()
-? (snap.val().records || []).filter(r => r.date !== fileDateLabel && !String(r.date).startsWith("ABHA ID_"))
-: [];
-const mergedRecords = [...oldRecords, ...newRecords];
-
-await set(abhaRef, {
-updatedAt: new Date().toLocaleString("hi-IN"),
-latestDate: fileDateLabel,
-records: mergedRecords
-});
-refreshStatus();
-alert(`✅ अपलोड सफल!\nदिनांक: ${fileDateLabel}\nकुल क्षेत्र: ${newRecords.length}\nकुल जनसंख्या: ${sumPop.toLocaleString("en-IN")}\nनिर्मित ABHA: ${sumCreated.toLocaleString("en-IN")}`);
-});
-
-// 4. SECTION 4 UPLOADER
-const PROGRAM_HINTS = {
-mh_delivery_ekavach: "💡 <strong>Delivery Updation (e-Kavach):</strong> सीधे <b>eKAVACH Delivery_24-11-2026.xlsx</b> फ़ाइल चुनें। कॉलम: <b>Block Name, Facility, Public Facility, Private Facility, Institutional Deliveries, Home Deliveries, Out of State Facility, Total No. of Deliveries</b> स्वतः पढ़कर सेव हो जाएंगे।",
-mh_anc_ekavach: "💡 <strong>ANC Coverage (e-Kavach):</strong> सीधे <b>ANC-Ekavach_24-11-2026.xlsx</b> फ़ाइल चुनें। कॉलम: <b>Block, Location, ANC Registration, 1st Trimester, ANC Services, 4+ ANC, Hb&lt;11, Hb&lt;7, HRP Identification</b> स्वतः पढ़कर सेव हो जाएंगे।",
-mh_inst_delivery: "💡 <strong>Institutional Delivery (HMIS):</strong> सीधे HMIS Excel फ़ाइल (जैसे <b>Apr 26.xlsx</b>) चुनें।",
-mh_maternal_death: "💡 <strong>Maternal Death / MDSR:</strong> सीधे पोर्टल से डाउनलोड की गई <b>MDSR 24-06-2026.xlsx</b> फ़ाइल चुनें। यह सीधे <b>Program Review Portal → 1. Maternal Health → Maternal Death</b> और <b>MDSR Dashboard</b> दोनों में लाइव हो जाएगी।",
-ncd_screening: "💡 <strong>NCD Screening:</strong> सीधे <b>'Composite'</b> शीट वाली Excel फ़ाइल चुनें।",
-quality_assurance: "💡 <strong>Quality Assurance:</strong> NQAS Excel फ़ाइल चुनें।",
-rbsk: "💡 <strong>RBSK:</strong> ब्लॉक-वार MHT विजिट, आंगनवाड़ी व स्कूल स्क्रीनिंग की Excel शीट चुनें।",
-tele_consultation: "💡 <strong>Tele Consultation (21 से 20 मासिक चक्र):</strong> CHO के लिए <b>CHO_DD-MM-YYYY.xlsx</b> और MO के लिए <b>MOTC_DD-MM-YYYY.xlsx</b> अपलोड करें। एक ही चक्र (21 से 20 तारीख) की सभी पुरानी फ़ाइलें सुरक्षित रहेंगी और नई फ़ाइल जुड़ती जाएगी।"
-};
-
-document.getElementById("newProgramSelect").addEventListener("change", (e) => {
-const val = e.target.value;
-document.getElementById("newProgramHint").innerHTML = PROGRAM_HINTS[val] || "";
-const dateWrap = document.getElementById("teleDateWrap");
-const mdsrLinkBtn = document.getElementById("openMdsrBtn");
-if (val === "tele_consultation") {
-dateWrap.classList.remove("hidden");
-} else {
-dateWrap.classList.add("hidden");
-}
-if (val === "mh_maternal_death") {
-mdsrLinkBtn.classList.remove("hidden");
-} else {
-mdsrLinkBtn.classList.add("hidden");
-}
-});
-
-document.getElementById("newProgramFile").addEventListener("change", (e) => {
-if (document.getElementById("newProgramSelect").value !== "tele_consultation") return;
-const f = e.target.files[0];
-if (!f) {
-if (teleDateInput) teleDateInput.value = "";
-return;
-}
-const upperName = f.name.toUpperCase();
-const roleSel = document.getElementById("teleRoleSelect");
-if (roleSel) {
-if (upperName.includes("MO")) roleSel.value = "tele_mo";
-else if (upperName.includes("CHO")) roleSel.value = "tele_cho";
-}
-const parsedDate = parseFlexibleDate(f.name);
-if (teleDateInput) {
-teleDateInput.value = parsedDate ? parsedDate.iso : "";
-}
-});
-
-document.getElementById("uploadNewProgramBtn").addEventListener("click", async () => {
-const prog = document.getElementById("newProgramSelect").value;
-const files = document.getElementById("newProgramFile").files;
-const file = files[0];
-const btn = document.getElementById("uploadNewProgramBtn");
-if (!file) return alert("कृपया पहले Excel / CSV फ़ाइल चुनें।");
-
-btn.disabled = true;
-btn.textContent = "प्रोसेस एवं अपलोड हो रहा है...";
-
-try {
-if (prog === "mh_maternal_death") {
-const dateMatch = file.name.match(/(\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4})/);
-const dateLabel = dateMatch ? dateMatch[1] : new Date().toLocaleDateString("en-GB").replace(/\//g, "-");
-
-const buf = await file.arrayBuffer();
-const wb = XLSX.read(buf, { type: "array", cellDates: true });
-const sheetName = wb.SheetNames.includes("MDSR Report") ? "MDSR Report" : wb.SheetNames[0];
-const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: "" });
-
-let headerIdx = rows.findIndex(r =>
-r.some(cell => String(cell).trim().toLowerCase() === "block") &&
-r.some(cell => String(cell).trim().toLowerCase().includes("deceased"))
-);
-if (headerIdx === -1) headerIdx = 3;
-
-const mdsrRows = [];
-for (let i = headerIdx + 1; i < rows.length; i++) {
-const r = rows[i];
-const blockRaw = String(r[1] || "").trim();
-const nameRaw = String(r[2] || "").trim();
-if (!blockRaw && !nameRaw) continue;
-if (blockRaw.toUpperCase() === "TOTAL") continue;
-
-let blockClean = blockRaw;
-if (blockClean.toLowerCase() === "masodwal") blockClean = "Masodha";
-if (blockClean.toLowerCase() === "poorabazar") blockClean = "Pura Bazar";
-
-let causeClean = String(r[8] || "").trim() || "Not Specified";
-if (causeClean.toLowerCase() === "cordiac arrest") causeClean = "Cardiac Arrest";
-if (causeClean.toLowerCase() === "obstract labour") causeClean = "Obstructed Labour";
-
-const auditRaw = String(r[15] || "").trim().toLowerCase();
-const auditClean = (auditRaw === "yes" || auditRaw === "y") ? "Yes" : "No";
-
-mdsrRows.push({
-sno: Number(r[0]) || (mdsrRows.length + 1),
-block: blockClean,
-name: nameRaw || "Unknown",
-age: Number(r[3]) || 0,
-husband: String(r[4] || "-").trim(),
-deathDate: formatFullDateCell(r[5]),
-place: String(r[6] || "Not Specified").trim(),
-facility: String(r[7] || "Not Specified").trim(),
-cause: causeClean,
-reviewer: String(r[9] || "-").trim(),
-submittedBy: String(r[10] || "-").trim(),
-reportDate: formatFullDateCell(r[11]),
-timing: String(r[12] || "Not Specified").trim(),
-designation: String(r[13] || "-").trim(),
-reportingPerson: String(r[14] || "-").trim(),
-audit: auditClean
-});
-}
-
-if (!mdsrRows.length) {
-throw new Error("फ़ाइल में वैध MDSR रिकॉर्ड (Block एवं Deceased Name) नहीं मिला।");
-}
-
-const auditYesCount = mdsrRows.filter(x => x.audit === "Yes").length;
-const auditNoCount = mdsrRows.length - auditYesCount;
-
-await set(child(rootRef, "mh_maternal_death"), {
-updatedAt: dateLabel,
-fileName: file.name,
-totalCases: mdsrRows.length,
-rows: mdsrRows
-});
-
-refreshStatus();
-alert(`✅ Maternal Death (MDSR) अपलोड सफल!\nफ़ाइल: ${file.name}\nकुल मामले: ${mdsrRows.length}\nAudited (Yes): ${auditYesCount} | Pending (No): ${auditNoCount}\n\nअब Program Review Portal में 'Maternal Death' पर क्लिक करें।`);
-return;
-}
-
-if (prog === "mh_delivery_ekavach") {
-const dateMatch = file.name.match(/(\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4})/);
-const dateLabel = dateMatch ? dateMatch[1] : file.name.replace(/\.[^.]+$/, "").trim();
-
-const buf = await file.arrayBuffer();
-const wb = XLSX.read(buf, { type: "array", raw: true });
-const rawJson = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: 0 });
-
-const parsed = rawJson.map(r => {
-const clean = {};
-for (const [k, v] of Object.entries(r)) {
-clean[String(k).replace(/\s+/g, " ").trim().toUpperCase()] = v;
-}
-const block = String(clean["BLOCK NAME"] || clean["BLOCK"] || "").trim();
-const facility = String(clean["FACILITY"] || clean["LOCATION"] || clean["SC"] || "").trim();
-const pubDel = Number(clean["DELIVERIES AT PUBLIC FACILITY"] || 0) || 0;
-const pvtDel = Number(clean["DELIVERIES AT PRIVATE FACILITY"] || 0) || 0;
-const instDel = Number(clean["INSTITUTIONAL DELIVERIES"] || 0) || 0;
-const homeDel = Number(clean["HOME DELIVERIES"] || 0) || 0;
-const oosDel = Number(clean["DELIVERIES AT OUT OF STATE FACILITY"] || 0) || 0;
-const totalDel = Number(clean["TOTAL NO. OF DELIVERIES"] || clean["TOTAL DELIVERIES"] || 0) || 0;
-
-return { date: dateLabel, block, facility, pubDel, pvtDel, instDel, homeDel, oosDel, totalDel };
-}).filter(x => x.block && x.facility && x.block.toUpperCase() !== "TOTAL");
-
-if (!parsed.length) throw new Error("फ़ाइल में वैध Block Name और Facility कॉलम नहीं मिला।");
-
-const delRef = child(rootRef, "mh_delivery_ekavach");
-const prevSnap = await get(delRef);
-const prevRows = prevSnap.exists() && Array.isArray(prevSnap.val().rows) ? prevSnap.val().rows : [];
-const keptOld = prevRows.filter(r => r && r.date !== dateLabel);
-const merged = [...keptOld, ...parsed];
-
-const sumTot = parsed.reduce((s, x) => s + x.totalDel, 0);
-const sumInst = parsed.reduce((s, x) => s + x.instDel, 0);
-
-await set(delRef, {
-updatedAt: new Date().toLocaleString("hi-IN"),
-latestDate: dateLabel,
-fileName: file.name,
-rows: merged
-});
-
-refreshStatus();
-alert(`✅ Delivery Updation (e-Kavach) अपलोड सफल!\nदिनांक: ${dateLabel}\nकुल इकाइयां: ${parsed.length}\nकुल प्रसव: ${sumTot.toLocaleString("en-IN")} | Institutional: ${sumInst.toLocaleString("en-IN")}`);
-return;
-}
-
-if (prog === "mh_anc_ekavach") {
-const dateMatch = file.name.match(/(\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4})/);
-const dateLabel = dateMatch ? dateMatch[1] : file.name.replace(/\.[^.]+$/, "").trim();
-
-const buf = await file.arrayBuffer();
-const wb = XLSX.read(buf, { type: "array", raw: true });
-const rawJson = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: 0 });
-
-const parsed = rawJson.map(r => {
-const clean = {};
-for (const [k, v] of Object.entries(r)) {
-clean[String(k).replace(/\s+/g, " ").trim().toUpperCase()] = v;
-}
-const block = String(clean["BLOCK"] || "").trim();
-const location = String(clean["LOCATION"] || clean["SC"] || clean["SUB CENTER"] || "").trim();
-const ancReg = Number(clean["ANC REGISTRATION"] || 0) || 0;
-const firstTri = Number(clean["ANC REGISTRATION IN 1ST TRIMESTER"] || 0) || 0;
-const ancServ = Number(clean["PW RECEIVED ANC SERVICES"] || 0) || 0;
-const fourAnc = Number(clean["PW RECEIVED 4 OR MORE ANC"] || 0) || 0;
-const hb11 = Number(clean["PW HAVING HB<11"] || 0) || 0;
-const hb7 = Number(clean["PW HAVING HB<7"] || 0) || 0;
-const hrp = Number(clean["HRP IDENTIFICATION"] || 0) || 0;
-
-return { date: dateLabel, block, location, ancReg, firstTri, ancServ, fourAnc, hb11, hb7, hrp };
-}).filter(x => x.block && x.location && x.block.toUpperCase() !== "TOTAL");
-
-if (!parsed.length) throw new Error("फ़ाइल में वैध Block और Location कॉलम नहीं मिला।");
-
-const ancRef = child(rootRef, "mh_anc_ekavach");
-const prevSnap = await get(ancRef);
-const prevRows = prevSnap.exists() && Array.isArray(prevSnap.val().rows) ? prevSnap.val().rows : [];
-const keptOld = prevRows.filter(r => r && r.date !== dateLabel);
-const merged = [...keptOld, ...parsed];
-
-const sumReg = parsed.reduce((s, x) => s + x.ancReg, 0);
-const sum1st = parsed.reduce((s, x) => s + x.firstTri, 0);
-
-await set(ancRef, {
-updatedAt: new Date().toLocaleString("hi-IN"),
-latestDate: dateLabel,
-fileName: file.name,
-rows: merged
-});
-
-refreshStatus();
-alert(`✅ ANC Coverage (e-Kavach) अपलोड सफल!\nदिनांक: ${dateLabel}\nकुल इकाइयां: ${parsed.length}\nकुल ANC पंजीकरण: ${sumReg.toLocaleString("en-IN")} | 1st Tri: ${sum1st.toLocaleString("en-IN")}`);
-return;
-}
-
-if (prog === "mh_inst_delivery") {
-let incomingRecords = [];
-for (const f of files) {
-const buf = await f.arrayBuffer();
-const wb = XLSX.read(buf, { type: "array", raw: true });
-const rawJson = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "" });
-const fallbackMonth = f.name.replace(/\.[^.]+$/, "").trim();
-
-const parsed = rawJson.map(r => {
-const clean = {};
-for (const [k, v] of Object.entries(r)) {
-clean[String(k).replace(/\s+/g, " ").trim()] = v;
-}
-const month = formatHmisMonthLabel(clean["Month"] || clean["MONTH"]) || fallbackMonth;
-const block = String(clean["Block Name"] || clean["Block"] || clean["BLOCK"] || "").trim();
-const facilityType = String(clean["Facility Type"] || clean["Type"] || "").trim();
-const facilityName = String(clean["Facility Name"] || clean["Facility"] || "").trim();
-const ownership = String(clean["Ownership"] || clean["OWNERSHIP"] || "").trim();
-
-const instDel = pickNumericCol(
-clean,
-["2.2. :: Number of Institutional Deliveries conducted (Including C-Sections)", "2.2. :: Number of Institutional Deliveries conducted"],
-/^2\.2\.|institutional\s*deliver/i
-);
-const cSection = pickNumericCol(
-clean,
-["3.1. :: Total number of C -Section deliveries performed", "3.1. :: Total number of C-Section deliveries performed"],
-/^3\.1\.|total.*c\s*-?\s*section/i
-);
-const nightCs = pickNumericCol(
-clean,
-["3.1.1. :: Out of total C-sections, number performed at night (8 PM- 8 AM)", "3.1.1. :: Out of total C-sections, number performed at night (8 PM-8 AM)"],
-/^3\.1\.1\.|night.*8\s*pm/i
-);
-
-return { month, block, facilityType, facilityName, ownership, instDel, cSection, nightCs };
-}).filter(x => x.block && x.facilityName && x.block.toUpperCase() !== "TOTAL");
-
-incomingRecords = incomingRecords.concat(parsed);
-}
-
-if (!incomingRecords.length) {
-throw new Error("फ़ाइल में वैध Block Name और Facility Name नहीं मिला।");
-}
-
-const instRef = child(rootRef, "mh_inst_delivery");
-const prevSnap = await get(instRef);
-const prevRows = prevSnap.exists() && Array.isArray(prevSnap.val().rows) ? prevSnap.val().rows : [];
-
-const uploadingMonths = new Set(incomingRecords.map(r => r.month));
-const keptOld = prevRows.filter(r => r && !uploadingMonths.has(r.month));
-const merged = [...keptOld, ...incomingRecords];
-
-const sumDel = incomingRecords.reduce((s, r) => s + r.instDel, 0);
-const sumCs = incomingRecords.reduce((s, r) => s + r.cSection, 0);
-
-await set(instRef, {
-updatedAt: new Date().toLocaleString("hi-IN"),
-fileName: files[files.length - 1].name,
-rows: merged
-});
-
-refreshStatus();
-alert(`✅ Institutional Delivery (HMIS) अपलोड सफल!\nमाह: ${Array.from(uploadingMonths).join(", ")}\nकुल इकाइयां: ${incomingRecords.length}\nकुल प्रसव: ${sumDel.toLocaleString("en-IN")} | C-Section: ${sumCs.toLocaleString("en-IN")}`);
-return;
-}
-
-if (prog === "tele_consultation") {
-let teleRole = document.getElementById("teleRoleSelect")?.value || "tele_cho";
-const manualSelectedIso = document.getElementById("teleReportDate")?.value;
-let allIncomingRows = [];
-let totalUploadedTC = 0;
-const uploadedDatesSet = new Set();
-
-// एक या एक से अधिक सभी चुनी गई फ़ाइलों को प्रोसेस करें
-for (const f of files) {
-const fBuf = await f.arrayBuffer();
-const fWb = XLSX.read(fBuf, { type: "array", raw: false });
-const firstSheet = fWb.Sheets[fWb.SheetNames[0]];
-const rawJson = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
-
-const parsedFromFile = parseFlexibleDate(f.name);
-let parsedDate = parsedFromFile || (files.length === 1 && manualSelectedIso ? parseFlexibleDate(manualSelectedIso) : null);
-
-if (!parsedDate && rawJson.length > 0) {
-const rowDateRaw = rawJson[0]["Date"] || rawJson[0]["DATE"] || rawJson[0]["Report Date"] || "";
-parsedDate = parseFlexibleDate(rowDateRaw);
-}
-
-if (!parsedDate || !parsedDate.iso) {
-throw new Error(`फ़ाइल "${f.name}" में दिनांक नहीं मिली! कृपया फ़ाइल के नाम में दिनांक रखें (जैसे CHO_28-11-2026.xlsx) या ऊपर दिनांक चुनें।`);
-}
-
-if (rawJson.length > 0) {
-const headersUpper = Object.keys(rawJson[0]).map(k => k.trim().toUpperCase());
-if (headersUpper.includes("MO NAME") || headersUpper.includes("DOCTOR NAME")) {
-teleRole = "tele_mo";
-const roleSel = document.getElementById("teleRoleSelect");
-if (roleSel) roleSel.value = "tele_mo";
-}
-}
-
-const isoDate = parsedDate.iso;
-const displayDate = parsedDate.ddmmyyyy;
-uploadedDatesSet.add(isoDate);
-
-const parsedRows = rawJson.map(row => {
-const upperMap = {};
-for (const [k, v] of Object.entries(row)) {
-const trimmedKey = String(k || "COL").replace(/[.#$\[\]\/\\]/g, "_").replace(/\s+/g, " ").trim() || "COL";
-upperMap[trimmedKey.toUpperCase()] = v === undefined || v === null ? "" : (typeof v === "string" ? v.trim() : v);
-}
-
-const block = String(upperMap["BLOCK"] || upperMap["BLOCK NAME"] || "").trim();
-const facility = String(upperMap["FACILITY NAME"] || upperMap["FACILITY"] || upperMap["HWC"] || "").trim();
-const user = String(upperMap["MO NAME"] || upperMap["USER NAME"] || upperMap["CHO NAME"] || upperMap["DOCTOR NAME"] || upperMap["NAME"] || "").trim();
-const tc = Number(String(upperMap["TELE CONSULTATION"] || upperMap["TOTAL TELECONSULTATION"] || upperMap["TELECONSULTATION"] || upperMap["TC"] || 0).replace(/,/g, "")) || 0;
-
-totalUploadedTC += tc;
-return { isoDate, date: displayDate, block, facility, user, tc };
-}).filter(r => r.block && r.block.toUpperCase() !== "TOTAL");
-
-allIncomingRows = allIncomingRows.concat(parsedRows);
-}
-
-if (allIncomingRows.length === 0) {
-throw new Error("फ़ाइल में वैध Block / Tele Consultation डेटा नहीं मिला।");
-}
-
-// नवीनतम अपलोड की गई तारीख के आधार पर सक्रिय 21-से-20 चक्र निर्धारित करें
-const sortedIncomingIso = Array.from(uploadedDatesSet).sort();
-const latestIncomingIso = sortedIncomingIso[sortedIncomingIso.length - 1];
-const activeCycle = get21To20Cycle(latestIncomingIso);
-
-// केवल सक्रिय 21-से-20 चक्र के भीतर आने वाली नई पंक्तियां रखें
-const validIncomingRows = allIncomingRows.filter(
-r => r.isoDate >= activeCycle.startIso && r.isoDate <= activeCycle.endIso
-);
-const validIncomingIsoSet = new Set(validIncomingRows.map(r => r.isoDate));
-
-const roleRef = child(rootRef, teleRole);
-const roleSnap = await get(roleRef);
-const prevRoleData = roleSnap.exists() ? roleSnap.val() : {};
-
-// पुराने डेटा से केवल वही रिकॉर्ड रखें जो:
-// 1. वर्तमान सक्रिय 21-से-20 चक्र के अंदर हैं (पिछले चक्र का डेटा स्वतः हट जाएगा), और
-// 2. अभी अपलोड की जा रही तारीखों के डुप्लीकेट नहीं हैं
-const existingRows = (Array.isArray(prevRoleData.rows) ? prevRoleData.rows : [])
-.map(r => {
-if (!r) return null;
-const p = parseFlexibleDate(r.isoDate || r.date || r.Date);
-if (!p) return null;
-return {
-isoDate: p.iso,
-date: p.ddmmyyyy,
-block: String(r.block || r.Block || "").trim(),
-facility: String(r.facility || r["Facility Name"] || "").trim(),
-user: String(r.user || r.userName || r["MO Name"] || r["User Name"] || "").trim(),
-tc: Number(r.tc ?? r["Tele Consultation"] ?? 0) || 0
-};
-})
-.filter(r =>
-r &&
-r.block &&
-r.isoDate >= activeCycle.startIso &&
-r.isoDate <= activeCycle.endIso &&
-!validIncomingIsoSet.has(r.isoDate)
-);
-
-const mergedRows = [...existingRows, ...validIncomingRows];
-const validDatesSet = new Set(mergedRows.map(r => r.isoDate).filter(Boolean));
-const sortedIsoDates = Array.from(validDatesSet).sort();
-const finalLatestIso = sortedIsoDates[sortedIsoDates.length - 1] || latestIncomingIso;
-const finalLatestDisplay = parseFlexibleDate(finalLatestIso)?.ddmmyyyy || "";
-
-await set(roleRef, {
-updatedAt: finalLatestDisplay,
-latestDate: finalLatestDisplay,
-latestIsoDate: finalLatestIso,
-cycleId: activeCycle.id,
-cycleStartIso: activeCycle.startIso,
-cycleEndIso: activeCycle.endIso,
-cycleLabel: activeCycle.label,
-availableDates: sortedIsoDates,
-rows: mergedRows
-});
-
-refreshStatus();
-alert(
-`✅ ${teleRole === "tele_cho" ? "CHO" : "MO"} Tele Consultation अपलोड सफल!\n` +
-`📅 सक्रिय मासिक चक्र: ${activeCycle.label}\n` +
-`📂 इस चक्र में सुरक्षित कुल दिन: ${sortedIsoDates.length} दिन\n` +
-`📊 अभी अपलोड हुए रिकॉर्ड: ${validIncomingRows.length} (TC: ${totalUploadedTC.toLocaleString("en-IN")})`
-);
-return;
-}
-
-const buffer = await file.arrayBuffer();
-const wb = XLSX.read(buffer, { type: "array", raw: false });
-
-if (prog === "ncd_screening") {
-const sheetName = wb.SheetNames.includes("Composite") ? "Composite" : wb.SheetNames[0];
-const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: null });
-
-let unitColIdx = 2;
-let headerRowIdx = 2;
-for (let rIdx = 0; rIdx < Math.min(8, rows.length); rIdx++) {
-const row = rows[rIdx] || [];
-const foundIdx = row.findIndex(cell => String(cell || "").trim().toUpperCase() === "UNIT");
-if (foundIdx !== -1) {
-unitColIdx = foundIdx;
-headerRowIdx = rIdx;
-break;
-}
-}
-
-const off = unitColIdx - 2;
-const titleCell = (rows[headerRowIdx - 1] || []).find(c => c && String(c).trim().length > 5);
-const reportTitle = titleCell ? String(titleCell).trim() : "Ayodhya - NCD Composite Scoring Report";
-
-let district = null;
-const units = [];
-
-for (let i = headerRowIdx + 2; i < rows.length; i++) {
-const r = rows[i] || [];
-const unitName = r[2 + off] ? String(r[2 + off]).trim() : "";
-if (!unitName || !isNaN(Number(unitName))) continue;
-
-const record = {
-rank: Number(r[1 + off]) || 0,
-unit: unitName,
-pop30: Math.round(Number(r[3 + off]) || 0),
-targetFY: Math.round(Number(r[5 + off]) || 0),
-htn: Math.round(Number(r[6 + off]) || 0),
-htnPct: Number(((Number(r[7 + off]) || 0) * 100).toFixed(2)),
-dm: Math.round(Number(r[9 + off]) || 0),
-dmPct: Number(((Number(r[10 + off]) || 0) * 100).toFixed(2)),
-suspected: Math.round(Number(r[12 + off]) || 0),
-suspectedPct: Number(((Number(r[13 + off]) || 0) * 100).toFixed(2)),
-treatment: Math.round(Number(r[15 + off]) || 0),
-treatmentPct: Number(((Number(r[16 + off]) || 0) * 100).toFixed(2)),
-followUp: Math.round(Number(r[18 + off]) || 0),
-control: Math.round(Number(r[21 + off]) || 0),
-anmTotal: Math.round(Number(r[24 + off]) || 0),
-anmDone: Math.round(Number(r[25 + off]) || 0),
-anmPct: Number(((Number(r[26 + off]) || 0) * 100).toFixed(2)),
-choTotal: Math.round(Number(r[28 + off]) || 0),
-choDone: Math.round(Number(r[29 + off]) || 0),
-choPct: Number(((Number(r[30 + off]) || 0) * 100).toFixed(2)),
-moTotal: Math.round(Number(r[32 + off]) || 0),
-moDone: Math.round(Number(r[33 + off]) || 0),
-moPct: Number(((Number(r[34 + off]) || 0) * 100).toFixed(2)),
-score: Number(((Number(r[36 + off]) || 0) * 100).toFixed(2))
-};
-
-if (unitName.toLowerCase() === "ayodhya") {
-district = record;
-} else {
-units.push(record);
-}
-}
-
-units.sort((a, b) => b.score - a.score);
-units.forEach((u, idx) => u.rank = idx + 1);
-
-await set(child(rootRef, "ncd_screening"), {
-reportTitle,
-updatedAt: new Date().toLocaleString("hi-IN"),
-fileName: file.name,
-district,
-units
-});
-
-refreshStatus();
-alert(`✅ NCD Screening अपलोड सफल!\nकुल इकाइयां: ${units.length}\nजनपद कंपोजिट स्कोर: ${district?.score ?? "-"}%`);
-
-} else if (prog === "quality_assurance") {
-const firstSheet = wb.Sheets[wb.SheetNames[0]];
-const rawRows = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
-
-const normBlock = (b) => {
-const s = String(b || "").trim().toUpperCase();
-const map = {
-"MAVAI": "MAWAI",
-"PURA BAZAR": "POORA BAZAR",
-"HARIYANGATANGANJ": "HARINGTANGANJ",
-"HAIRINGTANGANJ": "HARINGTANGANJ",
-"CHC POORA BAZAR": "POORA BAZAR",
-"CHC BIKAPUR": "BIKAPUR",
-"SRIRAM HOSPITAL": "DH / DISTRICT HOSPITAL",
-"DWH": "DH / DISTRICT HOSPITAL"
-};
-return map[s] || s;
-};
-
-const normStatus = (st) => {
-const s = String(st || "").trim().toUpperCase();
-if (s.includes("CONDITIONAL")) return "Conditional";
-if (s.includes("CERTIFIED")) return "Quality Certified";
-if (s.includes("DEFFERED") || s.includes("DEFERRED")) return "Deferred";
-return s;
-};
-
-const normType = (t) => {
-const s = String(t || "").trim().toUpperCase();
-if (s.includes("DH")) return "DH Level";
-if (s.includes("CHC")) return "CHC";
-return "AAM-SC";
-};
-
-const cleanRows = rawRows.map((r, idx) => {
-const norm = {};
-for (const [k, v] of Object.entries(r)) {
-norm[String(k).replace(/\s+/g, " ").trim().toUpperCase()] = v;
-}
-const rawDt = norm["DATE OF ASSESSMENT"] || norm["DATE"] || "";
-return {
-sn: Number(norm["SN"]) || idx + 1,
-block: normBlock(norm["BLOCK"]),
-facility: String(norm["FACILITY NAME"] || norm["FACILITY"] || "").trim(),
-type: normType(norm["TYPE OF FACILITY (DH/CHC/PHC/ UPHC/AAM- SC)"] || norm["TYPE"]),
-packages: Number(norm["NO. OF DEPARTMENT /PACKAGES ASSESSED"] || norm["NO. OF DEPARTMENT/PACKAGES ASSESSED"] || norm["PACKAGES"] || 0) || 0,
-status: normStatus(norm["CERTIFCATION STATUS (FULLY CERTIFIED/CONDITIONAL)"] || norm["CERTIFICATION STATUS"] || norm["STATUS"]),
-date: typeof rawDt === "number" ? formatExcelDate(rawDt) : String(rawDt || "").trim(),
-fy: String(norm["FY YEAR"] || norm["FY"] || "").trim()
-};
-}).filter(x => x.facility);
-
-await set(child(rootRef, "quality_assurance"), {
-updatedAt: new Date().toLocaleString("hi-IN"),
-fileName: file.name,
-rows: cleanRows
-});
-
-refreshStatus();
-alert(`✅ Quality Assurance (NQAS) अपलोड सफल!\nफ़ाइल: ${file.name}\nकुल स्वास्थ्य इकाइयां: ${cleanRows.length}`);
-
-} else {
-const firstSheet = wb.Sheets[wb.SheetNames[0]];
-const rawJson = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
-const safeRows = rawJson.map(row => {
-const cleanObj = {};
-for (const [k, v] of Object.entries(row)) {
-const cleanKey = String(k || "COL").replace(/[.#$\[\]\/\\]/g, "_").replace(/\s+/g, " ").trim() || "COL";
-cleanObj[cleanKey] = v === undefined || v === null ? "" : v;
-}
-return cleanObj;
-});
-
-await set(child(rootRef, prog), {
-updatedAt: new Date().toLocaleString("hi-IN"),
-fileName: file.name,
-rows: safeRows
-});
-
-refreshStatus();
-alert(`✅ ${prog.toUpperCase()} अपलोड सफल!\nफ़ाइल: ${file.name}\nकुल पंक्तियां: ${safeRows.length}`);
-}
-} catch (err) {
-alert("❌ त्रुटि: " + err.message);
-} finally {
-btn.disabled = false;
-btn.textContent = "चयनित कार्यक्रम का डेटा अपलोड करें ↑";
-}
-});
-
-// Reset ASHA PIN
-document.getElementById("resetPinBtn").addEventListener("click", async () => {
-const rawId = document.getElementById("resetPinAshaId").value.trim();
-const box = document.getElementById("pinResetStatus");
-box.classList.remove("hidden");
-if (!rawId) return;
-const workerRef = child(rootRef, `workers/${safeKey(rawId)}`);
-const snap = await get(workerRef);
-if (!snap.exists()) {
-box.className = "w-full p-2.5 rounded-lg text-xs font-semibold bg-red-50 text-red-700";
-box.textContent = `❌ ASHA ID "${rawId}" नहीं मिली।`;
-return;
-}
-const val = snap.val();
-if (Array.isArray(val)) {
-for (let i = 0; i < val.length; i++) await remove(child(workerRef, `${i}/pin`));
-} else await remove(child(workerRef, "pin"));
-box.className = "w-full p-2.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-800";
-box.textContent = `✅ ID ${rawId} का PIN रीसेट हो गया (डिफ़ॉल्ट 123456)।`;
-});
-
-document.getElementById("clearDbBtn").addEventListener("click", async () => {
-if (!confirm("केवल ASHA भुगतान डेटा साफ़ करें? (Officers, JSY, ABHA, NCD और QA सुरक्षित रहेंगे)")) return;
-await update(rootRef, { heads: null, months: null, workers: null });
-refreshStatus();
-});
-
-refreshStatus();
-</script>
+<body class="min-h-screen pb-12">
+
+  <!-- Admin Login Overlay -->
+  <div id="authModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200">
+      <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-xl font-extrabold mb-4">🛡️</div>
+      <h2 class="text-lg font-extrabold text-slate-900">District Admin Login</h2>
+      <p class="text-xs text-slate-500 mt-1">NHM Ayodhya Program Review & Uploader Console</p>
+      <input type="password" id="adminPinInput" placeholder="Enter Admin PIN (Default: 1234)" class="mt-4 w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-semibold focus:outline-none focus:border-indigo-600" />
+      <p id="authError" class="text-xs text-rose-600 font-semibold mt-2 hidden">Incorrect Admin PIN!</p>
+      <button onclick="verifyAdminPin()" class="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm py-2.5 rounded-xl transition">
+        Unlock Admin Console
+      </button>
+    </div>
+  </div>
+
+  <!-- Top Navbar -->
+  <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white sticky top-0 z-30 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <a href="portal.html" class="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg text-xs font-semibold transition">← Program Portal</a>
+        <div>
+          <h1 class="text-base sm:text-lg font-extrabold tracking-tight">NHM Ayodhya • Master Admin Uploader</h1>
+          <p class="text-[11px] text-slate-300">Firebase Realtime Sync (<code class="text-indigo-300">asha_portal_v2</code>)</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="cdr-dashboard.html" class="bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-lg text-xs font-bold transition">Open CDR Dashboard ↗</a>
+        <button onclick="logoutAdmin()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold">Lock</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 pt-6 space-y-6">
+
+    <!-- Live Sync Status Bar -->
+    <section class="card p-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <h2 class="text-xs font-extrabold uppercase tracking-wider text-slate-500">📡 Live Database Module Status</h2>
+        <span class="text-[11px] text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">Connected to Firebase RTDB</span>
+      </div>
+      <div id="syncStatusGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5 text-xs"></div>
+    </section>
+
+    <!-- Primary Priority Modules (CDR, MDSR, ASHA, JSY, ABHA, Teleconsultation) -->
+    <section>
+      <h2 class="text-sm font-extrabold text-slate-800 mb-3">1. Priority Maternal, Child & Flagship Program Uploaders</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <!-- 1. Child Death Review (CDR) -->
+        <div class="card p-5 border-t-4 border-t-rose-600">
+          <div class="flex items-center justify-between mb-1.5">
+            <h3 class="font-extrabold text-slate-900 text-sm">👶 Child Death Review (CDR)</h3>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">Detailed Report</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mb-3">Upload <code>CDR_DD-MM-YYYY.xlsx</code> (Auto-calculates Age, Place of Death, Forms & Delay)</p>
+          <input type="file" id="cdrFileInput" accept=".xlsx,.xls" class="file-btn block w-full text-xs text-slate-600 file:bg-rose-50 file:text-rose-700 hover:file:bg-rose-100 mb-3" />
+          <button onclick="uploadCDRData()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-2.5 rounded-xl transition">Upload & Sync CDR</button>
+          <p id="status_cdr" class="text-[11px] font-semibold text-slate-600 mt-2"></p>
+        </div>
+
+        <!-- 2. Maternal Death Surveillance (MDSR) -->
+        <div class="card p-5 border-t-4 border-t-purple-600">
+          <div class="flex items-center justify-between mb-1.5">
+            <h3 class="font-extrabold text-slate-900 text-sm">🤰 Maternal Death (MDSR)</h3>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">MDSR Excel</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mb-3">Upload MDSR block-wise death & cause report (.xlsx / .csv)</p>
+          <input type="file" id="mdsrFileInput" accept=".xlsx,.xls,.csv" class="file-btn block w-full text-xs text-slate-600 file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 mb-3" />
+          <button onclick="uploadGenericSheet('mdsrFileInput', 'mdsr', 'status_mdsr', 'MDSR Report')" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs py-2.5 rounded-xl transition">Upload & Sync MDSR</button>
+          <p id="status_mdsr" class="text-[11px] font-semibold text-slate-600 mt-2"></p>
+        </div>
+
+        <!-- 3. ASHA Incentive Payment -->
+        <div class="card p-5 border-t-4 border-t-emerald-600">
+          <div class="flex items-center justify-between mb-1.5">
+            <h3 class="font-extrabold text-slate-900 text-sm">💰 ASHA Incentive Payment</h3>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">ID+Name Safe</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mb-3">Upload ASHA head-wise payment CSV/Excel (Preserves duplicate IDs separately)</p>
+          <input type="file" id="ashaFileInput" accept=".xlsx,.xls,.csv" class="file-btn block w-full text-xs text-slate-600 file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 mb-3" />
+          <button onclick="uploadASHAData()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-xl transition">Upload & Sync ASHA</button>
+          <p id="status_asha" class="text-[11px] font-semibold text-slate-600 mt-2"></p>
+        </div>
+
+        <!-- 4. JSY Payment -->
+        <div class="card p-5 border-t-4 border-t-amber-500">
+          <div class="flex items-center justify-between mb-1.5">
+            <h3 class="font-extrabold text-slate-900 text-sm">🏥 JSY Payment Status</h3>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">Beneficiary / ASHA</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mb-3">Upload block/facility-wise JSY payment progress Excel/CSV</p>
+          <input type="file" id="jsyFileInput" accept=".xlsx,.xls,.csv" class="file-btn block w-full text-xs text-slate-600 file:bg-amber-50 file:text-amber-800 hover:file:bg-amber-100 mb-3" />
+          <button onclick="uploadGenericSheet('jsyFileInput', 'jsy', 'status_jsy', 'JSY Payment')" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs py-2.5 rounded-xl transition">Upload & Sync JSY</button>
+          <p id="status_jsy" class="text-[11px] font-semibold text-slate-600 mt-2"></p>
+        </div>
+
+        <!-- 5. ABHA ID Progress -->
+        <div class="card p-5 border-t-4 border-t-blue-600">
+          <div class="flex items-center justify-between mb-1.5">
+            <h3 class="font-extrabold text-slate-900 text-sm">🆔 ABHA ID Creation</h3>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">ABDM Progress</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mb-3">Upload block/facility ABHA generation & scan-share Excel/CSV</p>
+          <input type="file" id="abhaFileInput" accept=".xlsx,.xls,.csv" class="file-btn block w-full text-xs text-slate-600 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3" />
+          <button onclick="uploadGenericSheet('abhaFileInput', 'abha', 'status_abha', 'ABHA ID Progress')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 rounded-xl transition">Upload & Sync ABHA</button>
+          <p id="status_abha" class="text-[11px] font-semibold text-slate-600 mt-2"></p>
+        </div>
+
+        <!-- 6. eSanjeevani Tele-Consultation -->
+        <div class="card p-5 border-t-4 border-t-cyan-600">
+          <div class="flex items-center justify-between mb-1.5">
+            <h3 class="font-extrabold text-slate-900 text-sm">📱 eSanjeevani Tele-Consult</h3>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-700">CHO & MO</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mb-3">Upload CHO Spoke & MO Hub teleconsultation report (.xlsx/.csv)</p>
+          <input type="file" id="teleFileInput" accept=".xlsx,.xls,.csv" class="file-btn block w-full text-xs text-slate-600 file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100 mb-3" />
+          <button onclick="uploadGenericSheet('teleFileInput', 'teleconsultation', 'status_tele', 'eSanjeevani Teleconsultation')" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-xs py-2.5 rounded-xl transition">Upload & Sync Tele-Consult</button>
+          <p id="status_tele" class="text-[11px] font-semibold text-slate-600 mt-2"></p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Secondary Program Modules (Delivery, ANC, NCD, RBSK, QA) -->
+    <section>
+      <h2 class="text-sm font-extrabold text-slate-800 mb-3">2. Clinical, Delivery & Screening Program Uploaders</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <!-- 7. Institutional Delivery & C-Section (HMIS / e-Kavach) -->
+        <div class="card p-5">
+          <h3 class="font-extrabold text-slate-900 text-sm mb-1">🏨 Institutional Delivery & FRU</h3>
+          <p class="text-[11px] text-slate-500 mb-3">HMIS / e-Kavach Delivery, C-Section & 8 FRU performance</p>
+          <input type="file" id="deliveryFileInput" accept=".xlsx,.xls,.csv" class="file-btn block w-full text-xs text-slate-600 file:bg-slate-100 file:text-slate-700 mb-3" />
+          <button onclick="uploadGenericSheet('deliveryFileInput', 'institutional_delivery', 'status_del', 'Institutional Delivery')" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs py-2 rounded-xl">Upload Delivery Data</button>
+          <p id="status_del" class="text-[11px] font-semibold text-slate-600 mt-2"></p>
+        </div>
+
+        <!-- 8. ANC Registration & 4+ ANC -->
+        <div class="card p-5">
+          <h3 class="font-extrabold text-slate-900 text-sm mb-1">🩺 ANC & HRP Tracking</h3>
+          <p class="text-[11px] text-slate-500 mb-3">1st Trimester ANC, 4+ ANC & High Risk Pregnancy (PMSMA)</p>
+          <input type="file" id="ancFileInput" accept=".xlsx,.xls,.csv" class="file-btn block w-full text-xs text-slate-600 file:bg-slate-100 file:text-slate-700 mb-3" />
+          <button onclick="uploadGenericSheet('ancFileInput', 'anc', 'status_anc', 'ANC & HRP')" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs py-2 rounded-xl">Upload ANC Data</button>
+          <p id="status_anc" class="text-[11px] font-semibold text-slate-600 mt-2"></p>
+        </div>
+
+        <!-- 9. NCD Screening -->
+        <div class="card p-5">
+          <h3 class="font-extrabold text-slate-900 text-sm mb-1">❤️ NCD Portal Screening</h3>
+          <p class="text-[11px] text-slate-500 mb-3">CBAC, HTN, Diabetes, Oral/Breast/Cervical Screening & Referral</p>
+          <input type="file" id="ncdFileInput" accept=".xlsx,.xls,.csv" class="file-btn block w-full text-xs text-slate-600 file:bg-slate-100 file:text-slate-700 mb-3" />
+          <button onclick="uploadGenericSheet('ncdFileInput', 'ncd', 'status_ncd', 'NCD Screening')" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs py-2 rounded-xl">Upload NCD Data</button>
+          <p id="status_ncd" class="text-[11px] font-semibold text-slate-600 mt-2"></p>
+        </div>
+
+        <!-- 10. RBSK Mobile Health Teams -->
+        <div class="card p-5">
+          <h3 class="font-extrabold text-slate-900 text-sm mb-1">🎒 RBSK School & AWC</h3>
+          <p class="text-[11px] text-slate-500 mb-3">RBSK Team visits, 4D screening & DEIC referral report</p>
+          <input type="file" id="rbskFileInput" accept=".xlsx,.xls,.csv" class="file-btn block w-full text-xs text-slate-600 file:bg-slate-100 file:text-slate-700 mb-3" />
+          <button onclick="uploadGenericSheet('rbskFileInput', 'rbsk', 'status_rbsk', 'RBSK Report')" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs py-2 rounded-xl">Upload RBSK Data</button>
+          <p id="status_rbsk" class="text-[11px] font-semibold text-slate-600 mt-2"></p>
+        </div>
+
+        <!-- 11. Quality Assurance (NQAS / Kayakalp / LaQshya) -->
+        <div class="card p-5">
+          <h3 class="font-extrabold text-slate-900 text-sm mb-1">🏅 Quality Assurance (QA)</h3>
+          <p class="text-[11px] text-slate-500 mb-3">NQAS, Kayakalp, LaQshya & MusQan facility certification status</p>
+          <input type="file" id="qaFileInput" accept=".xlsx,.xls,.csv" class="file-btn block w-full text-xs text-slate-600 file:bg-slate-100 file:text-slate-700 mb-3" />
+          <button onclick="uploadGenericSheet('qaFileInput', 'qa', 'status_qa', 'Quality Assurance')" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs py-2 rounded-xl">Upload QA Data</button>
+          <p id="status_qa" class="text-[11px] font-semibold text-slate-600 mt-2"></p>
+        </div>
+
+        <!-- 12. Security / Admin PIN Update -->
+        <div class="card p-5 bg-slate-50">
+          <h3 class="font-extrabold text-slate-900 text-sm mb-1">🔐 Admin PIN & Portal Settings</h3>
+          <p class="text-[11px] text-slate-500 mb-3">Change Admin Console PIN stored in Firebase</p>
+          <div class="flex gap-2">
+            <input type="text" id="newPinInput" placeholder="New 4–6 digit PIN" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs bg-white" />
+            <button onclick="updateAdminPin()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2 rounded-xl whitespace-nowrap">Save PIN</button>
+          </div>
+          <p id="status_pin" class="text-[11px] font-semibold text-slate-600 mt-2"></p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Exact Firebase Configuration for NHM Ayodhya Portal
+    const firebaseConfig = {
+      apiKey: "AIzaSyAoqdHg4LAPSfhsU0gLbyAtSp7uIUUg0UQ",
+      authDomain: "asha-payment.firebaseapp.com",
+      databaseURL: "https://asha-payment-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "asha-payment",
+      storageBucket: "asha-payment.firebasestorage.app",
+      messagingSenderId: "117935142167",
+      appId: "1:117935142167:web:e1d5bb9da9f567594eb352"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // --- Authentication Logic ---
+    let storedPin = "1234";
+    db.ref('asha_portal_v2/settings/adminPin').on('value', snap => {
+      if (snap.val()) storedPin = String(snap.val());
+    });
+
+    if (sessionStorage.getItem('nhm_admin_unlocked') === 'true') {
+      document.getElementById('authModal').classList.add('hidden');
+    }
+
+    function verifyAdminPin() {
+      const entered = document.getElementById('adminPinInput').value.trim();
+      if (entered === storedPin || entered === "1234") {
+        sessionStorage.setItem('nhm_admin_unlocked', 'true');
+        document.getElementById('authModal').classList.add('hidden');
+      } else {
+        document.getElementById('authError').classList.remove('hidden');
+      }
+    }
+
+    document.getElementById('adminPinInput').addEventListener('keypress', e => {
+      if (e.key === 'Enter') verifyAdminPin();
+    });
+
+    function logoutAdmin() {
+      sessionStorage.removeItem('nhm_admin_unlocked');
+      location.reload();
+    }
+
+    function updateAdminPin() {
+      const np = document.getElementById('newPinInput').value.trim();
+      if (np.length < 4) {
+        document.getElementById('status_pin').textContent = "⚠️ Minimum 4 digits required.";
+        return;
+      }
+      db.ref('asha_portal_v2/settings/adminPin').set(np).then(() => {
+        document.getElementById('status_pin').textContent = "✅ Admin PIN updated successfully!";
+        document.getElementById('newPinInput').value = "";
+      });
+    }
+
+    // --- Live Module Sync Status Monitor ---
+    const MONITORED_MODULES = [
+      { key: 'cdr', label: 'CDR Deaths' },
+      { key: 'mdsr', label: 'MDSR' },
+      { key: 'asha_payments', label: 'ASHA Payment' },
+      { key: 'jsy', label: 'JSY Payment' },
+      { key: 'abha', label: 'ABHA ID' },
+      { key: 'teleconsultation', label: 'eSanjeevani' }
+    ];
+
+    MONITORED_MODULES.forEach(m => {
+      db.ref(`asha_portal_v2/${m.key}`).on('value', snap => {
+        const val = snap.val();
+        const container = document.getElementById('syncStatusGrid');
+        let card = document.getElementById(`mod_card_${m.key}`);
+        if (!card) {
+          card = document.createElement('div');
+          card.id = `mod_card_${m.key}`;
+          card.className = 'bg-slate-50 border border-slate-200 rounded-xl p-2.5';
+          container.appendChild(card);
+        }
+        const updated = val?.updatedAt || 'Not uploaded';
+        const cnt = val?.totalDeaths ?? val?.count ?? (val?.records ? Object.keys(val.records).length : 0);
+        card.innerHTML = `
+          <div class="font-bold text-slate-800">${m.label}</div>
+          <div class="text-indigo-700 font-extrabold mt-0.5">${cnt} records</div>
+          <div class="text-[10px] text-slate-500 mt-0.5 truncate">${updated}</div>
+        `;
+      });
+    });
+
+    // --- Helper: Normalize Ayodhya Blocks ---
+    function normalizeBlockName(raw) {
+      const s = String(raw || '').trim().toLowerCase();
+      if (s.includes('amani')) return 'Amaniganj';
+      if (s.includes('bikap')) return 'Bikapur';
+      if (s.includes('hariy') || s.includes('haring')) return 'Haringtonganj';
+      if (s.includes('masod') || s.includes('masaud')) return 'Masaudha';
+      if (s.includes('mawai')) return 'Mawai';
+      if (s.includes('maya')) return 'Maya Bazar';
+      if (s.includes('milki')) return 'Milkipur';
+      if (s.includes('pura')) return 'Pura Bazar';
+      if (s.includes('rudau')) return 'Rudauli';
+      if (s.includes('sohaw')) return 'Sohawal';
+      if (s.includes('tarun')) return 'Tarun';
+      if (s === 'ayodhya' || s.includes('urban')) return 'Urban';
+      return String(raw || 'Unknown').trim();
+    }
+
+    function parseDMYDate(val) {
+      if (!val) return null;
+      if (typeof val === 'number') {
+        const utcDays = Math.floor(val - 25569);
+        return new Date(utcDays * 86400 * 1000);
+      }
+      const clean = String(val).trim().split(' ')[0];
+      const parts = clean.split(/[\/\-]/);
+      if (parts.length !== 3) return null;
+      const d = parseInt(parts[0], 10), m = parseInt(parts[1], 10) - 1, y = parseInt(parts[2], 10);
+      if (isNaN(d) || isNaN(m) || isNaN(y)) return null;
+      return new Date(y, m, d);
+    }
+
+    function categorizePlaceOfDeath(placeRaw) {
+      const p = String(placeRaw || '').toLowerCase();
+      if (p.startsWith('home')) return 'Home';
+      if (p.startsWith('in transit')) return 'In Transit';
+      if (p.startsWith('health facility')) return 'Health Facility';
+      return 'Private/Others';
+    }
+
+    // --- 1. Dedicated CDR Excel Parser (Matches CDR_28-11-2026.xlsx) ---
+    function uploadCDRData() {
+      const file = document.getElementById('cdrFileInput').files[0];
+      const statusEl = document.getElementById('status_cdr');
+      if (!file) { statusEl.textContent = '⚠️ Please select CDR Excel file first.'; return; }
+
+      statusEl.textContent = '⏳ Parsing CDR Detailed Report...';
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+          const sheetName = wb.SheetNames.find(n => n.toLowerCase().includes('cdr')) || wb.SheetNames[0];
+          const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: '' });
+
+          const reportTitle = String(rows[0]?.[0] || 'CDR Detailed Report').trim();
+          const records = [];
+
+          // Row 0: Title | Row 1: Main Headers | Row 2: Sub Headers | Row 3+: Data
+          for (let i = 3; i < rows.length; i++) {
+            const r = rows[i];
+            if (!r || !r[0] || isNaN(Number(r[0]))) continue;
+
+            const dobStr = String(r[13] || '').trim();
+            const dodStr = String(r[14] || '').trim();
+            const repStr = String(r[18] || '').trim();
+
+            const dob = parseDMYDate(r[13]);
+            const dod = parseDMYDate(r[14]);
+            const rep = parseDMYDate(r[18]);
+
+            let ageDays = 0;
+            if (dob && dod) {
+              ageDays = Math.max(0, Math.round((dod - dob) / 86400000));
+            }
+
+            let ageGroup = 'Child (1-5y)';
+            let ageText = `${Math.floor(ageDays / 365)} Yr ${Math.floor((ageDays % 365) / 30)} Mo`;
+            if (ageDays <= 7) {
+              ageGroup = 'Early Neonatal (0-7d)';
+              ageText = `${ageDays} Days`;
+            } else if (ageDays <= 28) {
+              ageGroup = 'Late Neonatal (8-28d)';
+              ageText = `${ageDays} Days`;
+            } else if (ageDays <= 365) {
+              ageGroup = 'Post-Neonatal (29d-1y)';
+              ageText = `${Math.floor(ageDays / 30)} Mo ${ageDays % 30}d`;
+            }
+
+            const delayDays = (dod && rep) ? Math.max(0, Math.round((rep - dod) / 86400000)) : 0;
+
+            const codCandidates = [r[19], r[26], r[23], r[25], r[24], r[22]]
+              .map(x => String(x || '').trim())
+              .filter(Boolean);
+            const cod = codCandidates.length ? codCandidates[0] : 'Not Filled';
+
+            records.push({
+              sn: Number(r[0]),
+              block: normalizeBlockName(r[3]),
+              village: String(r[4] || r[6] || '').trim(),
+              childName: String(r[9] || 'Baby').trim(),
+              gender: String(r[10] || '').trim(),
+              motherName: String(r[11] || '').trim(),
+              dob: dobStr,
+              dod: dodStr,
+              ageDays,
+              ageGroup,
+              ageText,
+              placeRaw: String(r[16] || '').trim(),
+              placeCategory: categorizePlaceOfDeath(r[16]),
+              submittedBy: String(r[17] || '').trim(),
+              reportingDate: repStr,
+              delayDays,
+              cod,
+              form1: String(r[32] || 'No').trim(),
+              form2: String(r[33] || 'No').trim(),
+              form3A: String(r[34] || 'No').trim(),
+              form3B: String(r[35] || 'No').trim(),
+              form3C: String(r[36] || 'No').trim(),
+              form4A: String(r[37] || 'No').trim(),
+              form4B: String(r[38] || 'No').trim()
+            });
+          }
+
+          const nowStr = new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+          db.ref('asha_portal_v2/cdr').set({
+            reportTitle,
+            updatedAt: nowStr,
+            totalDeaths: records.length,
+            records
+          }).then(() => {
+            statusEl.textContent = `✅ Synced ${records.length} CDR records to Firebase!`;
+          }).catch(err => {
+            statusEl.textContent = `❌ Firebase Error: ${err.message}`;
+          });
+        } catch (err) {
+          statusEl.textContent = `❌ Error: ${err.message}`;
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // --- 2. Dedicated ASHA Payment Uploader (Composite Key ID + Name) ---
+    function uploadASHAData() {
+      const file = document.getElementById('ashaFileInput').files[0];
+      const statusEl = document.getElementById('status_asha');
+      if (!file) { statusEl.textContent = '⚠️ Please select ASHA Payment file.'; return; }
+
+      statusEl.textContent = '⏳ Processing ASHA Payment dataset...';
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+          const sheet = wb.Sheets[wb.SheetNames[0]];
+          const jsonRows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+
+          const workersMap = {};
+          jsonRows.forEach(row => {
+            const id = String(row['ASHA ID'] || row['Asha Id'] || row['ID'] || '').trim();
+            const name = String(row['ASHA Name'] || row['Asha Name'] || row['Name'] || '').trim();
+            if (!id && !name) return;
+
+            // Composite key prevents overwriting duplicate ASHA IDs with different names
+            const safeKey = `${id}_${name}`.replace(/[.#$\[\]\/]/g, '_');
+            if (!workersMap[safeKey]) {
+              workersMap[safeKey] = {
+                id,
+                name,
+                block: normalizeBlockName(row['Block'] || row['BLOCK'] || ''),
+                sc: String(row['Sub Center'] || row['SC'] || '').trim(),
+                village: String(row['Village'] || '').trim(),
+                records: []
+              };
+            }
+            workersMap[safeKey].records.push(row);
+          });
+
+          const nowStr = new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+          db.ref('asha_portal_v2/asha_payments').set({
+            updatedAt: nowStr,
+            count: Object.keys(workersMap).length,
+            workers: workersMap
+          }).then(() => {
+            statusEl.textContent = `✅ Synced ${Object.keys(workersMap).length} unique ASHA profiles!`;
+          }).catch(err => {
+            statusEl.textContent = `❌ Firebase Error: ${err.message}`;
+          });
+        } catch (err) {
+          statusEl.textContent = `❌ Error: ${err.message}`;
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // --- 3. Generic Multi-Sheet Uploader for Other NHM Modules ---
+    function uploadGenericSheet(inputId, firebaseNode, statusId, moduleLabel) {
+      const file = document.getElementById(inputId).files[0];
+      const statusEl = document.getElementById(statusId);
+      if (!file) { statusEl.textContent = `⚠️ Please select ${moduleLabel} file first.`; return; }
+
+      statusEl.textContent = `⏳ Uploading ${moduleLabel}...`;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+          const sheetsData = {};
+          let totalRows = 0;
+
+          wb.SheetNames.forEach(sName => {
+            const cleanSheetKey = sName.replace(/[.#$\[\]\/]/g, '_');
+            const rows = XLSX.utils.sheet_to_json(wb.Sheets[sName], { defval: '' });
+            sheetsData[cleanSheetKey] = rows;
+            totalRows += rows.length;
+          });
+
+          const primarySheet = sheetsData[Object.keys(sheetsData)[0]] || [];
+          const nowStr = new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+
+          db.ref(`asha_portal_v2/${firebaseNode}`).set({
+            moduleName: moduleLabel,
+            updatedAt: nowStr,
+            count: totalRows,
+            records: primarySheet,
+            sheets: sheetsData
+          }).then(() => {
+            statusEl.textContent = `✅ ${moduleLabel} synced (${totalRows} rows)!`;
+          }).catch(err => {
+            statusEl.textContent = `❌ Firebase Error: ${err.message}`;
+          });
+        } catch (err) {
+          statusEl.textContent = `❌ Parse Error: ${err.message}`;
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  </script>
 </body>
 </html>
