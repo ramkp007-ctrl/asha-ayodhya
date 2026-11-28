@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CDR Review Dashboard - NHM Ayodhya</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; color: #0f172a; }
+    .card { background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 2px 10px rgba(15,23,42,0.04); }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .table-wrap { max-height: 440px; overflow-y: auto; }
+    thead th { position: sticky; top: 0; background: #f8fafc; z-index: 10; }
+  </style>
+</head>
+<body class="min-h-screen pb-10">
+
+  <!-- Top Header -->
+  <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white sticky top-0 z-30 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <a href="portal.html" class="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+          ← Portal
+        </a>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-extrabold tracking-tight">Child Death Review (CDR) Dashboard</h1>
+            <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-200 border border-rose-400/30">NHM Ayodhya</span>
+          </div>
+          <p id="reportPeriod" class="text-[11px] text-slate-300">Loading report period...</p>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="flex flex-wrap items-center gap-2">
+        <select id="blockFilter" class="bg-slate-800 border border-slate-700 text-white text-xs rounded-lg px-3 py-2 font-medium focus:outline-none">
+          <option value="ALL">All Blocks (11 + Urban)</option>
+        </select>
+        <select id="ageFilter" class="bg-slate-800 border border-slate-700 text-white text-xs rounded-lg px-3 py-2 font-medium focus:outline-none">
+          <option value="ALL">All Age Groups</option>
+          <option value="Early Neonatal (0-7d)">Early Neonatal (0–7 Days)</option>
+          <option value="Late Neonatal (8-28d)">Late Neonatal (8–28 Days)</option>
+          <option value="Post-Neonatal (29d-1y)">Post-Neonatal (29d–1 Yr)</option>
+          <option value="Child (1-5y)">Child (1–5 Yrs)</option>
+        </select>
+        <select id="placeFilter" class="bg-slate-800 border border-slate-700 text-white text-xs rounded-lg px-3 py-2 font-medium focus:outline-none">
+          <option value="ALL">All Places of Death</option>
+          <option value="Home">Home</option>
+          <option value="Health Facility">Health Facility (Govt)</option>
+          <option value="In Transit">In Transit</option>
+          <option value="Private/Others">Private / Others</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 pt-5 space-y-5">
+
+    <!-- KPI Summary Strip -->
+    <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div class="card p-4 border-l-4 border-l-rose-600">
+        <p class="text-[11px] font-semibold text-slate-500 uppercase">Total Child Deaths</p>
+        <h2 id="kpiTotal" class="text-2xl font-extrabold text-slate-900 mt-1">0</h2>
+        <p id="kpiGender" class="text-[11px] text-slate-500 mt-1">M: 0 | F: 0</p>
+      </div>
+      <div class="card p-4 border-l-4 border-l-amber-500">
+        <p class="text-[11px] font-semibold text-slate-500 uppercase">Neonatal (0–28 Days)</p>
+        <h2 id="kpiNeonatal" class="text-2xl font-extrabold text-amber-600 mt-1">0</h2>
+        <p id="kpiNeonatalPct" class="text-[11px] text-slate-500 mt-1">0% of total deaths</p>
+      </div>
+      <div class="card p-4 border-l-4 border-l-indigo-600">
+        <p class="text-[11px] font-semibold text-slate-500 uppercase">Infant (0–1 Year)</p>
+        <h2 id="kpiInfant" class="text-2xl font-extrabold text-indigo-700 mt-1">0</h2>
+        <p id="kpiInfantPct" class="text-[11px] text-slate-500 mt-1">0% of total deaths</p>
+      </div>
+      <div class="card p-4 border-l-4 border-l-red-500">
+        <p class="text-[11px] font-semibold text-slate-500 uppercase">Home + Transit Deaths</p>
+        <h2 id="kpiHomeTransit" class="text-2xl font-extrabold text-red-600 mt-1">0</h2>
+        <p id="kpiHomeTransitSub" class="text-[11px] text-slate-500 mt-1">Home: 0 | Transit: 0</p>
+      </div>
+      <div class="card p-4 border-l-4 border-l-emerald-600">
+        <p class="text-[11px] font-semibold text-slate-500 uppercase">Form-2 (VA) Filled</p>
+        <h2 id="kpiForm2" class="text-2xl font-extrabold text-emerald-700 mt-1">0</h2>
+        <p id="kpiForm2Pct" class="text-[11px] text-slate-500 mt-1">0% Verbal Autopsy</p>
+      </div>
+      <div class="card p-4 border-l-4 border-l-purple-600">
+        <p class="text-[11px] font-semibold text-slate-500 uppercase">Avg Reporting Delay</p>
+        <h2 id="kpiDelay" class="text-2xl font-extrabold text-purple-700 mt-1">0 d</h2>
+        <p id="kpiLateCount" class="text-[11px] text-slate-500 mt-1">&gt;7 Days Late: 0</p>
+      </div>
+    </section>
+
+    <!-- Top 5 High-Burden & Bottom 5 Low-Reporting Blocks -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="card p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-rose-700 flex items-center gap-1.5">🚨 High Death Burden Blocks (Top 5)</h3>
+          <span class="text-[11px] text-slate-400 font-medium">Focus for Audit & VA</span>
+        </div>
+        <div id="topBurdenList" class="space-y-2"></div>
+      </div>
+
+      <div class="card p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-amber-700 flex items-center gap-1.5">⚠️ Lowest Reported Deaths Blocks (Bottom 5)</h3>
+          <span class="text-[11px] text-slate-400 font-medium">Check Under-Reporting</span>
+        </div>
+        <div id="bottomBurdenList" class="space-y-2"></div>
+      </div>
+    </section>
+
+    <!-- Primary Review Charts: Age-wise & Place of Death-wise -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="card p-4">
+        <h3 class="text-sm font-bold text-slate-800 mb-1">1. Age-Wise Death Distribution</h3>
+        <p class="text-[11px] text-slate-500 mb-3">Calculated from DOB to Date of Death</p>
+        <div class="h-64"><canvas id="ageChart"></canvas></div>
+      </div>
+
+      <div class="card p-4">
+        <h3 class="text-sm font-bold text-slate-800 mb-1">2. Place of Death Breakdown</h3>
+        <p class="text-[11px] text-slate-500 mb-3">Home vs Govt Facility vs Transit vs Private</p>
+        <div class="h-64"><canvas id="placeChart"></canvas></div>
+      </div>
+
+      <div class="card p-4">
+        <h3 class="text-sm font-bold text-slate-800 mb-1">3. Reporting Timeliness & Submitter</h3>
+        <p class="text-[11px] text-slate-500 mb-3">Reporting lag (Death Date → Portal Entry Date)</p>
+        <div class="h-64"><canvas id="delayChart"></canvas></div>
+      </div>
+    </section>
+
+    <!-- Block-wise Stacked Bar Chart (Age + Place) -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="card p-4">
+        <h3 class="text-sm font-bold text-slate-800 mb-1">4. Block-Wise Deaths by Age Category</h3>
+        <p class="text-[11px] text-slate-500 mb-3">Neonatal vs Post-Neonatal vs Child (1–5 Yrs)</p>
+        <div class="h-72"><canvas id="blockAgeChart"></canvas></div>
+      </div>
+
+      <div class="card p-4">
+        <h3 class="text-sm font-bold text-slate-800 mb-1">5. Block-Wise Deaths by Place of Death</h3>
+        <p class="text-[11px] text-slate-500 mb-3">Identifying Home & In-Transit Hotspots</p>
+        <div class="h-72"><canvas id="blockPlaceChart"></canvas></div>
+      </div>
+    </section>
+
+    <!-- Reporting & Forms Audit + Cause of Death -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="card p-4">
+        <h3 class="text-sm font-bold text-slate-800 mb-1">6. CDR Forms & Submitter Compliance</h3>
+        <p class="text-[11px] text-slate-500 mb-3">Form-1 (First Info), Form-2 (Verbal Autopsy), Form-4A (Facility Review)</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-3" id="formsGrid"></div>
+        <div class="mt-4 pt-3 border-t border-slate-100">
+          <h4 class="text-xs font-bold text-slate-700 mb-2">Reporting Source Breakdown (BMO vs FNO)</h4>
+          <div id="submitterBreakdown" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <h3 class="text-sm font-bold text-slate-800 mb-1">7. Recorded Causes of Death (Form 2A / 4A)</h3>
+        <p class="text-[11px] text-slate-500 mb-3">Available clinical & verbal autopsy diagnoses</p>
+        <div id="codList" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+      </div>
+    </section>
+
+    <!-- Block-Wise Detailed Review Matrix -->
+    <section class="card p-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <div>
+          <h3 class="text-sm font-bold text-slate-800">8. Block-Wise Comprehensive CDR Review Matrix</h3>
+          <p class="text-[11px] text-slate-500">Complete breakdown of Age, Place of Death, Forms Filled & Reporting Delay</p>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-200 text-slate-600 uppercase text-[10px]">
+              <th class="py-2.5 px-3">Block</th>
+              <th class="py-2.5 px-2 text-center">Total</th>
+              <th class="py-2.5 px-2 text-center">0–7d</th>
+              <th class="py-2.5 px-2 text-center">8–28d</th>
+              <th class="py-2.5 px-2 text-center">29d–1y</th>
+              <th class="py-2.5 px-2 text-center">1–5y</th>
+              <th class="py-2.5 px-2 text-center">Home</th>
+              <th class="py-2.5 px-2 text-center">Govt Fac</th>
+              <th class="py-2.5 px-2 text-center">Transit</th>
+              <th class="py-2.5 px-2 text-center">Pvt/Oth</th>
+              <th class="py-2.5 px-2 text-center">Form-2</th>
+              <th class="py-2.5 px-2 text-center">Form-4A</th>
+              <th class="py-2.5 px-2 text-center">Avg Delay</th>
+            </tr>
+          </thead>
+          <tbody id="matrixBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Searchable Line List -->
+    <section class="card p-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <div>
+          <h3 class="text-sm font-bold text-slate-800">9. Child Death Line-List (Audit & Follow-up)</h3>
+          <p class="text-[11px] text-slate-500">Search by child name, mother name, village, or facility</p>
+        </div>
+        <input type="text" id="searchInput" placeholder="Search child, mother, place..." class="border border-slate-300 rounded-lg px-3 py-1.5 text-xs w-64 focus:outline-none focus:border-indigo-500" />
+      </div>
+      <div class="table-wrap overflow-x-auto border border-slate-200 rounded-xl">
+        <table class="w-full text-xs text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-200 text-slate-600 text-[10px] uppercase">
+              <th class="py-2.5 px-3">S.N.</th>
+              <th class="py-2.5 px-3">Block</th>
+              <th class="py-2.5 px-3">Child / Mother</th>
+              <th class="py-2.5 px-2">Gender</th>
+              <th class="py-2.5 px-3">Age at Death</th>
+              <th class="py-2.5 px-3">DOD / Reported</th>
+              <th class="py-2.5 px-3">Place of Death</th>
+              <th class="py-2.5 px-3">Submitted By</th>
+              <th class="py-2.5 px-2">Forms</th>
+              <th class="py-2.5 px-3">Cause of Death</th>
+            </tr>
+          </thead>
+          <tbody id="lineListBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    Chart.register(ChartDataLabels);
+
+    // TODO: Apna Firebase Config yahan paste karein (portal.html wala exact config)
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      databaseURL: "YOUR_DATABASE_URL",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let allRecords = [];
+    let charts = {};
+
+    const AYODHYA_BLOCKS = [
+      "Amaniganj", "Bikapur", "Haringtonganj", "Masaudha", "Mawai",
+      "Maya Bazar", "Milkipur", "Pura Bazar", "Rudauli", "Sohawal", "Tarun", "Urban"
+    ];
+
+    db.ref('asha_portal_v2/cdr').on('value', (snap) => {
+      const val = snap.val();
+      if (!val || !val.records) {
+        document.getElementById('reportPeriod').textContent = "No CDR data uploaded yet. Please upload from Admin Panel.";
+        return;
+      }
+      allRecords = Array.isArray(val.records) ? val.records : Object.values(val.records);
+      document.getElementById('reportPeriod').textContent = `${val.reportTitle || 'CDR Report'} • Last Updated: ${val.updatedAt || 'N/A'}`;
+      populateBlockFilter();
+      renderDashboard();
+    });
+
+    function populateBlockFilter() {
+      const sel = document.getElementById('blockFilter');
+      const current = sel.value;
+      sel.innerHTML = '<option value="ALL">All Blocks (11 + Urban)</option>';
+      AYODHYA_BLOCKS.forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b;
+        opt.textContent = b;
+        sel.appendChild(opt);
+      });
+      if ([...sel.options].some(o => o.value === current)) sel.value = current;
+    }
+
+    ['blockFilter', 'ageFilter', 'placeFilter'].forEach(id => {
+      document.getElementById(id).addEventListener('change', renderDashboard);
+    });
+    document.getElementById('searchInput').addEventListener('input', renderDashboard);
+
+    function getFilteredData() {
+      const b = document.getElementById('blockFilter').value;
+      const a = document.getElementById('ageFilter').value;
+      const p = document.getElementById('placeFilter').value;
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      return allRecords.filter(r => {
+        if (b !== 'ALL' && r.block !== b) return false;
+        if (a !== 'ALL' && r.ageGroup !== a) return false;
+        if (p !== 'ALL' && r.placeCategory !== p) return false;
+        if (q) {
+          const hay = `${r.childName} ${r.motherName} ${r.village} ${r.placeRaw} ${r.submittedBy} ${r.cod}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderDashboard() {
+      const data = getFilteredData();
+      const total = data.length;
+
+      // KPIs
+      const males = data.filter(d => d.gender === 'Male').length;
+      const females = data.filter(d => d.gender === 'Female').length;
+      const earlyNeo = data.filter(d => d.ageGroup === 'Early Neonatal (0-7d)').length;
+      const lateNeo = data.filter(d => d.ageGroup === 'Late Neonatal (8-28d)').length;
+      const neonatal = earlyNeo + lateNeo;
+      const postNeo = data.filter(d => d.ageGroup === 'Post-Neonatal (29d-1y)').length;
+      const infant = neonatal + postNeo;
+      const homeCnt = data.filter(d => d.placeCategory === 'Home').length;
+      const transitCnt = data.filter(d => d.placeCategory === 'In Transit').length;
+      const form2Cnt = data.filter(d => d.form2 === 'Yes').length;
+      const delays = data.map(d => d.delayDays).filter(v => typeof v === 'number' && v >= 0);
+      const avgDelay = delays.length ? (delays.reduce((s, v) => s + v, 0) / delays.length).toFixed(1) : 0;
+      const late7 = delays.filter(v => v > 7).length;
+
+      document.getElementById('kpiTotal').textContent = total;
+      document.getElementById('kpiGender').textContent = `Male: ${males} | Female: ${females}`;
+      document.getElementById('kpiNeonatal').textContent = neonatal;
+      document.getElementById('kpiNeonatalPct').textContent = `${total ? ((neonatal / total) * 100).toFixed(1) : 0}% (0–7d: ${earlyNeo}, 8–28d: ${lateNeo})`;
+      document.getElementById('kpiInfant').textContent = infant;
+      document.getElementById('kpiInfantPct').textContent = `${total ? ((infant / total) * 100).toFixed(1) : 0}% of total deaths`;
+      document.getElementById('kpiHomeTransit').textContent = homeCnt + transitCnt;
+      document.getElementById('kpiHomeTransitSub').textContent = `Home: ${homeCnt} | Transit: ${transitCnt}`;
+      document.getElementById('kpiForm2').textContent = form2Cnt;
+      document.getElementById('kpiForm2Pct').textContent = `${total ? ((form2Cnt / total) * 100).toFixed(1) : 0}% Verbal Autopsy`;
+      document.getElementById('kpiDelay').textContent = `${avgDelay} d`;
+      document.getElementById('kpiLateCount').textContent = `>7 Days Late: ${late7} (${total ? ((late7 / total) * 100).toFixed(0) : 0}%)`;
+
+      renderTopBottomBlocks();
+      renderCharts(data);
+      renderFormsAndCOD(data);
+      renderMatrix(data);
+      renderLineList(data);
+    }
+
+    function renderTopBottomBlocks() {
+      // Top/Bottom computed across all 12 units from full dataset
+      const counts = AYODHYA_BLOCKS.map(b => ({
+        block: b,
+        count: allRecords.filter(r => r.block === b).length
+      }));
+      const sortedDesc = [...counts].sort((a, b) => b.count - a.count);
+      const sortedAsc = [...counts].sort((a, b) => a.count - b.count);
+
+      const top5 = sortedDesc.slice(0, 5);
+      const bot5 = sortedAsc.slice(0, 5);
+
+      document.getElementById('topBurdenList').innerHTML = top5.map((item, idx) => `
+        <div class="flex items-center justify-between bg-rose-50/70 border border-rose-100 rounded-xl px-3 py-2">
+          <div class="flex items-center gap-2.5">
+            <span class="w-5 h-5 rounded-full bg-rose-600 text-white text-[11px] font-bold flex items-center justify-center">${idx + 1}</span>
+            <span class="text-xs font-bold text-slate-800">${item.block}</span>
+          </div>
+          <span class="text-xs font-extrabold text-rose-700">${item.count} Deaths</span>
+        </div>
+      `).join('');
+
+      document.getElementById('bottomBurdenList').innerHTML = bot5.map((item, idx) => `
+        <div class="flex items-center justify-between bg-amber-50/70 border border-amber-100 rounded-xl px-3 py-2">
+          <div class="flex items-center gap-2.5">
+            <span class="w-5 h-5 rounded-full bg-amber-500 text-white text-[11px] font-bold flex items-center justify-center">${idx + 1}</span>
+            <span class="text-xs font-bold text-slate-800">${item.block}</span>
+          </div>
+          <span class="text-xs font-extrabold text-amber-800">${item.count} Deaths</span>
+        </div>
+      `).join('');
+    }
+
+    function destroyChart(id) {
+      if (charts[id]) charts[id].destroy();
+    }
+
+    function renderCharts(data) {
+      // 1. Age Chart
+      const ageLabels = ['Early Neonatal (0-7d)', 'Late Neonatal (8-28d)', 'Post-Neonatal (29d-1y)', 'Child (1-5y)'];
+      const ageCounts = ageLabels.map(l => data.filter(d => d.ageGroup === l).length);
+
+      destroyChart('ageChart');
+      charts['ageChart'] = new Chart(document.getElementById('ageChart'), {
+        type: 'doughnut',
+        data: {
+          labels: ['0–7 Days', '8–28 Days', '29d–1 Yr', '1–5 Yrs'],
+          datasets: [{
+            data: ageCounts,
+            backgroundColor: ['#dc2626', '#f59e0b', '#3b82f6', '#10b981'],
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 11 } } },
+            datalabels: {
+              color: '#fff', font: { weight: 'bold', size: 11 },
+              formatter: (v) => v > 0 ? v : ''
+            }
+          }
+        }
+      });
+
+      // 2. Place Chart
+      const placeLabels = ['Home', 'Health Facility', 'In Transit', 'Private/Others'];
+      const placeCounts = placeLabels.map(l => data.filter(d => d.placeCategory === l).length);
+
+      destroyChart('placeChart');
+      charts['placeChart'] = new Chart(document.getElementById('placeChart'), {
+        type: 'bar',
+        data: {
+          labels: ['Home', 'Govt Facility', 'In Transit', 'Pvt/Others'],
+          datasets: [{
+            label: 'Deaths',
+            data: placeCounts,
+            backgroundColor: ['#ef4444', '#2563eb', '#f97316', '#8b5cf6'],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            datalabels: { anchor: 'end', align: 'top', color: '#1e293b', font: { weight: 'bold', size: 11 } }
+          },
+          scales: { y: { beginAtZero: true, grace: '15%' } }
+        }
+      });
+
+      // 3. Reporting Delay Chart
+      const d0_3 = data.filter(d => d.delayDays >= 0 && d.delayDays <= 3).length;
+      const d4_7 = data.filter(d => d.delayDays >= 4 && d.delayDays <= 7).length;
+      const d8_15 = data.filter(d => d.delayDays >= 8 && d.delayDays <= 15).length;
+      const d15p = data.filter(d => d.delayDays > 15).length;
+
+      destroyChart('delayChart');
+      charts['delayChart'] = new Chart(document.getElementById('delayChart'), {
+        type: 'bar',
+        data: {
+          labels: ['0–3 Days', '4–7 Days', '8–15 Days', '>15 Days'],
+          datasets: [{
+            label: 'Cases',
+            data: [d0_3, d4_7, d8_15, d15p],
+            backgroundColor: ['#16a34a', '#eab308', '#f97316', '#dc2626'],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            datalabels: { anchor: 'end', align: 'top', color: '#1e293b', font: { weight: 'bold', size: 11 } }
+          },
+          scales: { y: { beginAtZero: true, grace: '15%' } }
+        }
+      });
+
+      // 4. Block-wise Stacked Age
+      destroyChart('blockAgeChart');
+      charts['blockAgeChart'] = new Chart(document.getElementById('blockAgeChart'), {
+        type: 'bar',
+        data: {
+          labels: AYODHYA_BLOCKS,
+          datasets: [
+            { label: 'Neonatal (0–28d)', data: AYODHYA_BLOCKS.map(b => data.filter(d => d.block === b && (d.ageGroup.includes('Neonatal'))).length), backgroundColor: '#ef4444' },
+            { label: 'Post-Neo (29d–1y)', data: AYODHYA_BLOCKS.map(b => data.filter(d => d.block === b && d.ageGroup === 'Post-Neonatal (29d-1y)').length), backgroundColor: '#3b82f6' },
+            { label: 'Child (1–5y)', data: AYODHYA_BLOCKS.map(b => data.filter(d => d.block === b && d.ageGroup === 'Child (1-5y)').length), backgroundColor: '#10b981' }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { datalabels: { display: false }, legend: { position: 'bottom', labels: { font: { size: 10 } } } },
+          scales: { x: { stacked: true, ticks: { font: { size: 10 } } }, y: { stacked: true, beginAtZero: true } }
+        }
+      });
+
+      // 5. Block-wise Stacked Place
+      destroyChart('blockPlaceChart');
+      charts['blockPlaceChart'] = new Chart(document.getElementById('blockPlaceChart'), {
+        type: 'bar',
+        data: {
+          labels: AYODHYA_BLOCKS,
+          datasets: [
+            { label: 'Home', data: AYODHYA_BLOCKS.map(b => data.filter(d => d.block === b && d.placeCategory === 'Home').length), backgroundColor: '#dc2626' },
+            { label: 'Govt Facility', data: AYODHYA_BLOCKS.map(b => data.filter(d => d.block === b && d.placeCategory === 'Health Facility').length), backgroundColor: '#2563eb' },
+            { label: 'In Transit', data: AYODHYA_BLOCKS.map(b => data.filter(d => d.block === b && d.placeCategory === 'In Transit').length), backgroundColor: '#f59e0b' },
+            { label: 'Pvt/Others', data: AYODHYA_BLOCKS.map(b => data.filter(d => d.block === b && d.placeCategory === 'Private/Others').length), backgroundColor: '#8b5cf6' }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { datalabels: { display: false }, legend: { position: 'bottom', labels: { font: { size: 10 } } } },
+          scales: { x: { stacked: true, ticks: { font: { size: 10 } } }, y: { stacked: true, beginAtZero: true } }
+        }
+      });
+    }
+
+    function renderFormsAndCOD(data) {
+      const total = data.length || 1;
+      const forms = [
+        { label: 'Form 1 (Primary)', cnt: data.filter(d => d.form1 === 'Yes').length, color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+        { label: 'Form 2 (VA)', cnt: data.filter(d => d.form2 === 'Yes').length, color: 'bg-blue-50 text-blue-700 border-blue-200' },
+        { label: 'Form 4A (Fac)', cnt: data.filter(d => d.form4A === 'Yes').length, color: 'bg-purple-50 text-purple-700 border-purple-200' },
+        { label: 'Form 3A/3B/4B', cnt: data.filter(d => d.form3A === 'Yes' || d.form3B === 'Yes' || d.form4B === 'Yes').length, color: 'bg-amber-50 text-amber-700 border-amber-200' }
+      ];
+
+      document.getElementById('formsGrid').innerHTML = forms.map(f => `
+        <div class="border rounded-xl p-2.5 text-center ${f.color}">
+          <div class="text-[10px] font-bold uppercase">${f.label}</div>
+          <div class="text-lg font-extrabold mt-0.5">${f.cnt}</div>
+          <div class="text-[10px] opacity-80">${((f.cnt / total) * 100).toFixed(0)}%</div>
+        </div>
+      `).join('');
+
+      const bmoCnt = data.filter(d => (d.submittedBy || '').startsWith('BMO')).length;
+      const fnoCnt = data.filter(d => (d.submittedBy || '').startsWith('FNO')).length;
+      document.getElementById('submitterBreakdown').innerHTML = `
+        <div class="flex justify-between text-xs"><span class="font-medium text-slate-600">BMO Reported (Block Medical Officer)</span><span class="font-bold text-slate-900">${bmoCnt} (${((bmoCnt/total)*100).toFixed(1)}%)</span></div>
+        <div class="flex justify-between text-xs"><span class="font-medium text-slate-600">FNO Reported (Facility Nodal Officer)</span><span class="font-bold text-slate-900">${fnoCnt} (${((fnoCnt/total)*100).toFixed(1)}%)</span></div>
+      `;
+
+      // Cause of Death aggregation
+      const codMap = {};
+      data.forEach(d => {
+        if (d.cod && d.cod !== 'Not Filled') {
+          const key = d.cod.trim();
+          codMap[key] = (codMap[key] || 0) + 1;
+        }
+      });
+      const codEntries = Object.entries(codMap).sort((a, b) => b[1] - a[1]);
+      document.getElementById('codList').innerHTML = codEntries.length
+        ? codEntries.map(([cause, cnt]) => `
+            <div class="flex items-center justify-between bg-slate-50 border border-slate-200/80 rounded-lg px-3 py-2 text-xs">
+              <span class="font-semibold text-slate-700">${cause}</span>
+              <span class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 font-bold">${cnt}</span>
+            </div>
+          `).join('')
+        : '<p class="text-xs text-slate-400 italic py-6 text-center">No Cause of Death diagnosis filled in selected filter.</p>';
+    }
+
+    function renderMatrix(data) {
+      document.getElementById('matrixBody').innerHTML = AYODHYA_BLOCKS.map(b => {
+        const rows = data.filter(d => d.block === b);
+        const tot = rows.length;
+        const eNeo = rows.filter(d => d.ageGroup === 'Early Neonatal (0-7d)').length;
+        const lNeo = rows.filter(d => d.ageGroup === 'Late Neonatal (8-28d)').length;
+        const pNeo = rows.filter(d => d.ageGroup === 'Post-Neonatal (29d-1y)').length;
+        const chd = rows.filter(d => d.ageGroup === 'Child (1-5y)').length;
+        const home = rows.filter(d => d.placeCategory === 'Home').length;
+        const fac = rows.filter(d => d.placeCategory === 'Health Facility').length;
+        const trn = rows.filter(d => d.placeCategory === 'In Transit').length;
+        const pvt = rows.filter(d => d.placeCategory === 'Private/Others').length;
+        const f2 = rows.filter(d => d.form2 === 'Yes').length;
+        const f4 = rows.filter(d => d.form4A === 'Yes').length;
+        const dArr = rows.map(d => d.delayDays).filter(v => typeof v === 'number' && v >= 0);
+        const avgD = dArr.length ? (dArr.reduce((s, v) => s + v, 0) / dArr.length).toFixed(1) + 'd' : '-';
+
+        return `
+          <tr class="hover:bg-slate-50">
+            <td class="py-2 px-3 font-bold text-slate-800">${b}</td>
+            <td class="py-2 px-2 text-center font-extrabold text-indigo-700">${tot}</td>
+            <td class="py-2 px-2 text-center">${eNeo}</td>
+            <td class="py-2 px-2 text-center">${lNeo}</td>
+            <td class="py-2 px-2 text-center">${pNeo}</td>
+            <td class="py-2 px-2 text-center">${chd}</td>
+            <td class="py-2 px-2 text-center font-semibold text-rose-600">${home}</td>
+            <td class="py-2 px-2 text-center text-blue-700">${fac}</td>
+            <td class="py-2 px-2 text-center text-amber-700">${trn}</td>
+            <td class="py-2 px-2 text-center text-purple-700">${pvt}</td>
+            <td class="py-2 px-2 text-center font-semibold text-emerald-700">${f2}</td>
+            <td class="py-2 px-2 text-center">${f4}</td>
+            <td class="py-2 px-2 text-center font-medium">${avgD}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderLineList(data) {
+      document.getElementById('lineListBody').innerHTML = data.slice(0, 250).map(r => {
+        const placeBadge = r.placeCategory === 'Home' ? 'badge-red'
+          : r.placeCategory === 'In Transit' ? 'badge-amber'
+          : r.placeCategory === 'Health Facility' ? 'badge-blue' : 'badge-green';
+
+        return `
+          <tr class="hover:bg-slate-50">
+            <td class="py-2 px-3 font-semibold text-slate-500">${r.sn}</td>
+            <td class="py-2 px-3 font-bold text-slate-800">${r.block}</td>
+            <td class="py-2 px-3">
+              <div class="font-bold text-slate-800">${r.childName}</div>
+              <div class="text-[10px] text-slate-500">M: ${r.motherName || '-'} | V: ${r.village || '-'}</div>
+            </td>
+            <td class="py-2 px-2">${r.gender}</td>
+            <td class="py-2 px-3">
+              <div class="font-semibold text-slate-800">${r.ageText}</div>
+              <div class="text-[10px] text-slate-500">${r.ageGroup}</div>
+            </td>
+            <td class="py-2 px-3">
+              <div class="font-semibold text-slate-800">${r.dod}</div>
+              <div class="text-[10px] text-slate-500">Rep: ${r.reportingDate} (${r.delayDays}d)</div>
+            </td>
+            <td class="py-2 px-3">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${placeBadge}">${r.placeCategory}</span>
+              <div class="text-[10px] text-slate-500 mt-0.5 truncate max-w-[160px]" title="${r.placeRaw}">${r.placeRaw}</div>
+            </td>
+            <td class="py-2 px-3 text-[11px] text-slate-600">${r.submittedBy}</td>
+            <td class="py-2 px-2 text-[10px]">
+              <span class="font-bold ${r.form2 === 'Yes' ? 'text-emerald-600' : 'text-slate-400'}">F2:${r.form2}</span><br/>
+              <span class="font-bold ${r.form4A === 'Yes' ? 'text-purple-600' : 'text-slate-400'}">F4A:${r.form4A}</span>
+            </td>
+            <td class="py-2 px-3 text-[11px] font-medium text-slate-700">${r.cod}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+  </script>
+</body>
+</html>
